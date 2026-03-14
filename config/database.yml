@@ -21,8 +21,10 @@ default: &default
 
 
 development:
-  <<: *default
+  adapter: postgresql
+  encoding: unicode
   database: bergstrom_domain_development
+  pool: 5
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.
