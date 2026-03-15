@@ -1,0 +1,15 @@
+<h1>People</h1>
+
+<ul class="people-list">
+  <% @people.each do |person| %>
+    <li class="person">
+      <%= link_to person.fullname, person %>
+
+      <% if person.thumbnail_url.present? %>
+        <div>
+          <%= image_tag person.thumbnail_url, alt: person.fullname, width: 120 %>
+        </div>
+      <% end %>
+    </li>
+  <% end %>
+</ul>

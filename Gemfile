@@ -57,6 +57,10 @@ group :development, :test do
   gem "factory_bot_rails"
   gem "capybara"
   gem "simplecov"
+
+  gem "guard"
+  gem "guard-rspec"
+  gem "guard-rubocop"
 end
 
 group :development do
