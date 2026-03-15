@@ -1,0 +1,9 @@
+<% image_url =
+     case size
+     when :thumbnail
+       person.thumbnail_url || "placeholder_thumbnail.png"
+     when :full
+       person.full_image_url || "placeholder_full.png"
+     end %>
+
+<img src="<%= image_url %>" alt="<%= person.fullname %>" class="person-image <%= size %>">

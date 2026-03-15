@@ -1,15 +1,7 @@
 <h1><%= @person.fullname %></h1>
 
-<% if @person.full_image_url.present? %>
-  <p>
-    <%= image_tag @person.full_image_url, alt: @person.fullname, width: 400 %>
-  </p>
-<% end %>
+<%= render "person_image", person: @person, size: :full %>
 
-<p>
-  <%= @person.description %>
-</p>
+<p><%= @person.description %></p>
 
-<p>
-  <%= link_to "Back to People", people_path %>
-</p>
+<%= link_to "Back to People", people_path, class: "back-link" %>
