@@ -1,0 +1,28 @@
+.person-card {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+}
+
+.person-image.full {
+  max-width: 400px;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.person-image.thumbnail {
+  max-width: 100px;
+  display: block;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
