@@ -54,7 +54,7 @@ RSpec.describe Person, type: :model do
       madonna = create(:person, firstname: "Madonna", lastname: nil)
       lars = create(:person, firstname: "Lars", lastname: "Ulrich")
 
-      expect(Person.alphabetical).to eq([james, madonna, lars])
+      expect(Person.alphabetical).to eq([ james, madonna, lars ])
     end
 
     it "finds people by firstname search" do

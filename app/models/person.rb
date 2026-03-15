@@ -20,7 +20,7 @@ class Person < ApplicationRecord
 
   # Virtual attributes
   def fullname
-    [firstname, middlename, lastname].compact_blank.join(" ")
+    [ firstname, middlename, lastname ].compact_blank.join(" ")
   end
 
   # Image helper methods
@@ -36,9 +36,16 @@ class Person < ApplicationRecord
     "/images/people/full/#{full_image}"
   end
 
+  # Override to_param so Rails automatically uses slug in URLs
+  def to_param
+    slug
+  end
+
   private
 
   def generate_slug
-    self.slug = fullname.parameterize if slug.blank?
+    return if slug.present?
+
+    self.slug = fullname.parameterize
   end
 end
