@@ -1,7 +1,4 @@
 <h1><%= @person.fullname %></h1>
-
-<%= render "person_image", person: @person, size: :full %>
-
 <p><%= @person.description %></p>
-
-<%= link_to "Back to People", people_path, class: "back-link" %>
+<img src="<%= @person.full_image_url %>" alt="<%= @person.fullname %>" class="person-image full">
+<%= link_to "Back to People", people_path %>

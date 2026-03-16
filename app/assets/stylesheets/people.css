@@ -1,28 +1,39 @@
-.person-card {
-  border: 1px solid #ddd;
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.error-messages {
+  background-color: #fdd;
   padding: 1rem;
   margin-bottom: 1rem;
-  border-radius: 8px;
+  border: 1px solid #f99;
+  border-radius: 4px;
 }
 
-.person-image.full {
-  max-width: 400px;
-  display: block;
-  margin-bottom: 1rem;
-}
-
-.person-image.thumbnail {
-  max-width: 100px;
-  display: block;
+.form-actions {
+  margin-top: 1rem;
 }
 
 .back-link {
-  display: inline-block;
-  margin-top: 1rem;
+  margin-left: 1rem;
   color: #007bff;
   text-decoration: none;
 }
-
 .back-link:hover {
   text-decoration: underline;
 }

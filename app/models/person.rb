@@ -26,13 +26,11 @@ class Person < ApplicationRecord
   # Image helper methods
   def thumbnail_url
     return if thumbnail_image.blank?
-
     "/images/people/thumbnails/#{thumbnail_image}"
   end
 
   def full_image_url
     return if full_image.blank?
-
     "/images/people/full/#{full_image}"
   end
 
@@ -45,7 +43,6 @@ class Person < ApplicationRecord
 
   def generate_slug
     return if slug.present?
-
     self.slug = fullname.parameterize
   end
 end

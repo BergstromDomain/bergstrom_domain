@@ -1,0 +1,46 @@
+<%= form_with model: person, local: true do |form| %>
+  <% if person.errors.any? %>
+    <div class="error-messages">
+      <ul>
+        <% person.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :firstname %>
+    <%= form.text_field :firstname %>
+  </div>
+
+  <div>
+    <%= form.label :middlename %>
+    <%= form.text_field :middlename %>
+  </div>
+
+  <div>
+    <%= form.label :lastname %>
+    <%= form.text_field :lastname %>
+  </div>
+
+  <div>
+    <%= form.label :description %>
+    <%= form.text_area :description %>
+  </div>
+
+  <div>
+    <%= form.label :full_image, "Image" %>
+    <%= form.text_field :full_image %>
+    <% if person.full_image_url.present? %>
+      <div>
+        <img src="<%= person.full_image_url %>" alt="<%= person.fullname %>" class="person-image full">
+      </div>
+    <% end %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+    <%= link_to "Back to Show", person_path(person) %>
+  </div>
+<% end %>

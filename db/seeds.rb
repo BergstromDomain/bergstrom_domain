@@ -11,11 +11,11 @@
 Person.destroy_all
 
 people_data = [
-  { firstname: "James", lastname: "Hetfield", description: "Lead vocalist and rhythm guitarist of Metallica.", thumbnail_image: "...", full_image: "..." },
-  { firstname: "Lars", lastname: "Ulrich", description: "Drummer and co-founder of Metallica.", thumbnail_image: "...", full_image: "..." },
-  { firstname: "Kirk", lastname: "Hammett", description: "Lead guitarist of Metallica.", thumbnail_image: "...", full_image: "..." },
-  { firstname: "Robert", lastname: "Trujillo", description: "Bass guitarist of Metallica since 2003.", thumbnail_image: "...", full_image: "..." },
-  { firstname: "Cliff", lastname: "Burton", description: "Legendary Metallica bassist who played from 1982–1986.", thumbnail_image: "...", full_image: "..." }
+  { firstname: "James", lastname: "Hetfield", description: "Lead vocalist and rhythm guitarist of Metallica.", thumbnail_image: "james_hetfield_thumb.jpg", full_image: "james_hetfield.jpg" },
+  { firstname: "Lars", lastname: "Ulrich", description: "Drummer and co-founder of Metallica.", thumbnail_image: "lars_ulrich_thumb.jpg", full_image: "lars_ulrich.jpg" },
+  { firstname: "Kirk", lastname: "Hammett", description: "Lead guitarist of Metallica.", thumbnail_image: "kirk_hammett_thumb.jpg", full_image: "kirk_hammett.jpg" },
+  { firstname: "Robert", lastname: "Trujillo", description: "Bass guitarist of Metallica since 2003.", thumbnail_image: "robert_trujillo_thumb.jpg", full_image: "robert_trujillo.jpg" },
+  { firstname: "Cliff", lastname: "Burton", description: "Legendary Metallica bassist who played from 1982–1986.", thumbnail_image: "cliff_burton_thumb.jpg", full_image: "cliff_burton.jpg" }
 ]
 
 people_data.each do |attrs|
