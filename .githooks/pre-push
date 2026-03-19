@@ -1,0 +1,19 @@
+#!/bin/bash
+
+echo "🔍 Validating commit messages before push..."
+
+COMMITS=$(git log origin/main..HEAD --pretty=format:%s)
+
+APPS="Main|Event_Tracker|Blog_Posts|Recipes|Photo_Album"
+TYPES="feat|fix|refactor|test|chore|docs|style|perf|build|revert"
+REGEX="^(${APPS}):[[:space:]]+(${TYPES}):[[:space:]]+(.{10,})$"
+
+while read -r COMMIT; do
+  if [[ ! $COMMIT =~ $REGEX ]]; then
+    echo "❌ Invalid commit found:"
+    echo "$COMMIT"
+    exit 1
+  fi
+done <<< "$COMMITS"
+
+echo "✅ All commits valid"

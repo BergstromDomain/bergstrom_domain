@@ -1,0 +1,35 @@
+#!/bin/bash
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(head -n 1 "$COMMIT_MSG_FILE")
+
+# Allowed apps
+APPS="Main|Event_Tracker|Blog_Posts|Recipes|Photo_Album"
+
+# Allowed types
+TYPES="feat|fix|refactor|test|chore|docs|style|perf|build|revert"
+
+# Regex:
+# <app>:<tab><type>:<tab><description>
+REGEX="^(${APPS}):[[:space:]]+(${TYPES}):[[:space:]]+(.{10,})$"
+
+if [[ ! $COMMIT_MSG =~ $REGEX ]]; then
+  echo ""
+  echo "❌ Invalid commit message format"
+  echo ""
+  echo "Expected:"
+  echo "<app>: <tab> <type>: <tab> <description (min 10 chars)>"
+  echo ""
+  echo "Example:"
+  echo "Blog_Posts:	feat:	Add pagination to index page"
+  echo ""
+  echo "Allowed apps:"
+  echo "Main, Event_Tracker, Blog_Posts, Recipes, Photo_Album"
+  echo ""
+  echo "Allowed types:"
+  echo "feat, fix, refactor, test, chore, docs, style, perf, build, revert"
+  echo ""
+  exit 1
+fi
+
+exit 0

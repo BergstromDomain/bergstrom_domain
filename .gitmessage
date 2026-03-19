@@ -1,0 +1,32 @@
+# Format:
+# <app>: <type>: <short description>
+#
+# Apps:
+# Main
+# Event_Tracker
+# Blog_Posts
+# Recipes
+# Photo_Album
+#
+# Types:
+# feat     New feature
+# fix      Bug fix
+# refactor Code change without behavior change
+# test     Tests added/updated
+# chore    Maintenance (gems, configs)
+# docs     Documentation only
+# style    Formatting, linting
+# perf     Performance improvements
+# build    CI/CD, dependencies
+# revert   Reverting a commit
+#
+# Rules:
+# - Use EXACT app names above
+# - Use EXACT types above
+# - Description must be at least 10 characters
+# - Use tabs between sections
+#
+# Example:
+# Blog_Posts:	feat:	Add pagination to index page
+#
+# Write your commit below:
