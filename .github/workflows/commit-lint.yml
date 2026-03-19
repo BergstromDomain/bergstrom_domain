@@ -1,0 +1,51 @@
+name: Commit Message Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  lint-commits:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # required to access full commit history
+
+      - name: Validate commit messages
+        run: |
+          echo "🔍 Linting commit messages..."
+
+          APPS="Main|Event_Tracker|Blog_Posts|Recipes|Photo_Album"
+          TYPES="feat|fix|refactor|test|chore|docs|style|perf|build|revert"
+          REGEX="^(${APPS}):[[:space:]]+(${TYPES}):[[:space:]]+(.{10,})$"
+
+          # Get commits in PR
+          COMMITS=$(git log origin/${{ github.base_ref }}..HEAD --pretty=format:%s)
+
+          FAIL=0
+
+          while read -r COMMIT; do
+            echo "Checking: $COMMIT"
+            if [[ ! $COMMIT =~ $REGEX ]]; then
+              echo "❌ Invalid commit message:"
+              echo "   $COMMIT"
+              FAIL=1
+            else
+              echo "✅ OK"
+            fi
+          done <<< "$COMMITS"
+
+          if [ $FAIL -ne 0 ]; then
+            echo ""
+            echo "❌ Commit message linting failed"
+            echo ""
+            echo "Expected format:"
+            echo "<app>: <tab> <type>: <description (min 10 chars)>"
+            echo ""
+            exit 1
+          fi
+
+          echo "🎉 All commit messages are valid!"
