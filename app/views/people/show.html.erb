@@ -1,4 +1,12 @@
-<h1><%= @person.fullname %></h1>
-<p><%= @person.description %></p>
-<img src="<%= @person.full_image_url %>" alt="<%= @person.fullname %>" class="person-image full">
+<h1><%= @person.full_name %></h1>
+
+<%= render "person_image", person: @person, size: :full %>
+
+<% if @person.description.present? %>
+  <p><%= @person.description %></p>
+<% end %>
+
+<%= link_to "Edit", edit_person_path(@person) %>
 <%= link_to "Back to People", people_path %>
+<%= button_to "Delete Person", person_path(@person), method: :delete,
+    data: { confirm: "Are you sure you want to delete #{@person.full_name}?" } %>

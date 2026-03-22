@@ -1,48 +1,34 @@
+# app/models/person.rb
 class Person < ApplicationRecord
-  before_validation :generate_slug, on: :create
+  before_validation :normalise_names
 
-  # Validations
-  validates :firstname, presence: true
-  validates :firstname, uniqueness: { scope: :lastname }
-  validates :slug, uniqueness: true, allow_nil: true
+  validates :first_name, presence: true
+  validate  :full_name_must_be_unique
 
-  # Scopes
-  scope :alphabetical, -> {
-    order(Arel.sql("COALESCE(lastname, firstname), firstname"))
-  }
-
-  scope :search_by_name, ->(query) {
-    where(
-      "firstname ILIKE :q OR lastname ILIKE :q",
-      q: "%#{query}%"
-    )
-  }
-
-  # Virtual attributes
-  def fullname
-    [ firstname, middlename, lastname ].compact_blank.join(" ")
-  end
-
-  # Image helper methods
-  def thumbnail_url
-    return if thumbnail_image.blank?
-    "/images/people/thumbnails/#{thumbnail_image}"
-  end
-
-  def full_image_url
-    return if full_image.blank?
-    "/images/people/full/#{full_image}"
-  end
-
-  # Override to_param so Rails automatically uses slug in URLs
-  def to_param
-    slug
+  def full_name
+    [ first_name, middle_name, last_name ].reject(&:blank?).join(" ")
   end
 
   private
 
-  def generate_slug
-    return if slug.present?
-    self.slug = fullname.parameterize
+  def normalise_names
+    self.middle_name = middle_name.presence
+    self.last_name   = last_name.presence
+  end
+
+  def full_name_must_be_unique
+    return if first_name.blank?
+
+    scope = Person.where(
+      first_name:  first_name.strip,
+      middle_name: middle_name,
+      last_name:   last_name
+    )
+
+    scope = scope.where.not(id: id) if persisted?
+
+    if scope.exists?
+      errors.add(:base, "Full name has already been taken")
+    end
   end
 end

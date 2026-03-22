@@ -1,9 +1,12 @@
-<% image_url =
-     case size
-     when :thumbnail
-       person.thumbnail_url || "placeholder_thumbnail.png"
-     when :full
-       person.full_image_url || "placeholder_full.png"
-     end %>
+<% image_path = case size
+                when :thumbnail
+                  person.thumbnail_image.presence
+                when :full
+                  person.full_image.presence
+                end %>
 
-<img src="<%= image_url %>" alt="<%= person.fullname %>" class="person-image <%= size %>">
+<% if image_path.present? %>
+  <%= image_tag image_path,
+      alt:   person.full_name,
+      class: "person-image #{size}" %>
+<% end %>

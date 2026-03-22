@@ -1,15 +1,13 @@
 <h1>People</h1>
 
-<ul class="people-list">
-  <% @people.each do |person| %>
-    <li class="person">
-      <%= link_to person.fullname, person %>
+<% if @people.any? %>
+  <div class="people-list">
+    <% @people.each do |person| %>
+      <%= render "person_card", person: person %>
+    <% end %>
+  </div>
+<% else %>
+  <p>No people found</p>
+<% end %>
 
-      <% if person.thumbnail_url.present? %>
-        <div>
-          <%= image_tag person.thumbnail_url, alt: person.fullname, width: 120 %>
-        </div>
-      <% end %>
-    </li>
-  <% end %>
-</ul>
+<%= link_to "Add Person", new_person_path %>

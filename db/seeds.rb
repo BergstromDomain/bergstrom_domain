@@ -1,23 +1,48 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
-
-Person.destroy_all
-
-people_data = [
-  { firstname: "James", lastname: "Hetfield", description: "Lead vocalist and rhythm guitarist of Metallica.", thumbnail_image: "james_hetfield_thumb.jpg", full_image: "james_hetfield.jpg" },
-  { firstname: "Lars", lastname: "Ulrich", description: "Drummer and co-founder of Metallica.", thumbnail_image: "lars_ulrich_thumb.jpg", full_image: "lars_ulrich.jpg" },
-  { firstname: "Kirk", lastname: "Hammett", description: "Lead guitarist of Metallica.", thumbnail_image: "kirk_hammett_thumb.jpg", full_image: "kirk_hammett.jpg" },
-  { firstname: "Robert", lastname: "Trujillo", description: "Bass guitarist of Metallica since 2003.", thumbnail_image: "robert_trujillo_thumb.jpg", full_image: "robert_trujillo.jpg" },
-  { firstname: "Cliff", lastname: "Burton", description: "Legendary Metallica bassist who played from 1982–1986.", thumbnail_image: "cliff_burton_thumb.jpg", full_image: "cliff_burton.jpg" }
+people = [
+  {
+    first_name:      "James",
+    middle_name:     "Alan",
+    last_name:       "Hetfield",
+    description:     "Vocalist and rhythm guitarist, co-founder of Metallica.",
+    thumbnail_image: "people/thumbnails/james_hetfield_thumb.jpg",
+    full_image:      "people/full/james_hetfield.jpg"
+  },
+  {
+    first_name:      "Lars",
+    middle_name:     nil,
+    last_name:       "Ulrich",
+    description:     "Drummer and co-founder of Metallica.",
+    thumbnail_image: "people/thumbnails/lars_ulrich_thumb.jpg",
+    full_image:      "people/full/lars_ulrich.jpg"
+  },
+  {
+    first_name:      "Kirk",
+    middle_name:     "Lee",
+    last_name:       "Hammett",
+    description:     "Lead guitarist of Metallica.",
+    thumbnail_image: "people/thumbnails/kirk_hammett_thumb.jpg",
+    full_image:      "people/full/kirk_hammett.jpg"
+  },
+  {
+    first_name:      "Robert",
+    middle_name:     "George",
+    last_name:       "Trujillo",
+    description:     "Bassist of Metallica.",
+    thumbnail_image: "people/thumbnails/robert_trujillo_thumb.jpg",
+    full_image:      "people/full/robert_trujillo.jpg"
+  }
 ]
 
-people_data.each do |attrs|
-  Person.create!(attrs)
+people.each do |attrs|
+  Person.find_or_create_by!(
+    first_name:  attrs[:first_name],
+    middle_name: attrs[:middle_name],
+    last_name:   attrs[:last_name]
+  ) do |p|
+    p.description     = attrs[:description]
+    p.thumbnail_image = attrs[:thumbnail_image]
+    p.full_image      = attrs[:full_image]
+  end
 end
+
+puts "Seeded #{Person.count} people"

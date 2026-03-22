@@ -3,5 +3,7 @@
     <h2><%= person.full_name %></h2>
     <%= render "person_image", person: person, size: :thumbnail %>
   <% end %>
-  <p><%= truncate(person.description, length: 100) %></p>
+  <% if person.description.present? %>
+    <p><%= truncate(person.description, length: 100) %></p>
+  <% end %>
 </div>

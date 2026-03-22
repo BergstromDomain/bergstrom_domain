@@ -1,4 +1,4 @@
-<%= form_with model: person, local: true do |form| %>
+<%= form_with model: person do |form| %>
   <% if person.errors.any? %>
     <div class="error-messages">
       <ul>
@@ -10,18 +10,18 @@
   <% end %>
 
   <div>
-    <%= form.label :firstname %>
-    <%= form.text_field :firstname %>
+    <%= form.label :first_name %>
+    <%= form.text_field :first_name %>
   </div>
 
   <div>
-    <%= form.label :middlename %>
-    <%= form.text_field :middlename %>
+    <%= form.label :middle_name %>
+    <%= form.text_field :middle_name %>
   </div>
 
   <div>
-    <%= form.label :lastname %>
-    <%= form.text_field :lastname %>
+    <%= form.label :last_name %>
+    <%= form.text_field :last_name %>
   </div>
 
   <div>
@@ -30,17 +30,30 @@
   </div>
 
   <div>
-    <%= form.label :full_image, "Image" %>
-    <%= form.text_field :full_image %>
-    <% if person.full_image_url.present? %>
+    <%= form.label :thumbnail_image %>
+    <%= form.text_field :thumbnail_image %>
+    <% if person.thumbnail_image.present? %>
       <div>
-        <img src="<%= person.full_image_url %>" alt="<%= person.fullname %>" class="person-image full">
+        <%= image_tag person.thumbnail_image,
+            alt: person.full_name,
+            class: "person-image thumbnail" %>
       </div>
     <% end %>
   </div>
 
   <div>
-    <%= form.submit %>
-    <%= link_to "Back to Show", person_path(person) %>
+    <%= form.label :full_image %>
+    <%= form.text_field :full_image %>
+    <% if person.full_image.present? %>
+      <div>
+        <%= image_tag person.full_image,
+            alt: person.full_name,
+            class: "person-image full" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div>
+    <%= form.submit "Save Person" %>
   </div>
 <% end %>

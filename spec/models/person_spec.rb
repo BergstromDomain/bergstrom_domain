@@ -1,106 +1,73 @@
+# spec/models/person_spec.rb
+
 require "rails_helper"
 
 RSpec.describe Person, type: :model do
-  subject { build(:person) }
+  subject(:person) { build(:person, :james_hetfield) }
 
+  # ── Database columns ─────────────────────────────────────────────────────
+  describe "database columns" do
+    it { is_expected.to have_db_column(:first_name).of_type(:string).with_options(null: false) }
+    it { is_expected.to have_db_column(:middle_name).of_type(:string) }
+    it { is_expected.to have_db_column(:last_name).of_type(:string) }
+    it { is_expected.to have_db_column(:description).of_type(:text) }
+    it { is_expected.to have_db_column(:thumbnail_image).of_type(:string) }
+    it { is_expected.to have_db_column(:full_image).of_type(:string) }
+  end
+
+  # ── Validations ──────────────────────────────────────────────────────────
   describe "validations" do
-    it { is_expected.to validate_presence_of(:firstname) }
+    it { is_expected.to validate_presence_of(:first_name) }
 
-    it "allows an empty lastname" do
-      person = build(:person, lastname: nil)
-      expect(person).to be_valid
-    end
+    context "full_name uniqueness" do
+      it "is valid when full_name is unique" do
+        create(:person, :james_hetfield)
+        lars = build(:person, :lars_ulrich)
+        expect(lars).to be_valid
+      end
 
-    it { is_expected.to validate_uniqueness_of(:firstname).scoped_to(:lastname) }
-  end
+      it "is invalid when full_name already exists" do
+        create(:person, :kirk_hammett)
+        duplicate = build(:person, :kirk_hammett)
+        expect(duplicate).not_to be_valid
+        expect(duplicate.errors[:base]).to include("Full name has already been taken")
+      end
 
-  describe "#fullname" do
-    it "returns the full name when firstname and lastname are present" do
-      person = build(:person, firstname: "James", lastname: "Hetfield")
-      expect(person.fullname).to eq("James Hetfield")
-    end
-
-    it "returns only firstname when lastname is blank" do
-      person = build(:person, firstname: "Madonna", lastname: nil)
-      expect(person.fullname).to eq("Madonna")
-    end
-
-    it "includes middlename when present" do
-      person = build(:person, firstname: "James", middlename: "Alan", lastname: "Hetfield")
-      expect(person.fullname).to eq("James Alan Hetfield")
+      it "treats nil middle name the same as blank" do
+        create(:person, :lars_ulrich)
+        duplicate = build(:person, first_name: "Lars", middle_name: "", last_name: "Ulrich")
+        expect(duplicate).not_to be_valid
+      end
     end
   end
 
-  describe "slug generation" do
-    it "generates a slug based on fullname when created" do
-      person = create(:person, firstname: "Lars", lastname: "Ulrich")
-      expect(person.slug).to eq("lars-ulrich")
+  # ── Virtual attribute ─────────────────────────────────────────────────────
+  describe "#full_name" do
+    it "returns first and last name when no middle name" do
+      lars = build(:person, :lars_ulrich)
+      expect(lars.full_name).to eq("Lars Ulrich")
     end
 
-    it "generates a slug correctly when lastname is missing" do
-      person = create(:person, firstname: "Madonna", lastname: nil)
-      expect(person.slug).to eq("madonna")
+    it "returns first middle and last name when all present" do
+      james = build(:person, :james_hetfield)
+      expect(james.full_name).to eq("James Alan Hetfield")
     end
 
-    it "does not overwrite an existing slug" do
-      person = create(:person, firstname: "Kirk", lastname: "Hammett", slug: "custom-slug")
-      expect(person.slug).to eq("custom-slug")
-    end
-  end
-
-  describe "scopes" do
-    it "sorts people alphabetically using lastname or firstname" do
-      james = create(:person, firstname: "James", lastname: "Hetfield")
-      madonna = create(:person, firstname: "Madonna", lastname: nil)
-      lars = create(:person, firstname: "Lars", lastname: "Ulrich")
-
-      expect(Person.alphabetical).to eq([ james, madonna, lars ])
+    it "returns first middle and last name for all band members" do
+      expect(build(:person, :james_hetfield).full_name).to eq("James Alan Hetfield")
+      expect(build(:person, :lars_ulrich).full_name).to eq("Lars Ulrich")
+      expect(build(:person, :kirk_hammett).full_name).to eq("Kirk Lee Hammett")
+      expect(build(:person, :robert_trujillo).full_name).to eq("Robert Agustin Trujillo")
     end
 
-    it "finds people by firstname search" do
-      james = create(:person, firstname: "James", lastname: "Hetfield")
-      lars = create(:person, firstname: "Lars", lastname: "Ulrich")
-
-      expect(Person.search_by_name("James")).to include(james)
-      expect(Person.search_by_name("James")).not_to include(lars)
+    it "returns only first name when middle and last are blank" do
+      james = build(:person, first_name: "James", middle_name: nil, last_name: nil)
+      expect(james.full_name).to eq("James")
     end
 
-    it "finds people by lastname search" do
-      james = create(:person, firstname: "James", lastname: "Hetfield")
-      lars = create(:person, firstname: "Lars", lastname: "Ulrich")
-
-      expect(Person.search_by_name("Ulrich")).to include(lars)
-      expect(Person.search_by_name("Ulrich")).not_to include(james)
-    end
-  end
-
-  describe "image helpers" do
-    it "returns the correct thumbnail URL" do
-      person = build(:person, thumbnail_image: "james_thumb.jpg")
-
-      expect(person.thumbnail_url).to eq(
-        "/images/people/thumbnails/james_thumb.jpg"
-      )
-    end
-
-    it "returns nil if thumbnail_image is blank" do
-      person = build(:person, thumbnail_image: nil)
-
-      expect(person.thumbnail_url).to be_nil
-    end
-
-    it "returns the correct full image URL" do
-      person = build(:person, full_image: "james.jpg")
-
-      expect(person.full_image_url).to eq(
-        "/images/people/full/james.jpg"
-      )
-    end
-
-    it "returns nil if full_image is blank" do
-      person = build(:person, full_image: nil)
-
-      expect(person.full_image_url).to be_nil
+    it "strips extra whitespace when middle name is blank" do
+      james = build(:person, first_name: "James", middle_name: "", last_name: "Hetfield")
+      expect(james.full_name).to eq("James Hetfield")
     end
   end
 end
