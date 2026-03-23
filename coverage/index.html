@@ -13,7 +13,7 @@
       <img src="./assets/0.13.2/loading.gif" alt="loading"/>
     </div>
     <div id="wrapper" class="hide">
-      <div class="timestamp">Generated <abbr class="timeago" title="2026-03-22T16:49:51+10:00">2026-03-22T16:49:51+10:00</abbr></div>
+      <div class="timestamp">Generated <abbr class="timeago" title="2026-03-23T20:37:26+10:00">2026-03-23T20:37:26+10:00</abbr></div>
       <ul class="group_tabs"></ul>
 
       <div id="content">
@@ -29,7 +29,7 @@
      covered at
      <span class="covered_strength">
        <span class="green">
-         7.12
+         9.33
        </span>
     </span> hits/line
     )
@@ -87,7 +87,7 @@
             <td class="cell--number">26</td>
             <td class="cell--number">26</td>
             <td class="cell--number">0</td>
-            <td class="cell--number">2.46</td>
+            <td class="cell--number">2.50</td>
             
           </tr>
         
@@ -127,11 +127,11 @@
           <tr class="t-file">
             <td class="strong t-file__name"><a href="#6cc71df20b116be8801920d876a91cd818edf8f8" class="src_link" title="app/models/person.rb">app/models/person.rb</a></td>
             <td class="green strong cell--number t-file__coverage">100.00 %</td>
-            <td class="cell--number">34</td>
+            <td class="cell--number">37</td>
             <td class="cell--number">16</td>
             <td class="cell--number">16</td>
             <td class="cell--number">0</td>
-            <td class="cell--number">17.38</td>
+            <td class="cell--number">24.06</td>
             
           </tr>
         
@@ -154,7 +154,7 @@
      covered at
      <span class="covered_strength">
        <span class="green">
-         2.31
+         2.34
        </span>
     </span> hits/line
     )
@@ -212,7 +212,7 @@
             <td class="cell--number">26</td>
             <td class="cell--number">26</td>
             <td class="cell--number">0</td>
-            <td class="cell--number">2.46</td>
+            <td class="cell--number">2.50</td>
             
           </tr>
         
@@ -292,7 +292,7 @@
      covered at
      <span class="covered_strength">
        <span class="green">
-         15.56
+         21.5
        </span>
     </span> hits/line
     )
@@ -346,11 +346,11 @@
           <tr class="t-file">
             <td class="strong t-file__name"><a href="#6cc71df20b116be8801920d876a91cd818edf8f8" class="src_link" title="app/models/person.rb">app/models/person.rb</a></td>
             <td class="green strong cell--number t-file__coverage">100.00 %</td>
-            <td class="cell--number">34</td>
+            <td class="cell--number">37</td>
             <td class="cell--number">16</td>
             <td class="cell--number">16</td>
             <td class="cell--number">0</td>
-            <td class="cell--number">17.38</td>
+            <td class="cell--number">24.06</td>
             
           </tr>
         
@@ -1222,14 +1222,14 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="17" data-linenumber="43">
+          <li class="covered" data-hits="18" data-linenumber="43">
             
-              <span class="hits">17</span>
-            
-
+              <span class="hits">18</span>
             
 
-            <code class="ruby">    @person = Person.find(params[:id])</code>
+            
+
+            <code class="ruby">    @person = Person.friendly.find(params[:id])</code>
           </li>
         </div>
       
@@ -1581,12 +1581,24 @@
 
             
 
-            <code class="ruby">  before_validation :normalise_names</code>
+            <code class="ruby">  extend FriendlyId</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="4">
+          <li class="covered" data-hits="1" data-linenumber="4">
+            
+              <span class="hits">1</span>
+            
+
+            
+
+            <code class="ruby">  friendly_id :full_name, use: [:slugged, :history]</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="5">
             
 
             
@@ -1596,7 +1608,17 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="5">
+          <li class="never" data-hits="" data-linenumber="6">
+            
+
+            
+
+            <code class="ruby">  # ── Validations ──────────────────────────────────────────────────────────</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="7">
             
               <span class="hits">1</span>
             
@@ -1608,7 +1630,7 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="6">
+          <li class="covered" data-hits="1" data-linenumber="8">
             
               <span class="hits">1</span>
             
@@ -1620,7 +1642,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="7">
+          <li class="never" data-hits="" data-linenumber="9">
             
 
             
@@ -1630,7 +1652,17 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="8">
+          <li class="never" data-hits="" data-linenumber="10">
+            
+
+            
+
+            <code class="ruby">  # ── Virtual attribute ─────────────────────────────────────────────────────</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="11">
             
               <span class="hits">1</span>
             
@@ -1642,46 +1674,14 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="56" data-linenumber="9">
+          <li class="covered" data-hits="135" data-linenumber="12">
             
-              <span class="hits">56</span>
-            
-
-            
-
-            <code class="ruby">    [ first_name, middle_name, last_name ].reject(&amp;:blank?).join(&quot; &quot;)</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="10">
+              <span class="hits">135</span>
             
 
             
 
-            <code class="ruby">  end</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="11">
-            
-
-            
-
-            <code class="ruby"></code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="covered" data-hits="1" data-linenumber="12">
-            
-              <span class="hits">1</span>
-            
-
-            
-
-            <code class="ruby">  private</code>
+            <code class="ruby">    [first_name, middle_name, last_name].reject(&amp;:blank?).join(&quot; &quot;)</code>
           </li>
         </div>
       
@@ -1691,53 +1691,51 @@
 
             
 
+            <code class="ruby">  end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="14">
+            
+
+            
+
             <code class="ruby"></code>
           </li>
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="14">
+          <li class="never" data-hits="" data-linenumber="15">
+            
+
+            
+
+            <code class="ruby">  # ── FriendlyId ───────────────────────────────────────────────────────────</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="1" data-linenumber="16">
             
               <span class="hits">1</span>
             
 
             
 
-            <code class="ruby">  def normalise_names</code>
+            <code class="ruby">  def should_generate_new_friendly_id?</code>
           </li>
         </div>
       
         <div>
-          <li class="covered" data-hits="37" data-linenumber="15">
+          <li class="covered" data-hits="77" data-linenumber="17">
             
-              <span class="hits">37</span>
-            
-
-            
-
-            <code class="ruby">    self.middle_name = middle_name.presence</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="covered" data-hits="37" data-linenumber="16">
-            
-              <span class="hits">37</span>
+              <span class="hits">77</span>
             
 
             
 
-            <code class="ruby">    self.last_name   = last_name.presence</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="never" data-hits="" data-linenumber="17">
-            
-
-            
-
-            <code class="ruby">  end</code>
+            <code class="ruby">    first_name_changed? || middle_name_changed? || last_name_changed? || super</code>
           </li>
         </div>
       
@@ -1747,31 +1745,29 @@
 
             
 
+            <code class="ruby">  end</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="19">
+            
+
+            
+
             <code class="ruby"></code>
           </li>
         </div>
       
         <div>
-          <li class="covered" data-hits="1" data-linenumber="19">
+          <li class="covered" data-hits="1" data-linenumber="20">
             
               <span class="hits">1</span>
             
 
             
 
-            <code class="ruby">  def full_name_must_be_unique</code>
-          </li>
-        </div>
-      
-        <div>
-          <li class="covered" data-hits="37" data-linenumber="20">
-            
-              <span class="hits">37</span>
-            
-
-            
-
-            <code class="ruby">    return if first_name.blank?</code>
+            <code class="ruby">  private</code>
           </li>
         </div>
       
@@ -1786,24 +1782,26 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="33" data-linenumber="22">
+          <li class="covered" data-hits="1" data-linenumber="22">
             
-              <span class="hits">33</span>
-            
-
+              <span class="hits">1</span>
             
 
-            <code class="ruby">    scope = Person.where(</code>
+            
+
+            <code class="ruby">  def full_name_must_be_unique</code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="23">
+          <li class="covered" data-hits="43" data-linenumber="23">
+            
+              <span class="hits">43</span>
             
 
             
 
-            <code class="ruby">      first_name:  first_name.strip,</code>
+            <code class="ruby">    return if first_name.blank?</code>
           </li>
         </div>
       
@@ -1813,17 +1811,19 @@
 
             
 
-            <code class="ruby">      middle_name: middle_name,</code>
+            <code class="ruby"></code>
           </li>
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="25">
+          <li class="covered" data-hits="39" data-linenumber="25">
+            
+              <span class="hits">39</span>
             
 
             
 
-            <code class="ruby">      last_name:   last_name</code>
+            <code class="ruby">    scope = Person.where(</code>
           </li>
         </div>
       
@@ -1833,7 +1833,7 @@
 
             
 
-            <code class="ruby">    )</code>
+            <code class="ruby">      first_name:  first_name.strip,</code>
           </li>
         </div>
       
@@ -1843,19 +1843,17 @@
 
             
 
-            <code class="ruby"></code>
+            <code class="ruby">      middle_name: middle_name.presence,</code>
           </li>
         </div>
       
         <div>
-          <li class="covered" data-hits="33" data-linenumber="28">
-            
-              <span class="hits">33</span>
+          <li class="never" data-hits="" data-linenumber="28">
             
 
             
 
-            <code class="ruby">    scope = scope.where.not(id: id) if persisted?</code>
+            <code class="ruby">      last_name:   last_name.presence</code>
           </li>
         </div>
       
@@ -1865,14 +1863,46 @@
 
             
 
+            <code class="ruby">    )</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="30">
+            
+
+            
+
             <code class="ruby"></code>
           </li>
         </div>
       
         <div>
-          <li class="covered" data-hits="33" data-linenumber="30">
+          <li class="covered" data-hits="39" data-linenumber="31">
             
-              <span class="hits">33</span>
+              <span class="hits">39</span>
+            
+
+            
+
+            <code class="ruby">    scope = scope.where.not(id: id) if persisted?</code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="never" data-hits="" data-linenumber="32">
+            
+
+            
+
+            <code class="ruby"></code>
+          </li>
+        </div>
+      
+        <div>
+          <li class="covered" data-hits="39" data-linenumber="33">
+            
+              <span class="hits">39</span>
             
 
             
@@ -1882,7 +1912,7 @@
         </div>
       
         <div>
-          <li class="covered" data-hits="4" data-linenumber="31">
+          <li class="covered" data-hits="4" data-linenumber="34">
             
               <span class="hits">4</span>
             
@@ -1894,7 +1924,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="32">
+          <li class="never" data-hits="" data-linenumber="35">
             
 
             
@@ -1904,7 +1934,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="33">
+          <li class="never" data-hits="" data-linenumber="36">
             
 
             
@@ -1914,7 +1944,7 @@
         </div>
       
         <div>
-          <li class="never" data-hits="" data-linenumber="34">
+          <li class="never" data-hits="" data-linenumber="37">
             
 
             

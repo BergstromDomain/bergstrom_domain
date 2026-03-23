@@ -13,6 +13,7 @@ RSpec.describe Person, type: :model do
     it { is_expected.to have_db_column(:description).of_type(:text) }
     it { is_expected.to have_db_column(:thumbnail_image).of_type(:string) }
     it { is_expected.to have_db_column(:full_image).of_type(:string) }
+    it { is_expected.to have_db_column(:slug).of_type(:string) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
@@ -68,6 +69,25 @@ RSpec.describe Person, type: :model do
     it "strips extra whitespace when middle name is blank" do
       james = build(:person, first_name: "James", middle_name: "", last_name: "Hetfield")
       expect(james.full_name).to eq("James Hetfield")
+    end
+  end
+
+  describe "#slug" do
+    it "generates a slug from full_name" do
+      person = create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield")
+      expect(person.slug).to eq("james-hetfield")
+    end
+
+    it "regenerates the slug when the name changes" do
+      person = create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield")
+      person.update!(last_name: "Newsted")
+      expect(person.slug).to eq("james-newsted")
+    end
+
+    it "keeps the old slug resolvable after a name change" do
+      person = create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield")
+      person.update!(last_name: "Newsted")
+      expect(Person.friendly.find("james-hetfield")).to eq(person)
     end
   end
 end

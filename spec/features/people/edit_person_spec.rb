@@ -4,7 +4,7 @@ require "rails_helper"
 
 RSpec.describe "Edit Person", type: :feature do
   let!(:person) do
-    create(:person, first_name: "Robert", middle_name: "Agustin", last_name: "Trujillo")
+    create(:person, first_name: "Robert", middle_name: nil, last_name: "Trujillo")
   end
 
   it "updates the person's details" do
@@ -13,6 +13,7 @@ RSpec.describe "Edit Person", type: :feature do
     fill_in "Description", with: "Bassist of Metallica since 2003."
     click_button "Save Person"
 
+    person.reload
     expect(page).to have_current_path(person_path(person))
     expect(page).to have_content("Robert Miguel Trujillo")
     expect(page).to have_content("Person was successfully updated.")
