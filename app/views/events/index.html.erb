@@ -1,0 +1,16 @@
+<h1>Events</h1>
+
+<%= link_to "Add Event", new_event_path %>
+
+<% if @events.empty? %>
+  <p>No events found</p>
+<% else %>
+  <ul>
+    <% @events.each do |event| %>
+      <li>
+        <%= link_to event.title, event_path(event) %>
+        <span><%= event.display_date %></span>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

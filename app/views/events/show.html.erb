@@ -1,0 +1,10 @@
+<h1><%= @event.title %></h1>
+<p><%= @event.display_date %></p>
+<% if @event.description.present? %>
+  <p><%= @event.description %></p>
+<% end %>
+
+<%= link_to "Edit", edit_event_path(@event) %>
+<%= link_to "Back to Events", events_path %>
+<%= button_to "Delete Event", event_path(@event), method: :delete,
+      data: { turbo_confirm: "Are you sure?" } %>

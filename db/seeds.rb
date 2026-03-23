@@ -1,3 +1,8 @@
+# db/seeds.rb
+
+# ── People ────────────────────────────────────────────────────────────────
+puts "Seeding people..."
+
 people = [
   {
     first_name:      "James",
@@ -45,4 +50,33 @@ people.each do |attrs|
   end
 end
 
-puts "Seeded #{Person.count} people"
+puts "Seeded #{Person.count} people."
+
+# ── Events ────────────────────────────────────────────────────────────────
+puts "Seeding events..."
+
+metallica_albums = [
+  { title: "Kill 'Em All",                   day: 25, month: 7,  year: 1983, description: "Metallica's debut studio album. Originally titled 'Metal Up Your Ass'." },
+  { title: "Ride the Lightning",             day: 27, month: 7,  year: 1984, description: "Second studio album. A step forward in complexity and heaviness." },
+  { title: "Master of Puppets",              day: 3,  month: 3,  year: 1986, description: "Widely considered one of the greatest heavy metal albums ever made." },
+  { title: "...And Justice for All",         day: 5,  month: 9,  year: 1988, description: "Fourth studio album, notable for its extremely dry bass sound." },
+  { title: "Metallica (The Black Album)",    day: 12, month: 8,  year: 1991, description: "The self-titled 'Black Album'. One of the best-selling albums of all time." },
+  { title: "Load",                           day: 4,  month: 6,  year: 1996, description: "Sixth studio album, marking a shift toward hard rock and blues influences." },
+  { title: "Reload",                         day: 18, month: 11, year: 1997, description: "Companion album to Load, featuring songs written during the same sessions." },
+  { title: "St. Anger",                      day: 5,  month: 6,  year: 2003, description: "Eighth studio album, recorded during a turbulent period for the band." },
+  { title: "Death Magnetic",                 day: 12, month: 9,  year: 2008, description: "Ninth studio album, a return to the thrash metal sound of their earlier work." },
+  { title: "Hardwired... to Self-Destruct",  day: 18, month: 11, year: 2016, description: "Tenth studio album. A double album released after an eight-year hiatus." },
+  { title: "72 Seasons",                     day: 14, month: 4,  year: 2023, description: "Eleventh studio album. The title refers to the first 18 years of one's life." }
+]
+
+metallica_albums.each do |attrs|
+  Event.find_or_create_by!(title: attrs[:title]) do |e|
+    e.description = attrs[:description]
+    e.day         = attrs[:day]
+    e.month       = attrs[:month]
+    e.year        = attrs[:year]
+  end
+end
+
+puts "Seeded #{Event.count} events."
+puts "Done."

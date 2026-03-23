@@ -1,0 +1,46 @@
+<%= form_with model: event do |f| %>
+  <% if event.errors.any? %>
+    <div>
+      <% event.errors.full_messages.each do |msg| %>
+        <p><%= msg %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :title, "Title" %>
+    <%= f.text_field :title %>
+  </div>
+
+  <div>
+    <%= f.label :description, "Description" %>
+    <%= f.text_area :description %>
+  </div>
+
+  <div>
+    <%= f.label :day, "Day" %>
+    <%= f.number_field :day %>
+  </div>
+
+  <div>
+    <%= f.label :month, "Month" %>
+    <%= f.number_field :month %>
+  </div>
+
+  <div>
+    <%= f.label :year, "Year" %>
+    <%= f.number_field :year %>
+  </div>
+
+  <div>
+    <%= f.label :image, "Image" %>
+    <%= f.text_field :image %>
+  </div>
+
+  <div>
+    <%= f.label :thumbnail_image, "Thumbnail image" %>
+    <%= f.text_field :thumbnail_image %>
+  </div>
+
+  <%= f.submit "Save Event" %>
+<% end %>

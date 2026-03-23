@@ -1,7 +1,7 @@
 # app/models/person.rb
 class Person < ApplicationRecord
   extend FriendlyId
-  friendly_id :full_name, use: [:slugged, :history]
+  friendly_id :full_name, use: [ :slugged, :history ]
 
   # ── Validations ──────────────────────────────────────────────────────────
   validates :first_name, presence: true
@@ -9,7 +9,7 @@ class Person < ApplicationRecord
 
   # ── Virtual attribute ─────────────────────────────────────────────────────
   def full_name
-    [first_name, middle_name, last_name].reject(&:blank?).join(" ")
+    [ first_name, middle_name, last_name ].reject(&:blank?).join(" ")
   end
 
   # ── FriendlyId ───────────────────────────────────────────────────────────
