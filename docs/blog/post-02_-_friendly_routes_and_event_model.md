@@ -2,7 +2,7 @@
 
 **Series:** Building My Personal Website with Ruby on Rails
 **Date:** March 2026
-**Author:** Niklas Bergstrom
+**Author:** Bergstrom
 
 ---
 
@@ -1073,24 +1073,310 @@ Security Warnings: 0
 
 ---
 
-## Phase 13: Commit, Push & Open a Pull Request
+## Phase 13: Git Hooks & GitHub Actions
+
+Before we commit and push, it's worth documenting the quality gates that protect every push to this repository. There are four of them: two local git hooks and two GitHub Actions workflows.
+
+---
+
+### 13.1 Local Git Hooks
+
+Git hooks live in `.githooks/` (not the default `.git/hooks/`) so they can be committed to the repository and shared. To activate them, tell git where to find them — run this once after cloning:
+
+```bash
+git config core.hooksPath .githooks
+chmod +x .githooks/commit-msg .githooks/pre-push
+```
+
+#### .githooks/commit-msg
+
+This hook fires every time you run `git commit`. It validates the commit message against a required format before the commit is recorded.
+
+```bash
+#!/bin/bash
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(head -n 1 "$COMMIT_MSG_FILE")
+
+# Allowed apps
+APPS="Main|Event_Tracker|Blog_Posts|Recipes|Photo_Album"
+
+# Allowed types
+TYPES="feat|fix|refactor|test|chore|docs|style|perf|build|revert"
+
+# Regex: <app>: <type>: <description (min 10 chars)>
+REGEX="^(${APPS}):[[:space:]]+(${TYPES}):[[:space:]]+(.{10,})$"
+
+if [[ ! $COMMIT_MSG =~ $REGEX ]]; then
+  echo ""
+  echo "❌ Invalid commit message format"
+  echo ""
+  echo "Expected:"
+  echo "<app>: <type>: <description (min 10 chars)>"
+  echo ""
+  echo "Example:"
+  echo "Event_Tracker:  feat:  Add Event model with TDD"
+  echo ""
+  echo "Allowed apps:   Main, Event_Tracker, Blog_Posts, Recipes, Photo_Album"
+  echo "Allowed types:  feat, fix, refactor, test, chore, docs, style, perf, build, revert"
+  echo ""
+  exit 1
+fi
+exit 0
+```
+
+A valid commit message looks like:
+
+```
+Event_Tracker:  feat:  Add Event model with TDD — model, specs, factory, controller, views, seeds
+```
+
+An invalid message — like the placeholder we used earlier in this post — would be rejected immediately:
+
+```
+❌ Invalid commit message format
+```
+
+This forces every commit to be attributable to an app area and a change type before it ever touches the repository.
+
+#### .githooks/pre-push
+
+This hook fires on `git push`. It re-validates every commit that hasn't yet reached `origin/main`, catching any that slipped through (for example, commits made with `--no-verify`):
+
+```bash
+#!/bin/bash
+echo "🔍 Validating commit messages before push..."
+
+COMMITS=$(git log origin/main..HEAD --pretty=format:%s)
+
+APPS="Main|Event_Tracker|Blog_Posts|Recipes|Photo_Album"
+TYPES="feat|fix|refactor|test|chore|docs|style|perf|build|revert"
+REGEX="^(${APPS}):[[:space:]]+(${TYPES}):[[:space:]]+(.{10,})$"
+
+while read -r COMMIT; do
+  if [[ ! $COMMIT =~ $REGEX ]]; then
+    echo "❌ Invalid commit found:"
+    echo "   $COMMIT"
+    exit 1
+  fi
+done <<< "$COMMITS"
+
+echo "✅ All commits valid"
+```
+
+The two hooks complement each other: `commit-msg` stops bad messages at the point of authoring, `pre-push` is the safety net that catches anything that bypassed it.
+
+---
+
+### 13.2 GitHub Actions
+
+Two workflow files live in `.github/workflows/`. They run on every pull request and on every push to `main`.
+
+#### .github/workflows/ci.yml
+
+The main CI pipeline runs four jobs in parallel: security scanning, JavaScript auditing, linting, and the test suite.
+
+```yaml
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  scan_ruby:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Brakeman security scan
+        run: bin/brakeman --no-pager
+      - name: Bundler audit
+        run: bin/bundler-audit
+
+  scan_js:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Importmap audit
+        run: bin/importmap audit
+
+  lint:
+    runs-on: ubuntu-latest
+    env:
+      RUBOCOP_CACHE_ROOT: tmp/rubocop
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: RuboCop cache
+        uses: actions/cache@v4
+        env:
+          DEPENDENCIES_HASH: ${{ hashFiles('.ruby-version', '**/.rubocop.yml', '**/.rubocop_todo.yml', 'Gemfile.lock') }}
+        with:
+          path: ${{ env.RUBOCOP_CACHE_ROOT }}
+          key: rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-${{ github.ref_name == github.event.repository.default_branch && github.run_id || 'default' }}
+          restore-keys: rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-
+      - name: Lint
+        run: bin/rubocop -f github
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Run tests
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432
+        run: bin/rails db:test:prepare test
+
+  system-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Run system tests
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432
+        run: bin/rails db:test:prepare test:system
+      - name: Upload screenshots from failed tests
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshots
+          path: ${{ github.workspace }}/tmp/screenshots
+          if-no-files-found: ignore
+```
+
+The `test` job runs `bin/rails db:test:prepare test` — the standard Minitest suite. The `system-test` job runs `test:system` separately and uploads screenshots on failure, which is invaluable for debugging Capybara failures in CI where you can't see the browser. Since we're using RSpec rather than Minitest, the `run:` lines need to be updated:
+
+```yaml
+# In the test job — replace the run line with:
+run: bundle exec rspec spec/ --exclude-pattern "spec/features/**/*_spec.rb"
+
+# In the system-test job — replace the run line with:
+run: bundle exec rspec spec/features/
+```
+
+#### .github/workflows/commit-lint.yml
+
+This workflow replicates the `pre-push` hook check in CI, catching any commits that were pushed with `--no-verify`:
+
+```yaml
+name: Commit Message Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  lint-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate commit messages
+        run: |
+          APPS="Main|Event_Tracker|Blog_Posts|Recipes|Photo_Album"
+          TYPES="feat|fix|refactor|test|chore|docs|style|perf|build|revert"
+          REGEX="^(${APPS}):[[:space:]]+(${TYPES}):[[:space:]]+(.{10,})$"
+
+          COMMITS=$(git log origin/${{ github.base_ref }}..HEAD --pretty=format:%s)
+          FAIL=0
+
+          while read -r COMMIT; do
+            echo "Checking: $COMMIT"
+            if [[ ! $COMMIT =~ $REGEX ]]; then
+              echo "❌ Invalid: $COMMIT"
+              FAIL=1
+            else
+              echo "✅ OK"
+            fi
+          done <<< "$COMMITS"
+
+          if [ $FAIL -ne 0 ]; then
+            echo "❌ Commit message linting failed"
+            exit 1
+          fi
+          echo "🎉 All commit messages are valid!"
+```
+
+`fetch-depth: 0` is required — without it the checkout is shallow and `git log origin/main..HEAD` can't see the full commit history, so it silently validates nothing.
+
+---
+
+### 13.3 The Full Quality Gate Picture
+
+Every commit passes through four checkpoints:
+
+| When | Gate | What it checks |
+|---|---|---|
+| `git commit` | `commit-msg` hook | Commit message format |
+| `git push` | `pre-push` hook | All unpushed commit messages |
+| PR opened / updated | `commit-lint.yml` | All PR commit messages (CI fallback) |
+| PR opened / updated | `ci.yml` | Brakeman, bundler-audit, importmap audit, RuboCop, RSpec, system tests |
+
+Nothing merges to `main` unless all four are green.
+
+---
+
+## Phase 14: Commit, Push & Open a Pull Request
+
+Now that the quality gates are documented, here's the full flow from working code to merged PR.
 
 ```bash
 # Make sure we're on the feature branch
 git status
 
-# Stage and commit everything
+# Stage and commit — the commit-msg hook will validate the format
 git add .
-git commit -m "Add Event model with TDD — model, specs, factory, controller, views, seeds"
+git commit -m "Event_Tracker:  feat:  Add Event model with TDD — model, specs, factory, controller, views, seeds"
 
-# Push the branch
+# Merge main into the feature branch to pick up any changes and resolve conflicts here
+git merge main
+
+# Push — the pre-push hook validates all commit messages before the push goes through
 git push origin feature/event-model
 ```
 
-Then open a Pull Request on GitHub targeting `main`. Review the diff, check the CI green, and merge.
+Then open a Pull Request on GitHub targeting `main`. The `ci.yml` and `commit-lint.yml` workflows will run automatically. Once both are green, merge the PR on GitHub — never merge the feature branch into `main` locally.
+
+Once merged on GitHub, sync locally and clean up:
 
 ```bash
-# After merging on GitHub, sync locally
 git checkout main
 git pull origin main
 git branch -d feature/event-model
@@ -1104,27 +1390,31 @@ git branch -d feature/event-model
 
 **2. Virtual attributes don't get `_changed?` dirty-tracking methods.** `full_name` is computed from real columns, not stored itself, so Rails has no `full_name_changed?` method. The fix is to check the underlying real columns directly: `first_name_changed? || middle_name_changed? || last_name_changed?`. This is one of those bugs that only surfaces once you actually rename a record — write the spec for slug regeneration before you ship.
 
-**3. Reload the record after an update that changes the slug.** After a `click_button` that triggers an update, the in-memory `person` object still holds the old slug. Calling `person_path(person)` then generates the old URL, causing a false mismatch even though the app behaved correctly. Fix: call `person.reload` before asserting on the path. This applies to any spec where a form submission can change `to_param`.
+**3. Always add `should_generate_new_friendly_id?` or slugs won't update.** `friendly_id` generates the slug once on create and leaves it alone after that unless you tell it otherwise. Without overriding `should_generate_new_friendly_id?`, renaming an event leaves the old slug in place permanently. Because `title` is a real column, `title_changed?` works correctly here — contrast with `Person` where we had to check the underlying name columns individually.
 
-**4. `"nil"` and `nil` are not the same thing.** Passing `middle_name: "nil"` sets the field to the four-character string "nil", which ends up in the slug. Always use the bare Ruby keyword `nil` for null values in factories and test data.
+**4. Reload the record after an update that changes the slug.** After a `click_button` that triggers an update, the in-memory object still holds the old slug. Calling `person_path(person)` then generates the old URL, causing a false mismatch even though the app behaved correctly. Fix: call `person.reload` before asserting on the path. This applies to any spec where a form submission can change `to_param`.
 
-**5. `rails runner` chokes on shell metacharacters.** The `&` in `Person.find_each(&:save)` is interpreted by the shell before Ruby ever sees it when wrapped in double quotes. Use the Rails console directly, or write the one-liner to a temp file and pass the file path to `rails runner`. Either way, test your runner commands before documenting them.
+**5. `"nil"` and `nil` are not the same thing.** Passing `middle_name: "nil"` sets the field to the four-character string "nil", which ends up in the slug. Always use the bare Ruby keyword `nil` for null values in factories and test data.
 
-**4. Optional year required a custom `display_date` method.** Rails' `Date` formatting helpers need a full date object. Since year is optional, we can't construct one, so `display_date` builds the string manually from parts. Simple and explicit.
+**6. `rails runner` chokes on shell metacharacters.** The `&` in `Person.find_each(&:save)` is interpreted by the shell before Ruby ever sees it when wrapped in double quotes. Use the Rails console directly, or write the one-liner to a temp file and pass the file path to `rails runner`.
 
-**5. `NULLS LAST` matters in reverse chronological ordering.** Undated events (`year: nil`) would sort before everything else with a plain `ORDER BY year DESC`. `NULLS LAST` pushes them to the bottom, which is almost always the right UX.
+**7. Optional year required a custom `display_date` method.** Rails' `Date` formatting helpers need a full date object. Since year is optional, we can't construct one, so `display_date` builds the string manually from parts. Simple and explicit.
 
-**7. `shoulda-matchers` and `numericality: { in: 1..31 }` don't get along.** Rails accepts the `in:` shorthand and produces the error message `"must be in 1..31"`, but the `validate_numericality_of` matcher expects `"must be greater than or equal to 1"`. The two message formats don't match, so the matcher can't prove the validation exists and the spec fails. Use explicit `greater_than_or_equal_to:` and `less_than_or_equal_to:` options in the model — they mean the same thing and both tools agree on the error messages.
+**8. `NULLS LAST` matters in reverse chronological ordering.** Undated events (`year: nil`) would sort before everything else with a plain `ORDER BY year DESC`. `NULLS LAST` pushes them to the bottom, which is almost always the right UX.
 
-**8. Always add `should_generate_new_friendly_id?` or slugs won't update.** `friendly_id` generates the slug once on create and leaves it alone after that unless you tell it otherwise. Without overriding `should_generate_new_friendly_id?`, renaming an event leaves the old slug in place permanently. Because `title` is a real column, `title_changed?` works correctly here — contrast with `Person` where we had to check the underlying name columns individually.
+**9. `shoulda-matchers` and `numericality: { in: 1..31 }` don't get along.** Rails accepts the `in:` shorthand and produces the error message `"must be in 1..31"`, but the `validate_numericality_of` matcher expects `"must be greater than or equal to 1"`. Use explicit `greater_than_or_equal_to:` and `less_than_or_equal_to:` options — they mean the same thing and both tools agree on the error messages.
 
-**9. Never ship generator-default factories.** Rails scaffolds factories with literal placeholder values like `"MyString"`, `1`, and `"MyText"`. These will silently break any spec that asserts on a slug, a formatted value, or uniqueness — and they make test output meaningless. Always replace them immediately with `Faker` values, sequences, and sensible defaults before writing a single spec.
+**10. Never ship generator-default factories.** Rails scaffolds factories with literal placeholder values like `"MyString"`, `1`, and `"MyText"`. These will silently break any spec that asserts on a slug, a formatted value, or uniqueness. Always replace them immediately with `Faker` values, sequences, and sensible defaults before writing a single spec.
 
-**10. Feature branches keep `main` clean.** Even working solo, a dedicated `feature/event-model` branch makes it easy to abandon or rebase the work without touching `main`. It also produces a clear PR diff to look back on later.
+**11. Delete generator stubs immediately.** The controller generator creates empty request specs and view specs as stubs. Left in place they show up as pending noise in the suite output. Delete them the moment the generator finishes — the feature specs cover everything those stubs would have tested.
 
-**11. Delete generator stubs immediately.** The controller generator creates empty request specs and view specs alongside the views. Left in place they show up as pending noise in the suite output and will trip you up if you forget they exist. Delete them the moment the generator finishes — the feature specs cover everything those stubs would have tested.
+**12. Use `page.text.index` for ordering assertions, not CSS selectors.** A selector like `"h2, td.event-title, .event-title"` is tightly coupled to the current markup. `page.text.index("Title A") < page.text.index("Title B")` asserts purely on rendered text order and survives any HTML restructuring.
 
-**12. Use `page.text.index` for ordering assertions, not CSS selectors.** A selector like `"h2, td.event-title, .event-title"` is tightly coupled to the current markup and returns nothing if the HTML changes. `page.text.index("Title A") < page.text.index("Title B")` asserts purely on rendered text order and survives any HTML restructuring.
+**13. Git hooks must be opted into after cloning.** Hooks in `.githooks/` aren't activated automatically — each developer needs to run `git config core.hooksPath .githooks` once. Document this in the project README so it doesn't get missed.
+
+**14. `fetch-depth: 0` is required for commit history in GitHub Actions.** The default checkout action does a shallow clone. Without `fetch-depth: 0`, `git log origin/main..HEAD` sees no commits and silently validates nothing — the workflow passes and catches nothing.
+
+**15. Merge `main` into the feature branch before opening a PR, not after.** Conflicts belong on the feature branch, not on `main`. Resolve them locally, push the resolved branch, then let GitHub merge via the PR.
 
 ---
 
