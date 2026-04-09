@@ -20,10 +20,17 @@ jobs:
 
       - name: Scan for common Rails security vulnerabilities using static analysis
         run: bin/brakeman --no-pager
-      
+
       - name: Scan for known security vulnerabilities in gems used
-        run: bin/bundler-audit
-      
+        run: |
+          bundle exec bundler-audit check --update \
+            --ignore GHSA-53p3-c7vp-4mcc \
+            --ignore GHSA-p9fm-f462-ggrg \
+            --ignore GHSA-qvqr-5cv7-wh35
+        # GHSA-53p3-c7vp-4mcc: action_text-trix XSS — Action Text not in use yet
+        # GHSA-p9fm-f462-ggrg: activestorage DoS — proxy mode not in use
+        # GHSA-qvqr-5cv7-wh35: mcp SSE hijacking — transitive dep via RuboCop, not fixable
+
   scan_js:
     runs-on: ubuntu-latest
 
@@ -125,7 +132,10 @@ jobs:
 
     steps:
       - name: Install packages
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y \
+          libpq-dev \
+          chromium-browser \
+          chromium-chromedriver
 
       - name: Checkout code
         uses: actions/checkout@v6
