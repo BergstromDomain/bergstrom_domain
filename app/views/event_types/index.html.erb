@@ -1,0 +1,10 @@
+<h1>Event Types</h1>
+
+<%= link_to "New Event Type", new_event_type_path %>
+
+<% @event_types.each do |et| %>
+  <div>
+    <%= lucide_icon(et.icon, size: 20) %>
+    <%= link_to et.name, event_type_path(et) %>
+  </div>
+<% end %>

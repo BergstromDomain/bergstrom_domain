@@ -1,0 +1,296 @@
+# Context Prompt — Blog Post #3: The EventType Model
+
+You are helping write **Post #3** in a series documenting the development of [bergstromdomain.com](https://bergstromdomain.com) — a personal website built with Ruby on Rails. The series is written by **Bergstrom** and published in his own voice: direct, technical, no fluff, with full code listings and a strict Red → Green → Refactor TDD workflow.
+
+Read this entire prompt before writing anything.
+
+---
+
+## The Series So Far
+
+### Post #1 — Project Setup & The Person Model
+Covered the full stack setup and the `Person` model from scratch.
+
+**Stack:**
+
+| Tool | Version |
+|---|---|
+| OS | Ubuntu 24.04.4 LTS (native, no Docker) |
+| Ruby | 4.x |
+| Rails | 8.x |
+| Database | PostgreSQL |
+| Testing | RSpec + Capybara |
+| Factories | FactoryBot |
+| Coverage | SimpleCov (minimum 90%) |
+| Linting | RuboCop (`rubocop-rails-omakase`) |
+| Security | Brakeman + bundler-audit |
+| Performance | Bullet |
+| Secrets | Rails Credentials + dotenv |
+| Version Control | Git + GitHub |
+
+**Person model — current state:**
+
+```ruby
+# app/models/person.rb
+class Person < ApplicationRecord
+  extend FriendlyId
+  friendly_id :full_name, use: [:slugged, :history]
+
+  validates :first_name, presence: true
+  validate  :full_name_must_be_unique
+
+  def full_name
+    [first_name, middle_name, last_name].reject(&:blank?).join(" ")
+  end
+
+  def should_generate_new_friendly_id?
+    first_name_changed? || middle_name_changed? || last_name_changed? || super
+  end
+
+  private
+
+  def full_name_must_be_unique
+    return if first_name.blank?
+    scope = Person.where(
+      first_name:  first_name.strip,
+      middle_name: middle_name.presence,
+      last_name:   last_name.presence
+    )
+    scope = scope.where.not(id: id) if persisted?
+    errors.add(:base, "Full name has already been taken") if scope.exists?
+  end
+end
+```
+
+**Person migration columns:** `first_name` (null: false), `middle_name`, `last_name`, `description` (text), `thumbnail_image`, `full_image`, `slug` (unique index).
+
+**People factory:**
+```ruby
+# spec/factories/people.rb
+FactoryBot.define do
+  factory :person do
+    first_name      { Faker::Name.first_name }
+    middle_name     { [Faker::Name.first_name, nil].sample }
+    last_name       { Faker::Name.last_name }
+    description     { Faker::Lorem.paragraph }
+    thumbnail_image { nil }
+    full_image      { nil }
+
+    trait :first_name_only do
+      middle_name { nil }
+      last_name   { nil }
+    end
+
+    trait :complete do
+      description     { Faker::Lorem.paragraph(sentence_count: 3) }
+      thumbnail_image { "thumbnails/default.jpg" }
+      full_image      { "images/default.jpg" }
+    end
+  end
+end
+```
+
+**Routes (current):**
+```ruby
+Rails.application.routes.draw do
+  resources :people
+  resources :events
+  root "people#index"
+end
+```
+
+---
+
+### Post #2 — Friendly Routes & The Event Model
+Added `friendly_id` slugs to `Person`, built the `Event` model on a feature branch, implemented views, and documented the full git/CI setup.
+
+**Event model — current state:**
+
+```ruby
+# app/models/event.rb
+class Event < ApplicationRecord
+  extend FriendlyId
+  friendly_id :title, use: [:slugged, :history]
+
+  # ── Associations (stubbed, not yet implemented) ───────────────────────────
+  # belongs_to :person
+  # belongs_to :event_type
+
+  # ── Validations ──────────────────────────────────────────────────────────
+  validates :title,  presence: true, uniqueness: { case_sensitive: false }
+  validates :day,    presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 31 }
+  validates :month,  presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 12 }
+  validates :year,   numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
+
+  # ── FriendlyId ───────────────────────────────────────────────────────────
+  def should_generate_new_friendly_id?
+    title_changed? || super
+  end
+
+  # ── Scopes ────────────────────────────────────────────────────────────────
+  scope :chronological,  -> { order(:year, :month, :day) }
+  scope :reverse_chrono, -> { order(Arel.sql("year DESC NULLS LAST, month DESC, day DESC")) }
+
+  # ── Instance methods ──────────────────────────────────────────────────────
+  def display_date
+    month_name = Date::ABBR_MONTHNAMES[month]
+    year? ? "#{day} #{month_name} #{year}" : "#{day} #{month_name}"
+  end
+end
+```
+
+**Event migration columns:** `title` (null: false, unique index), `description` (text), `day` (integer, null: false), `month` (integer, null: false), `year` (integer, optional), `image`, `thumbnail_image`, `slug` (unique index).
+
+**Events factory:**
+```ruby
+# spec/factories/events.rb
+FactoryBot.define do
+  factory :event do
+    sequence(:title) { |n| "Event #{n}" }
+    description      { Faker::Lorem.paragraph }
+    day              { rand(1..28) }
+    month            { rand(1..12) }
+    year             { [rand(1950..2025), nil].sample }
+    image            { nil }
+    thumbnail_image  { nil }
+
+    trait :no_year  { year { nil } }
+    trait :dated    { year { rand(1950..2025) } }
+    trait :with_images do
+      image           { "events/cover.jpg" }
+      thumbnail_image { "events/thumb.jpg" }
+    end
+  end
+end
+```
+
+**Seeds (current state):**
+```ruby
+# db/seeds.rb
+people = [
+  { first_name: "James",  middle_name: "Alan",   last_name: "Hetfield", ... },
+  { first_name: "Lars",   middle_name: nil,       last_name: "Ulrich",   ... },
+  { first_name: "Kirk",   middle_name: "Lee",     last_name: "Hammett",  ... },
+  { first_name: "Robert", middle_name: "George",  last_name: "Trujillo", ... }
+]
+# + 11 Metallica album release Events
+```
+
+---
+
+## Conventions Established Across Posts #1 & #2
+
+These must be followed exactly in Post #3:
+
+**TDD workflow:** Always write the spec first (Red), implement to make it pass (Green), then refactor. Never write implementation before the spec.
+
+**Phase numbering:** Each post uses sequential phases (Phase 1, Phase 2, ...). Post #3 starts at Phase 1 again.
+
+**Spec structure — model specs:**
+- `describe "database columns"` — `have_db_column` matchers
+- `describe "validations"` — `shoulda-matchers` one-liners + context blocks for edge cases
+- `describe "associations"` — `belong_to`, `have_many` matchers
+- `describe "#method_name"` — instance method behaviour
+
+**Spec structure — feature specs:**
+- One file per CRUD action in `spec/features/<resource>/`
+- `create_`, `list_`, `show_`, `edit_`, `delete_` prefixes
+- All factory records pin every name/slug-contributing field explicitly (no random middle names etc.)
+- `record.reload` before asserting on paths after slug-changing updates
+
+**`friendly_id`:** Always use `use: [:slugged, :history]`. Always override `should_generate_new_friendly_id?`. For virtual attribute slugs (like `full_name`), check the underlying real columns in `should_generate_new_friendly_id?`. For real column slugs (like `title`), use `column_changed?` directly.
+
+**Numericality validations:** Never use `in: range` — use explicit `greater_than_or_equal_to:` and `less_than_or_equal_to:` so `shoulda-matchers` error messages match.
+
+**Factories:** Never use Rails generator defaults (`"MyString"`, `1`). Never set `slug` manually. Use `sequence(:title)` for uniqueness. Cap `day` at 28 to avoid invalid date construction.
+
+**Generator cleanup:** Always delete `spec/requests/<resource>_spec.rb` and `spec/views/<resource>/` stubs after running the controller generator.
+
+**Views:** Always implement all five files: `index`, `show`, `new`, `edit`, `_form`. The `_form` partial renders validation errors. The `show` view includes a `button_to "Delete ..."` with `method: :delete`.
+
+**`rails generate model` columns:** Never use `field:type:null:false` syntax — the generator rejects it. Generate plain columns, then add `null: false` manually in the migration.
+
+**Commit message format (enforced by git hook):**
+```
+<App>:  <type>:  <description min 10 chars>
+```
+Allowed apps: `Main`, `Event_Tracker`, `Blog_Posts`, `Recipes`, `Photo_Album`
+Allowed types: `feat`, `fix`, `refactor`, `test`, `chore`, `docs`, `style`, `perf`, `build`, `revert`
+
+Example: `Event_Tracker:  feat:  Add EventType model with TDD`
+
+**Git workflow:**
+1. Create feature branch: `git checkout -b feature/<name>`
+2. Do all work on the branch
+3. Commit with correctly formatted message (hook validates on commit)
+4. `git merge main` on the feature branch before pushing
+5. `git push origin feature/<name>` (pre-push hook re-validates all commit messages)
+6. Open PR on GitHub — CI runs `ci.yml` and `commit-lint.yml`
+7. Merge on GitHub only — never merge locally into `main`
+8. `git checkout main && git pull && git branch -d feature/<name>`
+
+**Test data:** Metallica. Keep using Metallica members as `Person` seed data and Metallica-related data for any new seed records.
+
+---
+
+## What Post #3 Must Cover
+
+### The Goal
+Build the `EventType` model 
+
+In Post #4 Twe will wire up the `Event` → `Person` association. Both associations were stubbed as comments in the `Event` model in Post #2 — Post #3 makes them real.
+
+### EventType Model Requirements
+- `name` — string, mandatory, unique (case-insensitive)
+- `description` — text, mandatory
+- `slug` — generated from `name` via `friendly_id`
+- `icon` - mandatory, unique
+- Seed data: `Birthday`, `Education`, `Work`, `Sport`, `Wedding`, `Music` — seed the `Music` type with a description and assign all existing Metallica album events to it
+
+### Icons
+Suggest a gem and/or library for free icons to use in the project. Initially they will be used as the event type and later on they will be added to all buttons on the website
+When creating/editing an event type, the user must be able to select the icon from a visual view. Could be a dropdown with names of all available icons and a way to actually see them
+
+
+
+### Branch
+Use `git checkout -b feature/event-type-model`
+
+### Friendly Routes
+Add `resources :event_types` to routes with friendly slugs — same pattern as `Person` and `Event`.
+
+### Test Data (seeds)
+- Seed all six `EventType` records
+
+---
+
+## Lessons Already Learned (Do Not Repeat These Mistakes)
+
+1. `friendly_id` with `:history` — always
+2. Virtual attributes don't get `_changed?` — check underlying columns
+3. Always add `should_generate_new_friendly_id?`
+4. `record.reload` before asserting path after slug-changing update
+5. `"nil"` ≠ `nil` in factory data
+6. `rails runner` shell quoting — use console or temp file
+7. `display_date` — build manually when fields are optional
+8. `NULLS LAST` for optional-field ordering
+9. `shoulda-matchers` + `in: range` — use explicit `greater_than_or_equal_to` / `less_than_or_equal_to`
+10. Never ship generator-default factories
+11. Delete generator stubs immediately
+12. `page.text.index` for ordering assertions, not CSS selectors
+13. Git hooks must be opted into after cloning (`git config core.hooksPath .githooks`)
+14. `fetch-depth: 0` required in GitHub Actions for commit history
+15. Merge `main` into feature branch before opening PR, not after
+
+---
+
+## Writing Style
+
+- Same voice and format as Posts #1 and #2
+- Each phase has a number and title
+- Every code block is complete and runnable — no ellipses or "add the rest yourself"
+- Spec files shown in full
+- Red → Green → Refactor explicitly called out at each step
+- "Lessons Learned" section at the end capturing anything new discovered during this post
+- Closes with "What's Next" teasing Post #4
+- Footer: `*Bergstrom | bergstromdomain.com | Building in public, one commit at a time.*`
