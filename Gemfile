@@ -41,6 +41,7 @@ gem "thruster", require: false
 gem "image_processing", "~> 1.2"
 
 gem "friendly_id", "~> 5.5"
+gem "lucide-rails"
 
 group :development, :test do
   gem "rspec-rails"

@@ -1,0 +1,71 @@
+<%= form_with(model: event_type) do |f| %>
+  <% if event_type.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(event_type.errors.count, "error") %> prohibited this event type from being saved:</h2>
+      <ul>
+        <% event_type.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :name %>
+    <%= f.text_field :name %>
+  </div>
+
+  <div>
+    <%= f.label :description %>
+    <%= f.text_area :description, rows: 4 %>
+  </div>
+
+  <div>
+    <%= f.label :icon, "Icon" %>
+    <p>
+      <%= link_to "Browse all Lucide icons", "https://lucide.dev/icons/",
+            target: "_blank", rel: "noopener noreferrer" %>
+    </p>
+
+    <%# Hidden field holds the selected value %>
+    <%= f.hidden_field :icon, id: "icon_value" %>
+
+    <%# Visual grid of icons to pick from %>
+    <div id="icon-picker">
+      <% EventTypesHelper::LUCIDE_ICON_OPTIONS.each do |icon_name| %>
+        <button type="button"
+                class="icon-option <%= 'selected' if event_type.icon == icon_name %>"
+                data-icon="<%= icon_name %>"
+                title="<%= icon_name %>">
+          <%= lucide_icon(icon_name, size: 24) %>
+          <span><%= icon_name %></span>
+        </button>
+      <% end %>
+    </div>
+
+    <p id="selected-icon-label">
+      Selected: <strong id="selected-icon-name"><%= event_type.icon.presence || "none" %></strong>
+    </p>
+  </div>
+
+  <div>
+    <%= f.submit %>
+  </div>
+<% end %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const hiddenField = document.getElementById("icon_value");
+    const nameLabel   = document.getElementById("selected-icon-name");
+    const buttons     = document.querySelectorAll(".icon-option");
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        buttons.forEach(function (b) { b.classList.remove("selected"); });
+        btn.classList.add("selected");
+        hiddenField.value = btn.dataset.icon;
+        nameLabel.textContent = btn.dataset.icon;
+      });
+    });
+  });
+</script>

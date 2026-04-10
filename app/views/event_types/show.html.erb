@@ -1,0 +1,14 @@
+<h1>
+  <%= lucide_icon(@event_type.icon, size: 32) %>
+  <%= @event_type.name %>
+</h1>
+
+<p><%= @event_type.description %></p>
+
+<p>Icon: <code><%= @event_type.icon %></code></p>
+
+<%= link_to "Edit", edit_event_type_path(@event_type) %>
+
+<%= button_to "Delete Event Type", event_type_path(@event_type),
+      method: :delete,
+      data: { turbo_confirm: "Are you sure?" } %>
