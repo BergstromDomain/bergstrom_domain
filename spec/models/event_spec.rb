@@ -75,10 +75,16 @@ RSpec.describe Event, type: :model do
     end
   end
 
+  # ── Associations ──────────────────────────────────────────────────────────
   describe "associations" do
     it { is_expected.to belong_to(:event_type) }
   end
 
+  describe "associations" do
+    it { is_expected.to belong_to(:event_type) }
+    it { is_expected.to have_many(:event_people) }
+    it { is_expected.to have_many(:people).through(:event_people) }
+  end
   # ── #display_date ─────────────────────────────────────────────────────────
   describe "#display_date" do
     it "returns month/day when year is nil" do

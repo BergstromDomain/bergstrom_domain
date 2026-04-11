@@ -6,6 +6,13 @@
 </p>
 
 <p>
+  <strong>People:</strong>
+  <% @event.people.each do |person| %>
+    <%= link_to person.full_name, person %>
+  <% end %>
+</p>
+
+<p>
   <strong>Date:</strong>
   <%= @event.display_date %>
 </p>
@@ -18,6 +25,7 @@
 <% end %>
 
 <%= link_to "Edit", edit_event_path(@event) %>
-<%= link_to "Back to Events", events_path %>
+<%= link_to "Back to Events", event_path %>
+
 <%= button_to "Delete Event", event_path(@event), method: :delete,
     data: { turbo_confirm: "Are you sure you want to delete this event?" } %>

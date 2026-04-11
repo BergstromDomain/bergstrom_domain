@@ -16,6 +16,12 @@
   </div>
 
   <div>
+    <%= f.label :person_ids, "People" %>
+    <%= f.collection_select :person_ids, Person.order(:first_name, :last_name), :id, :full_name,
+        {}, { multiple: true } %>
+  </div>
+
+  <div>
     <%= f.label :title %>
     <%= f.text_field :title %>
   </div>

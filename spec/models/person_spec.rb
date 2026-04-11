@@ -42,6 +42,12 @@ RSpec.describe Person, type: :model do
     end
   end
 
+  # ── Associations ──────────────────────────────────────────────────────────
+  describe "associations" do
+    it { is_expected.to have_many(:event_people) }
+    it { is_expected.to have_many(:events).through(:event_people) }
+  end
+
   # ── Virtual attribute ─────────────────────────────────────────────────────
   describe "#full_name" do
     it "returns first and last name when no middle name" do

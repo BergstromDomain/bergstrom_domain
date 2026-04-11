@@ -10,6 +10,10 @@ FactoryBot.define do
     image            { nil }
     thumbnail_image  { nil }
 
+    after(:build) do |event|
+      event.people << build(:person) if event.people.empty?
+    end
+
     trait :no_year do
       year { nil }
     end
