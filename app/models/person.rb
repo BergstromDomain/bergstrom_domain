@@ -3,6 +3,10 @@ class Person < ApplicationRecord
   extend FriendlyId
   friendly_id :full_name, use: [ :slugged, :history ]
 
+  # ── Associations  ────────────────────────────────────────────────────────
+  has_many :event_people, dependent: :destroy
+  has_many :events, through: :event_people
+
   # ── Validations ──────────────────────────────────────────────────────────
   validates :first_name, presence: true
   validate  :full_name_must_be_unique
@@ -12,7 +16,7 @@ class Person < ApplicationRecord
     [ first_name, middle_name, last_name ].reject(&:blank?).join(" ")
   end
 
-  # ── FriendlyId ───────────────────────────────────────────────────────────
+  # ── Instance methods ──────────────────────────────────────────────────────
   def should_generate_new_friendly_id?
     first_name_changed? || middle_name_changed? || last_name_changed? || super
   end

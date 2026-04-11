@@ -10,9 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_26_102252) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_11_004703) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "event_people", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "event_id", null: false
+    t.integer "person_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "person_id"], name: "index_event_people_on_event_id_and_person_id", unique: true
+  end
 
   create_table "event_types", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -30,6 +38,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_26_102252) do
     t.datetime "created_at", null: false
     t.integer "day", null: false
     t.text "description"
+    t.integer "event_type_id", null: false
     t.string "image"
     t.integer "month", null: false
     t.string "slug"
@@ -37,6 +46,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_26_102252) do
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.integer "year"
+    t.index ["event_type_id"], name: "index_events_on_event_type_id"
     t.index ["month", "day"], name: "index_events_on_month_day"
     t.index ["slug"], name: "index_events_on_slug", unique: true
     t.index ["title"], name: "index_events_on_title", unique: true
@@ -67,4 +77,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_26_102252) do
     t.index ["first_name", "middle_name", "last_name"], name: "index_people_on_full_name"
     t.index ["slug"], name: "index_people_on_slug", unique: true
   end
+
+  add_foreign_key "event_people", "events"
+  add_foreign_key "event_people", "people"
+  add_foreign_key "events", "event_types"
 end

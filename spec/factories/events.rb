@@ -1,6 +1,7 @@
 # spec/factories/events.rb
 FactoryBot.define do
   factory :event do
+    association      :event_type
     sequence(:title) { |n| "Event #{n}" }
     description      { Faker::Lorem.paragraph }
     day              { rand(1..28) }
@@ -8,6 +9,10 @@ FactoryBot.define do
     year             { [ rand(1950..2025), nil ].sample }
     image            { nil }
     thumbnail_image  { nil }
+
+    after(:build) do |event|
+      event.people << build(:person) if event.people.empty?
+    end
 
     trait :no_year do
       year { nil }

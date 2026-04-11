@@ -9,27 +9,40 @@ RSpec.describe "List Events", type: :feature do
   end
 
   context "when events exist" do
-    let!(:kill_em_all)      { create(:event, title: "Kill 'Em All",       day: 25, month: 7,  year: 1983) }
-    let!(:ride_lightning)   { create(:event, title: "Ride the Lightning", day: 27, month: 7,  year: 1984) }
-    let!(:master_puppets)   { create(:event, title: "Master of Puppets",  day: 3,  month: 3,  year: 1986) }
+    let!(:music)    { create(:event_type, name: "Music", description: "Musical events", icon: "music") }
+    let!(:hetfield) { create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield") }
+
+    let!(:black_album) do
+      event = create(:event, title: "Metallica (Black Album)", event_type: music,
+                    day: 12, month: 8, year: 1991)
+      event.people << hetfield
+      event
+    end
+
+    let!(:master_of_puppets) do
+      event = create(:event, title: "Master of Puppets", event_type: music,
+                    day: 3, month: 3, year: 1986)
+      event.people << hetfield
+      event
+    end
 
     it "displays all events" do
       visit events_path
-
-      expect(page).to have_content("Kill 'Em All")
-      expect(page).to have_content("Ride the Lightning")
+      expect(page).to have_content("Metallica (Black Album)")
       expect(page).to have_content("Master of Puppets")
     end
 
     it "links to each event's page" do
       visit events_path
-      click_link "Kill 'Em All"
-      expect(page).to have_current_path(event_path(kill_em_all))
+      click_link "Master of Puppets"
+      expect(page).to have_current_path(event_path(master_of_puppets))
     end
 
     it "displays events in chronological order" do
       visit events_path
-      expect(page.text.index("Kill 'Em All")).to be < page.text.index("Ride the Lightning")
+      master_index = page.text.index("Master of Puppets")
+      black_index  = page.text.index("Metallica (Black Album)")
+      expect(master_index).to be < black_index
     end
 
     it "shows a link to add a new event" do

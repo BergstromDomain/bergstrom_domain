@@ -3,16 +3,19 @@ class Event < ApplicationRecord
   extend FriendlyId
   friendly_id :title, use: [ :slugged, :history ]
 
-  # ── Associations (coming later) ───────────────────────────────────────────
-  # belongs_to :person
-  # belongs_to :event_type
+  # ── Associations  ────────────────────────────────────────────────────────
+  belongs_to :event_type
+  has_many :event_people, dependent: :destroy
+  has_many :people, through: :event_people
 
   # ── Validations ──────────────────────────────────────────────────────────
   validates :title,       presence: true, uniqueness: { case_sensitive: false }
   validates :day,   presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 31 }
   validates :month, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 12 }
   validates :year,        numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
+  validate  :must_have_at_least_one_person
 
+  # ── Scope ────────────────────────────────────────────────────────────────
   scope :chronological,    -> { order(:year, :month, :day) }
   scope :reverse_chrono,   -> { order(Arel.sql("year DESC NULLS LAST, month DESC, day DESC")) }
 
@@ -24,5 +27,11 @@ class Event < ApplicationRecord
 
   def should_generate_new_friendly_id?
     title_changed? || super
+  end
+
+  private
+
+  def must_have_at_least_one_person
+    errors.add(:base, "Event must have at least one person") if people.size.zero?
   end
 end

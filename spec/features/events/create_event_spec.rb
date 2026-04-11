@@ -1,31 +1,69 @@
 require "rails_helper"
 
 RSpec.describe "Create Event", type: :feature do
+  let!(:music) { create(:event_type, name: "Music", description: "Musical events", icon: "music") }
+  let!(:hetfield) { create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield") }
+
   context "with valid attributes" do
     it "creates a new event and redirects to its page" do
       visit new_event_path
 
+      select "Music", from: "Event Type"
+      select "James Hetfield", from: "People"
       fill_in "Title",       with: "Kill 'Em All"
       fill_in "Description", with: "Metallica's debut studio album."
       fill_in "Day",         with: "25"
       fill_in "Month",       with: "7"
       fill_in "Year",        with: "1983"
-      click_button "Save Event"
+      click_button "Create Event"
 
-      expect(page).to have_current_path(event_path(Event.last))
-      expect(page).to have_content("Kill 'Em All")
       expect(page).to have_content("Event was successfully created.")
+      expect(page).to have_content("Kill 'Em All")
+      expect(page).to have_content("James Hetfield")
+      expect(page).to have_current_path(event_path(Event.last))
     end
+  end
+
+  context "without an event type" do
+    it "shows a validation error" do
+      visit new_event_path
+
+      select "James Hetfield", from: "People"
+      fill_in "Title",       with: "Kill 'Em All"
+      fill_in "Description", with: "Metallica's debut studio album."
+      fill_in "Day",         with: "25"
+      fill_in "Month",       with: "7"
+      fill_in "Year",        with: "1983"
+      click_button "Create Event"
+
+      expect(page).to have_content("Event type must exist")
+    end
+  end
+
+  scenario "without people" do
+    visit new_event_path
+
+    select "Music", from: "Event Type"
+    fill_in "Title", with: "Orphan Event"
+    fill_in "Day",   with: 1
+    fill_in "Month", with: 1
+
+    click_button "Create Event"
+
+    expect(page).to have_content("error")
+    expect(page).to have_content("Event must have at least one person")
   end
 
   context "without a year" do
     it "is still valid" do
       visit new_event_path
 
+      select "Music", from: "Event Type"
+      select "James Hetfield", from: "People"
       fill_in "Title", with: "Annual Tour"
       fill_in "Day",   with: "1"
       fill_in "Month", with: "6"
-      click_button "Save Event"
+      click_button "Create Event"
 
       expect(page).to have_content("Annual Tour")
       expect(page).to have_content("Event was successfully created.")
@@ -36,9 +74,11 @@ RSpec.describe "Create Event", type: :feature do
     it "shows a validation error" do
       visit new_event_path
 
+      select "Music", from: "Event Type"
+      select "James Hetfield", from: "People"
       fill_in "Day",   with: "1"
       fill_in "Month", with: "1"
-      click_button "Save Event"
+      click_button "Create Event"
 
       expect(page).to have_content("Title can't be blank")
     end
@@ -48,25 +88,26 @@ RSpec.describe "Create Event", type: :feature do
     it "shows a validation error" do
       visit new_event_path
 
+      select "Music", from: "Event Type"
+      select "James Hetfield", from: "People"
       fill_in "Title", with: "Orphaned Event"
       fill_in "Month", with: "6"
-      click_button "Save Event"
+      click_button "Create Event"
 
       expect(page).to have_content("Day can't be blank")
     end
   end
 
   context "with a duplicate title" do
-    before { create(:event, title: "Kill 'Em All", day: 25, month: 7, year: 1983) }
-
+    before { create(:event, title: "Kill 'Em All", day: 25, month: 7, year: 1983, event_type: music) }
     it "shows a uniqueness error" do
       visit new_event_path
-
+      select "Music",          from: "Event Type"
+      select "James Hetfield", from: "People"
       fill_in "Title", with: "Kill 'Em All"
       fill_in "Day",   with: "1"
       fill_in "Month", with: "1"
-      click_button "Save Event"
-
+      click_button "Create Event"
       expect(page).to have_content("Title has already been taken")
     end
   end

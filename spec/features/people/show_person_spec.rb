@@ -26,13 +26,13 @@ RSpec.describe "Show Person", type: :feature do
     expect(page).to have_link("Back to People")
   end
 
-  it "returns 404 for a non-existent person" do
-    visit person_path(id: 99999)
-    expect(page).to have_http_status(:not_found)
-  end
-
   it "is accessible via a friendly URL" do
     visit "/people/james-alan-hetfield"
     expect(page).to have_content("James Alan Hetfield")
+  end
+
+  it "returns 404 for a non-existent person" do
+    visit person_path(id: 99999)
+    expect(page).to have_http_status(:not_found)
   end
 end
