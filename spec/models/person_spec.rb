@@ -3,17 +3,21 @@
 require "rails_helper"
 
 RSpec.describe Person, type: :model do
-  subject(:person) { build(:person, :james_hetfield) }
-
   # ── Database columns ─────────────────────────────────────────────────────
   describe "database columns" do
     it { is_expected.to have_db_column(:first_name).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:middle_name).of_type(:string) }
     it { is_expected.to have_db_column(:last_name).of_type(:string) }
     it { is_expected.to have_db_column(:description).of_type(:text) }
-    it { is_expected.to have_db_column(:thumbnail_image).of_type(:string) }
-    it { is_expected.to have_db_column(:full_image).of_type(:string) }
     it { is_expected.to have_db_column(:slug).of_type(:string) }
+  end
+
+  # ── Associations ──────────────────────────────────────────────────────────
+  describe "associations" do
+    it { is_expected.to have_many(:event_people).dependent(:destroy) }
+    it { is_expected.to have_many(:events).through(:event_people) }
+    it { is_expected.to have_one_attached(:thumbnail_image) }
+    it { is_expected.to have_one_attached(:full_image) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
@@ -39,13 +43,74 @@ RSpec.describe Person, type: :model do
         duplicate = build(:person, first_name: "Lars", middle_name: "", last_name: "Ulrich")
         expect(duplicate).not_to be_valid
       end
-    end
-  end
 
-  # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
-    it { is_expected.to have_many(:event_people) }
-    it { is_expected.to have_many(:events).through(:event_people) }
+      it "is valid when updating the same person without changing their name" do
+        person = create(:person, :james_hetfield)
+        person.description = "Updated description"
+        expect(person).to be_valid
+      end
+    end
+
+    context "thumbnail_image content type" do
+      it "is valid with a JPEG" do
+        person = build(:person)
+        person.thumbnail_image.attach(
+          io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
+          filename:     "test_image.jpg",
+          content_type: "image/jpeg"
+        )
+        expect(person).to be_valid
+      end
+
+      it "is valid with a PNG" do
+        person = build(:person)
+        person.thumbnail_image.attach(
+          io:           File.open(Rails.root.join("spec/fixtures/files/test_image.png")),
+          filename:     "test_image.png",
+          content_type: "image/png"
+        )
+        expect(person).to be_valid
+      end
+
+      it "is invalid with a text file" do
+        person = build(:person)
+        person.thumbnail_image.attach(
+          io:           StringIO.new("not an image"),
+          filename:     "bad.txt",
+          content_type: "text/plain"
+        )
+        expect(person).not_to be_valid
+        expect(person.errors[:thumbnail_image]).to be_present
+      end
+    end
+
+    context "thumbnail_image file size" do
+      it "is invalid when the file exceeds 5MB" do
+        person = build(:person)
+        # Create an in-memory file larger than 5MB
+        large_data = StringIO.new("0" * (5.megabytes + 1))
+        person.thumbnail_image.attach(
+          io:           large_data,
+          filename:     "huge.jpg",
+          content_type: "image/jpeg"
+        )
+        expect(person).not_to be_valid
+        expect(person.errors[:thumbnail_image]).to be_present
+      end
+    end
+
+    context "full_image content type" do
+      it "is invalid with a text file" do
+        person = build(:person)
+        person.full_image.attach(
+          io:           StringIO.new("not an image"),
+          filename:     "bad.txt",
+          content_type: "text/plain"
+        )
+        expect(person).not_to be_valid
+        expect(person.errors[:full_image]).to be_present
+      end
+    end
   end
 
   # ── Virtual attribute ─────────────────────────────────────────────────────
