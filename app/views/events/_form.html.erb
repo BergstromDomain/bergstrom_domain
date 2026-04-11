@@ -1,46 +1,46 @@
 <%= form_with model: event do |f| %>
   <% if event.errors.any? %>
-    <div>
-      <% event.errors.full_messages.each do |msg| %>
-        <p><%= msg %></p>
-      <% end %>
+    <div id="error_explanation">
+      <h2><%= pluralize(event.errors.count, "error") %> prohibited this event from being saved:</h2>
+      <ul>
+        <% event.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
     </div>
   <% end %>
 
   <div>
-    <%= f.label :title, "Title" %>
+    <%= f.label :event_type_id, "Event Type" %>
+    <%= f.collection_select :event_type_id, EventType.order(:name), :id, :name, { prompt: "Select an event type" } %>
+  </div>
+
+  <div>
+    <%= f.label :title %>
     <%= f.text_field :title %>
   </div>
 
   <div>
-    <%= f.label :description, "Description" %>
+    <%= f.label :description %>
     <%= f.text_area :description %>
   </div>
 
   <div>
-    <%= f.label :day, "Day" %>
+    <%= f.label :day %>
     <%= f.number_field :day %>
   </div>
 
   <div>
-    <%= f.label :month, "Month" %>
+    <%= f.label :month %>
     <%= f.number_field :month %>
   </div>
 
   <div>
-    <%= f.label :year, "Year" %>
+    <%= f.label :year %>
     <%= f.number_field :year %>
   </div>
 
   <div>
-    <%= f.label :image, "Image" %>
-    <%= f.text_field :image %>
+    <%= f.submit %>
   </div>
-
-  <div>
-    <%= f.label :thumbnail_image, "Thumbnail image" %>
-    <%= f.text_field :thumbnail_image %>
-  </div>
-
-  <%= f.submit "Save Event" %>
 <% end %>

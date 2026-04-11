@@ -3,9 +3,8 @@ class Event < ApplicationRecord
   extend FriendlyId
   friendly_id :title, use: [ :slugged, :history ]
 
-  # ── Associations (coming later) ───────────────────────────────────────────
-  # belongs_to :person
-  # belongs_to :event_type
+  # ── Associations  ────────────────────────────────────────────────────────
+  belongs_to :event_type
 
   # ── Validations ──────────────────────────────────────────────────────────
   validates :title,       presence: true, uniqueness: { case_sensitive: false }
@@ -13,6 +12,7 @@ class Event < ApplicationRecord
   validates :month, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 12 }
   validates :year,        numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
 
+  # ── Scope ────────────────────────────────────────────────────────────────
   scope :chronological,    -> { order(:year, :month, :day) }
   scope :reverse_chrono,   -> { order(Arel.sql("year DESC NULLS LAST, month DESC, day DESC")) }
 

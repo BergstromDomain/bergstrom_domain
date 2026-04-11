@@ -39,6 +39,10 @@ RSpec.describe EventType, type: :model do
     end
   end
 
+  describe "associations" do
+    it { is_expected.to have_many(:events).dependent(:restrict_with_error) }
+  end
+
   describe "FriendlyId" do
     it "generates a slug from name on create" do
       et = create(:event_type, name: "Work Experience")

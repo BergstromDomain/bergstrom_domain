@@ -1,6 +1,7 @@
 # spec/factories/events.rb
 FactoryBot.define do
   factory :event do
+    association      :event_type
     sequence(:title) { |n| "Event #{n}" }
     description      { Faker::Lorem.paragraph }
     day              { rand(1..28) }

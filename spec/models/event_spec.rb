@@ -17,6 +17,7 @@ RSpec.describe Event, type: :model do
     it { is_expected.to have_db_column(:image).of_type(:string) }
     it { is_expected.to have_db_column(:thumbnail_image).of_type(:string) }
     it { is_expected.to have_db_column(:slug).of_type(:string) }
+    it { is_expected.to have_db_column(:event_type_id).of_type(:integer).with_options(null: false) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
@@ -72,6 +73,10 @@ RSpec.describe Event, type: :model do
         expect(event).to be_valid
       end
     end
+  end
+
+  describe "associations" do
+    it { is_expected.to belong_to(:event_type) }
   end
 
   # ── #display_date ─────────────────────────────────────────────────────────

@@ -1,13 +1,16 @@
 require "rails_helper"
 
 RSpec.describe "Show Event", type: :feature do
+  let!(:music) { create(:event_type, name: "Music", description: "Musical events", icon: "music") }
+
   let!(:event) do
     create(:event,
       title:       "Kill 'Em All",
       description: "Metallica's debut studio album.",
       day:         25,
       month:       7,
-      year:        1983
+      year:        1983,
+      event_type:  music
     )
   end
 
@@ -44,7 +47,7 @@ RSpec.describe "Show Event", type: :feature do
 
   context "when the event has no year" do
     let!(:undated_event) do
-      create(:event, title: "Annual Concert", day: 15, month: 8, year: nil)
+      create(:event, title: "Annual Concert", day: 15, month: 8, year: nil, event_type: music)
     end
 
     it "displays just the day and month" do
