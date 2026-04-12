@@ -7,8 +7,6 @@ FactoryBot.define do
     day              { rand(1..28) }
     month            { rand(1..12) }
     year             { [ rand(1950..2025), nil ].sample }
-    image            { nil }
-    thumbnail_image  { nil }
 
     after(:build) do |event|
       event.people << build(:person) if event.people.empty?
@@ -22,9 +20,39 @@ FactoryBot.define do
       year { rand(1950..2025) }
     end
 
+    trait :with_image do
+      after(:create) do |event|
+        event.image.attach(
+          io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
+          filename:     "test_event_image.jpg",
+          content_type: "image/jpeg"
+        )
+      end
+    end
+
+    trait :with_thumbnail do
+      after(:create) do |event|
+        event.thumbnail_image.attach(
+          io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
+          filename:     "test_event_thumbnail.jpg",
+          content_type: "image/jpeg"
+        )
+      end
+    end
+
     trait :with_images do
-      image           { "events/cover.jpg" }
-      thumbnail_image { "events/thumb.jpg" }
+      after(:create) do |event|
+        event.image.attach(
+          io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
+          filename:     "test_event_image.jpg",
+          content_type: "image/jpeg"
+        )
+        event.thumbnail_image.attach(
+          io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
+          filename:     "test_event_thumbnail.jpg",
+          content_type: "image/jpeg"
+        )
+      end
     end
   end
 end

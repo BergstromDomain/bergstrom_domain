@@ -7,12 +7,14 @@ class Event < ApplicationRecord
   belongs_to :event_type
   has_many :event_people, dependent: :destroy
   has_many :people, through: :event_people
+  has_one_attached :image
+  has_one_attached :thumbnail_image
 
   # ── Validations ──────────────────────────────────────────────────────────
-  validates :title,       presence: true, uniqueness: { case_sensitive: false }
-  validates :day,   presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 31 }
+  validates :title, presence: true, uniqueness: { case_sensitive: false }
+  validates :day, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 31 }
   validates :month, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 12 }
-  validates :year,        numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
+  validates :year, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
   validate  :must_have_at_least_one_person
 
   # ── Scope ────────────────────────────────────────────────────────────────
@@ -28,6 +30,14 @@ class Event < ApplicationRecord
   def should_generate_new_friendly_id?
     title_changed? || super
   end
+
+  validates :image,
+    content_type: { in: %w[image/jpeg image/png image/webp], message: "must be a JPEG, PNG, or WebP" },
+    size:         { less_than: 5.megabytes, message: "must be smaller than 5MB" }
+
+  validates :thumbnail_image,
+    content_type: { in: %w[image/jpeg image/png image/webp], message: "must be a JPEG, PNG, or WebP" },
+    size:         { less_than: 5.megabytes, message: "must be smaller than 5MB" }
 
   private
 

@@ -50,4 +50,19 @@ RSpec.describe "List Events", type: :feature do
       expect(page).to have_link("Add Event", href: new_event_path)
     end
   end
+
+  context "when an event has a thumbnail image" do
+    it "displays the thumbnail" do
+      event_type = create(:event_type, name: "Music", description: "Musical events", icon: "music")
+      person     = create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield")
+      event      = create(:event, :with_thumbnail, title: "Thumbnail Event",
+                                                  day: 1, month: 1, year: 2000,
+                                                  event_type: event_type)
+      event.people << person
+
+      visit events_path
+
+      expect(page).to have_css("img")
+    end
+  end
 end

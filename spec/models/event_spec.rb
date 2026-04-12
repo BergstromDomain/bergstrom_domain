@@ -3,10 +3,6 @@ require "rails_helper"
 RSpec.describe Event, type: :model do
   subject(:event) { build(:event) }
 
-  # ── Associations (coming later) ───────────────────────────────────────────
-  # belongs_to :person
-  # belongs_to :event_type
-
   # ── Database columns ─────────────────────────────────────────────────────
   describe "database columns" do
     it { is_expected.to have_db_column(:title).of_type(:string).with_options(null: false) }
@@ -14,10 +10,17 @@ RSpec.describe Event, type: :model do
     it { is_expected.to have_db_column(:day).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:month).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:year).of_type(:integer) }
-    it { is_expected.to have_db_column(:image).of_type(:string) }
-    it { is_expected.to have_db_column(:thumbnail_image).of_type(:string) }
     it { is_expected.to have_db_column(:slug).of_type(:string) }
     it { is_expected.to have_db_column(:event_type_id).of_type(:integer).with_options(null: false) }
+  end
+
+  # ── Associations (coming later) ───────────────────────────────────────────
+  describe "associations" do
+    it { is_expected.to belong_to(:event_type) }
+    it { is_expected.to have_many(:event_people).dependent(:destroy) }
+    it { is_expected.to have_many(:people).through(:event_people) }
+    it { is_expected.to have_one_attached(:image) }
+    it { is_expected.to have_one_attached(:thumbnail_image) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
@@ -26,10 +29,17 @@ RSpec.describe Event, type: :model do
     it { is_expected.to validate_uniqueness_of(:title).case_insensitive }
 
     it { is_expected.to validate_presence_of(:day) }
-    it { is_expected.to validate_presence_of(:month) }
+    it { is_expected.to validate_numericality_of(:day)
+          .only_integer
+          .is_greater_than_or_equal_to(1)
+          .is_less_than_or_equal_to(31) }
 
-    it { is_expected.to validate_numericality_of(:day).is_greater_than_or_equal_to(1).is_less_than_or_equal_to(31) }
-    it { is_expected.to validate_numericality_of(:month).is_greater_than_or_equal_to(1).is_less_than_or_equal_to(12) }
+    it { is_expected.to validate_presence_of(:month) }
+    it { is_expected.to validate_numericality_of(:month)
+          .only_integer
+          .is_greater_than_or_equal_to(1)
+          .is_less_than_or_equal_to(12) }
+
     it { is_expected.to validate_numericality_of(:year).is_greater_than(0).allow_nil }
 
     context "title uniqueness" do
@@ -67,25 +77,34 @@ RSpec.describe Event, type: :model do
       end
     end
 
-    context "image fields are optional" do
-      it "is valid without an image" do
-        event = build(:event, image: nil, thumbnail_image: nil)
-        expect(event).to be_valid
+    context "image content type" do
+      it "is invalid with a text file" do
+        event = build(:event)
+        event.image.attach(
+          io:           StringIO.new("not an image"),
+          filename:     "bad.txt",
+          content_type: "text/plain"
+        )
+        expect(event).not_to be_valid
+        expect(event.errors[:image]).to be_present
+      end
+    end
+
+    context "thumbnail_image content type" do
+      it "is invalid with a text file" do
+        event = build(:event)
+        event.thumbnail_image.attach(
+          io:           StringIO.new("not an image"),
+          filename:     "bad.txt",
+          content_type: "text/plain"
+        )
+        expect(event).not_to be_valid
+        expect(event.errors[:thumbnail_image]).to be_present
       end
     end
   end
 
-  # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
-    it { is_expected.to belong_to(:event_type) }
-  end
-
-  describe "associations" do
-    it { is_expected.to belong_to(:event_type) }
-    it { is_expected.to have_many(:event_people) }
-    it { is_expected.to have_many(:people).through(:event_people) }
-  end
-  # ── #display_date ─────────────────────────────────────────────────────────
+  # ── Virtual attribute ─────────────────────────────────────────────────────
   describe "#display_date" do
     it "returns month/day when year is nil" do
       event = build(:event, day: 25, month: 5, year: nil)
@@ -103,7 +122,6 @@ RSpec.describe Event, type: :model do
     end
   end
 
-  # ── #slug ─────────────────────────────────────────────────────────────────
   describe "#slug" do
     it "generates a slug from the title" do
       event = create(:event, title: "Kill 'Em All")
