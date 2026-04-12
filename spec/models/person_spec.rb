@@ -256,6 +256,20 @@ RSpec.describe Person, type: :model do
           expect(duplicate).not_to be_valid
           expect(duplicate.errors[:base]).to include("Full name has already been taken")
         end
+
+        it "is not valid when full name already exists in a different case" do
+          create(:person, first_name: "James", middle_name: "Alan", last_name: "Hetfield")
+          duplicate = build(:person, first_name: "james", middle_name: "alan", last_name: "hetfield")
+          expect(duplicate).not_to be_valid
+          expect(duplicate.errors[:base]).to include("Full name has already been taken")
+        end
+
+        it "is not valid when first name differs only in case" do
+          create(:person, first_name: "Lars", middle_name: nil, last_name: "Ulrich")
+          duplicate = build(:person, first_name: "lars", middle_name: nil, last_name: "Ulrich")
+          expect(duplicate).not_to be_valid
+          expect(duplicate.errors[:base]).to include("Full name has already been taken")
+        end
       end
 
       context "slug" do
