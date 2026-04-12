@@ -7,7 +7,7 @@ RSpec.describe "Delete Person", type: :feature do
 
   it "deletes the person and redirects to the list" do
     visit person_path(person)
-    click_button "Delete Person"
+    click_button "Delete James Alan Hetfield"
 
     expect(page).to have_current_path(people_path)
     expect(page).to have_content("Person was successfully deleted.")
@@ -17,7 +17,7 @@ RSpec.describe "Delete Person", type: :feature do
   it "reduces the person count by 1" do
     expect {
       visit person_path(person)
-      click_button "Delete Person"
+      click_button "Delete James Alan Hetfield"
     }.to change(Person, :count).by(-1)
   end
 end

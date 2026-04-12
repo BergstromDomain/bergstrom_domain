@@ -1,12 +1,29 @@
-<h1><%= @person.full_name %></h1>
+<div>
+  <% if @person.full_image.attached? %>
+    <%= image_tag @person.full_image, alt: @person.full_name, style: "max-width: 600px;" %>
+  <% elsif @person.thumbnail_image.attached? %>
+    <%= image_tag @person.thumbnail_image, alt: @person.full_name, style: "max-width: 300px;" %>
+  <% end %>
 
-<%= render "person_image", person: @person, size: :full %>
+  <h1><%= @person.full_name %></h1>
 
-<% if @person.description.present? %>
-  <p><%= @person.description %></p>
-<% end %>
+  <% if @person.description.present? %>
+    <p><%= @person.description %></p>
+  <% end %>
 
-<%= link_to "Edit", edit_person_path(@person) %>
-<%= link_to "Back to People", people_path %>
-<%= button_to "Delete Person", person_path(@person), method: :delete,
-    data: { confirm: "Are you sure you want to delete #{@person.full_name}?" } %>
+  <% if @person.events.any? %>
+    <h2>Events</h2>
+    <ul>
+      <% @person.events.chronological.each do |event| %>
+        <li><%= link_to event.title, event_path(event) %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <%= link_to "Edit", edit_person_path(@person) %>
+  <%= link_to "Back to People", people_path %>
+  <%= button_to "Delete #{@person.full_name}",
+                person_path(@person),
+                method: :delete,
+                data: { confirm: "Are you sure?" } %>
+</div>

@@ -41,6 +41,7 @@ metallica_albums.each do |attrs|
     year:       attrs[:year],
     event_type: event_types[:music]
   )
-  event.save!
+
   event.people << people[:hetfield] unless event.people.include?(people[:hetfield])
+  event.save!
 end

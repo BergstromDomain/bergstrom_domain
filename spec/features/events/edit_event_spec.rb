@@ -34,6 +34,17 @@ RSpec.describe "Edit Event", type: :feature do
     end
   end
 
+  context "uploading an event image", js: true do
+    it "attaches the image and shows it on the show page" do
+      visit edit_event_path(event)
+      attach_file "Event image", Rails.root.join("spec/fixtures/files/test_image.jpg")
+      click_button "Update Event"
+      event.reload
+      expect(page).to have_current_path(event_path(event))
+      expect(page).to have_css("img")
+    end
+  end
+
   context "with invalid data" do
     it "shows a validation error" do
       visit edit_event_path(event)

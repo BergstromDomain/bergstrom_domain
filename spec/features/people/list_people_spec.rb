@@ -34,4 +34,13 @@ RSpec.describe "List People", type: :feature do
       expect(page).to have_link("Add Person", href: new_person_path)
     end
   end
+
+  context "when a person has a thumbnail image" do
+    it "displays their thumbnail" do
+      create(:person, :with_thumbnail, first_name: "Kirk", middle_name: "Lee",
+                                       last_name: "Hammett", description: "Guitarist.")
+      visit people_path
+      expect(page).to have_css("img")
+    end
+  end
 end

@@ -6,10 +6,20 @@ class Person < ApplicationRecord
   # ── Associations  ────────────────────────────────────────────────────────
   has_many :event_people, dependent: :destroy
   has_many :events, through: :event_people
+  has_one_attached :thumbnail_image
+  has_one_attached :full_image
 
   # ── Validations ──────────────────────────────────────────────────────────
   validates :first_name, presence: true
   validate  :full_name_must_be_unique
+
+  validates :thumbnail_image,
+    content_type: { in: %w[image/jpeg image/png image/webp], message: "must be a JPEG, PNG, or WebP" },
+    size:         { less_than: 5.megabytes, message: "must be smaller than 5MB" }
+
+  validates :full_image,
+    content_type: { in: %w[image/jpeg image/png image/webp], message: "must be a JPEG, PNG, or WebP" },
+    size:         { less_than: 5.megabytes, message: "must be smaller than 5MB" }
 
   # ── Virtual attribute ─────────────────────────────────────────────────────
   def full_name
@@ -25,17 +35,7 @@ class Person < ApplicationRecord
 
   def full_name_must_be_unique
     return if first_name.blank?
-
-    scope = Person.where(
-      first_name:  first_name.strip,
-      middle_name: middle_name.presence,
-      last_name:   last_name.presence
-    )
-
-    scope = scope.where.not(id: id) if persisted?
-
-    if scope.exists?
-      errors.add(:base, "Full name has already been taken")
-    end
+    scope = Person.where.not(id: id.to_i)
+    errors.add(:base, "Full name has already been taken") if scope.any? { |p| p.full_name.casecmp?(full_name) }
   end
 end

@@ -1,9 +1,10 @@
 <%= form_with model: person do |form| %>
   <% if person.errors.any? %>
-    <div class="error-messages">
+    <div id="error_explanation">
+      <h2><%= pluralize(person.errors.count, "error") %> prohibited this person from being saved:</h2>
       <ul>
-        <% person.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
+        <% person.errors.each do |error| %>
+          <li><%= error.full_message %></li>
         <% end %>
       </ul>
     </div>
@@ -30,27 +31,21 @@
   </div>
 
   <div>
-    <%= form.label :thumbnail_image %>
-    <%= form.text_field :thumbnail_image %>
-    <% if person.thumbnail_image.present? %>
-      <div>
-        <%= image_tag person.thumbnail_image,
-            alt: person.full_name,
-            class: "person-image thumbnail" %>
-      </div>
+    <%= form.label :thumbnail_image, "Thumbnail image" %>
+    <% if person.thumbnail_image.attached? %>
+      <%= image_tag person.thumbnail_image, alt: "Current thumbnail", style: "max-width: 200px; display: block;" %>
+      <p>Upload a new file to replace the current image.</p>
     <% end %>
+    <%= form.file_field :thumbnail_image, accept: "image/jpeg,image/png,image/webp" %>
   </div>
 
   <div>
-    <%= form.label :full_image %>
-    <%= form.text_field :full_image %>
-    <% if person.full_image.present? %>
-      <div>
-        <%= image_tag person.full_image,
-            alt: person.full_name,
-            class: "person-image full" %>
-      </div>
+    <%= form.label :full_image, "Full image" %>
+    <% if person.full_image.attached? %>
+      <%= image_tag person.full_image, alt: "Current full image", style: "max-width: 400px; display: block;" %>
+      <p>Upload a new file to replace the current image.</p>
     <% end %>
+    <%= form.file_field :full_image, accept: "image/jpeg,image/png,image/webp" %>
   </div>
 
   <div>

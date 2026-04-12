@@ -47,6 +47,22 @@
   </div>
 
   <div>
+    <%= f.label :image, "Event image" %>
+    <% if event.image.attached? %>
+      <%= image_tag event.image, alt: "Current image", style: "max-width: 400px; display: block;" %>
+      <p>Upload a new file to replace the current image.</p>
+    <% end %>
+    <%= f.file_field :image, accept: "image/jpeg,image/png,image/webp" %>
+  </div>
+  <div>
+    <%= f.label :thumbnail_image, "Thumbnail image" %>
+    <% if event.thumbnail_image.attached? %>
+      <%= image_tag event.thumbnail_image, alt: "Current thumbnail", style: "max-width: 200px; display: block;" %>
+      <p>Upload a new file to replace the current image.</p>
+    <% end %>
+    <%= f.file_field :thumbnail_image, accept: "image/jpeg,image/png,image/webp" %>
+  </div>
+  <div>
     <%= f.submit %>
   </div>
 <% end %>

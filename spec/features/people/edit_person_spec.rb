@@ -40,4 +40,20 @@ RSpec.describe "Edit Person", type: :feature do
       expect(page).to have_content("Full name has already been taken")
     end
   end
+
+  context "uploading a thumbnail image", js: true do
+    it "attaches the image and shows it on the show page" do
+      person = create(:person, first_name: "Lars", middle_name: nil, last_name: "Ulrich",
+                               description: "Drummer.")
+
+      visit edit_person_path(person)
+
+      attach_file "Thumbnail image", Rails.root.join("spec/fixtures/files/test_image.jpg")
+      click_button "Save Person"
+
+      person.reload
+      expect(page).to have_current_path(person_path(person))
+      expect(page).to have_css("img")
+    end
+  end
 end

@@ -1,12 +1,9 @@
-<% image_path = case size
-                when :thumbnail
-                  person.thumbnail_image.presence
-                when :full
-                  person.full_image.presence
+<% attachment = case size
+                when :thumbnail then person.thumbnail_image
+                when :full      then person.full_image
                 end %>
-
-<% if image_path.present? %>
-  <%= image_tag image_path,
+<% if attachment&.attached? %>
+  <%= image_tag attachment,
       alt:   person.full_name,
       class: "person-image #{size}" %>
 <% end %>
