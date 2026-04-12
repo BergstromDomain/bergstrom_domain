@@ -35,17 +35,8 @@ class Person < ApplicationRecord
 
   def full_name_must_be_unique
     return if first_name.blank?
-
-    scope = Person.where(
-      first_name:  first_name.strip,
-      middle_name: middle_name.presence,
-      last_name:   last_name.presence
-    )
-
-    scope = scope.where.not(id: id) if persisted?
-
-    if scope.exists?
-      errors.add(:base, "Full name has already been taken")
-    end
+    scope = Person.all.select { |p| p.full_name == full_name }
+    scope = scope.reject { |p| p.id == id } if persisted?
+    errors.add(:base, "Full name has already been taken") if scope.any?
   end
 end
