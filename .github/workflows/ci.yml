@@ -22,15 +22,8 @@ jobs:
         run: bin/brakeman --no-pager
 
       - name: Scan for known security vulnerabilities in gems used
-        # GHSA-53p3-c7vp-4mcc: action_text-trix XSS — Action Text not in use yet
-        # GHSA-p9fm-f462-ggrg / CVE-2026-33658: activestorage DoS — proxy mode not in use
-        # GHSA-qvqr-5cv7-wh35: mcp SSE hijacking — transitive dep via RuboCop, not fixable
-        run: |
-          bundle exec bundler-audit check --update \
-            --ignore GHSA-53p3-c7vp-4mcc \
-            --ignore GHSA-p9fm-f462-ggrg \
-            --ignore CVE-2026-33658 \
-            --ignore GHSA-qvqr-5cv7-wh35
+        # Ignores managed via .bundler-audit.yml in the project root
+        run: bundle exec bundler-audit check --update
 
   scan_js:
     runs-on: ubuntu-latest
