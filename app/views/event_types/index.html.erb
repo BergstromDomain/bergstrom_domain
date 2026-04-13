@@ -2,9 +2,13 @@
 
 <%= link_to "New Event Type", new_event_type_path %>
 
-<% @event_types.each do |et| %>
-  <div>
-    <%= lucide_icon(et.icon, size: 20) %>
-    <%= link_to et.name, event_type_path(et) %>
-  </div>
+<% if @event_types.empty? %>
+  <p>No event types found</p>
+<% else %>
+  <% @event_types.each do |et| %>
+    <div>
+      <%= lucide_icon(et.icon, size: 20) %>
+      <%= link_to et.name, event_type_path(et) %>
+    </div>
+  <% end %>
 <% end %>
