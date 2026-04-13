@@ -10,8 +10,16 @@ class EventType < ApplicationRecord
   validates :name,        presence: true, uniqueness: { case_sensitive: false }
   validates :description, presence: true
   validates :icon,        presence: true, uniqueness: true
+  validate  :icon_must_exist
 
   def should_generate_new_friendly_id?
     name_changed? || super
+  end
+
+  private
+
+  def icon_must_exist
+    return if icon.blank?
+    errors.add(:icon, "is not a valid Lucide icon name") unless LUCIDE_VALID_ICONS.include?(icon)
   end
 end
