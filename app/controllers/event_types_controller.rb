@@ -33,7 +33,12 @@ class EventTypesController < ApplicationController
 
   def destroy
     @event_type.destroy
-    redirect_to event_types_path, notice: "Event type deleted."
+    if @event_type.errors.any?
+      redirect_to event_type_path(@event_type),
+                  alert: @event_type.errors.full_messages.to_sentence
+    else
+      redirect_to event_types_path, notice: "Event type deleted."
+    end
   end
 
   private

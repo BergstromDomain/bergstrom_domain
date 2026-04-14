@@ -4,7 +4,7 @@ class PeopleController < ApplicationController
   before_action :set_person, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @people = Person.order(:last_name, :first_name)
+    @people = Person.order(:last_name, :first_name).includes(:thumbnail_image_attachment)
   end
 
   def show; end

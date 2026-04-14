@@ -21,51 +21,18 @@
   </div>
 
   <div>
-    <%= f.label :icon, "Icon" %>
+    <%= f.label :icon %>
     <p>
-      <%= link_to "Browse all Lucide icons", "https://lucide.dev/icons/",
+      Find icon names at <%= link_to "lucide.dev/icons", "https://lucide.dev/icons/",
             target: "_blank", rel: "noopener noreferrer" %>
     </p>
-
-    <%# Hidden field holds the selected value %>
-    <%= f.hidden_field :icon, id: "icon_value" %>
-
-    <%# Visual grid of icons to pick from %>
-    <div id="icon-picker">
-      <% EventTypesHelper::LUCIDE_ICON_OPTIONS.each do |icon_name| %>
-        <button type="button"
-                class="icon-option <%= 'selected' if event_type.icon == icon_name %>"
-                data-icon="<%= icon_name %>"
-                title="<%= icon_name %>">
-          <%= lucide_icon(icon_name, size: 24) %>
-          <span><%= icon_name %></span>
-        </button>
-      <% end %>
-    </div>
-
-    <p id="selected-icon-label">
-      Selected: <strong id="selected-icon-name"><%= event_type.icon.presence || "none" %></strong>
-    </p>
+    <%= f.text_field :icon, placeholder: "e.g. music, cake, trophy" %>
+    <% if event_type.persisted? && event_type.icon.present? && EventType::LUCIDE_VALID_ICONS.include?(event_type.icon) %>
+      <div><%= lucide_icon(event_type.icon, size: 24) %></div>
+    <% end %>
   </div>
 
   <div>
     <%= f.submit %>
   </div>
 <% end %>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const hiddenField = document.getElementById("icon_value");
-    const nameLabel   = document.getElementById("selected-icon-name");
-    const buttons     = document.querySelectorAll(".icon-option");
-
-    buttons.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        buttons.forEach(function (b) { b.classList.remove("selected"); });
-        btn.classList.add("selected");
-        hiddenField.value = btn.dataset.icon;
-        nameLabel.textContent = btn.dataset.icon;
-      });
-    });
-  });
-</script>

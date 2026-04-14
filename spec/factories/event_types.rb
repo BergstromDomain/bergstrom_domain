@@ -3,6 +3,6 @@ FactoryBot.define do
   factory :event_type do
     sequence(:name) { |n| "EventType #{n}" }
     description     { Faker::Lorem.paragraph }
-    sequence(:icon) { |n| "icon-#{n}" }
+    sequence(:icon) { |n| EventType::LUCIDE_VALID_ICONS.to_a[n % EventType::LUCIDE_VALID_ICONS.size] }
   end
 end

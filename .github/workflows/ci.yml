@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -22,21 +22,15 @@ jobs:
         run: bin/brakeman --no-pager
 
       - name: Scan for known security vulnerabilities in gems used
-              # GHSA-53p3-c7vp-4mcc: action_text-trix XSS — Action Text not in use yet
-              # GHSA-p9fm-f462-ggrg: activestorage DoS — proxy mode not in use
-              # GHSA-qvqr-5cv7-wh35: mcp SSE hijacking — transitive dep via RuboCop, not fixable
-              run: |
-                bundle exec bundler-audit check --update \
-                  --ignore GHSA-53p3-c7vp-4mcc \
-                  --ignore GHSA-p9fm-f462-ggrg \
-                  --ignore GHSA-qvqr-5cv7-wh35
+        # Ignores managed via .bundler-audit.yml in the project root
+        run: bundle exec bundler-audit check --update
 
   scan_js:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -52,7 +46,7 @@ jobs:
       RUBOCOP_CACHE_ROOT: tmp/rubocop
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -93,15 +87,27 @@ jobs:
 
     steps:
       - name: Install packages
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libpq-dev
+          wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt-get install -y /tmp/chrome.deb
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+
+      - name: Set up database
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432
+        run: |
+          bin/rails db:create
+          bin/rails db:schema:load
 
       - name: Run tests
         env:
@@ -132,18 +138,27 @@ jobs:
 
     steps:
       - name: Install packages
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y \
-          libpq-dev \
-          chromium-browser \
-          chromium-chromedriver
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libpq-dev
+          wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt-get install -y /tmp/chrome.deb
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+
+      - name: Set up database
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432
+        run: |
+          bin/rails db:create
+          bin/rails db:schema:load
 
       - name: Run System Tests
         env:

@@ -6,6 +6,7 @@
   <ul>
     <% @events.each do |event| %>
       <li>
+        <%= lucide_icon(event.event_type.icon, size: 20) %>
         <% if event.thumbnail_image.attached? %>
           <%= image_tag event.thumbnail_image, alt: event.title, style: "max-width: 100px;" %>
         <% end %>

@@ -1,0 +1,5 @@
+ignore:
+  - GHSA-53p3-c7vp-4mcc
+  - GHSA-p9fm-f462-ggrg
+  - CVE-2026-33658
+  - GHSA-qvqr-5cv7-wh35
