@@ -7,8 +7,7 @@
 
 <p>Icon: <code><%= @event_type.icon %></code></p>
 
-<%= link_to "Edit", edit_event_type_path(@event_type) %>
-
-<%= button_to "Delete Event Type", event_type_path(@event_type),
-      method: :delete,
-      data: { turbo_confirm: "Are you sure?" } %>
+<% if authenticated? %>
+  <%= link_to "Edit", edit_event_type_path(@event_type) %>
+  <%= button_to "Delete Event Type", @event_type, method: :delete, data: { turbo_confirm: "Are you sure?" } %>
+<% end %>

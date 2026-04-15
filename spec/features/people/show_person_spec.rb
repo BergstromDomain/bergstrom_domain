@@ -21,6 +21,8 @@ RSpec.describe "Show Person", type: :feature do
   end
 
   it "has links to edit and go back to the list" do
+    user = create(:user)
+    sign_in_as(user)
     visit person_path(person)
     expect(page).to have_link("Edit")
     expect(page).to have_link("Back to People")

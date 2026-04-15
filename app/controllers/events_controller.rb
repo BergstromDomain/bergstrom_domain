@@ -1,4 +1,5 @@
 class EventsController < ApplicationController
+  allow_unauthenticated_access only: %i[index show]
   before_action :set_event, only: [ :show, :edit, :update, :destroy ]
 
   def index

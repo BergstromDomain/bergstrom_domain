@@ -20,10 +20,12 @@
     </ul>
   <% end %>
 
-  <%= link_to "Edit", edit_person_path(@person) %>
   <%= link_to "Back to People", people_path %>
-  <%= button_to "Delete #{@person.full_name}",
-                person_path(@person),
-                method: :delete,
-                data: { confirm: "Are you sure?" } %>
+  <% if authenticated? %>
+    <%= link_to "Edit", edit_person_path(@person) %>
+    <%= button_to "Delete #{@person.full_name}",
+                  person_path(@person),
+                  method: :delete,
+                  data: { confirm: "Are you sure?" } %>
+  <% end %>
 </div>

@@ -1,6 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "List People", type: :feature do
+  let!(:user)       { create(:user) }
   context "when no people exist" do
     it "shows an empty state message" do
       visit people_path
@@ -30,6 +31,7 @@ RSpec.describe "List People", type: :feature do
     end
 
     it "shows a link to add a new person" do
+      sign_in_as(user)
       visit people_path
       expect(page).to have_link("Add Person", href: new_person_path)
     end
