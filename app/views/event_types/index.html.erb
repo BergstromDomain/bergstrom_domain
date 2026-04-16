@@ -1,6 +1,8 @@
 <h1>Event Types</h1>
 
-<%= link_to "New Event Type", new_event_type_path %>
+<% if authenticated? %>
+  <%= link_to "New event type", new_event_type_path %>
+<% end %>
 
 <% if @event_types.empty? %>
   <p>No event types found</p>

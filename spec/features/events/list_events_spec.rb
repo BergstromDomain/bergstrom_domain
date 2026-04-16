@@ -46,6 +46,8 @@ RSpec.describe "List Events", type: :feature do
     end
 
     it "shows a link to add a new event" do
+      user = create(:user)
+      sign_in_as(user)
       visit events_path
       expect(page).to have_link("Add Event", href: new_event_path)
     end

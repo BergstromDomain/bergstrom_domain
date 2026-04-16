@@ -2,6 +2,12 @@
 require "rails_helper"
 
 RSpec.describe "Delete event type", type: :feature do
+  let(:user) { create(:user) }
+
+  before do
+    sign_in_as(user)
+  end
+
   # 1) Happy path ─────────────────────────────────────────────────────────────
   describe "happy path" do
     it "deletes an event type with no associated events and redirects to index" do

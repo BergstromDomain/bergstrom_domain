@@ -1,5 +1,11 @@
 # db/seeds.rb
 
+# ── Admin user ──────────────────────────────────────────────────────────────
+User.find_or_create_by!(email_address: Rails.application.credentials.admin_email) do |user|
+  user.password              = Rails.application.credentials.admin_password
+  user.password_confirmation = Rails.application.credentials.admin_password
+end
+
 # ── Event Types ─────────────────────────────────────────────────────────────
 event_types = {
   birthday:  EventType.find_or_create_by!(name: "Birthday")  { |et| et.description = "Birthday celebrations"; et.icon = "cake" },

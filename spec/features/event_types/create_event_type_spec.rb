@@ -2,6 +2,12 @@
 require "rails_helper"
 
 RSpec.describe "Create event type", type: :feature do
+  let(:user) { create(:user) }
+
+  before do
+    sign_in_as(user)
+  end
+
   # 1) Happy path ─────────────────────────────────────────────────────────────
   describe "happy path" do
     it "creates an event type with all required fields" do

@@ -6,5 +6,4 @@ Capybara.register_driver :chrome_headless do |app|
   options.add_argument("--disable-dev-shm-usage")
   Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
 end
-
 Capybara.javascript_driver = :chrome_headless

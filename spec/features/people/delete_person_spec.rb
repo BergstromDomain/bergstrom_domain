@@ -3,7 +3,12 @@
 require "rails_helper"
 
 RSpec.describe "Delete Person", type: :feature do
+  let!(:user)       { create(:user) }
   let!(:person) { create(:person, :james_hetfield) }
+
+  before do |example|
+    sign_in_as(user) unless example.metadata[:js]
+  end
 
   it "deletes the person and redirects to the list" do
     visit person_path(person)

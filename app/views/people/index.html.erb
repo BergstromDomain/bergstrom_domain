@@ -9,5 +9,6 @@
 <% else %>
   <p>No people found</p>
 <% end %>
-
-<%= link_to "Add Person", new_person_path %>
+<% if authenticated? %>
+  <%= link_to "Add Person", new_person_path %>
+<% end %>

@@ -1,0 +1,21 @@
+<h1>Sign in</h1>
+
+<% if flash[:alert] %>
+  <p><%= flash[:alert] %></p>
+<% end %>
+
+<%= form_with url: session_path do |form| %>
+  <div>
+    <%= form.label :email_address, "Email address" %>
+    <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username" %>
+  </div>
+
+  <div>
+    <%= form.label :password %>
+    <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72 %>
+  </div>
+
+  <%= form.submit "Sign in" %>
+<% end %>
+
+<%= link_to "Forgot password?", new_password_path %>

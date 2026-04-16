@@ -1,6 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "Show Event", type: :feature do
+  let(:user)      { create(:user) }
   let!(:music) { create(:event_type, name: "Music", description: "Musical events", icon: "music") }
   let!(:hetfield) { create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield") }
 
@@ -15,6 +16,10 @@ RSpec.describe "Show Event", type: :feature do
     )
     e.people << hetfield
     e
+  end
+
+  before do
+    sign_in_as(user)
   end
 
   it "displays the event title" do

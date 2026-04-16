@@ -2,6 +2,12 @@
 require "rails_helper"
 
 RSpec.describe "Edit event type", type: :feature do
+  let(:user) { create(:user) }
+
+  before do
+    sign_in_as(user)
+  end
+
   # 1) Happy path ─────────────────────────────────────────────────────────────
   describe "happy path" do
     it "updates the name and regenerates the slug" do

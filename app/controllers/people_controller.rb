@@ -1,6 +1,7 @@
 # app/controllers/people_controller.rb
 
 class PeopleController < ApplicationController
+  allow_unauthenticated_access only: %i[index show]
   before_action :set_person, only: [ :show, :edit, :update, :destroy ]
 
   def index
