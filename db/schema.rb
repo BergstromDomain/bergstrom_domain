@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_17_070904) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_17_230032) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_070904) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "app_permissions", force: :cascade do |t|
+    t.string "app_name"
+    t.boolean "can_create"
+    t.boolean "can_delete"
+    t.boolean "can_update"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_app_permissions_on_user_id"
   end
 
   create_table "contacts", force: :cascade do |t|
@@ -134,6 +145,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_070904) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "app_permissions", "users"
   add_foreign_key "contacts", "users"
   add_foreign_key "contacts", "users", column: "contact_id"
   add_foreign_key "event_people", "events"
