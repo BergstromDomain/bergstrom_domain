@@ -1,10 +1,12 @@
 # db/seeds.rb
 
 # ── Admin user ──────────────────────────────────────────────────────────────
-User.find_or_create_by!(email_address: Rails.application.credentials.admin_email) do |user|
-  user.password              = Rails.application.credentials.admin_password
-  user.password_confirmation = Rails.application.credentials.admin_password
+user = User.find_or_create_by!(email_address: Rails.application.credentials.admin_email) do |u|
+  u.password = Rails.application.credentials.admin_password
+  u.password_confirmation = Rails.application.credentials.admin_password
 end
+
+user.update!(role: "system_admin")
 
 # ── Event Types ─────────────────────────────────────────────────────────────
 event_types = {

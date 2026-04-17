@@ -32,7 +32,7 @@
   </p>
 <% end %>
 <%= link_to "Back to Events", events_path %>
-<% if authenticated? %>
+<% if authenticated? && (@event.user == current_user || current_user.can_administer?) %>
   <%= link_to "Edit", edit_event_path(@event) %>
   <%= button_to "Delete Event", event_path(@event), method: :delete,
       data: { turbo_confirm: "Are you sure you want to delete this event?" } %>

@@ -15,7 +15,7 @@ RSpec.describe "Event visibility", type: :feature do
   end
 
   let!(:contacts_event) do
-    e = create(:event, :contacts, title: "Circle Gig", event_type: event_type,
+    e = create(:event, :contacts, title: "Contacts Gig", event_type: event_type,
                day: 2, month: 2, year: 2000, user: creator)
     e.people << hetfield
     e
@@ -33,15 +33,16 @@ RSpec.describe "Event visibility", type: :feature do
     it "shows unrestricted events to unauthenticated visitors on index" do
       visit events_path
       expect(page).to have_content("Public Gig")
-      expect(page).not_to have_content("Circle Gig")
+      expect(page).not_to have_content("Contacts Gig")
       expect(page).not_to have_content("Private Gig")
     end
 
-    it "shows unrestricted and contacts events to authenticated users on index" do
+    it "shows unrestricted and contacts events to a confirmed contact on index" do
+      create(:contact, user: creator, contact: other_user, status: "confirmed")
       sign_in_as(other_user)
       visit events_path
       expect(page).to have_content("Public Gig")
-      expect(page).to have_content("Circle Gig")
+      expect(page).to have_content("Contacts Gig")
       expect(page).not_to have_content("Private Gig")
     end
 
@@ -55,7 +56,7 @@ RSpec.describe "Event visibility", type: :feature do
       sign_in_as(other_user)
       visit event_path(contacts_event)
       expect(page).to have_current_path(event_path(contacts_event))
-      expect(page).to have_content("Circle Gig")
+      expect(page).to have_content("Contacts Gig")
     end
 
     it "allows an authenticated user to view a restricted event show page" do
@@ -92,7 +93,7 @@ RSpec.describe "Event visibility", type: :feature do
     it "shows unrestricted events to visitors even when contacts events also exist" do
       visit events_path
       expect(page).to have_content("Public Gig")
-      expect(page).not_to have_content("Circle Gig")
+      expect(page).not_to have_content("Contacts Gig")
     end
   end
 
