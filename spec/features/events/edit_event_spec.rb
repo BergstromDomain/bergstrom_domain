@@ -1,19 +1,20 @@
+# spec/features/events/edit_event_spec.rb
 require "rails_helper"
 
 RSpec.describe "Edit Event", type: :feature do
-  let!(:user) { create(:user) }
+  let!(:user)     { create(:user) }
   let!(:music)    { create(:event_type, name: "Music",  description: "Musical events", icon: "music") }
   let!(:sport)    { create(:event_type, name: "Sport",  description: "Sporting events", icon: "trophy") }
   let!(:hetfield) { create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield") }
   let!(:ulrich)   { create(:person, first_name: "Lars",  middle_name: nil, last_name: "Ulrich") }
-
   let!(:event) do
     e = create(:event,
       title:      "Kill 'Em All",
       day:        25,
       month:      7,
       year:       1983,
-      event_type: music
+      event_type: music,
+      user:       user
     )
     e.people << hetfield
     e
@@ -40,7 +41,6 @@ RSpec.describe "Edit Event", type: :feature do
   end
 
   context "uploading an event image", js: true do
-    # TODO: JS session isolation issue — revisit when front-end post addresses file upload interactions
     xit "attaches the image and shows it on the show page" do
       sign_in_as(user)
       visit edit_event_path(event)

@@ -1,12 +1,12 @@
+# spec/features/events/delete_event_spec.rb
 require "rails_helper"
 
 RSpec.describe "Delete Event", type: :feature do
-  let(:user)      { create(:user) }
+  let!(:user)     { create(:user) }
   let!(:music)    { create(:event_type, name: "Music", description: "Musical events", icon: "music") }
   let!(:hetfield) { create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield") }
-
   let!(:event) do
-    e = create(:event, title: "Load", event_type: music, day: 4, month: 6, year: 1996)
+    e = create(:event, title: "Load", event_type: music, day: 4, month: 6, year: 1996, user: user)
     e.people << hetfield
     e
   end

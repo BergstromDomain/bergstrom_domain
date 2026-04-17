@@ -13,11 +13,14 @@ RSpec.describe Event, type: :model do
     it { is_expected.to have_db_column(:year).of_type(:integer) }
     it { is_expected.to have_db_column(:slug).of_type(:string) }
     it { is_expected.to have_db_column(:event_type_id).of_type(:integer).with_options(null: false) }
+    it { is_expected.to have_db_column(:user_id).of_type(:integer).with_options(null: false) }
+    it { is_expected.to have_db_column(:classification).of_type(:string).with_options(null: false, default: "contacts") }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
   describe "associations" do
     it { is_expected.to belong_to(:event_type) }
+    it { is_expected.to belong_to(:user) }
     it { is_expected.to have_many(:event_people).dependent(:destroy) }
     it { is_expected.to have_many(:people).through(:event_people) }
     it { is_expected.to have_one_attached(:image) }
@@ -47,6 +50,30 @@ RSpec.describe Event, type: :model do
         it "is valid when month is present" do
           event = build(:event, month: 6)
           expect(event).to be_valid
+        end
+      end
+
+      context "classification" do
+        it "is valid with classification set to contacts" do
+          expect(build(:event, classification: "contacts")).to be_valid
+        end
+
+        it "is valid with classification set to unrestricted" do
+          expect(build(:event, classification: "unrestricted")).to be_valid
+        end
+
+        it "is valid with classification set to restricted" do
+          expect(build(:event, classification: "restricted")).to be_valid
+        end
+
+        it "defaults to contacts" do
+          expect(build(:event).classification).to eq("contacts")
+        end
+      end
+
+      context "user" do
+        it "is valid when a user is present" do
+          expect(build(:event, user: create(:user))).to be_valid
         end
       end
 
@@ -174,6 +201,29 @@ RSpec.describe Event, type: :model do
           duplicate = build(:event, title: "Kill  'Em   All")
           expect(duplicate).not_to be_valid
           expect(duplicate.errors[:title]).to include("has already been taken")
+        end
+      end
+
+      context "classification" do
+        it "is not valid without a classification" do
+          subject.classification = nil
+          expect(subject).not_to be_valid
+          expect(subject.errors[:classification]).to be_present
+        end
+
+        it "is not valid when classification is set to an unrecognised value" do
+          event = build(:event)
+          event.classification = "top_secret"
+          expect(event).not_to be_valid
+          expect(event.errors[:classification]).to be_present
+        end
+      end
+
+      context "user" do
+        it "is not valid without a user" do
+          subject.user = nil
+          expect(subject).not_to be_valid
+          expect(subject.errors[:user]).to be_present
         end
       end
 
@@ -314,6 +364,14 @@ RSpec.describe Event, type: :model do
         it "is valid without a description" do
           event = build(:event, description: nil)
           expect(event).to be_valid
+        end
+      end
+
+      context "classification" do
+        it "retains the classification when other attributes are updated" do
+          event = create(:event, :restricted)
+          event.update!(title: "Updated Title")
+          expect(event.reload.classification).to eq("restricted")
         end
       end
 
