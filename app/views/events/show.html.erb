@@ -19,6 +19,12 @@
   <strong>Date:</strong>
   <%= @event.display_date %>
 </p>
+
+<p>
+  <strong>Visibility:</strong>
+  <%= @event.classification.capitalize %>
+</p>
+
 <% if @event.description.present? %>
   <p>
     <strong>Description:</strong>

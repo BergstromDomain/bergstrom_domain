@@ -1,3 +1,4 @@
+# spec/features/events/list_events_spec.rb
 require "rails_helper"
 
 RSpec.describe "List Events", type: :feature do
@@ -9,19 +10,20 @@ RSpec.describe "List Events", type: :feature do
   end
 
   context "when events exist" do
+    let!(:user)     { create(:user) }
     let!(:music)    { create(:event_type, name: "Music", description: "Musical events", icon: "music") }
     let!(:hetfield) { create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield") }
 
     let!(:black_album) do
-      event = create(:event, title: "Metallica (Black Album)", event_type: music,
-                    day: 12, month: 8, year: 1991)
+      event = create(:event, :unrestricted, title: "Metallica (Black Album)", event_type: music,
+                    day: 12, month: 8, year: 1991, user: user)
       event.people << hetfield
       event
     end
 
     let!(:master_of_puppets) do
-      event = create(:event, title: "Master of Puppets", event_type: music,
-                    day: 3, month: 3, year: 1986)
+      event = create(:event, :unrestricted, title: "Master of Puppets", event_type: music,
+                    day: 3, month: 3, year: 1986, user: user)
       event.people << hetfield
       event
     end
@@ -46,7 +48,6 @@ RSpec.describe "List Events", type: :feature do
     end
 
     it "shows a link to add a new event" do
-      user = create(:user)
       sign_in_as(user)
       visit events_path
       expect(page).to have_link("Add Event", href: new_event_path)
@@ -55,11 +56,12 @@ RSpec.describe "List Events", type: :feature do
 
   context "when an event has a thumbnail image" do
     it "displays the thumbnail" do
+      user       = create(:user)
       event_type = create(:event_type, name: "Music", description: "Musical events", icon: "music")
       person     = create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield")
-      event      = create(:event, :with_thumbnail, title: "Thumbnail Event",
-                                                  day: 1, month: 1, year: 2000,
-                                                  event_type: event_type)
+      event      = create(:event, :unrestricted, :with_thumbnail, title: "Thumbnail Event",
+                                                day: 1, month: 1, year: 2000,
+                                                event_type: event_type, user: user)
       event.people << person
 
       visit events_path

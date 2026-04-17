@@ -2,24 +2,31 @@
 FactoryBot.define do
   factory :event do
     association      :event_type
+    association      :user
     sequence(:title) { |n| "Event #{n}" }
     description      { Faker::Lorem.paragraph }
     day              { rand(1..28) }
     month            { rand(1..12) }
     year             { [ rand(1950..2025), nil ].sample }
-
+    classification   { "contacts" }
     after(:build) do |event|
       event.people << build(:person) if event.people.empty?
     end
-
     trait :no_year do
       year { nil }
     end
-
     trait :dated do
       year { rand(1950..2025) }
     end
-
+    trait :unrestricted do
+      classification { "unrestricted" }
+    end
+    trait :contacts do
+      classification { "contacts" }
+    end
+    trait :restricted do
+      classification { "restricted" }
+    end
     trait :with_image do
       after(:create) do |event|
         event.image.attach(
@@ -29,7 +36,6 @@ FactoryBot.define do
         )
       end
     end
-
     trait :with_thumbnail do
       after(:create) do |event|
         event.thumbnail_image.attach(
@@ -39,7 +45,6 @@ FactoryBot.define do
         )
       end
     end
-
     trait :with_images do
       after(:create) do |event|
         event.image.attach(

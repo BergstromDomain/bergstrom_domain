@@ -6,9 +6,8 @@ RSpec.describe "Access control", type: :feature do
   let!(:event_type) { create(:event_type, name: "Music", description: "Music events", icon: "music") }
   let!(:person)     { create(:person, first_name: "James", last_name: "Hetfield") }
   let!(:event) do
-    e = build(:event, title: "Metallica Live", event_type: event_type)
+    e = create(:event, :unrestricted, title: "Metallica Live", event_type: event_type, user: user)
     e.people << person
-    e.save!
     e
   end
 

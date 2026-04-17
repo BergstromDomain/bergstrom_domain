@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_14_063825) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_16_102327) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -63,6 +63,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_14_063825) do
   end
 
   create_table "events", force: :cascade do |t|
+    t.string "classification", default: "contacts", null: false
     t.datetime "created_at", null: false
     t.integer "day", null: false
     t.text "description"
@@ -71,11 +72,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_14_063825) do
     t.string "slug"
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.integer "year"
     t.index ["event_type_id"], name: "index_events_on_event_type_id"
     t.index ["month", "day"], name: "index_events_on_month_day"
     t.index ["slug"], name: "index_events_on_slug", unique: true
     t.index ["title"], name: "index_events_on_title", unique: true
+    t.index ["user_id"], name: "index_events_on_user_id"
     t.index ["year", "month", "day"], name: "index_events_on_year_month_day"
   end
 
@@ -124,5 +127,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_14_063825) do
   add_foreign_key "event_people", "events"
   add_foreign_key "event_people", "people"
   add_foreign_key "events", "event_types"
+  add_foreign_key "events", "users"
   add_foreign_key "sessions", "users"
 end

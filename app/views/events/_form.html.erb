@@ -47,6 +47,15 @@
   </div>
 
   <div>
+    <%= f.label :classification, "Classification" %>
+    <%= f.select :classification,
+          [["Unrestricted — visible to everyone",   "unrestricted"],
+          ["Contacts — visible to my contacts",    "contacts"],
+          ["Restricted — visible only to me",      "restricted"]],
+          {} %>
+  </div>
+
+  <div>
     <%= f.label :image, "Event image" %>
     <% if event.image.attached? %>
       <%= image_tag event.image, alt: "Current image", style: "max-width: 400px; display: block;" %>
