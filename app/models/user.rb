@@ -1,7 +1,11 @@
 # app/models/user.rb
 class User < ApplicationRecord
+  include Roleable
+
   # ── Associations ──────────────────────────────────────────────────────────
   has_many :sessions, dependent: :destroy
+  has_many :contacts, dependent: :destroy
+  has_many :contact_users, through: :contacts, source: :contact
 
   # ── Validations ───────────────────────────────────────────────────────────
   has_secure_password

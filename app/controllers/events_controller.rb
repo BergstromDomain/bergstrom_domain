@@ -1,15 +1,17 @@
 # app/controllers/events_controller.rb
 class EventsController < ApplicationController
   allow_unauthenticated_access only: %i[index show]
-  before_action :set_event,        only: %i[show edit update destroy]
-  before_action :require_creator!, only: %i[edit update destroy]
+  before_action :set_event,           only: %i[show edit update destroy]
+  before_action :require_write_access!, only: %i[edit update destroy]
 
   def index
-    @events = if authenticated?
-                Event.visible_to_users.chronological
+    @events = if !authenticated?
+      Event.visible_to_visitors
+    elsif Current.user.can_administer?
+      Event.visible_to_admins
     else
-                Event.visible_to_visitors.chronological
-    end
+      Event.visible_to_users(Current.user)
+    end.chronological
   end
 
   def show
@@ -55,8 +57,8 @@ class EventsController < ApplicationController
     render file: "#{Rails.root}/public/404.html", status: :not_found
   end
 
-  def require_creator!
-    unless @event.user == Current.user
+  def require_write_access!
+    unless @event.user == Current.user || Current.user&.can_administer?
       redirect_to @event, alert: "You do not have permission to modify that event."
     end
   end
