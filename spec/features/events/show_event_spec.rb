@@ -7,12 +7,14 @@ RSpec.describe "Show Event", type: :feature do
 
   let!(:event) do
     e = create(:event,
+      :unrestricted,
       title:       "Kill 'Em All",
       description: "Metallica's debut studio album.",
       day:         25,
       month:       7,
       year:        1983,
-      event_type:  music
+      event_type:  music,
+      user:        user
     )
     e.people << hetfield
     e
