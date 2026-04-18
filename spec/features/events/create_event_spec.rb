@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "Create Event", type: :feature do
-  let!(:user) { create(:user) }
+  let!(:user) { create(:user, :content_creator) }
   let!(:music)    { create(:event_type, name: "Music", description: "Musical events", icon: "music") }
   let!(:hetfield) { create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield") }
 
@@ -106,7 +106,11 @@ RSpec.describe "Create Event", type: :feature do
   end
 
   context "with a duplicate title" do
-    before { create(:event, title: "Kill 'Em All", day: 25, month: 7, year: 1983, event_type: music) }
+    before do
+      e = create(:event, :unrestricted, title: "Kill 'Em All", day: 25, month: 7, year: 1983,
+                event_type: music, user: user)
+      e.people << hetfield
+    end
 
     it "shows a uniqueness error" do
       visit new_event_path

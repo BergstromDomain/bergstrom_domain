@@ -53,14 +53,14 @@ RSpec.describe "Event visibility", type: :feature do
     end
 
     it "allows an authenticated user to view a contacts event show page" do
-      sign_in_as(other_user)
+      sign_in_as(creator)
       visit event_path(contacts_event)
       expect(page).to have_current_path(event_path(contacts_event))
       expect(page).to have_content("Contacts Gig")
     end
 
     it "allows an authenticated user to view a restricted event show page" do
-      sign_in_as(other_user)
+      sign_in_as(creator)
       visit event_path(restricted_event)
       expect(page).to have_current_path(event_path(restricted_event))
       expect(page).to have_content("Private Gig")
@@ -85,7 +85,7 @@ RSpec.describe "Event visibility", type: :feature do
   # 3) Alternative path ─────────────────────────────────────────────────────
   describe "alternative path" do
     it "shows the classification on the event show page for authenticated users" do
-      sign_in_as(other_user)
+      sign_in_as(creator)
       visit event_path(contacts_event)
       expect(page).to have_content("Contacts")
     end

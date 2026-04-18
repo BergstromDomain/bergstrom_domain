@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "Access control", type: :feature do
-  let!(:user)       { create(:user) }
+  let!(:user) { create(:user, :content_creator) }
   let!(:event_type) { create(:event_type, name: "Music", description: "Music events", icon: "music") }
   let!(:person)     { create(:person, first_name: "James", last_name: "Hetfield") }
   let!(:event) do
