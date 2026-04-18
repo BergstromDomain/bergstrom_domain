@@ -7,12 +7,12 @@ class EventsController < ApplicationController
 
   def index
     @events = if !authenticated?
-                Event.visible_to_visitors
-              elsif current_user.can_administer?
-                Event.visible_to_admins
-              else
-                Event.visible_to_users(current_user)
-              end.chronological
+      Event.visible_to_visitors
+    elsif current_user.can_administer?
+      Event.visible_to_admins
+    else
+     Event.visible_to_users(current_user)
+    end.chronological
   end
 
   def show
