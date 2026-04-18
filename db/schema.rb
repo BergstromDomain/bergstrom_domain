@@ -43,13 +43,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_230032) do
   end
 
   create_table "app_permissions", force: :cascade do |t|
-    t.string "app_name"
-    t.boolean "can_create"
-    t.boolean "can_delete"
-    t.boolean "can_update"
+    t.string "app_name", null: false
+    t.boolean "can_create", default: false, null: false
+    t.boolean "can_delete", default: false, null: false
+    t.boolean "can_update", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["user_id", "app_name"], name: "index_app_permissions_on_user_id_and_app_name", unique: true
     t.index ["user_id"], name: "index_app_permissions_on_user_id"
   end
 
