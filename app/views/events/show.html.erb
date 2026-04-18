@@ -32,8 +32,11 @@
   </p>
 <% end %>
 <%= link_to "Back to Events", events_path %>
-<% if authenticated? && (@event.user == current_user || current_user.can_administer?) %>
+<% if @policy.can_update? %>
   <%= link_to "Edit", edit_event_path(@event) %>
+<% end %>
+<% if @policy.can_delete? %>
   <%= button_to "Delete Event", event_path(@event), method: :delete,
       data: { turbo_confirm: "Are you sure you want to delete this event?" } %>
 <% end %>
+

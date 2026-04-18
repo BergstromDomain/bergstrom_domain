@@ -2,13 +2,14 @@
 require "rails_helper"
 
 RSpec.describe "Edit Event", type: :feature do
-  let!(:user)     { create(:user) }
+  let!(:user) { create(:user, :content_creator) }
   let!(:music)    { create(:event_type, name: "Music",  description: "Musical events", icon: "music") }
   let!(:sport)    { create(:event_type, name: "Sport",  description: "Sporting events", icon: "trophy") }
   let!(:hetfield) { create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield") }
   let!(:ulrich)   { create(:person, first_name: "Lars",  middle_name: nil, last_name: "Ulrich") }
   let!(:event) do
     e = create(:event,
+      :unrestricted,
       title:      "Kill 'Em All",
       day:        25,
       month:      7,

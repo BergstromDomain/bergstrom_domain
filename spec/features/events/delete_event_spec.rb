@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "Delete Event", type: :feature do
-  let!(:user)     { create(:user) }
+  let!(:user) { create(:user, :content_creator) }
   let!(:music)    { create(:event_type, name: "Music", description: "Musical events", icon: "music") }
   let!(:hetfield) { create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield") }
   let!(:event) do

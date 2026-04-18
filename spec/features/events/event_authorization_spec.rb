@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "Event write authorization", type: :feature do
-  let!(:owner)      { create(:user) }
+  let!(:owner) { create(:user, :content_creator) }
   let!(:other_user) { create(:user) }
   let!(:admin_user) { create(:user, role: "admin") }
   let!(:event_type) { create(:event_type, name: "Music", description: "Musical events", icon: "music") }

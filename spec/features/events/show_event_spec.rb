@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "Show Event", type: :feature do
-  let(:user)      { create(:user) }
+  let(:user) { create(:user, :content_creator) }
   let!(:music) { create(:event_type, name: "Music", description: "Musical events", icon: "music") }
   let!(:hetfield) { create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield") }
 
@@ -62,7 +62,10 @@ RSpec.describe "Show Event", type: :feature do
 
   context "when the event has no year" do
     let!(:undated_event) do
-      create(:event, title: "Annual Concert", day: 15, month: 8, year: nil, event_type: music)
+      e = create(:event, :unrestricted, title: "Annual Concert", day: 15, month: 8, year: nil,
+                event_type: music, user: user)
+      e.people << hetfield
+      e
     end
 
     it "displays just the day and month" do
