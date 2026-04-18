@@ -1,0 +1,12 @@
+/* app/assets/stylesheets/layout/top_nav.css */
+.top-nav {
+  background-color: var(--color-nav-bg);
+  color: var(--color-nav-text);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-lg);
+  height: var(--top-nav-height);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}

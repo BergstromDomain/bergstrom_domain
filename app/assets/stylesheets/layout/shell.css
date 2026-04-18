@@ -1,0 +1,17 @@
+/* app/assets/stylesheets/layout/shell.css */
+.site-shell {
+  display: grid;
+  grid-template-rows: var(--top-nav-height) 1fr var(--footer-height);
+  min-height: 100dvh;
+}
+
+.site-body {
+  display: flex;
+  overflow: hidden;
+}
+
+.site-main {
+  flex: 1;
+  padding: var(--space-lg);
+  overflow-y: auto;
+}

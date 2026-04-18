@@ -1,52 +1,9 @@
-/*
- * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
- */
-
- /* Icon picker */
-#icon-picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  padding: 12px;
-  border-radius: 4px;
-}
-
-.icon-option {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px;
-  border: 2px solid transparent;
-  border-radius: 6px;
-  background: none;
-  cursor: pointer;
-  font-size: 11px;
-  color: #555;
-  width: 72px;
-}
-
-.icon-option:hover {
-  border-color: #aaa;
-  background: #f5f5f5;
-}
-
-.icon-option.selected {
-  border-color: #2563eb;
-  background: #eff6ff;
-  color: #1d4ed8;
-}
-
-.icon-option svg {
-  display: block;
-}
+/* app/assets/stylesheets/application.css */
+@import "base/reset.css";
+@import "base/variables.css";
+@import "base/typography.css";
+@import "layout/shell.css";
+@import "layout/top_nav.css";
+@import "layout/left_nav.css";
+@import "layout/footer.css";
+@import "components/icon_picker.css";

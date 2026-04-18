@@ -1,0 +1,11 @@
+/* app/assets/stylesheets/layout/footer.css */
+.site-footer {
+  background-color: var(--color-footer-bg);
+  color: var(--color-footer-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-lg);
+  height: var(--footer-height);
+  font-size: 0.875rem;
+}

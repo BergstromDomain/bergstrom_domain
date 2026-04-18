@@ -6,5 +6,7 @@ Rails.application.routes.draw do
   resources :events
   resources :event_types
 
-  root "people#index"
+  root "pages#home"
+  get "about",   to: "pages#about"
+  get "contact", to: "pages#contact"
 end

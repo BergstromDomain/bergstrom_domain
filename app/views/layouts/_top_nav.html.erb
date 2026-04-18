@@ -1,0 +1,8 @@
+<%# app/views/layouts/_top_nav.html.erb %>
+<nav class="top-nav" data-testid="top-nav">
+  <%# Full implementation in Post #12 %>
+  <span>bergstromdomain.com</span>
+  <% if authenticated? %>
+    <%= button_to "Sign out", session_path, method: :delete %>
+  <% end %>
+</nav>
