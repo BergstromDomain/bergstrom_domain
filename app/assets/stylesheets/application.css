@@ -1,9 +1,305 @@
-/* app/assets/stylesheets/application.css */
-@import "base/reset.css";
-@import "base/variables.css";
-@import "base/typography.css";
-@import "layout/shell.css";
-@import "layout/top_nav.css";
-@import "layout/left_nav.css";
-@import "layout/footer.css";
-@import "components/icon_picker.css";
+/* app/assets/stylesheets/base/reset.css */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  line-height: 1.5;
+}
+
+img, video {
+  max-width: 100%;
+  display: block;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}:root {
+  /* Colour palette */
+  --color-bg:              #ffffff;
+  --color-text:            #1a1a2e;
+  --color-text-muted:      #6b7280;
+  --color-border:          #e5e7eb;
+  --color-surface:         #ffffff;
+  --color-surface-hover:   #f3f4f6;
+  --color-nav-bg:          #1a1a2e;
+  --color-nav-text:        #f9fafb;
+  --color-nav-text-muted:  #9ca3af;
+  --color-nav-hover:       #2d2d4e;
+  --color-nav-border:      #3d3d5e;
+  --color-accent:          #4f46e5;
+  --color-accent-text:     #ffffff;
+  --color-accent-hover:    #4338ca;
+  --color-footer-bg:       #1a1a2e;
+  --color-footer-text:     #9ca3af;
+  /* Spacing */
+  --space-xs:  0.25rem;
+  --space-sm:  0.5rem;
+  --space-md:  1rem;
+  --space-lg:  1.5rem;
+  --space-xl:  2rem;
+  /* Layout */
+  --top-nav-height:  3.5rem;
+  --left-nav-width:  14rem;
+  --footer-height:   3rem;
+  /* Typography */
+  --font-sans:     system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:     ui-monospace, "Cascadia Code", "Source Code Pro", monospace;
+  --font-size-sm:  0.875rem;
+  /* Borders */
+  --radius-sm:  0.25rem;
+  --radius-md:  0.375rem;
+  /* Shadows */
+  --shadow-md:  0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}/* app/assets/stylesheets/base/typography.css */
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+h1 { font-size: 1.875rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+code, pre {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+/* app/assets/stylesheets/layout/shell.css */
+.site-shell {
+  display: grid;
+  grid-template-rows: var(--top-nav-height) 1fr var(--footer-height);
+  min-height: 100dvh;
+}
+
+.site-body {
+  display: flex;
+  overflow: hidden;
+}
+
+.site-main {
+  flex: 1;
+  padding: var(--space-lg);
+  overflow-y: auto;
+}/* app/assets/stylesheets/layout/top_nav.css */
+
+/* ── Container ──────────────────────────────────────────────────────── */
+.top-nav {
+  background-color: var(--color-nav-bg);
+  color: var(--color-nav-text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-lg);
+  height: var(--top-nav-height);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* ── Left cluster ───────────────────────────────────────────────────── */
+.top-nav__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.top-nav__link {
+  color: var(--color-nav-text);
+  text-decoration: none;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  transition: background-color 0.15s ease;
+}
+
+.top-nav__link:hover,
+.top-nav__link:focus-visible {
+  background-color: var(--color-nav-hover);
+  outline: none;
+}
+
+/* ── Dropdown ───────────────────────────────────────────────────────── */
+.dropdown {
+  position: relative;
+}
+
+.dropdown__chevron {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.15s ease;
+}
+
+.dropdown__menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + var(--space-xs));
+  left: 0;
+  min-width: 160px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  list-style: none;
+  margin: 0;
+  padding: var(--space-xs) 0;
+  z-index: 200;
+}
+
+.dropdown__menu.dropdown--open {
+  display: block;
+}
+
+.dropdown__item {
+  display: block;
+  padding: var(--space-xs) var(--space-md);
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  transition: background-color 0.1s ease;
+}
+
+.dropdown__item:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.dropdown__item--stub {
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+.dropdown__item--stub:hover {
+  background-color: transparent;
+}
+
+/* ── Right cluster ──────────────────────────────────────────────────── */
+.top-nav__auth {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-left: auto;
+}
+
+.top-nav__username {
+  font-size: var(--font-size-sm);
+  color: var(--color-nav-text-muted);
+}
+
+.top-nav__button {
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.top-nav__button--login {
+  background-color: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.top-nav__button--login:hover {
+  background-color: var(--color-accent-hover);
+}
+
+.top-nav__button--signout {
+  background: none;
+  border-color: var(--color-nav-border);
+  color: var(--color-nav-text);
+}
+
+.top-nav__button--signout:hover {
+  background-color: var(--color-nav-hover);
+}/* app/assets/stylesheets/layout/left_nav.css */
+.left-nav {
+  width: var(--left-nav-width);
+  flex-shrink: 0;
+  background-color: var(--color-nav-bg);
+  color: var(--color-nav-text);
+  overflow-y: auto;
+  padding: var(--space-md) 0;
+}
+/* app/assets/stylesheets/layout/footer.css */
+.site-footer {
+  background-color: var(--color-footer-bg);
+  color: var(--color-footer-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-lg);
+  height: var(--footer-height);
+  font-size: 0.875rem;
+}/* app/assets/stylesheets/components/icon_picker.css */
+/* TODO Post #14: replace hardcoded hex values with CSS custom properties */
+#icon-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.icon-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: #555;
+  width: 72px;
+}
+
+.icon-option:hover {
+  border-color: #aaa;
+  background: #f5f5f5;
+}
+
+.icon-option.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.icon-option svg {
+  display: block;
+}

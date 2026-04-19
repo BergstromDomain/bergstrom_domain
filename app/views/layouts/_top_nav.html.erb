@@ -1,8 +1,44 @@
 <%# app/views/layouts/_top_nav.html.erb %>
 <nav class="top-nav" data-testid="top-nav">
-  <%# Full implementation in Post #12 %>
-  <span>bergstromdomain.com</span>
-  <% if authenticated? %>
-    <%= button_to "Sign out", session_path, method: :delete %>
-  <% end %>
+
+  <div class="top-nav__links">
+
+    <%= link_to "Home", root_path, class: "top-nav__link" %>
+
+    <%= render "layouts/dropdown",
+               label: "Apps",
+               items: [
+                 { label: "Event Tracker", path: events_path },
+                 { label: "Blog Posts",    path: blog_posts_path }
+               ] %>
+
+    <%= render "layouts/dropdown",
+               label: "Info",
+               items: [
+                 { label: "About",   path: about_path },
+                 { label: "Contact", path: contact_path }
+               ] %>
+
+    <% if authenticated? && current_user.system_admin? %>
+      <%= render "layouts/dropdown",
+                 label: "System Admin",
+                 items: [
+                   { label: "User Management", path: nil },
+                   { label: "App Management",  path: nil }
+                 ] %>
+    <% end %>
+
+  </div>
+
+  <div class="top-nav__auth">
+    <% if authenticated? %>
+      <span class="top-nav__username"><%= current_user.email_address %></span>
+      <%= button_to "Sign Out", session_path, method: :delete,
+                    class: "top-nav__button top-nav__button--signout" %>
+    <% else %>
+      <%= link_to "Login", new_session_path,
+                  class: "top-nav__button top-nav__button--login" %>
+    <% end %>
+  </div>
+
 </nav>

@@ -1,0 +1,19 @@
+<%# app/views/layouts/_dropdown.html.erb %>
+<div class="dropdown" data-controller="dropdown">
+  <button class="top-nav__link top-nav__dropdown-trigger"
+          data-action="click->dropdown#toggle">
+    <%= label %>
+    <%= lucide_icon "chevron-down", class: "dropdown__chevron" %>
+  </button>
+  <ul class="dropdown__menu" data-dropdown-target="menu">
+    <% items.each do |item| %>
+      <li>
+        <% if item[:path] %>
+          <%= link_to item[:label], item[:path], class: "dropdown__item" %>
+        <% else %>
+          <span class="dropdown__item dropdown__item--stub"><%= item[:label] %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</div>
