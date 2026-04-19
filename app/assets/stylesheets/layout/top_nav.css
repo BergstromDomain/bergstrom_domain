@@ -1,0 +1,139 @@
+/* app/assets/stylesheets/layout/top_nav.css */
+
+/* ── Container ──────────────────────────────────────────────────────── */
+.top-nav {
+  background-color: var(--color-nav-bg);
+  color: var(--color-nav-text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-lg);
+  height: var(--top-nav-height);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* ── Left cluster ───────────────────────────────────────────────────── */
+.top-nav__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.top-nav__link {
+  color: var(--color-nav-text);
+  text-decoration: none;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  transition: background-color 0.15s ease;
+}
+
+.top-nav__link:hover,
+.top-nav__link:focus-visible {
+  background-color: var(--color-nav-hover);
+  outline: none;
+}
+
+/* ── Dropdown ───────────────────────────────────────────────────────── */
+.dropdown {
+  position: relative;
+}
+
+.dropdown__chevron {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.15s ease;
+}
+
+.dropdown__menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + var(--space-xs));
+  left: 0;
+  min-width: 160px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  list-style: none;
+  margin: 0;
+  padding: var(--space-xs) 0;
+  z-index: 200;
+}
+
+.dropdown__menu.dropdown--open {
+  display: block;
+}
+
+.dropdown__item {
+  display: block;
+  padding: var(--space-xs) var(--space-md);
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  transition: background-color 0.1s ease;
+}
+
+.dropdown__item:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.dropdown__item--stub {
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+.dropdown__item--stub:hover {
+  background-color: transparent;
+}
+
+/* ── Right cluster ──────────────────────────────────────────────────── */
+.top-nav__auth {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-left: auto;
+}
+
+.top-nav__username {
+  font-size: var(--font-size-sm);
+  color: var(--color-nav-text-muted);
+}
+
+.top-nav__button {
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.top-nav__button--login {
+  background-color: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.top-nav__button--login:hover {
+  background-color: var(--color-accent-hover);
+}
+
+.top-nav__button--signout {
+  background: none;
+  border-color: var(--color-nav-border);
+  color: var(--color-nav-text);
+}
+
+.top-nav__button--signout:hover {
+  background-color: var(--color-nav-hover);
+}

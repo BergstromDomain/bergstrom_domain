@@ -38,7 +38,7 @@ RSpec.describe "List event types", type: :feature do
       visit event_types_path
 
       expect(page).to have_http_status(:ok)
-      expect(page).not_to have_css("svg")
+      expect(page).not_to have_css(".event-type")
     end
   end
 end

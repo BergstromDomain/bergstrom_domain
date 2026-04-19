@@ -1,0 +1,42 @@
+/* app/assets/stylesheets/components/icon_picker.css */
+/* TODO Post #14: replace hardcoded hex values with CSS custom properties */
+#icon-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.icon-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: #555;
+  width: 72px;
+}
+
+.icon-option:hover {
+  border-color: #aaa;
+  background: #f5f5f5;
+}
+
+.icon-option.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.icon-option svg {
+  display: block;
+}
