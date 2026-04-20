@@ -1,5 +1,7 @@
 # app/controllers/events_controller.rb
 class EventsController < ApplicationController
+  include Navigable
+
   allow_unauthenticated_access only: %i[index show]
   before_action :resume_session_if_available, only: %i[index show]
   before_action :set_event,    only: %i[show edit update destroy]
@@ -12,7 +14,7 @@ class EventsController < ApplicationController
       Event.visible_to_admins
     else
      Event.visible_to_users(current_user)
-    end.chronological
+    end.includes(:thumbnail_image_attachment, :event_type).chronological
   end
 
   def show

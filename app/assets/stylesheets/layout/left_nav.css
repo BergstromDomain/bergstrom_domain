@@ -1,9 +1,0 @@
-/* app/assets/stylesheets/layout/left_nav.css */
-.left-nav {
-  width: var(--left-nav-width);
-  flex-shrink: 0;
-  background-color: var(--color-nav-bg);
-  color: var(--color-nav-text);
-  overflow-y: auto;
-  padding: var(--space-md) 0;
-}
