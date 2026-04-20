@@ -1,4 +1,62 @@
 <%# app/views/layouts/_left_nav.html.erb %>
-<aside class="left-nav" data-testid="left-nav">
-  <%# Full implementation in Post #13 %>
-</aside>
+<nav class="left-nav" data-testid="left-nav">
+  <% if @left_nav_section == :event_tracker %>
+
+    <%# ── Views ─────────────────────────────────────────────────────────── %>
+    <div class="left-nav-section">
+      <span class="left-nav-h1" data-testid="left-nav-h1">Views</span>
+      <ul class="left-nav-links">
+        <li><%= link_to "People",           people_path,      class: left_nav_link_class("people") %></li>
+        <%# TODO: replace placeholders with scoped routes when filter views are built %>
+        <li><%= link_to "Events Today",      events_path, class: left_nav_link_class("events") %></li>
+        <li><%= link_to "Events Tomorrow",   events_path, class: left_nav_link_class("events") %></li>
+        <li><%= link_to "Events Yesterday",  events_path, class: left_nav_link_class("events") %></li>
+        <li><%= link_to "Events This Week",  events_path, class: left_nav_link_class("events") %></li>
+        <li><%= link_to "Events Next Week",  events_path, class: left_nav_link_class("events") %></li>
+        <li><%= link_to "Events Last Week",  events_path, class: left_nav_link_class("events") %></li>
+        <li><%= link_to "Events This Month", events_path, class: left_nav_link_class("events") %></li>
+        <li><%= link_to "Events Next Month", events_path, class: left_nav_link_class("events") %></li>
+        <li><%= link_to "Events Last Month", events_path, class: left_nav_link_class("events") %></li>
+        <li><%= link_to "All Events",        events_path, class: left_nav_link_class("events") %></li>
+        <li><%= link_to "Event Types",       event_types_path, class: left_nav_link_class("event_types") %></li>
+      </ul>
+    </div>
+
+    <%# ── Actions (Content Creator and above) ───────────────────────────── %>
+    <% if can_see_left_nav_actions? %>
+      <% event_tracker_policy = Policy.new(current_user, :event_tracker) %>
+      <div class="left-nav-section">
+        <span class="left-nav-h1" data-testid="left-nav-h1">Actions</span>
+        <ul class="left-nav-links">
+          <% if event_tracker_policy.can_create? %>
+            <li><%= link_to "Create Person",     new_person_path,     class: "left-nav-link" %></li>
+            <li><%= link_to "Create Event",      new_event_path,      class: "left-nav-link" %></li>
+            <li><%= link_to "Create Event Type", new_event_type_path, class: "left-nav-link" %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%# ── Import & Export (Content Creator and above) ───────────────────── %>
+    <% if can_see_left_nav_actions? %>
+      <div class="left-nav-section">
+        <span class="left-nav-h1" data-testid="left-nav-h1">Import & Export</span>
+        <ul class="left-nav-links">
+          <%# TODO: replace # with import/export routes when built %>
+          <li><%= link_to "Import/Export People", "#", class: "left-nav-link left-nav-link--placeholder" %></li>
+          <li><%= link_to "Import/Export Events", "#", class: "left-nav-link left-nav-link--placeholder" %></li>
+        </ul>
+      </div>
+    <% end %>
+
+    <%# ── How To ─────────────────────────────────────────────────────────── %>
+    <div class="left-nav-section">
+      <span class="left-nav-h1" data-testid="left-nav-h1">How To</span>
+      <ul class="left-nav-links">
+        <%# TODO: replace # with user guide route when built %>
+        <li><%= link_to "Event Tracker User Guide", "#", class: "left-nav-link left-nav-link--placeholder" %></li>
+      </ul>
+    </div>
+
+  <% end %>
+</nav>

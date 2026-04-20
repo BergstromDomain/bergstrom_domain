@@ -1,0 +1,87 @@
+/* app/assets/stylesheets/layout/left_nav.css */
+
+.left-nav {
+  background-color: var(--color-nav-bg);
+  width: var(--left-nav-width);
+  min-height: 100%;
+  padding-top: 1rem;
+  padding-bottom: 2rem;
+  padding-left: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+}
+
+/* H1 section container */
+.left-nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 0.75rem;
+}
+
+.left-nav-section:first-child {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0.5rem;
+}
+
+/* H1 heading — Views, Actions, Import & Export, How To */
+.left-nav-h1 {
+  display: block;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-nav-h1);
+  user-select: none;
+}
+
+.left-nav-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+/* Links styled as buttons */
+.left-nav-link {
+  display: block;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-nav-link);
+  text-decoration: none;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.04);
+  margin-right: 0.75rem;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.left-nav-link:hover {
+  background-color: var(--color-nav-link-hover-bg);
+  color: var(--color-nav-link-hover);
+}
+
+.left-nav-link--active {
+  background-color: var(--color-nav-link-active-bg);
+  color: var(--color-nav-link-active);
+  font-weight: 600;
+}
+
+.left-nav-link--active:hover {
+  background-color: var(--color-nav-link-active-bg);
+  color: var(--color-nav-link-active);
+}
+
+/* Placeholder links — visually inert */
+.left-nav-link--placeholder {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}

@@ -1,5 +1,7 @@
 # app/controllers/event_types_controller.rb
 class EventTypesController < ApplicationController
+  include Navigable
+
   allow_unauthenticated_access only: %i[index show]
   before_action :set_event_type, only: %i[show edit update destroy]
 
