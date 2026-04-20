@@ -1,13 +1,44 @@
-<h1>
-  <%= lucide_icon(@event_type.icon, size: 32) %>
-  <%= @event_type.name %>
-</h1>
+<%# app/views/event_types/show.html.erb %>
 
-<p><%= @event_type.description %></p>
+<div class="page-header">
+  <div class="page-header__top">
+    <div class="page-header__title-group">
+      <span class="page-header__icon">
+        <%= lucide_icon(@event_type.icon, size: 32) %>
+      </span>
+      <h1 class="page-title"><%= @event_type.name %></h1>
+    </div>
+  </div>
+</div>
 
-<p>Icon: <code><%= @event_type.icon %></code></p>
+<div class="show-meta">
+  <dl class="definition-list">
+    <dt>Description</dt>
+    <dd data-testid="event-type-description">
+      <%= @event_type.description.presence || "—" %>
+    </dd>
 
-<% if authenticated? %>
-  <%= link_to "Edit", edit_event_type_path(@event_type) %>
-  <%= button_to "Delete Event Type", @event_type, method: :delete, data: { turbo_confirm: "Are you sure?" } %>
-<% end %>
+    <dt>Icon</dt>
+    <dd data-testid="event-type-icon-name"><%= @event_type.icon %></dd>
+  </dl>
+</div>
+
+<div class="page-footer">
+  <%= link_to "Back to Event Types", event_types_path, class: "btn btn-secondary" %>
+
+  <% if authenticated? && @policy.can_update? %>
+    <span class="btn-divider">|</span>
+    <%= link_to "Edit #{@event_type.name}",
+          edit_event_type_path(@event_type),
+          class: "btn btn-secondary" %>
+  <% end %>
+
+  <% if authenticated? && @policy.can_delete? %>
+    <span class="btn-divider">|</span>
+    <%= button_to "Delete #{@event_type.name}",
+          event_type_path(@event_type),
+          method: :delete,
+          class: "btn btn-danger",
+          data: { turbo_confirm: "Delete #{@event_type.name}? This cannot be undone." } %>
+  <% end %>
+</div>

@@ -36,21 +36,17 @@ class Policy
   def can_update?
     return false unless @user
     return true if system_admin?
-
     override = app_permission
     return override.can_update if override
-
-    write_access_by_role?
+    @resource.respond_to?(:user_id) ? write_access_by_role? : admin_access?
   end
 
   def can_delete?
     return false unless @user
     return true if system_admin?
-
     override = app_permission
     return override.can_delete if override
-
-    write_access_by_role?
+    @resource.respond_to?(:user_id) ? write_access_by_role? : admin_access?
   end
 
   private
@@ -58,6 +54,10 @@ class Policy
   def write_access_by_role?
     return false unless record?
     @user.admin? || (@user.content_creator? && owner?)
+  end
+
+  def admin_access?
+    @user.admin? || @user.system_admin?
   end
 
   def system_admin?
@@ -83,10 +83,10 @@ class Policy
 
   def app_name_for(resource)
     case resource
-    when Event, :event_tracker then "event_tracker"
-    when :blog_posts           then "blog_posts"
-    when :recipes              then "recipes"
-    when :photo_albums         then "photo_albums"
+    when Event, EventType, :event_tracker then "event_tracker"
+    when :blog_posts                      then "blog_posts"
+    when :recipes                         then "recipes"
+    when :photo_albums                    then "photo_albums"
     end
   end
 end
