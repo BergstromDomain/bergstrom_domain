@@ -1,12 +1,11 @@
 # spec/features/event_types/create_event_type_spec.rb
+
 require "rails_helper"
 
 RSpec.describe "Create event type", type: :feature do
-  let(:user) { create(:user) }
+  let(:admin) { create(:user, :admin) }
 
-  before do
-    sign_in_as(user)
-  end
+  before { sign_in_as(admin) }
 
   # 1) Happy path ─────────────────────────────────────────────────────────────
   describe "happy path" do
@@ -15,9 +14,9 @@ RSpec.describe "Create event type", type: :feature do
       fill_in "Name",        with: "Education"
       fill_in "Description", with: "School, university, and learning milestones."
       fill_in "Icon",        with: "graduation-cap"
-      click_button "Create Event type"
+      click_button "Create Event Type"
 
-      expect(page).to have_content("Education")
+      expect(page).to have_css("h1.page-title", text: "Education")
       expect(page).to have_css("svg")
     end
   end
@@ -28,8 +27,9 @@ RSpec.describe "Create event type", type: :feature do
       visit new_event_type_path
       fill_in "Description", with: "Something."
       fill_in "Icon",        with: "star"
-      click_button "Create Event type"
+      click_button "Create Event Type"
 
+      expect(page).to have_css("[data-testid='field-error']")
       expect(page).to have_content("can't be blank")
       expect(EventType.count).to eq(0)
     end
@@ -40,7 +40,7 @@ RSpec.describe "Create event type", type: :feature do
       fill_in "Name",        with: "Music"
       fill_in "Description", with: "Another music type."
       fill_in "Icon",        with: "mic"
-      click_button "Create Event type"
+      click_button "Create Event Type"
 
       expect(page).to have_content("has already been taken")
       expect(EventType.count).to eq(1)
@@ -52,7 +52,7 @@ RSpec.describe "Create event type", type: :feature do
       fill_in "Name",        with: "music"
       fill_in "Description", with: "Another music type."
       fill_in "Icon",        with: "mic"
-      click_button "Create Event type"
+      click_button "Create Event Type"
 
       expect(page).to have_content("has already been taken")
       expect(EventType.count).to eq(1)
@@ -62,8 +62,9 @@ RSpec.describe "Create event type", type: :feature do
       visit new_event_type_path
       fill_in "Name", with: "Education"
       fill_in "Icon", with: "graduation-cap"
-      click_button "Create Event type"
+      click_button "Create Event Type"
 
+      expect(page).to have_css("[data-testid='field-error']")
       expect(page).to have_content("can't be blank")
       expect(EventType.count).to eq(0)
     end
@@ -72,8 +73,9 @@ RSpec.describe "Create event type", type: :feature do
       visit new_event_type_path
       fill_in "Name",        with: "Education"
       fill_in "Description", with: "School, university, and learning milestones."
-      click_button "Create Event type"
+      click_button "Create Event Type"
 
+      expect(page).to have_css("[data-testid='field-error']")
       expect(page).to have_content("can't be blank")
       expect(EventType.count).to eq(0)
     end
@@ -83,10 +85,23 @@ RSpec.describe "Create event type", type: :feature do
       fill_in "Name",        with: "Education"
       fill_in "Description", with: "School, university, and learning milestones."
       fill_in "Icon",        with: "not-a-real-icon"
-      click_button "Create Event type"
+      click_button "Create Event Type"
 
       expect(page).to have_content("is not a valid Lucide icon name")
       expect(EventType.count).to eq(0)
+    end
+
+    it "redirects an unauthenticated visitor to sign in" do
+      click_button "Sign Out"
+      visit new_event_type_path
+      expect(page).to have_current_path(new_session_path)
+    end
+
+    it "redirects a content creator to the event types index" do
+      click_button "Sign Out"
+      sign_in_as create(:user, :content_creator)
+      visit new_event_type_path
+      expect(page).to have_current_path(event_types_path)
     end
   end
 
@@ -97,10 +112,22 @@ RSpec.describe "Create event type", type: :feature do
       fill_in "Name",        with: "Education"
       fill_in "Description", with: "School, university, and learning milestones."
       fill_in "Icon",        with: "not-a-real-icon"
-      click_button "Create Event type"
+      click_button "Create Event Type"
 
-      expect(page).to have_field("Name", with: "Education")
-      expect(page).to have_field("Icon", with: "not-a-real-icon")
+      expect(page).to have_field("Name",        with: "Education")
+      expect(page).to have_field("Icon",        with: "not-a-real-icon")
+    end
+
+    it "allows a system admin to create an event type" do
+      click_button "Sign Out"
+      sign_in_as create(:user, :system_admin)
+      visit new_event_type_path
+      fill_in "Name",        with: "Milestone"
+      fill_in "Description", with: "Life milestones."
+      fill_in "Icon",        with: "star"
+      click_button "Create Event Type"
+
+      expect(page).to have_css("h1.page-title", text: "Milestone")
     end
   end
 
@@ -111,7 +138,7 @@ RSpec.describe "Create event type", type: :feature do
       fill_in "Name",        with: "Education"
       fill_in "Description", with: "School, university, and learning milestones."
       fill_in "Icon",        with: " graduation-cap "
-      click_button "Create Event type"
+      click_button "Create Event Type"
 
       expect(page).to have_content("is not a valid Lucide icon name")
     end

@@ -5,6 +5,7 @@ class EventTypesController < ApplicationController
   before_action :resume_session_if_present
   before_action :set_event_type, only: %i[show edit update destroy]
   before_action :set_policy,     only: %i[show edit update destroy]
+  before_action :require_admin, only: %i[new create]
 
   def index
     @event_types = EventType.order("LOWER(name) ASC")
@@ -55,6 +56,12 @@ class EventTypesController < ApplicationController
   end
 
   private
+
+  def require_admin
+    unless current_user&.can_administer?
+      redirect_to event_types_path, alert: "Not authorised."
+    end
+  end
 
   def resume_session_if_present
     Current.session ||= find_session_by_cookie
