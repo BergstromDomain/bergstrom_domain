@@ -1,5 +1,16 @@
-<h1>Edit Event Type</h1>
+<%# app/views/event_types/edit.html.erb %>
+
+<div class="page-header">
+  <div class="page-header__top">
+    <div class="page-header__title-group">
+      <% if EventType::LUCIDE_VALID_ICONS.include?(@event_type.icon) %>
+        <span class="page-header__icon">
+          <%= lucide_icon(@event_type.icon, size: 32) %>
+        </span>
+      <% end %>
+      <h1 class="page-title"><%= @event_type.name %></h1>
+    </div>
+  </div>
+</div>
 
 <%= render "form", event_type: @event_type %>
-
-<%= link_to "Back", event_type_path(@event_type) %>
