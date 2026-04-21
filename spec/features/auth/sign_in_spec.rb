@@ -1,4 +1,5 @@
 # spec/features/auth/sign_in_spec.rb
+
 require "rails_helper"
 
 RSpec.describe "Sign in", type: :feature do
@@ -17,13 +18,13 @@ RSpec.describe "Sign in", type: :feature do
     end
 
     it "signs in and redirects to the originally requested URL" do
-      visit new_event_type_path
+      visit new_event_path
 
       fill_in "Email address", with: "bergstrom@example.com"
       fill_in "Password",      with: "password123"
       click_button "Sign in"
 
-      expect(page.current_path).to eq(new_event_type_path)
+      expect(page.current_path).to eq(new_event_path)
     end
   end
 
@@ -79,7 +80,6 @@ RSpec.describe "Sign in", type: :feature do
       sign_in_as(user)
       visit new_session_path
 
-      # Should still be accessible — no forced redirect
       expect(page).to have_button("Sign in")
     end
   end

@@ -1,8 +1,10 @@
 # spec/features/auth/access_control_spec.rb
+
 require "rails_helper"
 
 RSpec.describe "Access control", type: :feature do
-  let!(:user) { create(:user, :content_creator) }
+  let!(:user)       { create(:user, :content_creator) }
+  let!(:admin)      { create(:user, :admin) }
   let!(:event_type) { create(:event_type, name: "Music", description: "Music events", icon: "music") }
   let!(:person)     { create(:person, first_name: "James", last_name: "Hetfield") }
   let!(:event) do
@@ -79,49 +81,65 @@ RSpec.describe "Access control", type: :feature do
 
   # 3) Alternative path ───────────────────────────────────────────────────────
   describe "alternative path — authenticated write access is allowed" do
-    before { sign_in_as(user) }
-
-    it "allows authenticated access to new event type" do
+    it "allows an admin to access new event type" do
+      sign_in_as(admin)
       visit new_event_type_path
       expect(page.current_path).to eq(new_event_type_path)
     end
 
-    it "allows authenticated access to edit event type" do
+    it "allows an admin to access edit event type" do
+      sign_in_as(admin)
       visit edit_event_type_path(event_type)
       expect(page.current_path).to eq(edit_event_type_path(event_type))
     end
 
-    it "allows authenticated access to new event" do
+    it "allows a content creator to access new event" do
+      sign_in_as(user)
       visit new_event_path
       expect(page.current_path).to eq(new_event_path)
     end
 
-    it "allows authenticated access to edit event" do
+    it "allows a content creator to access edit event" do
+      sign_in_as(user)
       visit edit_event_path(event)
       expect(page.current_path).to eq(edit_event_path(event))
     end
 
-    it "allows authenticated access to new person" do
+    it "allows a content creator to access new person" do
+      sign_in_as(user)
       visit new_person_path
       expect(page.current_path).to eq(new_person_path)
     end
 
-    it "allows authenticated access to edit person" do
+    it "allows a content creator to access edit person" do
+      sign_in_as(user)
       visit edit_person_path(person)
       expect(page.current_path).to eq(edit_person_path(person))
+    end
+
+    it "redirects a content creator away from new event type" do
+      sign_in_as(user)
+      visit new_event_type_path
+      expect(page.current_path).to eq(event_types_path)
+    end
+
+    it "redirects a content creator away from edit event type" do
+      sign_in_as(user)
+      visit edit_event_type_path(event_type)
+      expect(page.current_path).to eq(event_types_path)
     end
   end
 
   # 4) Edge cases ─────────────────────────────────────────────────────────────
   describe "edge cases" do
     it "stores the originally requested URL and redirects after sign-in" do
-      visit new_event_type_path
+      visit new_event_path
 
       fill_in "Email address", with: user.email_address
       fill_in "Password",      with: "password123"
       click_button "Sign in"
 
-      expect(page.current_path).to eq(new_event_type_path)
+      expect(page.current_path).to eq(new_event_path)
     end
   end
 end
