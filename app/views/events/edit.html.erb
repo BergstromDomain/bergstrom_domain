@@ -137,9 +137,12 @@
         <%= @event.people.count == 1 ? "Person" : "People" %>
       </h3>
       <p class="show-meta-cell__value" data-testid="event-people">
-        <%= @event.people.order(:last_name, :first_name).map { |p|
-              link_to(p.full_name, person_path(p))
-            }.join(", ").html_safe %>
+        <%= safe_join(
+              @event.people.order(:last_name, :first_name).map { |p|
+                link_to(p.full_name, person_path(p))
+              },
+              ", "
+            ) %>
       </p>
       <%= f.hidden_field :person_ids, value: @event.person_ids.join(",") %>
     </div>
