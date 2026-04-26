@@ -1,5 +1,161 @@
-<h1>Edit Event</h1>
+<%# app/views/events/edit.html.erb %>
 
-<%= render "form", event: @event %>
+<div class="page-header">
+  <div class="page-header__top">
+    <h1 class="page-title"><%= @event.title %></h1>
+  </div>
+</div>
 
-<%= link_to "Back", event_path(@event) %>
+<%= form_with model: @event, class: "event-edit-form" do |f| %>
+  <% if @event.errors.any? %>
+    <div class="form-errors" data-testid="form-errors">
+      <p><%= pluralize(@event.errors.count, "error") %> prevented this event from being saved:</p>
+      <ul>
+        <% @event.errors.each do |error| %>
+          <li data-testid="field-error"><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# Main div — title + image + description %>
+  <div class="show-panel" data-testid="edit-panel-main">
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Title</h3>
+      <div class="form-group">
+        <%= f.label :title, class: "sr-only" %>
+        <%= f.text_field :title,
+              class: "form-control #{'form-control--error' if @event.errors[:title].any?}",
+              data: { testid: "title-field" } %>
+        <% if @event.errors[:title].any? %>
+          <span class="field-error" data-testid="field-error">
+            <%= @event.errors[:title].first %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <% if @event.image.attached? %>
+        <div class="event-image">
+          <%= image_tag @event.image, alt: @event.title, class: "event-image__full" %>
+        </div>
+        <p class="form-hint">Upload a new file to replace the current image.</p>
+      <% end %>
+      <div class="form-group">
+        <%= f.label :image, "Event image" %>
+        <%= f.file_field :image,
+              accept: "image/jpeg,image/png,image/webp",
+              class: "form-control" %>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Description</h2>
+      <div class="form-group">
+        <%= f.label :description, class: "sr-only" %>
+        <%= f.text_area :description,
+              class: "form-control",
+              rows: 4,
+              data: { testid: "description-field" } %>
+      </div>
+    </div>
+  </div>
+
+  <%# Metadata div %>
+  <div class="show-panel" data-testid="edit-panel-metadata">
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Event Date</h3>
+      <div class="show-meta-row" style="margin-top: var(--space-xs);">
+        <div class="show-meta-cell">
+          <h4 class="show-meta-cell__label">Day</h4>
+          <%= f.label :day, class: "sr-only" %>
+          <%= f.number_field :day,
+                class: "form-control form-control--narrow #{'form-control--error' if @event.errors[:day].any?}",
+                data: { testid: "day-field" } %>
+          <% if @event.errors[:day].any? %>
+            <span class="field-error" data-testid="field-error">
+              <%= @event.errors[:day].first %>
+            </span>
+          <% end %>
+        </div>
+        <div class="show-meta-cell">
+          <h4 class="show-meta-cell__label">Month</h4>
+          <%= f.label :month, class: "sr-only" %>
+          <%= f.number_field :month,
+                class: "form-control form-control--narrow #{'form-control--error' if @event.errors[:month].any?}",
+                data: { testid: "month-field" } %>
+          <% if @event.errors[:month].any? %>
+            <span class="field-error" data-testid="field-error">
+              <%= @event.errors[:month].first %>
+            </span>
+          <% end %>
+        </div>
+        <div class="show-meta-cell">
+          <h4 class="show-meta-cell__label">Year</h4>
+          <%= f.label :year, class: "sr-only" %>
+          <%= f.number_field :year,
+                class: "form-control form-control--narrow",
+                data: { testid: "year-field" } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="show-meta-row show-panel__section">
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label">Event Type</h3>
+        <div class="form-group" style="margin-bottom: 0;">
+          <%= f.label :event_type_id, "Event Type", class: "sr-only" %>
+          <%= f.collection_select :event_type_id,
+                EventType.order("LOWER(name) ASC"), :id, :name,
+                { prompt: "Select an event type" },
+                { class: "form-control #{'form-control--error' if @event.errors[:event_type].any?}" } %>
+          <% if @event.errors[:event_type].any? %>
+            <span class="field-error" data-testid="field-error">
+              <%= @event.errors[:event_type].first %>
+            </span>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label">Visibility</h3>
+        <div class="form-group" style="margin-bottom: 0;">
+          <%= f.label :classification, "Classification", class: "sr-only" %>
+          <%= f.select :classification,
+                [["Unrestricted — visible to everyone", "unrestricted"],
+                 ["Contacts — visible to my contacts",  "contacts"],
+                 ["Restricted — visible only to me",    "restricted"]],
+                {},
+                { class: "form-control" } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">
+        <%= @event.people.count == 1 ? "Person" : "People" %>
+      </h3>
+      <p class="show-meta-cell__value" data-testid="event-people">
+        <%= safe_join(
+              @event.people.order(:last_name, :first_name).map { |p|
+                link_to(p.full_name, person_path(p))
+              },
+              ", "
+            ) %>
+      </p>
+      <%= f.hidden_field :person_ids, value: @event.person_ids.join(",") %>
+    </div>
+  </div>
+
+<%# Actions div %>
+  <div class="show-panel show-panel--actions" data-testid="edit-panel-actions">
+    <%= link_to event_path(@event), class: "btn btn-secondary" do %>
+      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary">
+      <%= lucide_icon("save", size: 16) %> Update Event
+    </button>
+  </div>
+<% end %>

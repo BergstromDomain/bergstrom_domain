@@ -1,77 +1,127 @@
-<%= form_with model: event do |f| %>
+<%# app/views/events/_form.html.erb %>
+
+<%= form_with model: event, class: "resource-form" do |f| %>
   <% if event.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(event.errors.count, "error") %> prohibited this event from being saved:</h2>
+    <div class="form-errors" data-testid="form-errors">
+      <p><%= pluralize(event.errors.count, "error") %> prevented this event from being saved:</p>
       <ul>
-        <% event.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
+        <% event.errors.each do |error| %>
+          <li data-testid="field-error"><%= error.full_message %></li>
         <% end %>
       </ul>
     </div>
   <% end %>
 
-  <div>
+  <div class="form-group">
     <%= f.label :event_type_id, "Event Type" %>
-    <%= f.collection_select :event_type_id, EventType.order(:name), :id, :name, { prompt: "Select an event type" } %>
+    <%= f.collection_select :event_type_id,
+          EventType.order("LOWER(name) ASC"), :id, :name,
+          { prompt: "Select an event type" },
+          { class: "form-control #{'form-control--error' if event.errors[:event_type].any?}" } %>
+    <% if event.errors[:event_type].any? %>
+      <span class="field-error" data-testid="field-error">
+        <%= event.errors[:event_type].first %>
+      </span>
+    <% end %>
   </div>
 
-  <div>
+  <div class="form-group">
     <%= f.label :person_ids, "People" %>
-    <%= f.collection_select :person_ids, Person.order(:first_name, :last_name), :id, :full_name,
-        {}, { multiple: true } %>
+    <%= f.collection_select :person_ids,
+          Person.order(:last_name, :first_name), :id, :full_name,
+          {},
+          { multiple: true,
+            class: "form-control #{'form-control--error' if event.errors[:people].any?}" } %>
+    <% if event.errors[:people].any? %>
+      <span class="field-error" data-testid="field-error">
+        <%= event.errors[:people].first %>
+      </span>
+    <% end %>
   </div>
 
-  <div>
+  <div class="form-group">
     <%= f.label :title %>
-    <%= f.text_field :title %>
+    <%= f.text_field :title,
+          class: "form-control #{'form-control--error' if event.errors[:title].any?}" %>
+    <% if event.errors[:title].any? %>
+      <span class="field-error" data-testid="field-error">
+        <%= event.errors[:title].first %>
+      </span>
+    <% end %>
   </div>
 
-  <div>
+  <div class="form-group">
     <%= f.label :description %>
-    <%= f.text_area :description %>
+    <%= f.text_area :description,
+          class: "form-control",
+          rows: 4 %>
   </div>
 
-  <div>
-    <%= f.label :day %>
-    <%= f.number_field :day %>
+  <div class="form-group form-group--inline">
+    <div>
+      <%= f.label :day %>
+      <%= f.number_field :day,
+            class: "form-control form-control--narrow #{'form-control--error' if event.errors[:day].any?}" %>
+      <% if event.errors[:day].any? %>
+        <span class="field-error" data-testid="field-error">
+          <%= event.errors[:day].first %>
+        </span>
+      <% end %>
+    </div>
+    <div>
+      <%= f.label :month %>
+      <%= f.number_field :month,
+            class: "form-control form-control--narrow #{'form-control--error' if event.errors[:month].any?}" %>
+      <% if event.errors[:month].any? %>
+        <span class="field-error" data-testid="field-error">
+          <%= event.errors[:month].first %>
+        </span>
+      <% end %>
+    </div>
+    <div>
+      <%= f.label :year %>
+      <%= f.number_field :year,
+            class: "form-control form-control--narrow" %>
+    </div>
   </div>
 
-  <div>
-    <%= f.label :month %>
-    <%= f.number_field :month %>
-  </div>
-
-  <div>
-    <%= f.label :year %>
-    <%= f.number_field :year %>
-  </div>
-
-  <div>
+  <div class="form-group">
     <%= f.label :classification, "Classification" %>
     <%= f.select :classification,
-          [["Unrestricted — visible to everyone",   "unrestricted"],
-          ["Contacts — visible to my contacts",    "contacts"],
-          ["Restricted — visible only to me",      "restricted"]],
-          {} %>
+          [["Unrestricted — visible to everyone", "unrestricted"],
+           ["Contacts — visible to my contacts",  "contacts"],
+           ["Restricted — visible only to me",    "restricted"]],
+          {},
+          { class: "form-control" } %>
   </div>
 
-  <div>
+  <div class="form-group">
     <%= f.label :image, "Event image" %>
     <% if event.image.attached? %>
-      <%= image_tag event.image, alt: "Current image", style: "max-width: 400px; display: block;" %>
-      <p>Upload a new file to replace the current image.</p>
+      <%= image_tag event.image, alt: "Current image", class: "form-image-preview" %>
+      <p class="form-hint">Upload a new file to replace the current image.</p>
     <% end %>
-    <%= f.file_field :image, accept: "image/jpeg,image/png,image/webp" %>
+    <%= f.file_field :image, accept: "image/jpeg,image/png,image/webp", class: "form-control" %>
   </div>
-  <div>
+
+  <div class="form-group">
     <%= f.label :thumbnail_image, "Thumbnail image" %>
     <% if event.thumbnail_image.attached? %>
-      <%= image_tag event.thumbnail_image, alt: "Current thumbnail", style: "max-width: 200px; display: block;" %>
-      <p>Upload a new file to replace the current image.</p>
+      <%= image_tag event.thumbnail_image, alt: "Current thumbnail", class: "form-image-preview" %>
+      <p class="form-hint">Upload a new file to replace the current image.</p>
     <% end %>
-    <%= f.file_field :thumbnail_image, accept: "image/jpeg,image/png,image/webp" %>
+    <%= f.file_field :thumbnail_image, accept: "image/jpeg,image/png,image/webp", class: "form-control" %>
   </div>
-  <div>
-    <%= f.submit %>
+
+  <div class="form-actions">
+    <% if event.persisted? %>
+      <%= link_to "Cancel", event_path(event), class: "btn btn-secondary" %>
+      <span class="btn-divider">|</span>
+      <%= f.submit "Update Event", class: "btn btn-primary" %>
+    <% else %>
+      <%= link_to "Cancel", events_path, class: "btn btn-secondary" %>
+      <span class="btn-divider">|</span>
+      <%= f.submit "Create Event", class: "btn btn-primary" %>
+    <% end %>
   </div>
 <% end %>

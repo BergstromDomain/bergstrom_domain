@@ -6,4 +6,86 @@
   </div>
 </div>
 
-<%= render "form", event_type: @event_type %>
+<%= form_with model: @event_type, class: "event-type-new-form" do |f| %>
+  <% if @event_type.errors.any? %>
+    <div class="form-errors" data-testid="form-errors">
+      <p><%= pluralize(@event_type.errors.count, "error") %> prevented this event type from being saved:</p>
+      <ul>
+        <% @event_type.errors.each do |error| %>
+          <li data-testid="field-error"><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# Main div — name + icon + description %>
+  <div class="show-panel" data-testid="new-panel-main">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Name</h2>
+      <div class="form-group">
+        <%= f.label :name, class: "sr-only" %>
+        <%= f.text_field :name,
+              class: "form-control #{'form-control--error' if @event_type.errors[:name].any?}",
+              data: { testid: "name-field" } %>
+        <% if @event_type.errors[:name].any? %>
+          <span class="field-error" data-testid="field-error">
+            <%= @event_type.errors[:name].first %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <% if @event_type.icon.present? && EventType::LUCIDE_VALID_ICONS.include?(@event_type.icon) %>
+        <span class="event-type-icon-large" data-testid="icon-preview">
+          <%= lucide_icon(@event_type.icon, size: 64) %>
+        </span>
+      <% end %>
+    </div>
+
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Description</h2>
+      <div class="form-group">
+        <%= f.label :description, class: "sr-only" %>
+        <%= f.text_area :description,
+              class: "form-control",
+              rows: 4,
+              data: { testid: "description-field" } %>
+      </div>
+    </div>
+  </div>
+
+  <%# Metadata div %>
+  <div class="show-panel" data-testid="new-panel-metadata">
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Icon Name</h3>
+      <div class="form-group">
+        <%= f.label :icon, class: "sr-only" %>
+        <%= f.text_field :icon,
+              placeholder: "e.g. music, cake, trophy",
+              class: "form-control #{'form-control--error' if @event_type.errors[:icon].any?}",
+              data: { testid: "icon-field" } %>
+        <% if @event_type.errors[:icon].any? %>
+          <span class="field-error" data-testid="field-error">
+            <%= @event_type.errors[:icon].first %>
+          </span>
+        <% end %>
+        <p class="form-hint">
+          Find icon names at <%= link_to "lucide.dev/icons", "https://lucide.dev/icons/",
+                target: "_blank", rel: "noopener noreferrer" %>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <%# Actions div %>
+  <div class="show-panel show-panel--actions" data-testid="new-panel-actions">
+    <%= link_to event_types_path, class: "btn btn-secondary" do %>
+      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary">
+      <%= lucide_icon("save", size: 16) %> Create Event Type
+    </button>
+  </div>
+<% end %>

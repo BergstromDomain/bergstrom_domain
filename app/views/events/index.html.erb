@@ -1,21 +1,98 @@
-<h1>Events</h1>
-<% if authenticated? %>
-  <%= link_to "Add Event", new_event_path %>
-<% end %>
+<%# app/views/events/index.html.erb %>
 
-<% if @events.empty? %>
-  <p>No events found</p>
-<% else %>
-  <ul>
-    <% @events.each do |event| %>
-      <li>
-        <%= lucide_icon(event.event_type.icon, size: 20) %>
-        <% if event.thumbnail_image.attached? %>
-          <%= image_tag event.thumbnail_image, alt: event.title, style: "max-width: 100px;" %>
+<div class="page-header">
+  <div class="page-header__top">
+    <h1 class="page-title">Events</h1>
+  </div>
+</div>
+
+<nav class="month-nav" data-testid="month-nav">
+  <%= link_to "All",
+        events_path,
+        class: "month-nav__link #{'month-nav__link--active' if @selected_month.nil?}",
+        data: { testid: "month-nav-all" } %>
+  <% Date::ABBR_MONTHNAMES.compact.each_with_index do |abbr, i| %>
+    <% month_num = i + 1 %>
+    <%= link_to abbr,
+          events_path(month: month_num),
+          class: "month-nav__link #{'month-nav__link--active' if @selected_month == month_num}",
+          data: { testid: "month-nav-link" } %>
+  <% end %>
+</nav>
+
+<% if @events.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="events-table">
+      <thead>
+        <tr>
+          <th class="col-thumbnail"></th>
+          <th>Title</th>
+          <th>Date</th>
+          <th>Type</th>
+          <th>People</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @events.each do |event| %>
+          <tr data-testid="event-row">
+            <td class="col-thumbnail" data-testid="event-thumbnail">
+              <% if event.thumbnail_image.attached? %>
+                <%= link_to event_path(event) do %>
+                  <%= image_tag event.thumbnail_image,
+                        alt: event.title,
+                        class: "table-thumbnail" %>
+                <% end %>
+              <% else %>
+                <%= link_to event_path(event),
+                      class: "table-thumbnail-icon",
+                      title: event.event_type.name do %>
+                  <%= lucide_icon(event.event_type.icon, size: 40) %>
+                <% end %>
+              <% end %>
+            </td>
+            <td>
+              <%= link_to event.title,
+                    event_path(event),
+                    class: "data-table__name-link",
+                    data: { testid: "event-title" } %>
+            </td>
+            <td data-testid="event-date">
+              <%= event.display_date %>
+            </td>
+            <td class="data-table__icon-cell" data-testid="event-type-icon">
+              <%= link_to events_path(event_type_id: event.event_type.id),
+                    title: event.event_type.name do %>
+                <%= lucide_icon(event.event_type.icon, size: 20) %>
+              <% end %>
+            </td>
+            <td data-testid="event-people">
+              <div class="person-icon-group">
+                <% event.people.order(:last_name, :first_name).each do |person| %>
+                  <%= link_to person_path(person),
+                        class: "person-icon-link",
+                        title: person.full_name,
+                        data: { testid: "event-person" } do %>
+                    <% if person.thumbnail_image.attached? %>
+                      <%= image_tag person.thumbnail_image,
+                            alt: person.full_name,
+                            class: "table-thumbnail table-thumbnail--person" %>
+                    <% else %>
+                      <span class="table-thumbnail-icon table-thumbnail-icon--person">
+                        <%= lucide_icon("user", size: 24) %>
+                      </span>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              </div>
+            </td>
+          </tr>
         <% end %>
-        <%= link_to event.title, event_path(event) %>
-        <span><%= event.display_date %></span>
-      </li>
-    <% end %>
-  </ul>
+      </tbody>
+    </table>
+  </div>
+  <div data-testid="pagination-placeholder"></div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No events found.</p>
+  </div>
 <% end %>

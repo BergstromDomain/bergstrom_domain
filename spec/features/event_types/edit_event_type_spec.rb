@@ -26,7 +26,7 @@ RSpec.describe "Edit event type", type: :feature do
       visit edit_event_type_path(et)
       fill_in "Icon", with: "trophy"
       click_button "Update Event Type"
-      expect(page).to have_css("[data-testid='event-type-icon-name']", text: "trophy")
+      expect(page).to have_css("[data-testid='event-type-icon'] svg")
       et.reload
       expect(et.icon).to eq("trophy")
     end
@@ -48,7 +48,7 @@ RSpec.describe "Edit event type", type: :feature do
 
     it "shows a preview of the current icon on the edit form" do
       visit edit_event_type_path(event_type)
-      expect(page).to have_css("[data-testid='icon-preview'] svg")
+      expect(page).to have_css("[data-testid='edit-panel-main'] svg")
     end
   end
 

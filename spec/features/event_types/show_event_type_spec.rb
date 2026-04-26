@@ -20,8 +20,8 @@ RSpec.describe "Show event type", type: :feature do
       expect(page).to have_css("h1.page-title", text: "Music")
     end
 
-    it "renders the icon in the page title" do
-      expect(page).to have_css(".page-header__icon svg")
+    it "renders the icon in the main panel" do
+      expect(page).to have_css("[data-testid='show-panel-main'] svg")
     end
 
     it "displays the event type description" do
@@ -29,8 +29,8 @@ RSpec.describe "Show event type", type: :feature do
                                text: "Musical events and performances.")
     end
 
-    it "displays the icon name" do
-      expect(page).to have_css("[data-testid='event-type-icon-name']", text: "music")
+    it "displays the event type name in the metadata panel" do
+      expect(page).to have_css("[data-testid='event-type-name-value']", text: "Music")
     end
 
     it "shows a back link to the index" do
@@ -38,8 +38,8 @@ RSpec.describe "Show event type", type: :feature do
     end
 
     it "does not show Edit or Delete to an unauthenticated visitor" do
-      expect(page).not_to have_link("Edit Music")
-      expect(page).not_to have_button("Delete Music")
+      expect(page).not_to have_link("Edit Event Type")
+      expect(page).not_to have_button("Delete Event Type")
     end
 
     it "is accessible by slug" do
@@ -58,15 +58,15 @@ RSpec.describe "Show event type", type: :feature do
     it "does not show Edit or Delete to a content creator" do
       sign_in_as content_creator
       visit event_type_path(event_type)
-      expect(page).not_to have_link("Edit Music")
-      expect(page).not_to have_button("Delete Music")
+      expect(page).not_to have_link("Edit Event Type")
+      expect(page).not_to have_button("Delete Event Type")
     end
 
     it "does not show Edit or Delete to an app user" do
       sign_in_as create(:user, :app_user)
       visit event_type_path(event_type)
-      expect(page).not_to have_link("Edit Music")
-      expect(page).not_to have_button("Delete Music")
+      expect(page).not_to have_link("Edit Event Type")
+      expect(page).not_to have_button("Delete Event Type")
     end
   end
 
@@ -79,11 +79,12 @@ RSpec.describe "Show event type", type: :feature do
       end
 
       it "shows the Edit button" do
-        expect(page).to have_link("Edit Music", href: edit_event_type_path(event_type))
+        expect(page).to have_link("Edit Event Type",
+                                  href: edit_event_type_path(event_type))
       end
 
       it "shows the Delete button" do
-        expect(page).to have_button("Delete Music")
+        expect(page).to have_button("Delete Event Type")
       end
 
       it "shows the btn-divider between Back and Edit" do
@@ -103,8 +104,8 @@ RSpec.describe "Show event type", type: :feature do
     it "shows both Edit and Delete to a system admin" do
       sign_in_as create(:user, :system_admin)
       visit event_type_path(event_type)
-      expect(page).to have_link("Edit Music")
-      expect(page).to have_button("Delete Music")
+      expect(page).to have_link("Edit Event Type")
+      expect(page).to have_button("Delete Event Type")
     end
   end
 end

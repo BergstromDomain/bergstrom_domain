@@ -12,7 +12,7 @@ RSpec.describe "Delete event type", type: :feature do
     it "deletes an event type with no associated events and redirects to index" do
       et = create(:event_type, name: "Wedding", icon: "heart", description: "Wedding events.")
       visit event_type_path(et)
-      click_button "Delete Wedding"
+      click_button "Delete Event Type"
       expect(page).to have_current_path(event_types_path)
       expect(page).not_to have_content("Wedding")
     end
@@ -21,7 +21,7 @@ RSpec.describe "Delete event type", type: :feature do
       et = create(:event_type, name: "Wedding", icon: "heart", description: "Wedding events.")
       visit event_type_path(et)
       expect {
-        click_button "Delete Wedding"
+        click_button "Delete Event Type"
       }.to change(EventType, :count).by(-1)
     end
   end
@@ -33,7 +33,7 @@ RSpec.describe "Delete event type", type: :feature do
       create(:event, event_type: et)
       visit event_type_path(et)
       expect {
-        click_button "Delete Music"
+        click_button "Delete Event Type"
       }.not_to change(EventType, :count)
     end
 
@@ -41,7 +41,7 @@ RSpec.describe "Delete event type", type: :feature do
       et = create(:event_type, name: "Music", icon: "music", description: "Music events.")
       create(:event, event_type: et)
       visit event_type_path(et)
-      click_button "Delete Music"
+      click_button "Delete Event Type"
       expect(page).to have_content("Cannot delete record because dependent events exist")
     end
 
@@ -50,14 +50,14 @@ RSpec.describe "Delete event type", type: :feature do
       click_button "Sign Out"
       sign_in_as create(:user, :content_creator)
       visit event_type_path(et)
-      expect(page).not_to have_button("Delete Music")
+      expect(page).not_to have_button("Delete Event Type")
     end
 
     it "does not show the Delete button to an unauthenticated visitor" do
       et = create(:event_type, name: "Music", icon: "music", description: "Music events.")
       click_button "Sign Out"
       visit event_type_path(et)
-      expect(page).not_to have_button("Delete Music")
+      expect(page).not_to have_button("Delete Event Type")
     end
   end
 
@@ -68,17 +68,17 @@ RSpec.describe "Delete event type", type: :feature do
       click_button "Sign Out"
       sign_in_as create(:user, :system_admin)
       visit event_type_path(et)
-      click_button "Delete Wedding"
+      click_button "Delete Event Type"
       expect(page).to have_current_path(event_types_path)
     end
   end
 
   # 4) Edge cases ─────────────────────────────────────────────────────────────
   describe "edge cases" do
-    it "shows the turbo confirm dialog text" do
+    it "shows the Delete Event Type button to an admin" do
       et = create(:event_type, name: "Wedding", icon: "heart", description: "Wedding events.")
       visit event_type_path(et)
-      expect(page).to have_button("Delete Wedding")
+      expect(page).to have_button("Delete Event Type")
     end
   end
 end

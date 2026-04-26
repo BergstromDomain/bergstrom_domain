@@ -20,7 +20,7 @@ RSpec.describe "Event write authorization", type: :feature do
     it "allows the owner to edit their event" do
       sign_in_as(owner)
       visit event_path(event)
-      click_on "Edit"
+      click_on "Edit Event"
       expect(page).to have_current_path(edit_event_path(event))
     end
 
@@ -35,7 +35,7 @@ RSpec.describe "Event write authorization", type: :feature do
     it "allows an admin to edit any event" do
       sign_in_as(admin_user)
       visit event_path(event)
-      click_on "Edit"
+      click_on "Edit Event"
       expect(page).to have_current_path(edit_event_path(event))
     end
 
@@ -53,8 +53,8 @@ RSpec.describe "Event write authorization", type: :feature do
              can_update: false, can_delete: false)
       sign_in_as(sys_admin)
       visit event_path(event)
-      expect(page).to have_link("Edit")
-      click_on "Edit"
+      expect(page).to have_link("Edit Event")
+      click_on "Edit Event"
       expect(page).to have_current_path(edit_event_path(event))
     end
 
@@ -81,7 +81,7 @@ RSpec.describe "Event write authorization", type: :feature do
     it "does not show edit or delete links to a non-owner" do
       sign_in_as(other_user)
       visit event_path(event)
-      expect(page).not_to have_link("Edit")
+      expect(page).not_to have_link("Edit Event")
       expect(page).not_to have_button("Delete Event")
     end
 
@@ -113,14 +113,14 @@ RSpec.describe "Event write authorization", type: :feature do
     it "shows edit and delete links to the owner" do
       sign_in_as(owner)
       visit event_path(event)
-      expect(page).to have_link("Edit")
+      expect(page).to have_link("Edit Event")
       expect(page).to have_button("Delete Event")
     end
 
     it "shows edit and delete links to an admin" do
       sign_in_as(admin_user)
       visit event_path(event)
-      expect(page).to have_link("Edit")
+      expect(page).to have_link("Edit Event")
       expect(page).to have_button("Delete Event")
     end
 
@@ -135,7 +135,7 @@ RSpec.describe "Event write authorization", type: :feature do
       create(:app_permission, user: other_user, app_name: "event_tracker", can_update: true)
       sign_in_as(other_user)
       visit event_path(event)
-      expect(page).to have_link("Edit")
+      expect(page).to have_link("Edit Event")
     end
   end
 
