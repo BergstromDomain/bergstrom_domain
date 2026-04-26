@@ -1,42 +1,100 @@
-<% if @event.image.attached? %>
-  <%= image_tag @event.image, alt: @event.title, style: "max-width: 800px; display: block;" %>
-<% elsif @event.thumbnail_image.attached? %>
-  <%= image_tag @event.thumbnail_image, alt: @event.title, style: "max-width: 400px; display: block;" %>
-<% end %>
-<h1><%= @event.title %></h1>
-<p>
-  <strong>Event Type:</strong>
-  <%= lucide_icon(@event.event_type.icon, size: 20) %>
-  <%= link_to @event.event_type.name, @event.event_type %>
-</p>
-<p>
-  <strong>People:</strong>
-  <% @event.people.each do |person| %>
-    <%= link_to person.full_name, person %>
+<%# app/views/events/show.html.erb %>
+
+<div class="page-header">
+  <div class="page-header__top">
+    <div class="page-header__title-group">
+      <h1 class="page-title" data-testid="event-title"><%= @event.title %></h1>
+      </span>
+    </div>
+  </div>
+</div>
+
+<%# Main div — image + description %>
+<div class="show-panel" data-testid="show-panel-main">
+  <% if @event.image.attached? %>
+    <div class="event-image">
+      <%= image_tag @event.image, alt: @event.title, class: "event-image__full" %>
+    </div>
+  <% elsif @event.thumbnail_image.attached? %>
+    <div class="event-image">
+      <%= image_tag @event.thumbnail_image, alt: @event.title, class: "event-image__thumbnail" %>
+    </div>
   <% end %>
-</p>
-<p>
-  <strong>Date:</strong>
-  <%= @event.display_date %>
-</p>
 
-<p>
-  <strong>Visibility:</strong>
-  <%= @event.classification.capitalize %>
-</p>
+  <% if @event.description.present? %>
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Description</h2>
+      <p data-testid="event-description"><%= @event.description %></p>
+    </div>
+  <% end %>
+</div>
 
-<% if @event.description.present? %>
-  <p>
-    <strong>Description:</strong>
-    <%= @event.description %>
-  </p>
-<% end %>
-<%= link_to "Back to Events", events_path %>
-<% if @policy.can_update? %>
-  <%= link_to "Edit", edit_event_path(@event) %>
-<% end %>
-<% if @policy.can_delete? %>
-  <%= button_to "Delete Event", event_path(@event), method: :delete,
-      data: { turbo_confirm: "Are you sure you want to delete this event?" } %>
-<% end %>
+<%# Metadata div %>
+<div class="show-panel" data-testid="show-panel-metadata">
+  <div class="show-meta-row">
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Event Date</h3>
+      <p class="show-meta-cell__value" data-testid="event-date">
+        <%= @event.display_date %>
+      </p>
+    </div>
 
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Event Type</h3>
+      <p class="show-meta-cell__value" data-testid="event-type">
+        <%= lucide_icon(@event.event_type.icon, size: 16) %>
+        <%= link_to @event.event_type.name, event_type_path(@event.event_type) %>
+      </p>
+    </div>
+
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Visibility</h3>
+      <p class="show-meta-cell__value" data-testid="event-classification">
+        <%= @event.classification.capitalize %>
+      </p>
+    </div>
+  </div>
+
+  <div class="show-panel__section">
+    <h3 class="show-meta-cell__label">
+      <%= @event.people.count == 1 ? "Person" : "People" %>
+    </h3>
+    <p class="show-meta-cell__value" data-testid="event-people">
+      <%= @event.people.order(:last_name, :first_name).map { |p|
+            link_to(p.full_name, person_path(p))
+          }.join(", ").html_safe %>
+    </p>
+  </div>
+</div>
+
+<%# Actions div %>
+<div class="show-panel show-panel--actions" data-testid="show-panel-actions">
+  <%= link_to events_path, class: "btn btn-secondary" do %>
+    <%= lucide_icon("arrow-left", size: 16) %> Back to Events
+  <% end %>
+
+  <% if @policy.can_update? %>
+    <span class="btn-divider">|</span>
+    <%= link_to edit_event_path(@event), class: "btn btn-secondary" do %>
+      <%= lucide_icon("pencil", size: 16) %> Edit Event
+    <% end %>
+  <% end %>
+
+  <% if @policy.can_delete? %>
+    <span class="btn-divider">|</span>
+    <%= button_to event_path(@event),
+          method: :delete,
+          class: "btn btn-danger",
+          data: { turbo_confirm: "Delete #{@event.title}? This cannot be undone." } do %>
+      <%= lucide_icon("trash-2", size: 16) %> Delete Event
+    <% end %>
+  <% end %>
+</div>
+
+<%# Admin div %>
+<div class="show-panel show-panel--admin" data-testid="show-panel-admin">
+  <h4 class="show-admin__item">
+    Created by <%= @event.user.email_address %>
+    at <%= @event.created_at.strftime("%-d %B %Y") %>
+  </h4>
+</div>

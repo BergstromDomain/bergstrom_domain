@@ -8,13 +8,25 @@ class EventsController < ApplicationController
   before_action :set_policy,   only: %i[new create edit update destroy]
 
   def index
-    @events = if !authenticated?
+    @selected_month    = params[:month]&.to_i
+    @selected_type_id  = params[:event_type_id]&.to_i
+
+    base = if !authenticated?
       Event.visible_to_visitors
     elsif current_user.can_administer?
       Event.visible_to_admins
     else
-     Event.visible_to_users(current_user)
-    end.includes(:thumbnail_image_attachment, :event_type).chronological
+      Event.visible_to_users(current_user)
+    end.includes(:people, :event_type, :thumbnail_image_attachment)
+
+    base = base.where(month: @selected_month) if @selected_month&.between?(1, 12)
+    base = base.where(event_type_id: @selected_type_id) if @selected_type_id.present?
+
+    @events = if @selected_month
+      base.order(:day, :title)
+    else
+      base.order(:month, :day, :title)
+    end
   end
 
   def show
