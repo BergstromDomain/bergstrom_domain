@@ -1,47 +1,35 @@
 # spec/factories/people.rb
 FactoryBot.define do
   factory :person do
-    first_name  { Faker::Name.first_name }
-    middle_name { [ Faker::Name.first_name, nil ].sample }
-    last_name   { Faker::Name.last_name }
-    description { Faker::Lorem.paragraph }
+    association :user
+    sequence(:first_name) { |n| "First#{n}" }
+    middle_name           { nil }
+    sequence(:last_name)  { |n| "Last#{n}" }
+    description           { Faker::Lorem.paragraph }
+    classification        { "contacts" }
+
+    trait :unrestricted do
+      classification { "unrestricted" }
+    end
+
+    trait :contacts do
+      classification { "contacts" }
+    end
+
+    trait :restricted do
+      classification { "restricted" }
+    end
 
     trait :first_name_only do
       middle_name { nil }
       last_name   { nil }
     end
 
-    trait :with_thumbnail do
+    trait :with_image do
       after(:create) do |person|
-        person.thumbnail_image.attach(
+        person.image.attach(
           io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
-          filename:     "test_thumbnail.jpg",
-          content_type: "image/jpeg"
-        )
-      end
-    end
-
-    trait :with_full_image do
-      after(:create) do |person|
-        person.full_image.attach(
-          io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
-          filename:     "test_full_image.jpg",
-          content_type: "image/jpeg"
-        )
-      end
-    end
-
-    trait :complete do
-      description { Faker::Lorem.paragraph(sentence_count: 3) }
-      after(:create) do |person|
-        person.thumbnail_image.attach(
-          io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
-          filename:     "test_thumbnail.jpg",
-          content_type: "image/jpeg"
-        )
-        person.full_image.attach(
-          io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
-          filename:     "test_full_image.jpg",
+          filename:     "test_image.jpg",
           content_type: "image/jpeg"
         )
       end

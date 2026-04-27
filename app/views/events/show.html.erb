@@ -15,10 +15,6 @@
     <div class="event-image">
       <%= image_tag @event.image, alt: @event.title, class: "event-image__full" %>
     </div>
-  <% elsif @event.thumbnail_image.attached? %>
-    <div class="event-image">
-      <%= image_tag @event.thumbnail_image, alt: @event.title, class: "event-image__thumbnail" %>
-    </div>
   <% end %>
 
   <% if @event.description.present? %>

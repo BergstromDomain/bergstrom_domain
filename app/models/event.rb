@@ -9,8 +9,9 @@ class Event < ApplicationRecord
   has_many :event_people, dependent: :destroy
   has_many :people, through: :event_people
 
-  has_one_attached :image
-  has_one_attached :thumbnail_image
+  has_one_attached :image do |attachable|
+    attachable.variant :thumbnail, resize_to_fill: [ 200, 200 ]
+  end
 
   before_validation :normalize_title
 
@@ -22,10 +23,6 @@ class Event < ApplicationRecord
   validate  :date_must_be_valid
 
   validates :image,
-    content_type: { in: %w[image/jpeg image/png image/webp], message: "must be a JPEG, PNG, or WebP" },
-    size:         { less_than: 5.megabytes, message: "must be smaller than 5MB" }
-
-  validates :thumbnail_image,
     content_type: { in: %w[image/jpeg image/png image/webp], message: "must be a JPEG, PNG, or WebP" },
     size:         { less_than: 5.megabytes, message: "must be smaller than 5MB" }
 

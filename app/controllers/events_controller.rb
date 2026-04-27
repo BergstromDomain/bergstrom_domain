@@ -17,7 +17,7 @@ class EventsController < ApplicationController
       Event.visible_to_admins
     else
       Event.visible_to_users(current_user)
-    end.includes(:people, :event_type, :thumbnail_image_attachment)
+    end.includes(:people, :event_type, :image_attachment, :image_blob)
 
     base = base.where(month: @selected_month) if @selected_month&.between?(1, 12)
     base = base.where(event_type_id: @selected_type_id) if @selected_type_id.present?
@@ -104,7 +104,7 @@ class EventsController < ApplicationController
   def event_params
     params.require(:event).permit(
       :event_type_id, :title, :description, :day, :month, :year,
-      :image, :thumbnail_image, :classification, person_ids: []
+      :image, :classification, person_ids: []
     )
   end
 end

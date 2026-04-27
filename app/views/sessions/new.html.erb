@@ -4,7 +4,7 @@
   <p><%= flash[:alert] %></p>
 <% end %>
 
-<%= form_with url: session_path do |form| %>
+<%= form_with url: session_path, data: { turbo: false } do |form| %>
   <div>
     <%= form.label :email_address, "Email address" %>
     <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username" %>

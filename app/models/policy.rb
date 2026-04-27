@@ -83,7 +83,7 @@ class Policy
 
   def app_name_for(resource)
     case resource
-    when Event, EventType, :event_tracker then "event_tracker"
+    when Event, EventType, Person, :event_tracker then "event_tracker"
     when :blog_posts                      then "blog_posts"
     when :recipes                         then "recipes"
     when :photo_albums                    then "photo_albums"
