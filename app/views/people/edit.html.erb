@@ -1,5 +1,131 @@
-<h1>Edit <%= @person.full_name %></h1>
+<%# app/views/people/edit.html.erb %>
+<div class="page-header">
+  <div class="page-header__top">
+    <h1 class="page-title" data-testid="person-name"><%= @person.full_name %></h1>
+  </div>
+</div>
 
-<%= render "form", person: @person %>
+<%= form_with model: @person, class: "resource-form" do |f| %>
+  <% if @person.errors.any? %>
+    <div class="form-errors" data-testid="form-errors">
+      <p><%= pluralize(@person.errors.count, "error") %> prevented this person from being saved:</p>
+      <ul>
+        <% @person.errors.each do |error| %>
+          <li data-testid="field-error"><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
 
-<%= link_to "Back", person_path(@person) %>
+  <%# Main panel — name + image + description %>
+  <div class="show-panel" data-testid="edit-panel-main">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Name</h2>
+      <div class="show-meta-row">
+        <div class="show-meta-cell">
+          <h3 class="show-meta-cell__label">First Name</h3>
+          <div class="form-group" style="margin-bottom: 0;">
+            <%= f.label :first_name, class: "sr-only" %>
+            <%= f.text_field :first_name,
+                  class: "form-control #{'form-control--error' if @person.errors[:first_name].any?}",
+                  data: { testid: "first-name-field" } %>
+            <% if @person.errors[:first_name].any? %>
+              <span class="field-error" data-testid="field-error">
+                <%= @person.errors[:first_name].first %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+        <div class="show-meta-cell">
+          <h3 class="show-meta-cell__label">Middle Name</h3>
+          <div class="form-group" style="margin-bottom: 0;">
+            <%= f.label :middle_name, class: "sr-only" %>
+            <%= f.text_field :middle_name,
+                  class: "form-control",
+                  data: { testid: "middle-name-field" } %>
+          </div>
+        </div>
+        <div class="show-meta-cell">
+          <h3 class="show-meta-cell__label">Last Name</h3>
+          <div class="form-group" style="margin-bottom: 0;">
+            <%= f.label :last_name, class: "sr-only" %>
+            <%= f.text_field :last_name,
+                  class: "form-control",
+                  data: { testid: "last-name-field" } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <% if @person.image.attached? %>
+        <div class="event-image">
+          <%= image_tag @person.image.variant(:thumbnail),
+                alt: @person.full_name,
+                class: "event-image__thumbnail" %>
+        </div>
+        <p class="form-hint">Upload a new file to replace the current image.</p>
+      <% end %>
+      <div class="form-group">
+        <%= f.label :image, "Person image" %>
+        <%= f.file_field :image,
+              accept: "image/jpeg,image/png,image/webp",
+              class: "form-control",
+              data: { testid: "image-field" } %>
+        <% if @person.errors[:image].any? %>
+          <span class="field-error" data-testid="field-error">
+            <%= @person.errors[:image].first %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Description</h2>
+      <div class="form-group">
+        <%= f.label :description, class: "sr-only" %>
+        <%= f.text_area :description,
+              class: "form-control",
+              rows: 4,
+              data: { testid: "description-field" } %>
+      </div>
+    </div>
+  </div>
+
+  <%# Metadata panel %>
+  <div class="show-panel" data-testid="edit-panel-metadata">
+    <div class="show-meta-row">
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label">Visibility</h3>
+        <div class="form-group" style="margin-bottom: 0;">
+          <%= f.label :classification, "Classification", class: "sr-only" %>
+          <%= f.select :classification,
+                [["Unrestricted — visible to everyone", "unrestricted"],
+                 ["Contacts — visible to my contacts",  "contacts"],
+                 ["Restricted — visible only to me",    "restricted"]],
+                {},
+                { class: "form-control", data: { testid: "classification-field" } } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Actions panel %>
+  <div class="show-panel show-panel--actions" data-testid="edit-panel-actions">
+    <%= link_to person_path(@person), class: "btn btn-secondary" do %>
+      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary" data-testid="submit-button">
+      <%= lucide_icon("save", size: 16) %> Update Person
+    </button>
+  </div>
+
+  <%# Admin panel %>
+  <div class="show-panel show-panel--admin" data-testid="edit-panel-admin">
+    <h4 class="show-admin__item">
+      Created by <%= @person.user.email_address %>
+      at <%= @person.created_at.strftime("%-d %B %Y") %>
+    </h4>
+  </div>
+<% end %>

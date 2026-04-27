@@ -1,31 +1,148 @@
-<div>
-  <% if @person.full_image.attached? %>
-    <%= image_tag @person.full_image, alt: @person.full_name, style: "max-width: 600px;" %>
-  <% elsif @person.thumbnail_image.attached? %>
-    <%= image_tag @person.thumbnail_image, alt: @person.full_name, style: "max-width: 300px;" %>
-  <% end %>
+<%# app/views/people/show.html.erb %>
+<div class="page-header">
+  <div class="page-header__top">
+    <div class="page-header__title-group">
+      <h1 class="page-title" data-testid="person-name"><%= @person.full_name %></h1>
+    </div>
+  </div>
+</div>
 
-  <h1><%= @person.full_name %></h1>
+<%# Main panel — image + description %>
+<div class="show-panel" data-testid="show-panel-main">
+  <% if @person.image.attached? %>
+    <div class="event-image">
+      <%= image_tag @person.image, alt: @person.full_name, class: "event-image__full" %>
+    </div>
+  <% end %>
 
   <% if @person.description.present? %>
-    <p><%= @person.description %></p>
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Description</h2>
+      <p data-testid="person-description"><%= @person.description %></p>
+    </div>
+  <% end %>
+</div>
+
+<%# Metadata panel %>
+<div class="show-panel" data-testid="show-panel-metadata">
+  <div class="show-meta-row">
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Visibility</h3>
+      <p class="show-meta-cell__value" data-testid="person-classification">
+        <%= @person.classification.capitalize %>
+      </p>
+    </div>
+  </div>
+</div>
+
+<%# Events panel — only when person has events %>
+<% if @person.events.any? %>
+  <div class="show-panel" data-testid="show-panel-events">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Events</h2>
+      <div class="data-table-wrapper">
+        <table class="data-table" data-testid="person-events-table">
+          <thead>
+            <tr>
+              <th class="col-thumbnail"></th>
+              <th>Title</th>
+              <th>Date</th>
+              <th>Type</th>
+              <th>People</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @person.events.includes(:event_type, :people, :image_attachment, :image_blob)
+                              .order(:month, :day, :title).each do |event| %>
+              <tr data-testid="event-row">
+                <td class="col-thumbnail" data-testid="event-thumbnail">
+                  <% if event.image.attached? %>
+                    <%= link_to event_path(event) do %>
+                      <%= image_tag event.image.variant(:thumbnail),
+                            alt: event.title,
+                            class: "table-thumbnail" %>
+                    <% end %>
+                  <% else %>
+                    <%= link_to event_path(event),
+                          class: "table-thumbnail-icon",
+                          title: event.event_type.name do %>
+                      <%= lucide_icon(event.event_type.icon, size: 40) %>
+                    <% end %>
+                  <% end %>
+                </td>
+                <td>
+                  <%= link_to event.title,
+                        event_path(event),
+                        class: "data-table__name-link",
+                        data: { testid: "event-title" } %>
+                </td>
+                <td data-testid="event-date"><%= event.display_date %></td>
+                <td class="data-table__icon-cell" data-testid="event-type-icon">
+                  <%= link_to events_path(event_type_id: event.event_type.id),
+                        title: event.event_type.name do %>
+                    <%= lucide_icon(event.event_type.icon, size: 20) %>
+                  <% end %>
+                </td>
+                <td data-testid="event-people">
+                  <div class="person-icon-group">
+                    <% event.people.order(:last_name, :first_name).each do |p| %>
+                      <%= link_to person_path(p),
+                            class: "person-icon-link",
+                            title: p.full_name,
+                            data: { testid: "event-person" } do %>
+                        <% if p.image.attached? %>
+                          <%= image_tag p.image.variant(:thumbnail),
+                                alt: p.full_name,
+                                class: "table-thumbnail table-thumbnail--person" %>
+                        <% else %>
+                          <span class="table-thumbnail-icon table-thumbnail-icon--person">
+                            <%= lucide_icon("user", size: 24) %>
+                          </span>
+                        <% end %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%# Actions panel %>
+<div class="show-panel show-panel--actions" data-testid="show-panel-actions">
+  <%= link_to people_path, class: "btn btn-secondary", data: { testid: "back-link" } do %>
+    <%= lucide_icon("arrow-left", size: 16) %> Back to People
   <% end %>
 
-  <% if @person.events.any? %>
-    <h2>Events</h2>
-    <ul>
-      <% @person.events.chronological.each do |event| %>
-        <li><%= link_to event.title, event_path(event) %></li>
-      <% end %>
-    </ul>
+  <% if @policy.can_update? %>
+    <span class="btn-divider">|</span>
+    <%= link_to edit_person_path(@person), class: "btn btn-secondary", data: { testid: "edit-link" } do %>
+      <%= lucide_icon("pencil", size: 16) %> Edit Person
+    <% end %>
   <% end %>
 
-  <%= link_to "Back to People", people_path %>
-  <% if authenticated? %>
-    <%= link_to "Edit", edit_person_path(@person) %>
-    <%= button_to "Delete #{@person.full_name}",
-                  person_path(@person),
-                  method: :delete,
-                  data: { confirm: "Are you sure?" } %>
+  <% if @policy.can_delete? %>
+    <span class="btn-divider">|</span>
+    <%= button_to person_path(@person),
+          method: :delete,
+          class: "btn btn-danger",
+          data: {
+            turbo_confirm: "Delete #{@person.full_name}? This cannot be undone.",
+            testid: "delete-button"
+          } do %>
+      <%= lucide_icon("trash-2", size: 16) %> Delete Person
+    <% end %>
   <% end %>
+</div>
+
+<%# Admin panel %>
+<div class="show-panel show-panel--admin" data-testid="show-panel-admin">
+  <h4 class="show-admin__item">
+    Created by <%= @person.user.email_address %>
+    at <%= @person.created_at.strftime("%-d %B %Y") %>
+  </h4>
 </div>

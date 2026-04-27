@@ -11,14 +11,16 @@ RSpec.describe Person, type: :model do
     it { is_expected.to have_db_column(:last_name).of_type(:string) }
     it { is_expected.to have_db_column(:description).of_type(:text) }
     it { is_expected.to have_db_column(:slug).of_type(:string) }
+    it { is_expected.to have_db_column(:user_id).of_type(:integer).with_options(null: false) }
+    it { is_expected.to have_db_column(:classification).of_type(:string).with_options(null: false, default: "contacts") }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
   describe "associations" do
+    it { is_expected.to belong_to(:user) }
     it { is_expected.to have_many(:event_people).dependent(:destroy) }
     it { is_expected.to have_many(:events).through(:event_people) }
-    it { is_expected.to have_one_attached(:thumbnail_image) }
-    it { is_expected.to have_one_attached(:full_image) }
+    it { is_expected.to have_one_attached(:image) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
@@ -33,42 +35,34 @@ RSpec.describe Person, type: :model do
         end
       end
 
-      context "thumbnail image type" do
-        it "is valid with a JPEG thumbnail image" do
-          person = build(:person)
-          person.thumbnail_image.attach(
-            io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
-            filename:     "test_image.jpg",
-            content_type: "image/jpeg"
-          )
-          expect(person).to be_valid
+      context "classification" do
+        it "is valid with classification set to contacts" do
+          expect(build(:person, classification: "contacts")).to be_valid
         end
 
-        it "is valid with a PNG thumbnail image" do
-          person = build(:person)
-          person.thumbnail_image.attach(
-            io:           File.open(Rails.root.join("spec/fixtures/files/test_image.png")),
-            filename:     "test_image.png",
-            content_type: "image/png"
-          )
-          expect(person).to be_valid
+        it "is valid with classification set to unrestricted" do
+          expect(build(:person, classification: "unrestricted")).to be_valid
         end
 
-        it "is valid with a WebP thumbnail image" do
-          person = build(:person)
-          person.thumbnail_image.attach(
-            io:           File.open(Rails.root.join("spec/fixtures/files/test_image.webp")),
-            filename:     "test_image.webp",
-            content_type: "image/webp"
-          )
-          expect(person).to be_valid
+        it "is valid with classification set to restricted" do
+          expect(build(:person, classification: "restricted")).to be_valid
+        end
+
+        it "defaults to contacts" do
+          expect(build(:person).classification).to eq("contacts")
         end
       end
 
-      context "full image type" do
-        it "is valid with a JPEG full image" do
+      context "user" do
+        it "is valid when a user is present" do
+          expect(build(:person, user: create(:user))).to be_valid
+        end
+      end
+
+      context "image type" do
+        it "is valid with a JPEG image" do
           person = build(:person)
-          person.full_image.attach(
+          person.image.attach(
             io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
             filename:     "test_image.jpg",
             content_type: "image/jpeg"
@@ -76,9 +70,9 @@ RSpec.describe Person, type: :model do
           expect(person).to be_valid
         end
 
-        it "is valid with a PNG full image" do
+        it "is valid with a PNG image" do
           person = build(:person)
-          person.full_image.attach(
+          person.image.attach(
             io:           File.open(Rails.root.join("spec/fixtures/files/test_image.png")),
             filename:     "test_image.png",
             content_type: "image/png"
@@ -86,9 +80,9 @@ RSpec.describe Person, type: :model do
           expect(person).to be_valid
         end
 
-        it "is valid with a WebP full image" do
+        it "is valid with a WebP image" do
           person = build(:person)
-          person.full_image.attach(
+          person.image.attach(
             io:           File.open(Rails.root.join("spec/fixtures/files/test_image.webp")),
             filename:     "test_image.webp",
             content_type: "image/webp"
@@ -131,73 +125,61 @@ RSpec.describe Person, type: :model do
         end
       end
 
-      context "thumbnail image type" do
-        it "is not valid with a text file as thumbnail image" do
-          person = build(:person)
-          person.thumbnail_image.attach(
-            io:           StringIO.new("not an image"),
-            filename:     "bad.txt",
-            content_type: "text/plain"
-          )
-          expect(person).not_to be_valid
-          expect(person.errors[:thumbnail_image]).to be_present
+      context "classification" do
+        it "is not valid without a classification" do
+          subject.classification = nil
+          expect(subject).not_to be_valid
+          expect(subject.errors[:classification]).to be_present
         end
 
-        it "is not valid with a GIF thumbnail image" do
+        it "is not valid when classification is set to an unrecognised value" do
           person = build(:person)
-          person.thumbnail_image.attach(
-            io:           File.open(Rails.root.join("spec/fixtures/files/test_image.gif")),
-            filename:     "test_image.gif",
-            content_type: "image/gif"
-          )
+          person.classification = "top_secret"
           expect(person).not_to be_valid
-          expect(person.errors[:thumbnail_image]).to be_present
-        end
-
-        it "is not valid with a thumbnail image exceeding 5MB" do
-          person = build(:person)
-          person.thumbnail_image.attach(
-            io:           StringIO.new("0" * (5.megabytes + 1)),
-            filename:     "huge.jpg",
-            content_type: "image/jpeg"
-          )
-          expect(person).not_to be_valid
-          expect(person.errors[:thumbnail_image]).to be_present
+          expect(person.errors[:classification]).to be_present
         end
       end
 
-      context "full image type" do
-        it "is not valid with a text file as full image" do
+      context "user" do
+        it "is not valid without a user" do
+          subject.user = nil
+          expect(subject).not_to be_valid
+          expect(subject.errors[:user]).to be_present
+        end
+      end
+
+      context "image type" do
+        it "is not valid with a text file as image" do
           person = build(:person)
-          person.full_image.attach(
+          person.image.attach(
             io:           StringIO.new("not an image"),
             filename:     "bad.txt",
             content_type: "text/plain"
           )
           expect(person).not_to be_valid
-          expect(person.errors[:full_image]).to be_present
+          expect(person.errors[:image]).to be_present
         end
 
-        it "is not valid with a GIF full image" do
+        it "is not valid with a GIF image" do
           person = build(:person)
-          person.full_image.attach(
+          person.image.attach(
             io:           File.open(Rails.root.join("spec/fixtures/files/test_image.gif")),
             filename:     "test_image.gif",
             content_type: "image/gif"
           )
           expect(person).not_to be_valid
-          expect(person.errors[:full_image]).to be_present
+          expect(person.errors[:image]).to be_present
         end
 
-        it "is not valid with a full image exceeding 5MB" do
+        it "is not valid with an image exceeding 5MB" do
           person = build(:person)
-          person.full_image.attach(
+          person.image.attach(
             io:           StringIO.new("0" * (5.megabytes + 1)),
             filename:     "huge.jpg",
             content_type: "image/jpeg"
           )
           expect(person).not_to be_valid
-          expect(person.errors[:full_image]).to be_present
+          expect(person.errors[:image]).to be_present
         end
       end
     end
@@ -235,6 +217,14 @@ RSpec.describe Person, type: :model do
           person = create(:person, :james_hetfield)
           person.description = "Updated description"
           expect(person).to be_valid
+        end
+      end
+
+      context "classification" do
+        it "retains the classification when other attributes are updated" do
+          person = create(:person, :james_hetfield, classification: "restricted")
+          person.update!(first_name: "Jim")
+          expect(person.reload.classification).to eq("restricted")
         end
       end
 

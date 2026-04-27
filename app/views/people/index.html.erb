@@ -1,14 +1,69 @@
-<h1>People</h1>
+<%# app/views/people/index.html.erb %>
+<div class="page-header">
+  <div class="page-header__top">
+    <h1 class="page-title">People</h1>
+  </div>
+</div>
 
 <% if @people.any? %>
-  <div class="people-list">
-    <% @people.each do |person| %>
-      <%= render "person_card", person: person %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="people-table">
+      <thead>
+        <tr>
+          <th class="col-thumbnail"></th>
+          <th>Name</th>
+          <th>Event Types</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @people.each do |person| %>
+          <tr data-testid="person-row">
+            <td class="col-thumbnail" data-testid="person-thumbnail">
+              <% if person.image.attached? %>
+                <%= link_to person_path(person) do %>
+                  <%= image_tag person.image.variant(:thumbnail),
+                        alt: person.full_name,
+                        class: "table-thumbnail table-thumbnail--person" %>
+                <% end %>
+              <% else %>
+                <%= link_to person_path(person), class: "table-thumbnail-icon table-thumbnail-icon--person" do %>
+                  <%= lucide_icon("user", size: 24) %>
+                <% end %>
+              <% end %>
+            </td>
+            <td>
+              <%= link_to person.full_name,
+                    person_path(person),
+                    class: "data-table__name-link",
+                    data: { testid: "person-name" } %>
+            </td>
+            <td data-testid="person-event-types">
+              <div class="person-icon-group">
+                <% person.events.includes(:event_type).map(&:event_type).uniq.each do |event_type| %>
+                  <%= link_to events_path(event_type_id: event_type.id),
+                        class: "person-icon-link",
+                        title: event_type.name do %>
+                    <%= lucide_icon(event_type.icon, size: 20) %>
+                  <% end %>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div data-testid="pagination-placeholder"></div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No people found.</p>
+  </div>
+<% end %>
+
+<% if authenticated? && @policy&.can_create? %>
+  <div class="page-actions" data-testid="page-actions">
+    <%= link_to new_person_path, class: "btn btn-primary", data: { testid: "add-person-link" } do %>
+      <%= lucide_icon("user-plus", size: 16) %> Add Person
     <% end %>
   </div>
-<% else %>
-  <p>No people found</p>
-<% end %>
-<% if authenticated? %>
-  <%= link_to "Add Person", new_person_path %>
 <% end %>

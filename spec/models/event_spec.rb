@@ -24,7 +24,6 @@ RSpec.describe Event, type: :model do
     it { is_expected.to have_many(:event_people).dependent(:destroy) }
     it { is_expected.to have_many(:people).through(:event_people) }
     it { is_expected.to have_one_attached(:image) }
-    it { is_expected.to have_one_attached(:thumbnail_image) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
@@ -74,38 +73,6 @@ RSpec.describe Event, type: :model do
       context "user" do
         it "is valid when a user is present" do
           expect(build(:event, user: create(:user))).to be_valid
-        end
-      end
-
-      context "thumbnail image type" do
-        it "is valid with a JPEG thumbnail image" do
-          event = build(:event)
-          event.thumbnail_image.attach(
-            io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
-            filename:     "test_image.jpg",
-            content_type: "image/jpeg"
-          )
-          expect(event).to be_valid
-        end
-
-        it "is valid with a PNG thumbnail image" do
-          event = build(:event)
-          event.thumbnail_image.attach(
-            io:           File.open(Rails.root.join("spec/fixtures/files/test_image.png")),
-            filename:     "test_image.png",
-            content_type: "image/png"
-          )
-          expect(event).to be_valid
-        end
-
-        it "is valid with a WebP thumbnail image" do
-          event = build(:event)
-          event.thumbnail_image.attach(
-            io:           File.open(Rails.root.join("spec/fixtures/files/test_image.webp")),
-            filename:     "test_image.webp",
-            content_type: "image/webp"
-          )
-          expect(event).to be_valid
         end
       end
 
@@ -278,41 +245,6 @@ RSpec.describe Event, type: :model do
           event = build(:event, year: 999)
           expect(event).not_to be_valid
           expect(event.errors[:year]).to be_present
-        end
-      end
-
-      context "thumbnail image type" do
-        it "is not valid with a text file as thumbnail image" do
-          event = build(:event)
-          event.thumbnail_image.attach(
-            io:           StringIO.new("not an image"),
-            filename:     "bad.txt",
-            content_type: "text/plain"
-          )
-          expect(event).not_to be_valid
-          expect(event.errors[:thumbnail_image]).to be_present
-        end
-
-        it "is not valid with a GIF thumbnail image" do
-          event = build(:event)
-          event.thumbnail_image.attach(
-            io:           File.open(Rails.root.join("spec/fixtures/files/test_image.gif")),
-            filename:     "test_image.gif",
-            content_type: "image/gif"
-          )
-          expect(event).not_to be_valid
-          expect(event.errors[:thumbnail_image]).to be_present
-        end
-
-        it "is not valid with a thumbnail image exceeding 5MB" do
-          event = build(:event)
-          event.thumbnail_image.attach(
-            io:           StringIO.new("0" * (5.megabytes + 1)),
-            filename:     "huge.jpg",
-            content_type: "image/jpeg"
-          )
-          expect(event).not_to be_valid
-          expect(event.errors[:thumbnail_image]).to be_present
         end
       end
 

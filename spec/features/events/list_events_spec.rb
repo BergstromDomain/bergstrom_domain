@@ -147,7 +147,7 @@ RSpec.describe "List events", type: :feature do
     end
 
     it "shows a thumbnail image when one is attached" do
-      event_with_thumb = create(:event, :unrestricted, :with_thumbnail,
+      event_with_thumb = create(:event, :unrestricted, :with_image,
                                 title: "Thumbnail Event",
                                 event_type: music, day: 1, month: 1, year: 2000, user: user)
       event_with_thumb.people.clear

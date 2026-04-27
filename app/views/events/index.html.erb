@@ -36,9 +36,9 @@
         <% @events.each do |event| %>
           <tr data-testid="event-row">
             <td class="col-thumbnail" data-testid="event-thumbnail">
-              <% if event.thumbnail_image.attached? %>
+              <% if event.image.attached? %>
                 <%= link_to event_path(event) do %>
-                  <%= image_tag event.thumbnail_image,
+                  <%= image_tag event.image.variant(:thumbnail),
                         alt: event.title,
                         class: "table-thumbnail" %>
                 <% end %>
@@ -72,8 +72,8 @@
                         class: "person-icon-link",
                         title: person.full_name,
                         data: { testid: "event-person" } do %>
-                    <% if person.thumbnail_image.attached? %>
-                      <%= image_tag person.thumbnail_image,
+                    <% if person.image.attached? %>
+                      <%= image_tag person.image.variant(:thumbnail),
                             alt: person.full_name,
                             class: "table-thumbnail table-thumbnail--person" %>
                     <% else %>

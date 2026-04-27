@@ -1,9 +1,0 @@
-<% attachment = case size
-                when :thumbnail then person.thumbnail_image
-                when :full      then person.full_image
-                end %>
-<% if attachment&.attached? %>
-  <%= image_tag attachment,
-      alt:   person.full_name,
-      class: "person-image #{size}" %>
-<% end %>
