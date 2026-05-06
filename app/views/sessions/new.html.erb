@@ -1,21 +1,50 @@
-<h1>Sign in</h1>
-
-<% if flash[:alert] %>
-  <p><%= flash[:alert] %></p>
-<% end %>
-
-<%= form_with url: session_path, data: { turbo: false } do |form| %>
-  <div>
-    <%= form.label :email_address, "Email address" %>
-    <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username" %>
+<%# app/views/sessions/new.html.erb %>
+<div class="auth-layout">
+  <div class="page-header">
+    <h1 class="page-title">Sign In</h1>
   </div>
 
-  <div>
-    <%= form.label :password %>
-    <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72 %>
-  </div>
+  <%= form_with url: session_path, data: { turbo: false } do |form| %>
+    <div class="show-panel" data-testid="sign-in-panel">
+      <div class="form-field">
+        <label class="sr-only" for="email_address">Email address</label>
+        <h3 class="show-meta-cell__label">Email address</h3>
+        <%= form.email_field :email_address,
+              id: "email_address",
+              required: true,
+              autofocus: true,
+              autocomplete: "email",
+              placeholder: "you@example.com",
+              data: { testid: "email-field" } %>
+      </div>
 
-  <%= form.submit "Sign in" %>
-<% end %>
+      <div class="form-field">
+        <label class="sr-only" for="password">Password</label>
+        <h3 class="show-meta-cell__label">Password</h3>
+        <%= form.password_field :password,
+              id: "password",
+              required: true,
+              autocomplete: "current-password",
+              data: { testid: "password-field" } %>
+      </div>
 
-<%= link_to "Forgot password?", new_password_path %>
+      <div class="form-field--link">
+        <%= link_to "Forgot password?", new_password_path,
+              data: { testid: "forgot-password-link" } %>
+      </div>
+    </div>
+
+    <div class="show-panel show-panel--actions" style="justify-content: space-between;">
+      <%= link_to root_path,
+            class: "btn btn-secondary",
+            data: { testid: "cancel-link" } do %>
+        <%= lucide_icon("circle-x", size: 16) %> Cancel
+      <% end %>
+
+      <button type="submit" class="btn btn-primary-action" data-testid="sign-in-button">
+        <%= lucide_icon "log-in", size: 18 %>
+        Sign In
+      </button>
+    </div>
+  <% end %>
+</div>

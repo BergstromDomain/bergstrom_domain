@@ -22,7 +22,7 @@
 
         <main class="site-main" data-testid="main-content">
           <% flash.each do |type, message| %>
-            <div class="flash <%= type %>"><%= message %></div>
+            <div class="flash <%= type %>" data-testid="flash-<%= type %>"><%= message %></div>
           <% end %>
           <%= yield %>
         </main>

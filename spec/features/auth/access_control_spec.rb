@@ -137,7 +137,7 @@ RSpec.describe "Access control", type: :feature do
 
       fill_in "Email address", with: user.email_address
       fill_in "Password",      with: "password123"
-      click_button "Sign in"
+      click_button "Sign In"
 
       expect(page.current_path).to eq(new_event_path)
     end

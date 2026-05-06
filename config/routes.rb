@@ -9,5 +9,6 @@ Rails.application.routes.draw do
   root "pages#home"
   get "about",   to: "pages#about"
   get "contact", to: "pages#contact"
+  get "settings", to: "pages#settings", as: :settings
   get "blog-posts",  to: "pages#blog_posts", as: :blog_posts
 end

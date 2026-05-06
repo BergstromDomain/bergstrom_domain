@@ -1,86 +1,95 @@
 # spec/features/auth/sign_in_spec.rb
-
 require "rails_helper"
 
-RSpec.describe "Sign in", type: :feature do
+RSpec.describe "Sign In", type: :feature do
   let!(:user) { create(:user, email_address: "bergstrom@example.com", password: "password123", password_confirmation: "password123") }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "happy path" do
-    it "signs in with valid credentials and redirects to root" do
+  describe "Happy path" do
+    it "Signs in with valid credentials and redirects to root" do
       visit new_session_path
-
+      expect(page).to have_selector("h1.page-title", text: "Sign In")
+      expect(page).to have_selector("[data-testid='sign-in-panel']")
       fill_in "Email address", with: "bergstrom@example.com"
       fill_in "Password",      with: "password123"
-      click_button "Sign in"
-
-      expect(page.current_path).to eq(root_path)
+      click_button "Sign In"
+      expect(page).to have_current_path(root_path)
     end
 
-    it "signs in and redirects to the originally requested URL" do
+    it "Signs in and redirects to the originally requested URL" do
       visit new_event_path
-
       fill_in "Email address", with: "bergstrom@example.com"
       fill_in "Password",      with: "password123"
-      click_button "Sign in"
+      click_button "Sign In"
+      expect(page).to have_current_path(new_event_path)
+    end
 
-      expect(page.current_path).to eq(new_event_path)
+    it "Renders the email field" do
+      visit new_session_path
+      expect(page).to have_field("Email address")
+    end
+
+    it "Renders the password field" do
+      visit new_session_path
+      expect(page).to have_field("Password")
+    end
+
+    it "Renders the 'Forgot password?' link" do
+      visit new_session_path
+      expect(page).to have_link("Forgot password?", href: new_password_path)
+    end
+
+    it "Renders the 'Cancel' button" do
+      visit new_session_path
+      expect(page).to have_link("Cancel", href: root_path)
+    end
+
+    it "Renders the 'Sign In' button on the right" do
+      visit new_session_path
+      expect(page).to have_button("Sign In")
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "negative path" do
-    it "shows an error with incorrect password" do
+  describe "Negative path" do
+    it "Stays on the sign-in page with an incorrect password" do
       visit new_session_path
-
       fill_in "Email address", with: "bergstrom@example.com"
       fill_in "Password",      with: "wrong-password"
-      click_button "Sign in"
-
-      expect(page.current_path).to eq(new_session_path)
+      click_button "Sign In"
+      expect(page).to have_current_path(new_session_path)
     end
 
-    it "shows an error with incorrect email address" do
+    it "Stays on the sign-in page with an incorrect email address" do
       visit new_session_path
-
       fill_in "Email address", with: "nobody@example.com"
       fill_in "Password",      with: "password123"
-      click_button "Sign in"
-
-      expect(page.current_path).to eq(new_session_path)
+      click_button "Sign In"
+      expect(page).to have_current_path(new_session_path)
     end
 
-    it "stays on the sign-in page with blank credentials" do
+    it "Stays on the sign-in page with blank credentials" do
       visit new_session_path
-
       fill_in "Email address", with: ""
       fill_in "Password",      with: ""
-      click_button "Sign in"
-
-      expect(page.current_path).to eq(new_session_path)
+      click_button "Sign In"
+      expect(page).to have_current_path(new_session_path)
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "alternative path" do
-    it "signs in with email address in a different case" do
+  describe "Alternative path" do
+    it "Signs in with email address in a different case" do
       visit new_session_path
-
       fill_in "Email address", with: "BERGSTROM@EXAMPLE.COM"
       fill_in "Password",      with: "password123"
-      click_button "Sign in"
-
-      expect(page.current_path).to eq(root_path)
+      click_button "Sign In"
+      expect(page).to have_current_path(root_path)
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "edge cases" do
-    it "does not sign in an already-signed-in user visiting sign-in again" do
+  describe "Edge cases" do
+    it "Does not redirect an already-signed-in user visiting sign in" do
       sign_in_as(user)
       visit new_session_path
-
-      expect(page).to have_button("Sign in")
+      expect(page).to have_button("Sign In")
     end
   end
 end
