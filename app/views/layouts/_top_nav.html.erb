@@ -32,13 +32,35 @@
 
   <div class="top-nav__auth">
     <% if authenticated? %>
-      <span class="top-nav__username"><%= current_user.email_address %></span>
-      <%= button_to "Sign Out", session_path, method: :delete,
-                    class: "top-nav__button top-nav__button--signout" %>
+      <div class="dropdown" data-controller="dropdown" data-testid="user-thumbnail-dropdown">
+        <button class="top-nav__link top-nav__dropdown-trigger"
+                data-action="click->dropdown#toggle"
+                data-testid="user-thumbnail-button"
+                aria-label="User Thumbnail">
+          <%= lucide_icon "circle-user-round", size: 24 %>
+          <%= lucide_icon "chevron-down", class: "dropdown__chevron" %>
+        </button>
+        <ul class="dropdown__menu" data-dropdown-target="menu">
+          <li>
+            <%= link_to "User Settings", settings_path, class: "dropdown__item", data: { testid: "user-settings-link" } %>
+          </li>
+          <li>
+            <%= button_to session_path,
+                  method: :delete,
+                  class: "dropdown__item dropdown__item--signout",
+                  data: { testid: "sign-out-button", turbo: false } do %>
+              Sign Out
+            <% end %>
+          </li>
+        </ul>
+      </div>
     <% else %>
-      <%= link_to "Login", new_session_path,
-                  class: "top-nav__button top-nav__button--login" %>
+      <%= link_to new_session_path,
+            class: "top-nav__button top-nav__button--login",
+            data: { testid: "top-nav-sign-in" } do %>
+        <%= lucide_icon "log-in", size: 16 %>
+        Sign In
+      <% end %>
     <% end %>
   </div>
-
 </nav>

@@ -59,6 +59,9 @@ input, button, textarea, select {
   --color-nav-link-active:     #ffffff;
   --color-footer-bg:           #1a1a2e;
   --color-footer-text:         #9ca3af;
+  --color-primary:             #2563eb;   /* blue — primary form actions     */
+  --color-primary-dark:        #1d4ed8;   /* primary hover                   */
+  --color-primary-text:        #ffffff;   /* text on primary backgrounds     */
 
   /* --- Content area — warm light palette --- */
   --color-bg:                  #faf8f5;   /* warm off-white page background  */
@@ -266,8 +269,9 @@ code, pre {
   display: none;
   position: absolute;
   top: calc(100% + var(--space-xs));
-  left: 0;
-  min-width: 160px;
+  right: 0;        /* changed from left: 0 */
+  left: auto;      /* add this */
+  min-width: 200px;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -278,13 +282,20 @@ code, pre {
   z-index: 200;
 }
 
+.dropdown__menu li:has(.dropdown__item--signout) form {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 .dropdown__menu.dropdown--open {
   display: block;
 }
 
 .dropdown__item {
   display: block;
-  padding: var(--space-xs) var(--space-md);
+  padding: var(--space-sm) var(--space-lg);  /* was var(--space-xs) var(--space-md) */
   color: var(--color-text-primary);
   text-decoration: none;
   font-size: var(--font-size-sm);
@@ -328,12 +339,15 @@ code, pre {
 }
 
 .top-nav__button--login {
-  background-color: var(--color-accent);
-  color: var(--color-accent-text);
+  background-color: var(--color-primary);
+  color: var(--color-primary-text);
+  border: 1px solid var(--color-primary);
 }
 
 .top-nav__button--login:hover {
-  background-color: var(--color-accent-hover);
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  color: var(--color-primary-text);
 }
 
 .top-nav__button--signout {
@@ -576,6 +590,18 @@ code, pre {
   font-size: var(--font-size-lg);
   user-select: none;
   padding: 0 var(--space-2xs);
+}
+
+.btn-primary-action {
+  background-color: var(--color-primary);
+  color: var(--color-primary-text);
+  border-color: var(--color-primary);
+}
+
+.btn-primary-action:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  color: var(--color-primary-text);
 }
 
 
@@ -1078,4 +1104,84 @@ textarea.form-control {
   display: flex;
   align-items: center;
   color: var(--color-accent);
+}
+
+
+/* ==========================================================================
+   14. Authentication Layout
+   ========================================================================== */
+
+.auth-layout {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-md);
+}
+
+.auth-layout .page-header {
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.auth-layout .show-panel {
+  margin-bottom: var(--space-md);
+}
+
+.form-field {
+  margin-bottom: var(--space-md);
+}
+
+.form-field:last-child {
+  margin-bottom: 0;
+}
+
+.form-field--link {
+  margin-top: var(--space-sm);
+  font-size: var(--font-size-sm);
+}
+
+.form-field input[type="email"],
+.form-field input[type="password"],
+.form-field input[type="text"] {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+.form-helper-text {
+  margin-top: var(--space-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.dropdown__item--signout {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-lg);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family-ui);
+  font-weight: var(--font-weight-normal);
+  white-space: nowrap;
+  transition: background-color 0.1s ease;
+  text-decoration: none;
+  line-height: var(--line-height-normal);
+}
+
+.dropdown__item--signout:hover {
+  background-color: var(--color-surface-hover);
 }
