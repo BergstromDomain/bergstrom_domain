@@ -110,8 +110,9 @@ class EventsController < ApplicationController
   private
 
   def events_on_date(date)
-    Event.where(year: date.year, month: date.month, day: date.day)
-        .order("LOWER(title)")
+    Event.where(month: date.month, day: date.day)
+      .includes(:people, :event_type, :image_attachment, :image_blob)
+      .order("LOWER(title)")
   end
 
   def parse_date_param(raw, fallback)
