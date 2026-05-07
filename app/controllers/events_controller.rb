@@ -2,8 +2,8 @@
 class EventsController < ApplicationController
   include Navigable
 
-  allow_unauthenticated_access only: %i[index show]
-  before_action :resume_session_if_available, only: %i[index show]
+  allow_unauthenticated_access only: %i[index show by_day]
+  before_action :resume_session_if_available, only: %i[index show by_day]
   before_action :set_event,    only: %i[show edit update destroy]
   before_action :set_policy,   only: %i[new create edit update destroy]
 
@@ -27,6 +27,29 @@ class EventsController < ApplicationController
     else
       base.order(:month, :day, :title)
     end
+  end
+
+  def by_day
+    @date         = parse_date_param(params[:date], Date.current)
+    @events       = events_on_date(@date)
+    @previous_day = @date - 1.day
+    @next_day     = @date + 1.day
+  end
+
+  def by_week
+    @week_start    = Date.current.beginning_of_week
+    @week_end      = Date.current.end_of_week
+    @events        = Event.none
+    @previous_week = @week_start - 1.day
+    @next_week     = @week_end + 1.day
+  end
+
+  def by_month
+    @month_start    = Date.current.beginning_of_month
+    @month_end      = Date.current.end_of_month
+    @events         = Event.none
+    @previous_month = @month_start - 1.month
+    @next_month     = @month_start + 1.month
   end
 
   def show
@@ -85,6 +108,17 @@ class EventsController < ApplicationController
   end
 
   private
+
+  def events_on_date(date)
+    Event.where(year: date.year, month: date.month, day: date.day)
+        .order("LOWER(title)")
+  end
+
+  def parse_date_param(raw, fallback)
+    Date.parse(raw.to_s)
+  rescue ArgumentError, TypeError
+    fallback
+  end
 
   def set_event
     @event = Event.friendly.find(params[:id])

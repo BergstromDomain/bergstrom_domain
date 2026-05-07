@@ -89,6 +89,11 @@ input, button, textarea, select {
   --color-success:             #2e7d52;
   --color-warning:             #b07d10;
 
+  --color-nav-sidebar-bg:  #2d3a4a;
+  --color-nav-muted:       rgba(255, 255, 255, 0.5);
+  --color-nav-hover:       rgba(255, 255, 255, 0.08);
+  --color-nav-text-active: #ffffff;
+
   /* Kept for top-nav dropdown compatibility */
   --color-surface-hover:       #f3f0eb;
 
@@ -195,18 +200,21 @@ code, pre {
 .site-shell {
   display: grid;
   grid-template-rows: var(--top-nav-height) 1fr var(--footer-height);
-  min-height: 100dvh;
+  height: 100dvh;        /* was min-height — fixed height constrains scroll */
+  overflow: hidden;      /* prevent shell itself from scrolling */
 }
 
 .site-body {
   display: flex;
-  overflow: hidden;
+  align-items: flex-start;
+  overflow: hidden;      /* constrain the row height */
 }
 
 .site-main {
   flex: 1;
   padding: var(--space-lg);
   overflow-y: auto;
+  height: 100%;          /* fill the site-body row */
 }
 
 
@@ -361,91 +369,100 @@ code, pre {
 }
 
 
-/* ============================================================
-   6. Left navigation
-   Sourced from app/assets/stylesheets/layout/left_nav.css
-   ============================================================ */
+/* ==========================================================================
+   6. Left Navigation
+   ========================================================================== */
 
 .left-nav {
-  background-color: var(--color-nav-bg);
-  width: var(--left-nav-width);
-  min-height: 100%;
-  padding-top: 1rem;
-  padding-bottom: 2rem;
-  padding-left: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  background-color: var(--color-nav-sidebar-bg);
+  width: 220px;
+  height: 100vh;
+  padding: var(--space-md) 0;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
   overflow-y: auto;
 }
 
 .left-nav-section {
+  margin-bottom: var(--space-lg);
+}
+
+/* H2 — top-level section header */
+.left-nav-h2 {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  margin-top: 0.75rem;
-}
-
-.left-nav-section:first-child {
-  border-top: none;
-  margin-top: 0;
-  padding-top: 0.5rem;
-}
-
-.left-nav-h1 {
-  display: block;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.8125rem;
+  align-items: center;
+  gap: 8px;
+  padding: var(--space-xs) var(--space-md);
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-nav-h1);
-  user-select: none;
+  color: rgba(255, 255, 255, 0.75);
+  margin: var(--space-md) 0 0 0;  /* was 0 top — add large top margin */
 }
 
-.left-nav-links {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
+.left-nav-h2 svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
-.left-nav-link {
-  display: block;
-  padding: 0.4rem 0.75rem;
-  font-size: 0.875rem;
-  color: var(--color-nav-link);
-  text-decoration: none;
-  border-radius: 6px;
-  background-color: rgba(255, 255, 255, 0.04);
-  margin-right: 0.75rem;
-  transition: background-color 120ms ease, color 120ms ease;
-}
-
-.left-nav-link:hover {
-  background-color: var(--color-nav-link-hover-bg);
-  color: var(--color-nav-link-hover);
-}
-
-.left-nav-link--active {
-  background-color: var(--color-nav-link-active-bg);
-  color: var(--color-nav-link-active);
+/* H3 — group header */
+.left-nav-h3 {
+  padding: var(--space-xs) var(--space-md) var(--space-xs) calc(var(--space-md) + 20px);  /* was +12px */
+  font-size: 0.6rem;
   font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-nav-muted);
+  opacity: 0.7;
+  margin: var(--space-xs) 0 0 0;
 }
 
-.left-nav-link--active:hover {
-  background-color: var(--color-nav-link-active-bg);
-  color: var(--color-nav-link-active);
+/* Links */
+.left-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--space-xs) var(--space-md) var(--space-xs) calc(var(--space-md) + 36px);  /* was +24px */
+  color: var(--color-nav-text);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.left-nav-link--placeholder {
-  opacity: 0.45;
-  cursor: default;
-  pointer-events: none;
+.left-nav-link svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.left-nav-link:hover,
+.left-nav-link:focus {
+  background-color: var(--color-nav-hover);
+  color: var(--color-nav-text-active);
+}
+
+.left-nav-link:hover svg,
+.left-nav-link:focus svg {
+  opacity: 1;
+}
+
+/* Divider between sections */
+.left-nav-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: var(--space-sm) var(--space-md);
+}
+
+/* Calendar view period headings */
+.by-period-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
 }
 
 

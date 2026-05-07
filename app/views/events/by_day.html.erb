@@ -1,0 +1,41 @@
+<div class="page-header">
+  <h1 class="page-title">Events</h1>
+</div>
+
+<div class="show-panel">
+  <div class="show-panel--actions">
+    <%= link_to events_by_day_path(date: @previous_day.iso8601),
+        class: "btn btn-secondary",
+        data: { testid: "nav-previous-day" } do %>
+      <%= lucide_icon("chevron-left", size: 16) %>
+      <%= @previous_day.strftime("%-d %b") %>
+    <% end %>
+
+    <h2 class="by-period-heading" data-testid="by-day-heading">
+      <%= @date.strftime("%A, %-d %B %Y") %>
+    </h2>
+
+    <%= link_to events_by_day_path(date: @next_day.iso8601),
+        class: "btn btn-secondary",
+        data: { testid: "nav-next-day" } do %>
+      <%= @next_day.strftime("%-d %b") %>
+      <%= lucide_icon("chevron-right", size: 16) %>
+    <% end %>
+  </div>
+</div>
+
+<% if @events.any? %>
+  <div class="show-panel" data-testid="event-list">
+    <% @events.each do |event| %>
+      <div class="show-meta-row">
+        <div class="show-meta-cell">
+          <%= link_to event.title, event_path(event) %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="show-panel" data-testid="no-events-message">
+    <p>No events on this day.</p>
+  </div>
+<% end %>

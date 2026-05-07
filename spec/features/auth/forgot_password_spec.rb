@@ -48,7 +48,7 @@ RSpec.describe "Forgot Password", type: :feature do
   end
 
   describe "Alternative path" do
-    it "renders the page for an already-signed-in user" do
+    it "Renders the page for an already-signed-in user" do
       sign_in_as(user)
       visit new_password_path
       expect(page).to have_field("Email address")
