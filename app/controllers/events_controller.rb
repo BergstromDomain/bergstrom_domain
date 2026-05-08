@@ -2,8 +2,8 @@
 class EventsController < ApplicationController
   include Navigable
 
-  allow_unauthenticated_access only: %i[index show by_day]
-  before_action :resume_session_if_available, only: %i[index show by_day]
+  allow_unauthenticated_access only: %i[index show by_day by_week]
+  before_action :resume_session_if_available, only: %i[index show by_day by_week]
   before_action :set_event,    only: %i[show edit update destroy]
   before_action :set_policy,   only: %i[new create edit update destroy]
 
@@ -37,9 +37,10 @@ class EventsController < ApplicationController
   end
 
   def by_week
-    @week_start    = Date.current.beginning_of_week
-    @week_end      = Date.current.end_of_week
-    @events        = Event.none
+    anchor         = parse_date_param(params[:date], Date.current)
+    @week_start    = anchor.beginning_of_week
+    @week_end      = anchor.end_of_week
+    @events        = events_in_week(@week_start, @week_end)
     @previous_week = @week_start - 1.day
     @next_week     = @week_end + 1.day
   end
@@ -113,6 +114,16 @@ class EventsController < ApplicationController
     Event.where(month: date.month, day: date.day)
       .includes(:people, :event_type, :image_attachment, :image_blob)
       .order("LOWER(title)")
+  end
+
+  def events_in_week(start_date, end_date)
+    Event.where(
+      "MAKE_DATE(year, month, day) BETWEEN ? AND ?",
+      start_date,
+      end_date
+    )
+    .includes(:people, :event_type, :image_attachment, :image_blob)
+    .order(:year, :month, :day, "LOWER(title)")
   end
 
   def parse_date_param(raw, fallback)
