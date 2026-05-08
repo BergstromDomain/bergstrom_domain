@@ -8,8 +8,8 @@ RSpec.describe "Top navigation bar", type: :feature do
   let(:charlie)      { create(:user, role: :content_creator) }    # Charlie Content Creator - A signed in user with the Content Creator user role
   # let(:chris)        { create(:user, role: :content_creator) }  # Chris Content Creator - A signed in user with the Content Creator user role - NOTE: Not required for this spec
   # let(:curtis)       { create(:user, role: :content_creator) }  # Curtis the Content Creator - A signed in user with the Content Creator user role - NOTE: Not required for this spec
-  let(:adam)         { create(:user, role: :administrator) }      # Adam Admin - A signed in user with the Admin user role
-  let(:sam)          { create(:user, role: :system_admin) }       # Sam SysAdmin - A signed in user with the System Administrator user role
+  let(:adam)         { create(:user, role: :admin) }              # Adam Admin - A signed in user with the Admin user role
+  let(:sam)          { create(:user, role: :system_admin) }       # Sam SysAdmin - A signed in user with the System Admin user role
 
   shared_examples "Common nav links" do
     it "Shows the 'Home' link" do
