@@ -2,8 +2,8 @@
 class EventsController < ApplicationController
   include Navigable
 
-  allow_unauthenticated_access only: %i[index show by_day by_week]
-  before_action :resume_session_if_available, only: %i[index show by_day by_week]
+  allow_unauthenticated_access only: %i[index show by_day by_week by_month]
+  before_action :resume_session_if_available, only: %i[index show by_day by_week by_month]
   before_action :set_event,    only: %i[show edit update destroy]
   before_action :set_policy,   only: %i[new create edit update destroy]
 
@@ -46,11 +46,22 @@ class EventsController < ApplicationController
   end
 
   def by_month
-    @month_start    = Date.current.beginning_of_month
-    @month_end      = Date.current.end_of_month
-    @events         = Event.none
-    @previous_month = @month_start - 1.month
-    @next_month     = @month_start + 1.month
+    year  = Integer(params[:year],  exception: false) || Date.current.year
+    month = Integer(params[:month], exception: false) || Date.current.month
+
+    anchor = begin
+      Date.new(year, month, 1)
+    rescue Date::Error, ArgumentError
+      Date.current.beginning_of_month
+    end
+
+    @month_start    = anchor
+    @month_end      = anchor.end_of_month
+    @events = Event.where(month: anchor.month)
+               .includes(:people, :event_type, :image_attachment, :image_blob)
+               .order(:year, :day, "LOWER(title)")
+    @previous_month = anchor - 1.month
+    @next_month     = anchor + 1.month
   end
 
   def show
