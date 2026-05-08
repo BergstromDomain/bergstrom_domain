@@ -2,8 +2,8 @@
 class EventsController < ApplicationController
   include Navigable
 
-  allow_unauthenticated_access only: %i[index show]
-  before_action :resume_session_if_available, only: %i[index show]
+  allow_unauthenticated_access only: %i[index show by_day by_week by_month]
+  before_action :resume_session_if_available, only: %i[index show by_day by_week by_month]
   before_action :set_event,    only: %i[show edit update destroy]
   before_action :set_policy,   only: %i[new create edit update destroy]
 
@@ -27,6 +27,41 @@ class EventsController < ApplicationController
     else
       base.order(:month, :day, :title)
     end
+  end
+
+  def by_day
+    @date         = parse_date_param(params[:date], Date.current)
+    @events       = events_on_date(@date)
+    @previous_day = @date - 1.day
+    @next_day     = @date + 1.day
+  end
+
+  def by_week
+    anchor         = parse_date_param(params[:date], Date.current)
+    @week_start    = anchor.beginning_of_week
+    @week_end      = anchor.end_of_week
+    @events        = events_in_week(@week_start, @week_end)
+    @previous_week = @week_start - 1.day
+    @next_week     = @week_end + 1.day
+  end
+
+  def by_month
+    year  = Integer(params[:year],  exception: false) || Date.current.year
+    month = Integer(params[:month], exception: false) || Date.current.month
+
+    anchor = begin
+      Date.new(year, month, 1)
+    rescue Date::Error, ArgumentError
+      Date.current.beginning_of_month
+    end
+
+    @month_start    = anchor
+    @month_end      = anchor.end_of_month
+    @events = Event.where(month: anchor.month)
+               .includes(:people, :event_type, :image_attachment, :image_blob)
+               .order(:year, :day, "LOWER(title)")
+    @previous_month = anchor - 1.month
+    @next_month     = anchor + 1.month
   end
 
   def show
@@ -85,6 +120,28 @@ class EventsController < ApplicationController
   end
 
   private
+
+  def events_on_date(date)
+    Event.where(month: date.month, day: date.day)
+      .includes(:people, :event_type, :image_attachment, :image_blob)
+      .order("LOWER(title)")
+  end
+
+  def events_in_week(start_date, end_date)
+    Event.where(
+      "MAKE_DATE(year, month, day) BETWEEN ? AND ?",
+      start_date,
+      end_date
+    )
+    .includes(:people, :event_type, :image_attachment, :image_blob)
+    .order(:year, :month, :day, "LOWER(title)")
+  end
+
+  def parse_date_param(raw, fallback)
+    Date.parse(raw.to_s)
+  rescue ArgumentError, TypeError
+    fallback
+  end
 
   def set_event
     @event = Event.friendly.find(params[:id])

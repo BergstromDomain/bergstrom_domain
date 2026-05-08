@@ -1,28 +1,33 @@
-<%# app/views/events/index.html.erb %>
-
+<%# app/views/events/by_week.html.erb %>
 <div class="page-header">
   <div class="page-header__top">
     <h1 class="page-title">Events</h1>
   </div>
 </div>
 
-<nav class="month-nav" data-testid="month-nav">
-  <%= link_to "All",
-        events_path,
-        class: "month-nav__link #{'month-nav__link--active' if @selected_month.nil?}",
-        data: { testid: "month-nav-all" } %>
-  <% Date::ABBR_MONTHNAMES.compact.each_with_index do |abbr, i| %>
-    <% month_num = i + 1 %>
-    <%= link_to abbr,
-          events_path(month: month_num),
-          class: "month-nav__link #{'month-nav__link--active' if @selected_month == month_num}",
-          data: { testid: "month-nav-link" } %>
+<nav class="day-nav" data-testid="week-nav">
+  <%= link_to events_by_week_path(date: @previous_week.iso8601),
+      class: "day-nav__link",
+      data: { testid: "nav-previous-week" } do %>
+    <%= lucide_icon("chevron-left", size: 16) %>
+    <%= @previous_week.strftime("%-d %b") %>
+  <% end %>
+
+  <span class="day-nav__heading" data-testid="by-week-heading">
+    <%= @week_start.strftime("%-d %b") %> – <%= @week_end.strftime("%-d %b %Y") %>
+  </span>
+
+  <%= link_to events_by_week_path(date: @next_week.iso8601),
+      class: "day-nav__link",
+      data: { testid: "nav-next-week" } do %>
+    <%= @next_week.strftime("%-d %b") %>
+    <%= lucide_icon("chevron-right", size: 16) %>
   <% end %>
 </nav>
 
 <% if @events.any? %>
   <div class="data-table-wrapper">
-    <table class="data-table" data-testid="events-table">
+    <table class="data-table" data-testid="event-list">
       <colgroup>
         <col style="width: 64px;">
         <col>
@@ -97,9 +102,8 @@
       </tbody>
     </table>
   </div>
-  <div data-testid="pagination-placeholder"></div>
 <% else %>
-  <div class="empty-state" data-testid="empty-state">
-    <p>No events found.</p>
+  <div class="empty-state" data-testid="no-events-message">
+    <p>No events this week.</p>
   </div>
 <% end %>

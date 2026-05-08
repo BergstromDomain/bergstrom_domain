@@ -4,58 +4,112 @@
 
     <%# ── Views ─────────────────────────────────────────────────────────── %>
     <div class="left-nav-section">
-      <span class="left-nav-h1" data-testid="left-nav-h1">Views</span>
-      <ul class="left-nav-links">
-        <li><%= link_to "People",           people_path,      class: left_nav_link_class("people") %></li>
-        <%# TODO: replace placeholders with scoped routes when filter views are built %>
-        <li><%= link_to "Events Today",      events_path, class: left_nav_link_class("events") %></li>
-        <li><%= link_to "Events Tomorrow",   events_path, class: left_nav_link_class("events") %></li>
-        <li><%= link_to "Events Yesterday",  events_path, class: left_nav_link_class("events") %></li>
-        <li><%= link_to "Events This Week",  events_path, class: left_nav_link_class("events") %></li>
-        <li><%= link_to "Events Next Week",  events_path, class: left_nav_link_class("events") %></li>
-        <li><%= link_to "Events Last Week",  events_path, class: left_nav_link_class("events") %></li>
-        <li><%= link_to "Events This Month", events_path, class: left_nav_link_class("events") %></li>
-        <li><%= link_to "Events Next Month", events_path, class: left_nav_link_class("events") %></li>
-        <li><%= link_to "Events Last Month", events_path, class: left_nav_link_class("events") %></li>
-        <li><%= link_to "All Events",        events_path, class: left_nav_link_class("events") %></li>
-        <li><%= link_to "Event Types",       event_types_path, class: left_nav_link_class("event_types") %></li>
-      </ul>
+      <h2 class="left-nav-h2" data-testid="left-nav-views-h2">
+        <%= lucide_icon("eye", size: 14) %> Views
+      </h2>
+
+      <h3 class="left-nav-h3" data-testid="left-nav-event-tracker-h3">
+        Event Tracker
+      </h3>
+      <%= link_to event_tracker_path, class: "left-nav-link" do %>
+        <%= lucide_icon("calendar-fold", size: 15) %>
+        <span>Event Tracker</span>
+      <% end %>
+
+      <h3 class="left-nav-h3" data-testid="left-nav-events-h3">
+        Events
+      </h3>
+      <%= link_to events_by_day_path, class: "left-nav-link" do %>
+        <%= lucide_icon("calendar-clock", size: 15) %>
+        <span>Events by day</span>
+      <% end %>
+      <%= link_to events_by_week_path, class: "left-nav-link" do %>
+        <%= lucide_icon("calendar-days", size: 15) %>
+        <span>Events by week</span>
+      <% end %>
+      <%= link_to events_by_month_path, class: "left-nav-link" do %>
+        <%= lucide_icon("calendars", size: 15) %>
+        <span>Events by month</span>
+      <% end %>
+
+      <h3 class="left-nav-h3" data-testid="left-nav-people-h3">
+        People
+      </h3>
+      <%= link_to people_path, class: "left-nav-link" do %>
+        <%= lucide_icon("user-star", size: 15) %>
+        <span>People</span>
+      <% end %>
+
+      <h3 class="left-nav-h3" data-testid="left-nav-event-type-h3">
+        Event Type
+      </h3>
+      <%= link_to event_types_path, class: "left-nav-link" do %>
+        <%= lucide_icon("boxes", size: 15) %>
+        <span>Event Types</span>
+      <% end %>
     </div>
+
+    <hr class="left-nav-divider">
 
     <%# ── Actions (Content Creator and above) ───────────────────────────── %>
     <% if can_see_left_nav_actions? %>
-      <% event_tracker_policy = Policy.new(current_user, :event_tracker) %>
-      <div class="left-nav-section">
-        <span class="left-nav-h1" data-testid="left-nav-h1">Actions</span>
-        <ul class="left-nav-links">
-          <% if event_tracker_policy.can_create? %>
-            <li><%= link_to "Create Person",     new_person_path,     class: "left-nav-link" %></li>
-            <li><%= link_to "Create Event",      new_event_path,      class: "left-nav-link" %></li>
-            <li><%= link_to "Create Event Type", new_event_type_path, class: "left-nav-link" %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
+      <% event_policy = Policy.new(current_user, :event_tracker) %>
 
-    <%# ── Import & Export (Content Creator and above) ───────────────────── %>
-    <% if can_see_left_nav_actions? %>
       <div class="left-nav-section">
-        <span class="left-nav-h1" data-testid="left-nav-h1">Import & Export</span>
-        <ul class="left-nav-links">
-          <%# TODO: replace # with import/export routes when built %>
-          <li><%= link_to "Import/Export People", "#", class: "left-nav-link left-nav-link--placeholder" %></li>
-          <li><%= link_to "Import/Export Events", "#", class: "left-nav-link left-nav-link--placeholder" %></li>
-        </ul>
+        <h2 class="left-nav-h2" data-testid="left-nav-actions-h2">
+          <%= lucide_icon("cog", size: 14) %> Actions
+        </h2>
+
+        <% if event_policy.can_create? %>
+          <%= link_to new_event_path, class: "left-nav-link" do %>
+            <%= lucide_icon("calendar-plus", size: 15) %>
+            <span>Create Event</span>
+          <% end %>
+          <%= link_to new_person_path, class: "left-nav-link" do %>
+            <%= lucide_icon("user-plus", size: 15) %>
+            <span>Create Person</span>
+          <% end %>
+        <% end %>
+
+        <% if current_user&.can_administer? %>
+          <%= link_to new_event_type_path, class: "left-nav-link" do %>
+            <%= lucide_icon("box", size: 15) %>
+            <span>Create Event Type</span>
+          <% end %>
+        <% end %>
       </div>
+
+      <hr class="left-nav-divider">
+
+      <%# ── Import & Export ──────────────────────────────────────────────── %>
+      <div class="left-nav-section">
+        <h2 class="left-nav-h2" data-testid="left-nav-import-export-h2">
+          <%= lucide_icon("hard-drive-upload", size: 14) %> Import &amp; Export
+        </h2>
+
+        <%= link_to import_export_path, class: "left-nav-link" do %>
+          <%= lucide_icon("upload", size: 15) %>
+          <span>Import People and Events</span>
+        <% end %>
+        <%= link_to import_export_path, class: "left-nav-link" do %>
+          <%= lucide_icon("download", size: 15) %>
+          <span>Download People and Events</span>
+        <% end %>
+      </div>
+
+      <hr class="left-nav-divider">
     <% end %>
 
     <%# ── How To ─────────────────────────────────────────────────────────── %>
     <div class="left-nav-section">
-      <span class="left-nav-h1" data-testid="left-nav-h1">How To</span>
-      <ul class="left-nav-links">
-        <%# TODO: replace # with user guide route when built %>
-        <li><%= link_to "Event Tracker User Guide", "#", class: "left-nav-link left-nav-link--placeholder" %></li>
-      </ul>
+      <h2 class="left-nav-h2" data-testid="left-nav-how-to-h2">
+        <%= lucide_icon("book-open", size: 14) %> How To
+      </h2>
+
+      <%= link_to user_guide_path, class: "left-nav-link" do %>
+        <%= lucide_icon("book-open-check", size: 15) %>
+        <span>User Guide</span>
+      <% end %>
     </div>
 
   <% end %>

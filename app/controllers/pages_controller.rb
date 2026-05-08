@@ -16,4 +16,13 @@ class PagesController < ApplicationController
 
   def settings
   end
+
+  def event_tracker
+  end
+
+  def import_export
+  end
+
+  def user_guide
+  end
 end

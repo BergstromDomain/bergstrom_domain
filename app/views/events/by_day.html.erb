@@ -1,28 +1,33 @@
-<%# app/views/events/index.html.erb %>
-
+<%# app/views/events/by_day.html.erb %>
 <div class="page-header">
   <div class="page-header__top">
     <h1 class="page-title">Events</h1>
   </div>
 </div>
 
-<nav class="month-nav" data-testid="month-nav">
-  <%= link_to "All",
-        events_path,
-        class: "month-nav__link #{'month-nav__link--active' if @selected_month.nil?}",
-        data: { testid: "month-nav-all" } %>
-  <% Date::ABBR_MONTHNAMES.compact.each_with_index do |abbr, i| %>
-    <% month_num = i + 1 %>
-    <%= link_to abbr,
-          events_path(month: month_num),
-          class: "month-nav__link #{'month-nav__link--active' if @selected_month == month_num}",
-          data: { testid: "month-nav-link" } %>
+<nav class="day-nav" data-testid="day-nav">
+  <%= link_to events_by_day_path(date: @previous_day.iso8601),
+      class: "day-nav__link",
+      data: { testid: "nav-previous-day" } do %>
+    <%= lucide_icon("chevron-left", size: 16) %>
+    <%= @previous_day.strftime("%-d %b") %>
+  <% end %>
+
+  <span class="day-nav__heading" data-testid="by-day-heading">
+    <%= @date.strftime("%A, %-d %B %Y") %>
+  </span>
+
+  <%= link_to events_by_day_path(date: @next_day.iso8601),
+      class: "day-nav__link",
+      data: { testid: "nav-next-day" } do %>
+    <%= @next_day.strftime("%-d %b") %>
+    <%= lucide_icon("chevron-right", size: 16) %>
   <% end %>
 </nav>
 
 <% if @events.any? %>
   <div class="data-table-wrapper">
-    <table class="data-table" data-testid="events-table">
+    <table class="data-table" data-testid="event-list">
       <colgroup>
         <col style="width: 64px;">
         <col>
@@ -97,9 +102,8 @@
       </tbody>
     </table>
   </div>
-  <div data-testid="pagination-placeholder"></div>
 <% else %>
-  <div class="empty-state" data-testid="empty-state">
-    <p>No events found.</p>
+  <div class="empty-state" data-testid="no-events-message">
+    <p>No events on this day.</p>
   </div>
 <% end %>
