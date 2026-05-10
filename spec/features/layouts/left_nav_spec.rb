@@ -1,13 +1,6 @@
 require "rails_helper"
 
 RSpec.describe "Left Navigation", type: :feature do
-  # Named test users
-  # Gary Guest   — unauthenticated visitor (no let, just visit)
-  # Uno User     — create(:user)                   app_user role
-  # Charlie      — create(:user, :content_creator) content_creator role
-  # Adam         — create(:user, :admin)           admin role
-  # Sam          — create(:user, :system_admin)    system_admin role
-
   # ── Static pages — left nav must never appear ──────────────────────────────
 
   describe "Static Pages" do
