@@ -1245,3 +1245,64 @@ textarea.form-control {
 .dropdown__item--signout:hover {
   background-color: var(--color-surface-hover);
 }
+
+/* ── Info panel ───────────────────────────────────────────────────── */
+.show-panel--info {
+  display: flex;
+  gap: var(--space-sm);
+  background-color: var(--color-info-bg, #eff6ff);
+  border-color: var(--color-primary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.show-panel--info p {
+  margin-bottom: var(--space-xs);
+}
+
+.show-panel--info ul {
+  margin: 0 0 var(--space-sm) var(--space-md);
+}
+
+.show-panel--info__icon {
+  flex-shrink: 0;
+  color: var(--color-primary);
+  margin-top: 2px;
+}
+
+/* ── Password field with show/hide toggle ─────────────────────────── */
+.password-field-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-field-wrapper .form-control {
+  flex: 1;
+  padding-right: var(--space-2xl);
+}
+
+.password-toggle {
+  position: absolute;
+  right: var(--space-sm);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-secondary);
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle:hover {
+  color: var(--color-text);
+}
+
+/* ── Optional field label modifier ───────────────────────────────── */
+.show-meta-cell__label--optional {
+  font-weight: normal;
+  color: var(--color-secondary);
+  text-transform: none;
+  font-size: 0.8rem;
+  margin-left: var(--space-2xs);
+}
