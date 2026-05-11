@@ -50,10 +50,6 @@ RSpec.describe "Top navigation bar", type: :feature do
       expect(page).not_to have_button("System Admin")
     end
 
-    it "Shows the 'Sign Up' link" do
-      expect(page).to have_selector("[data-testid='top-nav-sign-up']")
-    end
-
     it "Shows the 'Sign In' button" do
       expect(page).to have_link("Sign In", href: new_session_path)
     end
@@ -101,10 +97,6 @@ RSpec.describe "Top navigation bar", type: :feature do
 
     it "Does not show the 'System Admin' dropdown menu" do
       expect(page).not_to have_button("System Admin")
-    end
-
-    it "Does not show the 'Sign Up' link" do
-      expect(page).not_to have_selector("[data-testid='top-nav-sign-up']")
     end
 
     it "Does not show the 'Sign In' button" do
@@ -156,10 +148,6 @@ RSpec.describe "Top navigation bar", type: :feature do
       expect(page).not_to have_button("System Admin")
     end
 
-    it "Does not show the 'Sign Up' link" do
-      expect(page).not_to have_selector("[data-testid='top-nav-sign-up']")
-    end
-
     it "Does not show the 'Sign In' button" do
       expect(page).not_to have_link("Sign In", href: new_session_path)
     end
@@ -207,10 +195,6 @@ RSpec.describe "Top navigation bar", type: :feature do
 
     it "Does not show the 'System Admin' dropdown menu" do
       expect(page).not_to have_button("System Admin")
-    end
-
-    it "Does not show the 'Sign Up' link" do
-      expect(page).not_to have_selector("[data-testid='top-nav-sign-up']")
     end
 
     it "Does not show the 'Sign In' button" do
@@ -270,10 +254,6 @@ RSpec.describe "Top navigation bar", type: :feature do
     it "Shows 'App Management' in 'System Admin' dropdown menu" do
       click_button "System Admin"
       expect(page).to have_text("App Management")
-    end
-
-    it "Does not show the 'Sign Up' link" do
-      expect(page).not_to have_selector("[data-testid='top-nav-sign-up']")
     end
 
     it "Does not show the 'Sign In' button" do

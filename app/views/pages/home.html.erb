@@ -1,3 +1,10 @@
 <%# app/views/pages/home.html.erb %>
 <h1>Welcome</h1>
 <p>bergstromdomain.com — under construction.</p>
+
+<%= link_to sign_up_path,
+      class: "btn btn-primary-action",
+      data: { testid: "home-sign-up" } do %>
+  <%= lucide_icon "user-plus", size: 16 %>
+  Sign Up
+<% end %>
