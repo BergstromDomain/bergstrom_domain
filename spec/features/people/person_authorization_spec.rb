@@ -12,19 +12,19 @@ RSpec.describe "Person authorization", type: :feature do
     it "allows a content creator to visit the new person page" do
       sign_in_as(owner)
       visit new_person_path
-      expect(page).to have_css("h1.page-title", text: "New Person")
+      expect(page).to have_selector("h1.page-title", text: "New Person")
     end
 
     it "allows the owner to edit their person" do
       sign_in_as(owner)
       visit edit_person_path(person)
-      expect(page).to have_css("h1.page-title", text: "James Alan Hetfield")
+      expect(page).to have_selector("h1.page-title", text: "James Alan Hetfield")
     end
 
     it "allows an admin to edit any person" do
       sign_in_as(admin)
       visit edit_person_path(person)
-      expect(page).to have_css("h1.page-title", text: "James Alan Hetfield")
+      expect(page).to have_selector("h1.page-title", text: "James Alan Hetfield")
     end
   end
 
@@ -45,7 +45,7 @@ RSpec.describe "Person authorization", type: :feature do
     it "does not show the delete button to a non-owner" do
       sign_in_as(other)
       visit person_path(person)
-      expect(page).not_to have_css("[data-testid='delete-button']")
+      expect(page).not_to have_selector("[data-testid='delete-button']")
     end
   end
 
@@ -54,7 +54,7 @@ RSpec.describe "Person authorization", type: :feature do
     it "allows an app user to view an unrestricted person" do
       sign_in_as(create(:user))
       visit person_path(person)
-      expect(page).to have_css("[data-testid='person-name']", text: "James Alan Hetfield")
+      expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Hetfield")
     end
   end
 

@@ -14,11 +14,11 @@ RSpec.describe "List People", type: :feature do
 
       it "displays all people" do
         visit people_path
-        expect(page).to have_css("[data-testid='people-table']")
-        expect(page).to have_css("[data-testid='person-name']", text: "James Alan Hetfield")
-        expect(page).to have_css("[data-testid='person-name']", text: "Lars Ulrich")
-        expect(page).to have_css("[data-testid='person-name']", text: "Kirk Lee Hammett")
-        expect(page).to have_css("[data-testid='person-name']", text: "Robert Agustin Trujillo")
+        expect(page).to have_selector("[data-testid='people-table']")
+        expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Hetfield")
+        expect(page).to have_selector("[data-testid='person-name']", text: "Lars Ulrich")
+        expect(page).to have_selector("[data-testid='person-name']", text: "Kirk Lee Hammett")
+        expect(page).to have_selector("[data-testid='person-name']", text: "Robert Agustin Trujillo")
       end
 
       it "links to each person's profile" do
@@ -30,12 +30,12 @@ RSpec.describe "List People", type: :feature do
       it "shows an Add Person link for content creators" do
         sign_in_as(create(:user, :content_creator))
         visit people_path
-        expect(page).to have_css("[data-testid='add-person-link']")
+        expect(page).to have_selector("[data-testid='add-person-link']")
       end
 
       it "does not show an Add Person link for visitors" do
         visit people_path
-        expect(page).not_to have_css("[data-testid='add-person-link']")
+        expect(page).not_to have_selector("[data-testid='add-person-link']")
       end
     end
 
@@ -43,7 +43,7 @@ RSpec.describe "List People", type: :feature do
       it "displays their thumbnail" do
         create(:person, :with_image, :james_hetfield, :unrestricted, user: user)
         visit people_path
-        expect(page).to have_css("[data-testid='person-thumbnail'] img")
+        expect(page).to have_selector("[data-testid='person-thumbnail'] img")
       end
     end
   end
@@ -53,7 +53,7 @@ RSpec.describe "List People", type: :feature do
     context "when no people exist" do
       it "shows an empty state message" do
         visit people_path
-        expect(page).to have_css("[data-testid='empty-state']")
+        expect(page).to have_selector("[data-testid='empty-state']")
         expect(page).to have_content("No people found.")
       end
     end
@@ -65,7 +65,7 @@ RSpec.describe "List People", type: :feature do
       it "shows the fallback user icon" do
         create(:person, :james_hetfield, :unrestricted, user: user)
         visit people_path
-        expect(page).to have_css("[data-testid='person-thumbnail'] svg")
+        expect(page).to have_selector("[data-testid='person-thumbnail'] svg")
       end
     end
   end

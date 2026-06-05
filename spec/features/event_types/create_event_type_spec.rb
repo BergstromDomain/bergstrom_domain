@@ -16,8 +16,8 @@ RSpec.describe "Create event type", type: :feature do
       fill_in "Icon",        with: "graduation-cap"
       click_button "Create Event Type"
 
-      expect(page).to have_css("h1.page-title", text: "Education")
-      expect(page).to have_css("svg")
+      expect(page).to have_selector("h1.page-title", text: "Education")
+      expect(page).to have_selector("svg")
     end
   end
 
@@ -29,7 +29,7 @@ RSpec.describe "Create event type", type: :feature do
       fill_in "Icon",        with: "star"
       click_button "Create Event Type"
 
-      expect(page).to have_css("[data-testid='field-error']")
+      expect(page).to have_selector("[data-testid='field-error']")
       expect(page).to have_content("can't be blank")
       expect(EventType.count).to eq(0)
     end
@@ -64,7 +64,7 @@ RSpec.describe "Create event type", type: :feature do
       fill_in "Icon", with: "graduation-cap"
       click_button "Create Event Type"
 
-      expect(page).to have_css("[data-testid='field-error']")
+      expect(page).to have_selector("[data-testid='field-error']")
       expect(page).to have_content("can't be blank")
       expect(EventType.count).to eq(0)
     end
@@ -75,7 +75,7 @@ RSpec.describe "Create event type", type: :feature do
       fill_in "Description", with: "School, university, and learning milestones."
       click_button "Create Event Type"
 
-      expect(page).to have_css("[data-testid='field-error']")
+      expect(page).to have_selector("[data-testid='field-error']")
       expect(page).to have_content("can't be blank")
       expect(EventType.count).to eq(0)
     end
@@ -127,7 +127,7 @@ RSpec.describe "Create event type", type: :feature do
       fill_in "Icon",        with: "star"
       click_button "Create Event Type"
 
-      expect(page).to have_css("h1.page-title", text: "Milestone")
+      expect(page).to have_selector("h1.page-title", text: "Milestone")
     end
   end
 

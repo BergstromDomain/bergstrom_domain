@@ -11,14 +11,14 @@ RSpec.describe "Person visibility", type: :feature do
   describe "happy path" do
     it "shows unrestricted people to unauthenticated visitors" do
       visit people_path
-      expect(page).to have_css("[data-testid='person-name']", text: "James Alan Hetfield")
+      expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Hetfield")
     end
 
     it "shows unrestricted and contacts people to the owner" do
       sign_in_as(owner)
       visit people_path
-      expect(page).to have_css("[data-testid='person-name']", text: "James Alan Hetfield")
-      expect(page).to have_css("[data-testid='person-name']", text: "Lars Ulrich")
+      expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Hetfield")
+      expect(page).to have_selector("[data-testid='person-name']", text: "Lars Ulrich")
     end
   end
 
@@ -26,8 +26,8 @@ RSpec.describe "Person visibility", type: :feature do
   describe "negative path" do
     it "hides contacts and restricted people from unauthenticated visitors" do
       visit people_path
-      expect(page).not_to have_css("[data-testid='person-name']", text: "Lars Ulrich")
-      expect(page).not_to have_css("[data-testid='person-name']", text: "Kirk Lee Hammett")
+      expect(page).not_to have_selector("[data-testid='person-name']", text: "Lars Ulrich")
+      expect(page).not_to have_selector("[data-testid='person-name']", text: "Kirk Lee Hammett")
     end
 
     it "redirects a visitor away from a restricted person's show page" do
@@ -42,14 +42,14 @@ RSpec.describe "Person visibility", type: :feature do
     it "shows unrestricted people to an authenticated app user" do
       sign_in_as(create(:user))
       visit people_path
-      expect(page).to have_css("[data-testid='person-name']", text: "James Alan Hetfield")
+      expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Hetfield")
     end
 
     it "shows all people to an admin" do
       sign_in_as(create(:user, :admin))
       visit people_path
-      expect(page).to have_css("[data-testid='person-name']", text: "James Alan Hetfield")
-      expect(page).to have_css("[data-testid='person-name']", text: "Lars Ulrich")
+      expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Hetfield")
+      expect(page).to have_selector("[data-testid='person-name']", text: "Lars Ulrich")
     end
   end
 
@@ -58,7 +58,7 @@ RSpec.describe "Person visibility", type: :feature do
     it "shows the classification on the show page" do
       sign_in_as(owner)
       visit person_path(visitor_person)
-      expect(page).to have_css("[data-testid='person-classification']", text: "Unrestricted")
+      expect(page).to have_selector("[data-testid='person-classification']", text: "Unrestricted")
     end
   end
 end

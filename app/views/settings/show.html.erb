@@ -1,0 +1,199 @@
+<%# app/views/settings/show.html.erb %>
+<div class="page-header">
+  <div class="page-header__top">
+    <div class="page-header__title-group">
+      <h1 class="page-title" data-testid="settings-name">
+        <%= Current.user.first_name %> <%= Current.user.last_name %>
+      </h1>
+      <p class="page-subtitle">
+        <%= lucide_icon "settings", size: 16 %>
+        User Settings
+      </p>
+    </div>
+  </div>
+</div>
+
+<%# ── Profile panel ───────────────────────────────────────────────────── %>
+<div class="show-panel" data-testid="settings-profile-panel">
+  <h2 class="show-panel__heading">Profile</h2>
+
+  <div data-testid="settings-image-field">
+    <% if Current.user.profile_image.attached? %>
+      <div class="event-image">
+        <%= image_tag Current.user.profile_image.variant(:thumbnail),
+              alt: "#{Current.user.first_name} #{Current.user.last_name}",
+              class: "event-image__thumbnail" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="show-meta-row">
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Email Address</h3>
+      <div class="settings-email-row">
+        <p class="show-meta-cell__value" data-testid="settings-email">
+          <%= Current.user.email_address %>
+          <% if Current.user.email_verified_at.present? %>
+            <span class="email-verified" data-testid="settings-email-verified" title="Email verified">
+              <%= lucide_icon "mail-check", size: 16 %>
+            </span>
+          <% else %>
+            <span class="email-unverified" data-testid="settings-email-unverified" title="Email not verified">
+              <%= lucide_icon "mail-warning", size: 16 %>
+            </span>
+          <% end %>
+        </p>
+        <% unless Current.user.email_verified_at.present? %>
+          <%= button_to resend_verification_path,
+                method: :post,
+                class: "btn btn-primary-action btn--small",
+                data: { testid: "settings-verify-email-button", turbo: false } do %>
+            <%= lucide_icon "send", size: 14 %>
+            Verify Email
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# ── Preferences panel ────────────────────────────────────────────── %>
+<div class="show-panel" data-testid="settings-preferences-panel">
+  <h2 class="show-panel__heading">Preferences</h2>
+  <div class="show-meta-row">
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Start Page</h3>
+      <p class="show-meta-cell__value" data-testid="settings-start-page">Home</p>
+    </div>
+  </div>
+</div>
+
+<%# ── Password panel ───────────────────────────────────────────────── %>
+<div class="show-panel" data-testid="settings-password-panel">
+  <h2 class="show-panel__heading">Change Password</h2>
+
+  <% if @password_errors&.any? %>
+    <div class="form-errors" data-testid="settings-password-errors">
+      <p class="form-errors__heading">
+        <%= pluralize(@password_errors.count, "error") %>:
+      </p>
+      <ul class="form-errors__list">
+        <% @password_errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with url: settings_password_path, method: :patch, data: { turbo: false } do |f| %>
+
+    <div class="form-field">
+      <label for="current_password" class="sr-only">Current Password</label>
+      <h3 class="show-meta-cell__label">Current Password</h3>
+      <div class="password-field-wrapper"
+           data-controller="password-visibility"
+           data-testid="settings-current-password">
+        <%= password_field_tag :current_password,
+              nil,
+              id: "current_password",
+              autocomplete: "current-password",
+              class: "form-control",
+              data: { "password-visibility-target": "input" } %>
+        <button type="button"
+                class="password-toggle"
+                aria-label="Show password"
+                data-action="click->password-visibility#toggle"
+                data-password-visibility-target="button">
+          <%= lucide_icon "eye", size: 16 %>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="password" class="sr-only">New Password</label>
+      <h3 class="show-meta-cell__label">New Password</h3>
+      <div class="password-field-wrapper"
+           data-controller="password-visibility"
+           data-testid="settings-new-password">
+        <%= password_field_tag :password,
+              nil,
+              id: "password",
+              autocomplete: "new-password",
+              class: "form-control",
+              data: { "password-visibility-target": "input" } %>
+        <button type="button"
+                class="password-toggle"
+                aria-label="Show password"
+                data-action="click->password-visibility#toggle"
+                data-password-visibility-target="button">
+          <%= lucide_icon "eye", size: 16 %>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="password_confirmation" class="sr-only">Password Confirmation</label>
+      <h3 class="show-meta-cell__label">Password Confirmation</h3>
+      <div class="password-field-wrapper"
+           data-controller="password-visibility"
+           data-testid="settings-password-confirmation">
+        <%= password_field_tag :password_confirmation,
+              nil,
+              id: "password_confirmation",
+              autocomplete: "new-password",
+              class: "form-control",
+              data: { "password-visibility-target": "input" } %>
+        <button type="button"
+                class="password-toggle"
+                aria-label="Show password"
+                data-action="click->password-visibility#toggle"
+                data-password-visibility-target="button">
+          <%= lucide_icon "eye", size: 16 %>
+        </button>
+      </div>
+    </div>
+
+    <div class="show-panel--actions" style="justify-content: flex-start; padding-left: 0; padding-right: 0;">
+      <button type="submit"
+              class="btn btn-primary-action"
+              data-testid="settings-update-password-button">
+        <%= lucide_icon "key-round", size: 16 %>
+        Update Password
+      </button>
+    </div>
+
+  <% end %>
+</div>
+
+<%# ── Actions panel ────────────────────────────────────────────────── %>
+<div class="show-panel show-panel--actions" data-testid="settings-actions-panel">
+  <%= link_to root_path,
+        class: "btn btn-secondary",
+        data: { testid: "settings-back-link" } do %>
+    <%= lucide_icon "arrow-left", size: 16 %>
+    Back to Home
+  <% end %>
+
+  <span class="btn-divider">|</span>
+
+  <%= link_to edit_settings_path,
+        class: "btn btn-primary-action",
+        data: { testid: "settings-edit-link" } do %>
+    <%= lucide_icon "pencil", size: 16 %>
+    Edit Details
+  <% end %>
+
+  <span class="btn-divider">|</span>
+
+  <%= button_to settings_path,
+        method: :delete,
+        class: "btn btn-danger",
+        data: {
+          turbo_confirm: "This will suspend your account. Are you sure?",
+          testid:        "settings-delete-button",
+          turbo:         false
+        } do %>
+    <%= lucide_icon "trash-2", size: 16 %>
+    Delete Account
+  <% end %>
+</div>

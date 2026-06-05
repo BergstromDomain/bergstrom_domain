@@ -141,7 +141,7 @@ RSpec.describe "Create Event", type: :feature do
       click_button "Create Event"
 
       expect(page).to have_content("Event was successfully created.")
-      expect(page).to have_css("img")
+      expect(page).to have_selector("img")
     end
   end
 end

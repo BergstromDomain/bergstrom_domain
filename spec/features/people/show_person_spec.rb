@@ -18,33 +18,33 @@ RSpec.describe "Show Person", type: :feature do
   describe "happy path" do
     it "displays the person's full name" do
       visit person_path(person)
-      expect(page).to have_css("[data-testid='person-name']", text: "James Alan Hetfield")
+      expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Hetfield")
     end
 
     it "displays the description" do
       visit person_path(person)
-      expect(page).to have_css("[data-testid='person-description']",
+      expect(page).to have_selector("[data-testid='person-description']",
         text: "Vocalist and rhythm guitarist, co-founder of Metallica.")
     end
 
     it "displays the main panel" do
       visit person_path(person)
-      expect(page).to have_css("[data-testid='show-panel-main']")
+      expect(page).to have_selector("[data-testid='show-panel-main']")
     end
 
     it "displays the metadata panel" do
       visit person_path(person)
-      expect(page).to have_css("[data-testid='show-panel-metadata']")
+      expect(page).to have_selector("[data-testid='show-panel-metadata']")
     end
 
     it "displays the actions panel" do
       visit person_path(person)
-      expect(page).to have_css("[data-testid='show-panel-actions']")
+      expect(page).to have_selector("[data-testid='show-panel-actions']")
     end
 
     it "is accessible via a friendly URL" do
       visit "/people/james-alan-hetfield"
-      expect(page).to have_css("[data-testid='person-name']", text: "James Alan Hetfield")
+      expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Hetfield")
     end
   end
 
@@ -61,20 +61,20 @@ RSpec.describe "Show Person", type: :feature do
     it "shows edit and delete links for the owner" do
       sign_in_as(user)
       visit person_path(person)
-      expect(page).to have_css("[data-testid='edit-link']")
-      expect(page).to have_css("[data-testid='delete-button']")
+      expect(page).to have_selector("[data-testid='edit-link']")
+      expect(page).to have_selector("[data-testid='delete-button']")
     end
 
     it "does not show edit or delete links for a visitor" do
       visit person_path(person)
-      expect(page).not_to have_css("[data-testid='edit-link']")
-      expect(page).not_to have_css("[data-testid='delete-button']")
+      expect(page).not_to have_selector("[data-testid='edit-link']")
+      expect(page).not_to have_selector("[data-testid='delete-button']")
     end
 
     it "shows the admin panel to the owner" do
       sign_in_as(user)
       visit person_path(person)
-      expect(page).to have_css("[data-testid='show-panel-admin']")
+      expect(page).to have_selector("[data-testid='show-panel-admin']")
       expect(page).to have_content(user.email_address)
     end
 
@@ -85,13 +85,13 @@ RSpec.describe "Show Person", type: :feature do
       event.people.clear
       event.people << person
       visit person_path(person)
-      expect(page).to have_css("[data-testid='show-panel-events']")
-      expect(page).to have_css("[data-testid='event-title']", text: "Kill 'Em All")
+      expect(page).to have_selector("[data-testid='show-panel-events']")
+      expect(page).to have_selector("[data-testid='event-title']", text: "Kill 'Em All")
     end
 
     it "hides events panel when person has no events" do
       visit person_path(person)
-      expect(page).not_to have_css("[data-testid='show-panel-events']")
+      expect(page).not_to have_selector("[data-testid='show-panel-events']")
     end
   end
 
@@ -100,7 +100,7 @@ RSpec.describe "Show Person", type: :feature do
     it "resolves old slug after a name change" do
       person.update!(last_name: "Newsted")
       visit "/people/james-alan-hetfield"
-      expect(page).to have_css("[data-testid='person-name']", text: "James Alan Newsted")
+      expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Newsted")
     end
   end
 end

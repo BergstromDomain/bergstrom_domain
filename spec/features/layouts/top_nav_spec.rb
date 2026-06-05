@@ -2,14 +2,10 @@
 require "rails_helper"
 
 RSpec.describe "Top navigation bar", type: :feature do
-  #                                                               # Gary Guest - An unauthorised visitor of the site
-  let(:uno)          { create(:user) }                            # Uno User - A signed in user
-  # let(:ulrika)       { create(:user) }                          # Ulrika User - A signed in user - NOTE: Not required for this spec
-  let(:charlie)      { create(:user, role: :content_creator) }    # Charlie Content Creator - A signed in user with the Content Creator user role
-  # let(:chris)        { create(:user, role: :content_creator) }  # Chris Content Creator - A signed in user with the Content Creator user role - NOTE: Not required for this spec
-  # let(:curtis)       { create(:user, role: :content_creator) }  # Curtis the Content Creator - A signed in user with the Content Creator user role - NOTE: Not required for this spec
-  let(:adam)         { create(:user, role: :admin) }              # Adam Admin - A signed in user with the Admin user role
-  let(:sam)          { create(:user, role: :system_admin) }       # Sam SysAdmin - A signed in user with the System Admin user role
+  let(:uno)     { create(:user) }
+  let(:charlie) { create(:user, :content_creator) }
+  let(:adam)    { create(:user, :admin) }
+  let(:sam)     { create(:user, :system_admin) }
 
   shared_examples "Common nav links" do
     it "Shows the 'Home' link" do
@@ -103,13 +99,12 @@ RSpec.describe "Top navigation bar", type: :feature do
       expect(page).not_to have_button("System Admin")
     end
 
-    it "Does not shows the 'Sign In' button" do
+    it "Does not show the 'Sign In' button" do
       expect(page).not_to have_link("Sign In", href: new_session_path)
     end
 
     it "Shows 'User Thumbnail' dropdown menu" do
       expect(page).to have_selector("[data-testid='user-thumbnail-button']")
-      # TODO ensure it is Uno's thumbnail
     end
 
     it "Shows 'Sign Out' link in the 'User Thumbnail' dropdown menu" do
@@ -153,13 +148,12 @@ RSpec.describe "Top navigation bar", type: :feature do
       expect(page).not_to have_button("System Admin")
     end
 
-    it "Does not shows the 'Sign In' button" do
+    it "Does not show the 'Sign In' button" do
       expect(page).not_to have_link("Sign In", href: new_session_path)
     end
 
     it "Shows 'User Thumbnail' dropdown menu" do
       expect(page).to have_selector("[data-testid='user-thumbnail-button']")
-      # TODO Ensure it is Charlie's image
     end
 
     it "Shows 'Sign Out' link in the 'User Thumbnail' dropdown menu" do
@@ -173,7 +167,7 @@ RSpec.describe "Top navigation bar", type: :feature do
 
   context "When viewing as 'Adam Admin'" do
     before do
-      sign_in_as(charlie)
+      sign_in_as(adam)
       visit root_path
     end
 
@@ -203,13 +197,12 @@ RSpec.describe "Top navigation bar", type: :feature do
       expect(page).not_to have_button("System Admin")
     end
 
-    it "Does not shows the 'Sign In' button" do
+    it "Does not show the 'Sign In' button" do
       expect(page).not_to have_link("Sign In", href: new_session_path)
     end
 
     it "Shows 'User Thumbnail' dropdown menu" do
       expect(page).to have_selector("[data-testid='user-thumbnail-button']")
-      # TODO Ensure it is Adam's image
     end
 
     it "Shows 'Sign Out' link in the 'User Thumbnail' dropdown menu" do
@@ -250,7 +243,7 @@ RSpec.describe "Top navigation bar", type: :feature do
     end
 
     it "Shows the 'System Admin' dropdown menu" do
-        expect(page).to have_button("System Admin")
+      expect(page).to have_button("System Admin")
     end
 
     it "Shows 'User Management' in 'System Admin' dropdown menu" do
@@ -263,13 +256,12 @@ RSpec.describe "Top navigation bar", type: :feature do
       expect(page).to have_text("App Management")
     end
 
-    it "Does not shows the 'Sign In' button" do
+    it "Does not show the 'Sign In' button" do
       expect(page).not_to have_link("Sign In", href: new_session_path)
     end
 
     it "Shows 'User Thumbnail' dropdown menu" do
       expect(page).to have_selector("[data-testid='user-thumbnail-button']")
-      # TODO Ensure it is Adam's image
     end
 
     it "Shows 'Sign Out' link in the 'User Thumbnail' dropdown menu" do

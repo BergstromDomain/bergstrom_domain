@@ -34,7 +34,7 @@ RSpec.describe "Events By Month", type: :feature do
       before { visit events_by_month_path }
 
       it "Shows the current month heading" do
-        expect(page).to have_css("[data-testid='by-month-heading']",
+        expect(page).to have_selector("[data-testid='by-month-heading']",
           text: today.strftime("%B %Y"))
       end
 
@@ -48,8 +48,8 @@ RSpec.describe "Events By Month", type: :feature do
       end
 
       it "Shows previous and next month navigation links" do
-        expect(page).to have_css("[data-testid='nav-previous-month']")
-        expect(page).to have_css("[data-testid='nav-next-month']")
+        expect(page).to have_selector("[data-testid='nav-previous-month']")
+        expect(page).to have_selector("[data-testid='nav-next-month']")
       end
     end
 
@@ -90,8 +90,8 @@ RSpec.describe "Events By Month", type: :feature do
       it "Shows an empty state message" do
         visit events_by_month_path(year: 2050, month: 1)
 
-        expect(page).to have_css("[data-testid='no-events-message']")
-        expect(page).not_to have_css("[data-testid='event-list']")
+        expect(page).to have_selector("[data-testid='no-events-message']")
+        expect(page).not_to have_selector("[data-testid='event-list']")
       end
     end
   end
@@ -105,7 +105,7 @@ RSpec.describe "Events By Month", type: :feature do
       it "Shows the current month while authenticated" do
         visit events_by_month_path
 
-        expect(page).to have_css("[data-testid='by-month-heading']")
+        expect(page).to have_selector("[data-testid='by-month-heading']")
         expect(page).to have_link("Orion Live Performance")
       end
     end
@@ -116,7 +116,7 @@ RSpec.describe "Events By Month", type: :feature do
       it "Falls back to the current month without raising an error" do
         visit events_by_month_path(year: "abc", month: "xyz")
 
-        expect(page).to have_css("[data-testid='by-month-heading']",
+        expect(page).to have_selector("[data-testid='by-month-heading']",
           text: today.strftime("%B %Y"))
       end
     end
@@ -125,7 +125,7 @@ RSpec.describe "Events By Month", type: :feature do
       it "Falls back to the current month without raising an error" do
         visit events_by_month_path(year: today.year, month: 13)
 
-        expect(page).to have_css("[data-testid='by-month-heading']",
+        expect(page).to have_selector("[data-testid='by-month-heading']",
           text: today.strftime("%B %Y"))
       end
     end
@@ -134,7 +134,7 @@ RSpec.describe "Events By Month", type: :feature do
         it "Navigates to January" do
             visit events_by_month_path(year: Date.current.year, month: 12)
             find("[data-testid='nav-next-month']").click
-            expect(page).to have_css("[data-testid='by-month-heading']",
+            expect(page).to have_selector("[data-testid='by-month-heading']",
             text: "January #{Date.current.year + 1}")
         end
     end
@@ -143,7 +143,7 @@ RSpec.describe "Events By Month", type: :feature do
         it "Navigates to December" do
             visit events_by_month_path(year: Date.current.year, month: 1)
             find("[data-testid='nav-previous-month']").click
-            expect(page).to have_css("[data-testid='by-month-heading']",
+            expect(page).to have_selector("[data-testid='by-month-heading']",
             text: "December #{Date.current.year - 1}")
         end
     end
