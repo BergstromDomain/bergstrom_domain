@@ -10,22 +10,22 @@ RSpec.describe "Left Navigation", type: :feature do
 
     it "Is not present on the 'Home' page" do
       visit root_path
-      expect(page).not_to have_css("[data-testid='left-nav']")
+      expect(page).not_to have_selector("[data-testid='left-nav']")
     end
 
     it "Is not present on the 'About' page" do
       visit about_path
-      expect(page).not_to have_css("[data-testid='left-nav']")
+      expect(page).not_to have_selector("[data-testid='left-nav']")
     end
 
     it "Is not present on the 'Contact' page" do
       visit contact_path
-      expect(page).not_to have_css("[data-testid='left-nav']")
+      expect(page).not_to have_selector("[data-testid='left-nav']")
     end
 
     it "Is not present on the 'Blog Posts' page" do
       visit blog_posts_path
-      expect(page).not_to have_css("[data-testid='left-nav']")
+      expect(page).not_to have_selector("[data-testid='left-nav']")
     end
   end
 
@@ -36,25 +36,25 @@ RSpec.describe "Left Navigation", type: :feature do
       before { visit events_path }
 
       it "Shows the left nav" do
-        expect(page).to have_css("[data-testid='left-nav']")
+        expect(page).to have_selector("[data-testid='left-nav']")
       end
 
       it "Shows the 'Views H2' header" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-views-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-views-h2']")
         end
       end
 
       it "Shows the 'Event Tracker' group and link" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-event-tracker-h3']")
+          expect(page).to have_selector("[data-testid='left-nav-event-tracker-h3']")
           expect(page).to have_link("Event Tracker", href: event_tracker_path)
         end
       end
 
       it "Shows the 'Events' group with calendar links" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-events-h3']")
+          expect(page).to have_selector("[data-testid='left-nav-events-h3']")
           expect(page).to have_link("Events by day",   href: events_by_day_path)
           expect(page).to have_link("Events by week",  href: events_by_week_path)
           expect(page).to have_link("Events by month", href: events_by_month_path)
@@ -63,28 +63,28 @@ RSpec.describe "Left Navigation", type: :feature do
 
       it "Shows the 'People' group and link" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-people-h3']")
+          expect(page).to have_selector("[data-testid='left-nav-people-h3']")
           expect(page).to have_link("People", href: people_path)
         end
       end
 
       it "Shows the 'Event Type' group and link" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-event-type-h3']")
+          expect(page).to have_selector("[data-testid='left-nav-event-type-h3']")
           expect(page).to have_link("Event Types", href: event_types_path)
         end
       end
 
       it "Shows the 'How To' section with 'User Guide' link" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-how-to-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-how-to-h2']")
           expect(page).to have_link("User Guide", href: user_guide_path)
         end
       end
 
       it "Does not show the 'Actions' section" do
         within("[data-testid='left-nav']") do
-          expect(page).not_to have_css("[data-testid='left-nav-actions-h2']")
+          expect(page).not_to have_selector("[data-testid='left-nav-actions-h2']")
           expect(page).not_to have_link("Create Event")
           expect(page).not_to have_link("Create Person")
           expect(page).not_to have_link("Create Event Type")
@@ -93,7 +93,7 @@ RSpec.describe "Left Navigation", type: :feature do
 
       it "Does not show the 'Import & Export' section" do
         within("[data-testid='left-nav']") do
-          expect(page).not_to have_css("[data-testid='left-nav-import-export-h2']")
+          expect(page).not_to have_selector("[data-testid='left-nav-import-export-h2']")
         end
       end
     end
@@ -107,24 +107,24 @@ RSpec.describe "Left Navigation", type: :feature do
       end
 
       it "Shows the left nav" do
-        expect(page).to have_css("[data-testid='left-nav']")
+        expect(page).to have_selector("[data-testid='left-nav']")
       end
 
       it "Shows the 'Views' section" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-views-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-views-h2']")
         end
       end
 
       it "Does not show the 'Actions' section" do
         within("[data-testid='left-nav']") do
-          expect(page).not_to have_css("[data-testid='left-nav-actions-h2']")
+          expect(page).not_to have_selector("[data-testid='left-nav-actions-h2']")
         end
       end
 
       it "Does not show the 'Import & Export' section" do
         within("[data-testid='left-nav']") do
-          expect(page).not_to have_css("[data-testid='left-nav-import-export-h2']")
+          expect(page).not_to have_selector("[data-testid='left-nav-import-export-h2']")
         end
       end
     end
@@ -139,7 +139,7 @@ RSpec.describe "Left Navigation", type: :feature do
 
       it "Shows the 'Actions H2' header" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-actions-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
         end
       end
 
@@ -163,7 +163,7 @@ RSpec.describe "Left Navigation", type: :feature do
 
       it "Shows the 'Import & Export' section" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-import-export-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-import-export-h2']")
           expect(page).to have_link("Import People and Events",   href: import_export_path)
           expect(page).to have_link("Download People and Events", href: import_export_path)
         end
@@ -179,12 +179,12 @@ RSpec.describe "Left Navigation", type: :feature do
       end
 
       it "Shows the left nav" do
-        expect(page).to have_css("[data-testid='left-nav']")
+        expect(page).to have_selector("[data-testid='left-nav']")
       end
 
       it "Shows the 'Views' section" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-views-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-views-h2']")
         end
       end
     end
@@ -197,7 +197,7 @@ RSpec.describe "Left Navigation", type: :feature do
       it "Navigates to the 'Event Tracker' stub page" do
         visit events_path
         within("[data-testid='left-nav']") { click_link "Event Tracker" }
-        expect(page).to have_css("h1.page-title", text: "Event Tracker")
+        expect(page).to have_selector("h1.page-title", text: "Event Tracker")
       end
     end
 
@@ -205,7 +205,7 @@ RSpec.describe "Left Navigation", type: :feature do
       it "Navigates to the 'User Guide' stub page" do
         visit events_path
         within("[data-testid='left-nav']") { click_link "User Guide" }
-        expect(page).to have_css("h1.page-title", text: "User Guide")
+        expect(page).to have_selector("h1.page-title", text: "User Guide")
       end
     end
 
@@ -213,7 +213,7 @@ RSpec.describe "Left Navigation", type: :feature do
       it "Navigates to the 'Events by day' page" do
         visit events_path
         within("[data-testid='left-nav']") { click_link "Events by day" }
-        expect(page).to have_css("[data-testid='by-day-heading']")
+        expect(page).to have_selector("[data-testid='by-day-heading']")
       end
     end
   end
@@ -231,14 +231,14 @@ RSpec.describe "Left Navigation", type: :feature do
 
       it "Shows the 'Actions' section" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-actions-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
           expect(page).to have_link("Create Event Type", href: new_event_type_path)
         end
       end
 
       it "Shows the 'Import & Export' section" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-import-export-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-import-export-h2']")
         end
       end
     end
@@ -253,13 +253,13 @@ RSpec.describe "Left Navigation", type: :feature do
 
       it "Shows the 'Actions' section" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-actions-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
         end
       end
 
       it "Shows the 'Import & Export' section" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_css("[data-testid='left-nav-import-export-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-import-export-h2']")
         end
       end
     end

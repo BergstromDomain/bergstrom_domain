@@ -28,7 +28,7 @@ RSpec.describe "Edit Event", type: :feature do
   describe "happy path" do
     it "displays the original title in the page heading" do
       visit edit_event_path(event)
-      expect(page).to have_css("h1.page-title", text: "Kill 'Em All")
+      expect(page).to have_selector("h1.page-title", text: "Kill 'Em All")
     end
 
     it "pre-populates the title field" do
@@ -43,7 +43,7 @@ RSpec.describe "Edit Event", type: :feature do
       event.reload
       expect(page).to have_current_path(event_path(event))
       expect(page).to have_content("Event was successfully updated.")
-      expect(page).to have_css("h1.page-title", text: "Kill 'Em All (Remastered)")
+      expect(page).to have_selector("h1.page-title", text: "Kill 'Em All (Remastered)")
     end
 
     it "updates the event type" do
@@ -56,7 +56,7 @@ RSpec.describe "Edit Event", type: :feature do
 
     it "displays current people" do
       visit edit_event_path(event)
-      expect(page).to have_css("[data-testid='event-people']", text: "James Hetfield")
+      expect(page).to have_selector("[data-testid='event-people']", text: "James Hetfield")
     end
   end
 
@@ -66,7 +66,7 @@ RSpec.describe "Edit Event", type: :feature do
       visit edit_event_path(event)
       fill_in "Title", with: ""
       click_button "Update Event"
-      expect(page).to have_css("[data-testid='field-error']")
+      expect(page).to have_selector("[data-testid='field-error']")
       expect(page).to have_content("can't be blank")
     end
 
@@ -108,7 +108,7 @@ RSpec.describe "Edit Event", type: :feature do
       visit edit_event_path(event)
       fill_in "Title", with: "Admin Edit"
       click_button "Update Event"
-      expect(page).to have_css("h1.page-title", text: "Admin Edit")
+      expect(page).to have_selector("h1.page-title", text: "Admin Edit")
     end
   end
 
@@ -120,7 +120,7 @@ RSpec.describe "Edit Event", type: :feature do
       fill_in "Title", with: "Kill 'Em All (Remastered)"
       click_button "Update Event"
       visit event_path(old_slug)
-      expect(page).to have_css("h1.page-title", text: "Kill 'Em All (Remastered)")
+      expect(page).to have_selector("h1.page-title", text: "Kill 'Em All (Remastered)")
     end
 
     xit "attaches the image and shows it on the show page", js: true do
@@ -130,7 +130,7 @@ RSpec.describe "Edit Event", type: :feature do
       click_button "Update Event"
       event.reload
       expect(page).to have_current_path(event_path(event))
-      expect(page).to have_css("img")
+      expect(page).to have_selector("img")
     end
   end
 end

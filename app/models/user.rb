@@ -8,7 +8,9 @@ class User < ApplicationRecord
   has_many :contact_users, through: :contacts, source: :contact
 
   # ── Active Storage ────────────────────────────────────────────────────────
-  has_one_attached :profile_image
+  has_one_attached :profile_image do |attachable|
+    attachable.variant :thumbnail, resize_to_fill: [ 200, 200 ]
+  end
 
   # ── Enums ─────────────────────────────────────────────────────────────────
   enum :status, {

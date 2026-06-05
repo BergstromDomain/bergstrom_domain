@@ -7,12 +7,12 @@ RSpec.describe "Layout shell", type: :feature do
   describe "When viewing as 'Gary Guest'" do
     it "Renders the top navigation bar" do
       visit root_path
-      expect(page).to have_css("[data-testid='top-nav']")
+      expect(page).to have_selector("[data-testid='top-nav']")
     end
 
     it "Renders the footer" do
       visit root_path
-      expect(page).to have_css("[data-testid='footer']")
+      expect(page).to have_selector("[data-testid='footer']")
     end
   end
 
@@ -21,12 +21,12 @@ RSpec.describe "Layout shell", type: :feature do
 
     it "Renders the top navigation bar" do
       visit root_path
-      expect(page).to have_css("[data-testid='top-nav']")
+      expect(page).to have_selector("[data-testid='top-nav']")
     end
 
     it "Renders the footer" do
       visit root_path
-      expect(page).to have_css("[data-testid='footer']")
+      expect(page).to have_selector("[data-testid='footer']")
     end
   end
 end

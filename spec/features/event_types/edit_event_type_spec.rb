@@ -17,7 +17,7 @@ RSpec.describe "Edit event type", type: :feature do
       click_button "Update Event Type"
       et.reload
       expect(page).to have_current_path(event_type_path(et))
-      expect(page).to have_css("h1.page-title", text: "Sport")
+      expect(page).to have_selector("h1.page-title", text: "Sport")
       expect(et.slug).to eq("sport")
     end
 
@@ -26,14 +26,14 @@ RSpec.describe "Edit event type", type: :feature do
       visit edit_event_type_path(et)
       fill_in "Icon", with: "trophy"
       click_button "Update Event Type"
-      expect(page).to have_css("[data-testid='event-type-icon'] svg")
+      expect(page).to have_selector("[data-testid='event-type-icon'] svg")
       et.reload
       expect(et.icon).to eq("trophy")
     end
 
     it "shows the edit form heading with the event type name" do
       visit edit_event_type_path(event_type)
-      expect(page).to have_css("h1.page-title", text: "Music")
+      expect(page).to have_selector("h1.page-title", text: "Music")
     end
 
     it "pre-populates the name field" do
@@ -48,7 +48,7 @@ RSpec.describe "Edit event type", type: :feature do
 
     it "shows a preview of the current icon on the edit form" do
       visit edit_event_type_path(event_type)
-      expect(page).to have_css("[data-testid='edit-panel-main'] svg")
+      expect(page).to have_selector("[data-testid='edit-panel-main'] svg")
     end
   end
 
@@ -98,7 +98,7 @@ RSpec.describe "Edit event type", type: :feature do
       fill_in "Name", with: "Sport"
       click_button "Update Event Type"
       visit event_type_path(old_slug)
-      expect(page).to have_css("h1.page-title", text: "Sport")
+      expect(page).to have_selector("h1.page-title", text: "Sport")
     end
 
     it "re-renders the form with entered values when validation fails" do
@@ -115,7 +115,7 @@ RSpec.describe "Edit event type", type: :feature do
       visit edit_event_type_path(event_type)
       fill_in "Name", with: "Live Music"
       click_button "Update Event Type"
-      expect(page).to have_css("h1.page-title", text: "Live Music")
+      expect(page).to have_selector("h1.page-title", text: "Live Music")
     end
   end
 
@@ -132,7 +132,7 @@ RSpec.describe "Edit event type", type: :feature do
       visit edit_event_type_path(event_type)
       fill_in "Name", with: "Live Music"
       click_button "Update Event Type"
-      expect(page).to have_css("[data-testid='event-type-description']",
+      expect(page).to have_selector("[data-testid='event-type-description']",
                                text: "Music events.")
     end
   end

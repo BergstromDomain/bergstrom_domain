@@ -30,14 +30,14 @@ RSpec.describe "Delete Person", type: :feature do
     it "does not show the delete button to a visitor" do
       click_button "Sign Out"
       visit person_path(person)
-      expect(page).not_to have_css("[data-testid='delete-button']")
+      expect(page).not_to have_selector("[data-testid='delete-button']")
     end
 
     it "does not show the delete button to a non-owner" do
       click_button "Sign Out"
       sign_in_as(create(:user))
       visit person_path(person)
-      expect(page).not_to have_css("[data-testid='delete-button']")
+      expect(page).not_to have_selector("[data-testid='delete-button']")
     end
   end
 end

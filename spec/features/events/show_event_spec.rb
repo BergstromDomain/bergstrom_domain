@@ -28,35 +28,35 @@ RSpec.describe "Show event", type: :feature do
     before { visit event_path(event) }
 
     it "displays the event title in the page heading" do
-      expect(page).to have_css("h1.page-title", text: "Kill 'Em All")
+      expect(page).to have_selector("h1.page-title", text: "Kill 'Em All")
     end
 
     it "displays the description section" do
-      expect(page).to have_css("h2", text: "Description")
-      expect(page).to have_css("[data-testid='event-description']",
+      expect(page).to have_selector("h2", text: "Description")
+      expect(page).to have_selector("[data-testid='event-description']",
                                text: "Metallica's debut studio album.")
     end
 
     it "displays the event date in the metadata panel" do
-      expect(page).to have_css("[data-testid='event-date']", text: "25 Jul 1983")
+      expect(page).to have_selector("[data-testid='event-date']", text: "25 Jul 1983")
     end
 
     it "displays the event type in the metadata panel" do
-      expect(page).to have_css("[data-testid='event-type']", text: "Music")
+      expect(page).to have_selector("[data-testid='event-type']", text: "Music")
     end
 
     it "displays the visibility in the metadata panel" do
-      expect(page).to have_css("[data-testid='event-classification']", text: "Unrestricted")
+      expect(page).to have_selector("[data-testid='event-classification']", text: "Unrestricted")
     end
 
     it "displays associated people in the metadata panel" do
-      expect(page).to have_css("[data-testid='event-people']")
+      expect(page).to have_selector("[data-testid='event-people']")
       expect(page).to have_link("James Hetfield", href: person_path(hetfield))
     end
 
     it "shows the admin panel with creator information" do
-      expect(page).to have_css("[data-testid='show-panel-admin']")
-      expect(page).to have_css("[data-testid='show-panel-admin']",
+      expect(page).to have_selector("[data-testid='show-panel-admin']")
+      expect(page).to have_selector("[data-testid='show-panel-admin']",
                                text: user.email_address)
     end
 
@@ -71,7 +71,7 @@ RSpec.describe "Show event", type: :feature do
 
     it "is accessible via a friendly URL" do
       visit "/events/kill-em-all"
-      expect(page).to have_css("h1.page-title", text: "Kill 'Em All")
+      expect(page).to have_selector("h1.page-title", text: "Kill 'Em All")
     end
 
     it "returns 404 for a non-existent event" do
@@ -95,8 +95,8 @@ RSpec.describe "Show event", type: :feature do
                       user: user, description: nil)
       no_desc.people << hetfield
       visit event_path(no_desc)
-      expect(page).not_to have_css("[data-testid='event-description']")
-      expect(page).not_to have_css("h2", text: "Description")
+      expect(page).not_to have_selector("[data-testid='event-description']")
+      expect(page).not_to have_selector("h2", text: "Description")
     end
   end
 
@@ -112,9 +112,9 @@ RSpec.describe "Show event", type: :feature do
     it "displays multiple people as a comma-separated list" do
       event.people << ulrich
       visit event_path(event)
-      expect(page).to have_css("[data-testid='event-people']",
+      expect(page).to have_selector("[data-testid='event-people']",
                                text: "James Hetfield")
-      expect(page).to have_css("[data-testid='event-people']",
+      expect(page).to have_selector("[data-testid='event-people']",
                                text: "Lars Ulrich")
     end
 
@@ -125,13 +125,13 @@ RSpec.describe "Show event", type: :feature do
 
     it "uses singular Person label for a single attendee" do
       visit event_path(event)
-      expect(page).to have_css(".show-meta-cell__label", text: "Person")
+      expect(page).to have_selector(".show-meta-cell__label", text: "Person")
     end
 
     it "uses plural People label for multiple attendees" do
       event.people << ulrich
       visit event_path(event)
-      expect(page).to have_css(".show-meta-cell__label", text: "People")
+      expect(page).to have_selector(".show-meta-cell__label", text: "People")
     end
   end
 
@@ -142,7 +142,7 @@ RSpec.describe "Show event", type: :feature do
                        event_type: music, day: 15, month: 8, year: nil, user: user)
       no_year.people << hetfield
       visit event_path(no_year)
-      expect(page).to have_css("[data-testid='event-date']", text: "15 Aug")
+      expect(page).to have_selector("[data-testid='event-date']", text: "15 Aug")
       expect(page).not_to have_content("15 Aug nil")
     end
 

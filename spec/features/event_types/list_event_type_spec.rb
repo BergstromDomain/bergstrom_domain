@@ -12,7 +12,7 @@ RSpec.describe "List event types", type: :feature do
     before { visit event_types_path }
 
     it "displays the page title" do
-      expect(page).to have_css("h1.page-title", text: "Event Types")
+      expect(page).to have_selector("h1.page-title", text: "Event Types")
     end
 
     it "displays all event types" do
@@ -27,11 +27,11 @@ RSpec.describe "List event types", type: :feature do
     end
 
     it "renders an SVG icon for each event type" do
-      expect(page).to have_css("td[data-testid='event-type-icon'] svg", minimum: 3)
+      expect(page).to have_selector("td[data-testid='event-type-icon'] svg", minimum: 3)
     end
 
     it "displays the description for each event type" do
-      expect(page).to have_css("td[data-testid='event-type-description']", count: 3)
+      expect(page).to have_selector("td[data-testid='event-type-description']", count: 3)
     end
 
     it "links each event type name to its show page" do
@@ -46,8 +46,8 @@ RSpec.describe "List event types", type: :feature do
       EventType.delete_all
       visit event_types_path
       expect(page).to have_http_status(:ok)
-      expect(page).to have_css("[data-testid='empty-state']")
-      expect(page).not_to have_css(".data-table")
+      expect(page).to have_selector("[data-testid='empty-state']")
+      expect(page).not_to have_selector(".data-table")
     end
   end
 
@@ -56,7 +56,7 @@ RSpec.describe "List event types", type: :feature do
     it "renders the same page regardless of authentication status" do
       sign_in_as create(:user, :app_user)
       visit event_types_path
-      expect(page).to have_css("h1.page-title", text: "Event Types")
+      expect(page).to have_selector("h1.page-title", text: "Event Types")
     end
   end
 

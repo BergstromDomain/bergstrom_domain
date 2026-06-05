@@ -36,7 +36,7 @@ RSpec.describe "Events By Week", type: :feature do
       before { visit events_by_week_path }
 
       it "Shows the current week heading" do
-        expect(page).to have_css("[data-testid='by-week-heading']",
+        expect(page).to have_selector("[data-testid='by-week-heading']",
           text: "#{week_start.strftime("%-d %b")} – #{week_end.strftime("%-d %b %Y")}")
       end
 
@@ -50,8 +50,8 @@ RSpec.describe "Events By Week", type: :feature do
       end
 
       it "Shows previous week and next week navigation links" do
-        expect(page).to have_css("[data-testid='nav-previous-week']")
-        expect(page).to have_css("[data-testid='nav-next-week']")
+        expect(page).to have_selector("[data-testid='nav-previous-week']")
+        expect(page).to have_selector("[data-testid='nav-next-week']")
       end
     end
 
@@ -94,8 +94,8 @@ RSpec.describe "Events By Week", type: :feature do
 
         visit events_by_week_path(date: empty_week.iso8601)
 
-        expect(page).to have_css("[data-testid='no-events-message']")
-        expect(page).not_to have_css("[data-testid='event-list']")
+        expect(page).to have_selector("[data-testid='no-events-message']")
+        expect(page).not_to have_selector("[data-testid='event-list']")
       end
     end
   end
@@ -109,7 +109,7 @@ RSpec.describe "Events By Week", type: :feature do
       it "Shows the current week while authenticated" do
         visit events_by_week_path
 
-        expect(page).to have_css("[data-testid='by-week-heading']")
+        expect(page).to have_selector("[data-testid='by-week-heading']")
         expect(page).to have_link("Blackened Studio Session")
       end
     end
@@ -120,7 +120,7 @@ RSpec.describe "Events By Week", type: :feature do
       it "Falls back to the current week without raising an error" do
         visit events_by_week_path(date: "garbage")
 
-        expect(page).to have_css("[data-testid='by-week-heading']",
+        expect(page).to have_selector("[data-testid='by-week-heading']",
           text: "#{week_start.strftime("%-d %b")} – #{week_end.strftime("%-d %b %Y")}")
       end
     end

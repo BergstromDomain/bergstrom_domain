@@ -38,11 +38,11 @@ RSpec.describe "List events", type: :feature do
     before { visit events_path }
 
     it "displays the page title" do
-      expect(page).to have_css("h1.page-title", text: "Events")
+      expect(page).to have_selector("h1.page-title", text: "Events")
     end
 
     it "displays all events" do
-      expect(page).to have_css("[data-testid='event-title']", count: 3)
+      expect(page).to have_selector("[data-testid='event-title']", count: 3)
     end
 
     it "displays events in month, day, title order" do
@@ -55,41 +55,41 @@ RSpec.describe "List events", type: :feature do
     end
 
     it "displays the date for each event" do
-      expect(page).to have_css("[data-testid='event-date']", count: 3)
-      expect(page).to have_css("[data-testid='event-date']", text: "3 Mar 1986")
+      expect(page).to have_selector("[data-testid='event-date']", count: 3)
+      expect(page).to have_selector("[data-testid='event-date']", text: "3 Mar 1986")
     end
 
     it "displays the event type icon for each event" do
-      expect(page).to have_css("[data-testid='event-type-icon']", count: 3)
+      expect(page).to have_selector("[data-testid='event-type-icon']", count: 3)
     end
 
     it "shows the event type icon as thumbnail fallback when no thumbnail exists" do
-      expect(page).to have_css("[data-testid='event-thumbnail']", count: 3)
+      expect(page).to have_selector("[data-testid='event-thumbnail']", count: 3)
     end
 
     it "displays person icons for each event" do
-      expect(page).to have_css("[data-testid='event-person']", minimum: 1)
+      expect(page).to have_selector("[data-testid='event-person']", minimum: 1)
     end
 
     it "links each person icon to their show page" do
-      expect(page).to have_css(
+      expect(page).to have_selector(
         "a[href='#{person_path(hetfield)}'][data-testid='event-person']"
       )
     end
 
     it "shows person name as tooltip on hover" do
-      expect(page).to have_css(
+      expect(page).to have_selector(
         "a[title='James Hetfield'][data-testid='event-person']"
       )
     end
 
     it "shows the month navigation bar" do
-      expect(page).to have_css("[data-testid='month-nav']")
-      expect(page).to have_css("[data-testid='month-nav-link']", count: 12)
+      expect(page).to have_selector("[data-testid='month-nav']")
+      expect(page).to have_selector("[data-testid='month-nav-link']", count: 12)
     end
 
     it "shows the pagination placeholder" do
-      expect(page).to have_css("[data-testid='pagination-placeholder']")
+      expect(page).to have_selector("[data-testid='pagination-placeholder']")
     end
   end
 
@@ -98,13 +98,13 @@ RSpec.describe "List events", type: :feature do
     it "shows an empty state when no events exist" do
       Event.destroy_all
       visit events_path
-      expect(page).to have_css("[data-testid='empty-state']")
+      expect(page).to have_selector("[data-testid='empty-state']")
       expect(page).to have_content("No events found")
     end
 
     it "shows an empty state when no events match the selected month" do
       visit events_path(month: 12)
-      expect(page).to have_css("[data-testid='empty-state']")
+      expect(page).to have_selector("[data-testid='empty-state']")
     end
   end
 
@@ -112,18 +112,18 @@ RSpec.describe "List events", type: :feature do
   describe "alternative path" do
     it "filters events by month when month param is present" do
       visit events_path(month: 3)
-      expect(page).to have_css("[data-testid='event-title']", text: "Master of Puppets")
-      expect(page).not_to have_css("[data-testid='event-title']", text: "Load")
+      expect(page).to have_selector("[data-testid='event-title']", text: "Master of Puppets")
+      expect(page).not_to have_selector("[data-testid='event-title']", text: "Load")
     end
 
     it "highlights the selected month in the navigation" do
       visit events_path(month: 3)
-      expect(page).to have_css(".month-nav__link--active", text: "Mar")
+      expect(page).to have_selector(".month-nav__link--active", text: "Mar")
     end
 
     it "highlights All when no month is selected" do
       visit events_path
-      expect(page).to have_css(".month-nav__link--active", text: "All")
+      expect(page).to have_selector(".month-nav__link--active", text: "All")
     end
 
     it "filters events by event type when event_type_id param is present" do
@@ -132,8 +132,8 @@ RSpec.describe "List events", type: :feature do
       sport_event.people.clear
       sport_event.people << hetfield
       visit events_path(event_type_id: sport.id)
-      expect(page).to have_css("[data-testid='event-title']", text: "Sport Event")
-      expect(page).not_to have_css("[data-testid='event-title']", text: "Master of Puppets")
+      expect(page).to have_selector("[data-testid='event-title']", text: "Sport Event")
+      expect(page).not_to have_selector("[data-testid='event-title']", text: "Master of Puppets")
     end
 
     it "sorts filtered month events by day then title" do
@@ -153,7 +153,7 @@ RSpec.describe "List events", type: :feature do
       event_with_thumb.people.clear
       event_with_thumb.people << hetfield
       visit events_path
-      expect(page).to have_css("img.table-thumbnail")
+      expect(page).to have_selector("img.table-thumbnail")
     end
   end
 
@@ -161,7 +161,7 @@ RSpec.describe "List events", type: :feature do
   describe "edge cases" do
     it "ignores an invalid month param" do
       visit events_path(month: 99)
-      expect(page).to have_css("[data-testid='event-title']", count: 3)
+      expect(page).to have_selector("[data-testid='event-title']", count: 3)
     end
 
     it "displays an event with no year using short date format" do
@@ -170,7 +170,7 @@ RSpec.describe "List events", type: :feature do
       no_year.people.clear
       no_year.people << hetfield
       visit events_path
-      expect(page).to have_css("[data-testid='event-date']", text: "15 Jun")
+      expect(page).to have_selector("[data-testid='event-date']", text: "15 Jun")
     end
 
     it "wraps person icons when an event has multiple people" do

@@ -42,12 +42,12 @@ RSpec.describe "Events By Day", type: :feature do
       before { visit events_by_day_path }
 
       it "Shows today's heading" do
-        expect(page).to have_css("[data-testid='by-day-heading']",
+        expect(page).to have_selector("[data-testid='by-day-heading']",
           text: today.strftime("%A, %-d %B %Y"))
       end
 
       it "Shows events on today's date" do
-        expect(page).to have_css("[data-testid='event-list']")
+        expect(page).to have_selector("[data-testid='event-list']")
         expect(page).to have_link("Master of Puppets Recording Session")
       end
 
@@ -61,11 +61,11 @@ RSpec.describe "Events By Day", type: :feature do
       end
 
       it "Shows the previous day navigation link" do
-        expect(page).to have_css("[data-testid='nav-previous-day']")
+        expect(page).to have_selector("[data-testid='nav-previous-day']")
       end
 
       it "Shows the next day navigation link" do
-        expect(page).to have_css("[data-testid='nav-next-day']")
+        expect(page).to have_selector("[data-testid='nav-next-day']")
       end
     end
 
@@ -73,7 +73,7 @@ RSpec.describe "Events By Day", type: :feature do
       before { visit events_by_day_path(date: yesterday.iso8601) }
 
       it "Shows the correct heading for that date" do
-        expect(page).to have_css("[data-testid='by-day-heading']",
+        expect(page).to have_selector("[data-testid='by-day-heading']",
           text: yesterday.strftime("%A, %-d %B %Y"))
       end
 
@@ -93,7 +93,7 @@ RSpec.describe "Events By Day", type: :feature do
 
         find("[data-testid='nav-previous-day']").click
 
-        expect(page).to have_css("[data-testid='by-day-heading']",
+        expect(page).to have_selector("[data-testid='by-day-heading']",
           text: yesterday.strftime("%A, %-d %B %Y"))
       end
     end
@@ -104,7 +104,7 @@ RSpec.describe "Events By Day", type: :feature do
 
         find("[data-testid='nav-next-day']").click
 
-        expect(page).to have_css("[data-testid='by-day-heading']",
+        expect(page).to have_selector("[data-testid='by-day-heading']",
           text: tomorrow.strftime("%A, %-d %B %Y"))
       end
     end
@@ -117,8 +117,8 @@ RSpec.describe "Events By Day", type: :feature do
 
         visit events_by_day_path(date: empty_day.iso8601)
 
-        expect(page).to have_css("[data-testid='no-events-message']")
-        expect(page).not_to have_css("[data-testid='event-list']")
+        expect(page).to have_selector("[data-testid='no-events-message']")
+        expect(page).not_to have_selector("[data-testid='event-list']")
       end
     end
   end
@@ -132,7 +132,7 @@ RSpec.describe "Events By Day", type: :feature do
       it "Shows today's events while authenticated" do
         visit events_by_day_path
 
-        expect(page).to have_css("[data-testid='by-day-heading']")
+        expect(page).to have_selector("[data-testid='by-day-heading']")
         expect(page).to have_link("Master of Puppets Recording Session")
       end
     end
@@ -143,7 +143,7 @@ RSpec.describe "Events By Day", type: :feature do
       it "Falls back to today without raising an error" do
         visit events_by_day_path(date: "not-a-date")
 
-        expect(page).to have_css("[data-testid='by-day-heading']",
+        expect(page).to have_selector("[data-testid='by-day-heading']",
           text: today.strftime("%A, %-d %B %Y"))
       end
     end

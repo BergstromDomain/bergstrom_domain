@@ -17,20 +17,20 @@ RSpec.describe "Show event type", type: :feature do
     before { visit event_type_path(event_type) }
 
     it "displays the event type name in the page title" do
-      expect(page).to have_css("h1.page-title", text: "Music")
+      expect(page).to have_selector("h1.page-title", text: "Music")
     end
 
     it "renders the icon in the main panel" do
-      expect(page).to have_css("[data-testid='show-panel-main'] svg")
+      expect(page).to have_selector("[data-testid='show-panel-main'] svg")
     end
 
     it "displays the event type description" do
-      expect(page).to have_css("[data-testid='event-type-description']",
+      expect(page).to have_selector("[data-testid='event-type-description']",
                                text: "Musical events and performances.")
     end
 
     it "displays the event type name in the metadata panel" do
-      expect(page).to have_css("[data-testid='event-type-name-value']", text: "Music")
+      expect(page).to have_selector("[data-testid='event-type-name-value']", text: "Music")
     end
 
     it "shows a back link to the index" do
@@ -44,7 +44,7 @@ RSpec.describe "Show event type", type: :feature do
 
     it "is accessible by slug" do
       visit event_type_path(event_type.slug)
-      expect(page).to have_css("h1.page-title", text: "Music")
+      expect(page).to have_selector("h1.page-title", text: "Music")
     end
   end
 
@@ -88,7 +88,7 @@ RSpec.describe "Show event type", type: :feature do
       end
 
       it "shows the btn-divider between Back and Edit" do
-        expect(page).to have_css(".btn-divider")
+        expect(page).to have_selector(".btn-divider")
       end
     end
   end
@@ -98,7 +98,7 @@ RSpec.describe "Show event type", type: :feature do
     it "handles an event type with a long name without breaking layout" do
       long = create(:event_type, name: "A" * 60, description: "Test.", icon: "star")
       visit event_type_path(long)
-      expect(page).to have_css("h1.page-title")
+      expect(page).to have_selector("h1.page-title")
     end
 
     it "shows both Edit and Delete to a system admin" do

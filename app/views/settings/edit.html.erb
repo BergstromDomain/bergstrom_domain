@@ -1,0 +1,129 @@
+<div class="page-header">
+  <div class="page-header__top">
+    <div class="page-header__title-group">
+      <h1 class="page-title" data-testid="settings-name">
+        <%= Current.user.first_name %> <%= Current.user.last_name %>
+      </h1>
+      <p class="page-subtitle">
+        <%= lucide_icon "settings", size: 16 %>
+        User Settings
+      </p>
+    </div>
+  </div>
+</div>
+
+<%= form_with model: @user, url: settings_path, method: :patch, class: "resource-form", multipart: true, data: { turbo: false } do |f| %>
+
+  <% if @user&.errors&.any? %>
+    <div class="form-errors" data-testid="settings-edit-errors">
+      <p><%= pluralize(@user.errors.count, "error") %> prevented your details from being saved:</p>
+      <ul>
+        <% @user.errors.each do |error| %>
+          <li data-testid="field-error"><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# Profile panel %>
+  <div class="show-panel" data-testid="settings-profile-panel">
+    <h2 class="show-panel__heading">Profile</h2>
+
+    <div class="show-panel__section">
+      <div class="show-meta-row">
+        <div class="show-meta-cell">
+          <h3 class="show-meta-cell__label">First Name</h3>
+          <div class="form-group" style="margin-bottom: 0;">
+            <%= f.label :first_name, "First Name", class: "sr-only" %>
+            <%= f.text_field :first_name,
+                  value: Current.user.first_name,
+                  class: "form-control",
+                  data: { testid: "settings-first-name-field" } %>
+          </div>
+        </div>
+        <div class="show-meta-cell">
+          <h3 class="show-meta-cell__label">Last Name</h3>
+          <div class="form-group" style="margin-bottom: 0;">
+            <%= f.label :last_name, "Last Name", class: "sr-only" %>
+            <%= f.text_field :last_name,
+                  value: Current.user.last_name,
+                  class: "form-control",
+                  data: { testid: "settings-last-name-field" } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# Profile image %>
+    <div class="show-panel__section" data-testid="settings-image-field">
+      <% if Current.user.profile_image.attached? %>
+        <div class="event-image">
+          <%= image_tag Current.user.profile_image.variant(:thumbnail),
+                alt: "#{Current.user.first_name} #{Current.user.last_name}",
+                class: "event-image__thumbnail" %>
+        </div>
+        <p class="form-hint">Upload a new file to replace the current image.</p>
+      <% end %>
+      <div class="form-group">
+        <label for="settings-image-input" class="show-meta-cell__label">Profile Image</label>
+        <%= f.file_field :profile_image,
+              id: "settings-image-input",
+              accept: "image/jpeg,image/png,image/webp",
+              class: "form-control",
+              data: { testid: "settings-image-input" } %>
+      </div>
+    </div>
+
+    <%# Email Address %>
+    <div class="show-panel__section">
+      <div class="form-group">
+        <h3 class="show-meta-cell__label">Email Address</h3>
+        <%= f.label :email_address, "Email Address", class: "sr-only" %>
+        <%= f.email_field :email_address,
+              value: Current.user.email_address,
+              autocomplete: "email",
+              class: "form-control",
+              data: { testid: "settings-email-field" } %>
+        <p class="form-hint">Changing your email address will require re-verification.</p>
+      </div>
+    </div>
+  </div>
+
+  <%# Preferences panel %>
+  <div class="show-panel" data-testid="settings-preferences-panel">
+    <h2 class="show-panel__heading">Preferences</h2>
+    <div class="show-panel__section">
+      <div class="form-group">
+        <h3 class="show-meta-cell__label">Start Page</h3>
+        <%= f.label :start_page, "Start Page", class: "sr-only" %>
+        <%= f.select :start_page,
+              [
+                ["Home",                             "home"],
+                ["Event Tracker",                    "event_tracker"],
+                ["Event Tracker - Events By Day",    "events_by_day"],
+                ["Event Tracker - Events By Week",   "events_by_week"],
+                ["Event Tracker - Events By Month",  "events_by_month"],
+                ["Event Tracker - People",           "people"]
+              ],
+              { selected: Current.user.start_page.presence || "home" },
+              { class: "form-control", data: { testid: "settings-start-page-field" } } %>
+      </div>
+    </div>
+  </div>
+
+  <%# Actions panel %>
+  <div class="show-panel show-panel--actions" data-testid="settings-actions-panel">
+    <%= link_to settings_path,
+          class: "btn btn-secondary",
+          data: { testid: "settings-edit-cancel" } do %>
+      <%= lucide_icon "circle-x", size: 16 %>
+      Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary-action" data-testid="settings-edit-submit">
+      <%= lucide_icon "save", size: 16 %>
+      Update Details
+    </button>
+  </div>
+
+<% end %>

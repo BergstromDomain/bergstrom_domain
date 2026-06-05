@@ -19,7 +19,7 @@ RSpec.describe "Create Person", type: :feature do
       click_button "Create Person"
       expect(page).to have_content("Person was successfully created.")
       expect(page).to have_current_path(person_path(Person.last))
-      expect(page).to have_css("[data-testid='person-name']", text: "James Alan Hetfield")
+      expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Hetfield")
     end
 
     xit "creates a person with an image and displays it on the show page", js: true do
@@ -30,7 +30,7 @@ RSpec.describe "Create Person", type: :feature do
                   make_visible: true
       click_button "Create Person"
       expect(page).to have_content("Person was successfully created.")
-      expect(page).to have_css("[data-testid='show-panel-main'] img")
+      expect(page).to have_selector("[data-testid='show-panel-main'] img")
     end
   end
 
@@ -39,7 +39,7 @@ RSpec.describe "Create Person", type: :feature do
     it "shows validation errors when first name is missing" do
       visit new_person_path
       click_button "Create Person"
-      expect(page).to have_css("[data-testid='form-errors']")
+      expect(page).to have_selector("[data-testid='form-errors']")
       expect(page).to have_content("First name can't be blank")
     end
 
@@ -67,7 +67,7 @@ RSpec.describe "Create Person", type: :feature do
       fill_in "First name", with: "Cliff"
       click_button "Create Person"
       expect(page).to have_content("Person was successfully created.")
-      expect(page).to have_css("[data-testid='person-name']", text: "Cliff")
+      expect(page).to have_selector("[data-testid='person-name']", text: "Cliff")
     end
 
     it "defaults visibility to Contacts" do
@@ -81,7 +81,7 @@ RSpec.describe "Create Person", type: :feature do
     it "shows the original heading after a validation failure" do
       visit new_person_path
       click_button "Create Person"
-      expect(page).to have_css("h1.page-title", text: "New Person")
+      expect(page).to have_selector("h1.page-title", text: "New Person")
     end
   end
 end

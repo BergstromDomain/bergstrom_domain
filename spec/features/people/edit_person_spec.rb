@@ -13,7 +13,7 @@ RSpec.describe "Edit Person", type: :feature do
   describe "happy path" do
     it "displays the original full name in the page heading" do
       visit edit_person_path(person)
-      expect(page).to have_css("h1.page-title", text: "Robert Agustin Trujillo")
+      expect(page).to have_selector("h1.page-title", text: "Robert Agustin Trujillo")
     end
 
     it "pre-populates the first name field" do
@@ -29,7 +29,7 @@ RSpec.describe "Edit Person", type: :feature do
       person.reload
       expect(page).to have_current_path(person_path(person))
       expect(page).to have_content("Person was successfully updated.")
-      expect(page).to have_css("[data-testid='person-name']", text: "Robert Miguel Trujillo")
+      expect(page).to have_selector("[data-testid='person-name']", text: "Robert Miguel Trujillo")
     end
   end
 
@@ -39,7 +39,7 @@ RSpec.describe "Edit Person", type: :feature do
       visit edit_person_path(person)
       fill_in "First name", with: ""
       click_button "Update Person"
-      expect(page).to have_css("[data-testid='form-errors']")
+      expect(page).to have_selector("[data-testid='form-errors']")
       expect(page).to have_content("First name can't be blank")
     end
 
@@ -75,7 +75,7 @@ RSpec.describe "Edit Person", type: :feature do
       visit edit_person_path(person)
       fill_in "First name", with: "Roberto"
       click_button "Update Person"
-      expect(page).to have_css("[data-testid='person-name']", text: "Roberto Agustin Trujillo")
+      expect(page).to have_selector("[data-testid='person-name']", text: "Roberto Agustin Trujillo")
     end
 
     xit "attaches the image and shows it on the show page", js: true do
@@ -86,7 +86,7 @@ RSpec.describe "Edit Person", type: :feature do
       click_button "Update Person"
       person.reload
       expect(page).to have_current_path(person_path(person))
-      expect(page).to have_css("[data-testid='show-panel-main'] img")
+      expect(page).to have_selector("[data-testid='show-panel-main'] img")
     end
   end
 
@@ -98,7 +98,7 @@ RSpec.describe "Edit Person", type: :feature do
       fill_in "Last name", with: "Newsted"
       click_button "Update Person"
       visit person_path(old_slug)
-      expect(page).to have_css("[data-testid='person-name']", text: "Robert Agustin Newsted")
+      expect(page).to have_selector("[data-testid='person-name']", text: "Robert Agustin Newsted")
     end
   end
 end
