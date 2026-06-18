@@ -8,8 +8,8 @@ RSpec.describe "Create event type", type: :feature do
   before { sign_in_as(admin) }
 
   # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "happy path" do
-    it "creates an event type with all required fields" do
+  describe "Happy path" do
+    it "Creates an event type with all required fields" do
       visit new_event_type_path
       fill_in "Name",        with: "Education"
       fill_in "Description", with: "School, university, and learning milestones."
@@ -22,8 +22,8 @@ RSpec.describe "Create event type", type: :feature do
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "negative path" do
-    it "shows an error when name is missing" do
+  describe "Negative path" do
+    it "Shows an error when name is missing" do
       visit new_event_type_path
       fill_in "Description", with: "Something."
       fill_in "Icon",        with: "star"
@@ -34,7 +34,7 @@ RSpec.describe "Create event type", type: :feature do
       expect(EventType.count).to eq(0)
     end
 
-    it "shows an error when name is a duplicate (same case)" do
+    it "Shows an error when name is a duplicate (same case)" do
       create(:event_type, name: "Music", icon: "music", description: "Musical events.")
       visit new_event_type_path
       fill_in "Name",        with: "Music"
@@ -46,7 +46,7 @@ RSpec.describe "Create event type", type: :feature do
       expect(EventType.count).to eq(1)
     end
 
-    it "shows an error when name is a duplicate (different case)" do
+    it "Shows an error when name is a duplicate (different case)" do
       create(:event_type, name: "Music", icon: "music", description: "Musical events.")
       visit new_event_type_path
       fill_in "Name",        with: "music"
@@ -58,7 +58,7 @@ RSpec.describe "Create event type", type: :feature do
       expect(EventType.count).to eq(1)
     end
 
-    it "shows an error when description is missing" do
+    it "Shows an error when description is missing" do
       visit new_event_type_path
       fill_in "Name", with: "Education"
       fill_in "Icon", with: "graduation-cap"
@@ -69,7 +69,7 @@ RSpec.describe "Create event type", type: :feature do
       expect(EventType.count).to eq(0)
     end
 
-    it "shows an error when icon is missing" do
+    it "Shows an error when icon is missing" do
       visit new_event_type_path
       fill_in "Name",        with: "Education"
       fill_in "Description", with: "School, university, and learning milestones."
@@ -80,7 +80,7 @@ RSpec.describe "Create event type", type: :feature do
       expect(EventType.count).to eq(0)
     end
 
-    it "shows an error when icon is not a valid Lucide icon name" do
+    it "Shows an error when icon is not a valid Lucide icon name" do
       visit new_event_type_path
       fill_in "Name",        with: "Education"
       fill_in "Description", with: "School, university, and learning milestones."
@@ -91,13 +91,13 @@ RSpec.describe "Create event type", type: :feature do
       expect(EventType.count).to eq(0)
     end
 
-    it "redirects an unauthenticated visitor to sign in" do
+    it "Redirects 'Gary Guest' to the 'Sign in' page" do
       click_button "Sign Out"
       visit new_event_type_path
       expect(page).to have_current_path(new_session_path)
     end
 
-    it "redirects a content creator to the event types index" do
+    it "Redirects 'Charlie Content Creator' to the event types index" do
       click_button "Sign Out"
       sign_in_as create(:user, :content_creator)
       visit new_event_type_path
@@ -106,8 +106,8 @@ RSpec.describe "Create event type", type: :feature do
   end
 
   # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "alternative path" do
-    it "re-renders the form with entered values when validation fails" do
+  describe "Alternative path" do
+    it "Re-renders the form with entered values when validation fails" do
       visit new_event_type_path
       fill_in "Name",        with: "Education"
       fill_in "Description", with: "School, university, and learning milestones."
@@ -118,7 +118,7 @@ RSpec.describe "Create event type", type: :feature do
       expect(page).to have_field("Icon",        with: "not-a-real-icon")
     end
 
-    it "allows a system admin to create an event type" do
+    it "Allows 'Sam SysAdmin' to create an event type" do
       click_button "Sign Out"
       sign_in_as create(:user, :system_admin)
       visit new_event_type_path
@@ -132,8 +132,8 @@ RSpec.describe "Create event type", type: :feature do
   end
 
   # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "edge cases" do
-    it "shows an error when icon has surrounding whitespace" do
+  describe "Edge cases" do
+    it "Shows an error when icon has surrounding whitespace" do
       visit new_event_type_path
       fill_in "Name",        with: "Education"
       fill_in "Description", with: "School, university, and learning milestones."

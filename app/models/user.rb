@@ -28,4 +28,9 @@ class User < ApplicationRecord
   validates :first_name, presence: true
   validates :last_name,  presence: true
   validates :status,     presence: true
+
+  # ── Helper methods ───────────────────────────────────────────────────────────
+  def can_export?
+    content_creator? || admin? || system_admin?
+  end
 end

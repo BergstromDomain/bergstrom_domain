@@ -8,41 +8,41 @@ RSpec.describe "List event types", type: :feature do
   let!(:sport)    { create(:event_type, name: "Sport",    icon: "trophy",    description: "Sport events.") }
 
   # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "happy path" do
+  describe "Happy path" do
     before { visit event_types_path }
 
-    it "displays the page title" do
+    it "Displays the page title" do
       expect(page).to have_selector("h1.page-title", text: "Event Types")
     end
 
-    it "displays all event types" do
+    it "Displays all event types" do
       expect(page).to have_content("Work")
       expect(page).to have_content("Birthday")
       expect(page).to have_content("Sport")
     end
 
-    it "displays event types in alphabetical order by name" do
+    it "Displays event types in alphabetical order by name" do
       expect(page.text.index("Birthday")).to be < page.text.index("Sport")
       expect(page.text.index("Sport")).to be < page.text.index("Work")
     end
 
-    it "renders an SVG icon for each event type" do
+    it "Renders an SVG icon for each event type" do
       expect(page).to have_selector("td[data-testid='event-type-icon'] svg", minimum: 3)
     end
 
-    it "displays the description for each event type" do
+    it "Displays the description for each event type" do
       expect(page).to have_selector("td[data-testid='event-type-description']", count: 3)
     end
 
-    it "links each event type name to its show page" do
+    it "Links each event type name to its show page" do
       expect(page).to have_link("Work",     href: event_type_path(work))
       expect(page).to have_link("Birthday", href: event_type_path(birthday))
     end
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "negative path" do
-    it "displays an empty state message when no event types exist" do
+  describe "Negative path" do
+    it "Displays an empty state message when no event types exist" do
       EventType.delete_all
       visit event_types_path
       expect(page).to have_http_status(:ok)
@@ -52,8 +52,8 @@ RSpec.describe "List event types", type: :feature do
   end
 
   # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "alternative path" do
-    it "renders the same page regardless of authentication status" do
+  describe "Alternative path" do
+    it "Renders the same page regardless of authentication status" do
       sign_in_as create(:user, :app_user)
       visit event_types_path
       expect(page).to have_selector("h1.page-title", text: "Event Types")
@@ -61,8 +61,8 @@ RSpec.describe "List event types", type: :feature do
   end
 
   # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "edge cases" do
-    it "sorts event types case-insensitively" do
+  describe "Edge cases" do
+    it "Sorts event types case-insensitively" do
       create(:event_type, name: "acoustic sessions", icon: "headphones", description: "Informal sessions.")
       visit event_types_path
       expect(page.text.index("acoustic sessions")).to be < page.text.index("Birthday")
