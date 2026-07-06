@@ -1,4 +1,3 @@
-<%# app/views/layouts/_top_nav.html.erb %>
 <nav class="top-nav" data-testid="top-nav">
 
   <div class="top-nav__links">
@@ -23,7 +22,7 @@
       <%= render "layouts/dropdown",
                  label: "System Admin",
                  items: [
-                   { label: "User Management", path: nil },
+                   { label: "User Management", path: system_admin_users_path },
                    { label: "App Management",  path: nil }
                  ] %>
     <% end %>

@@ -246,9 +246,9 @@ RSpec.describe "Top navigation bar", type: :feature do
       expect(page).to have_button("System Admin")
     end
 
-    it "Shows 'User Management' in 'System Admin' dropdown menu" do
+    it "Shows 'User Management' link in 'System Admin' dropdown menu" do
       click_button "System Admin"
-      expect(page).to have_text("User Management")
+      expect(page).to have_link("User Management", href: system_admin_users_path)
     end
 
     it "Shows 'App Management' in 'System Admin' dropdown menu" do

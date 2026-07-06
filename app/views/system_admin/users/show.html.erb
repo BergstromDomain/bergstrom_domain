@@ -1,0 +1,149 @@
+<div class="page-header">
+  <div class="page-header__top">
+    <div class="page-header__title-group">
+      <h1 class="page-title" data-testid="user-name">
+        <%= "#{@user.first_name} #{@user.last_name}" %>
+      </h1>
+      <p class="page-subtitle">
+        <%= lucide_icon "user", size: 16 %>
+        User Detail
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="show-panel" data-testid="user-details-panel">
+  <h2 class="show-panel__heading">Details</h2>
+
+  <div class="show-meta-row">
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Email Address</h3>
+      <p class="show-meta-cell__value" data-testid="user-email">
+        <%= @user.email_address %>
+      </p>
+    </div>
+
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Role</h3>
+      <p class="show-meta-cell__value" data-testid="user-role">
+        <%= @user.role.humanize %>
+      </p>
+    </div>
+
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Status</h3>
+      <p class="show-meta-cell__value">
+        <span class="badge badge--<%= @user.status %>" data-testid="user-status">
+          <%= @user.status.humanize %>
+        </span>
+      </p>
+    </div>
+
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Registered</h3>
+      <p class="show-meta-cell__value" data-testid="user-registered">
+        <%= @user.created_at.strftime("%d %b %Y") %>
+      </p>
+    </div>
+  </div>
+
+  <% if @user.message_to_admin.present? %>
+    <div class="show-meta-row">
+      <div class="show-meta-cell show-meta-cell--full">
+        <h3 class="show-meta-cell__label">Message to Admin</h3>
+        <p class="show-meta-cell__value" data-testid="user-message">
+          <%= @user.message_to_admin %>
+        </p>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<%# Change role %>
+<div class="show-panel" data-testid="user-role-panel">
+  <h2 class="show-panel__heading">Change Role</h2>
+
+  <%= form_with url: role_system_admin_user_path(@user), method: :patch do |f| %>
+    <div class="show-meta-row">
+      <div class="show-meta-cell">
+        <label class="sr-only" for="role">Role</label>
+        <h3 class="show-meta-cell__label">Role</h3>
+        <%= select_tag :role,
+              options_for_select(
+                User.roles.keys.map { |r| [r.humanize, r] },
+                @user.role
+              ),
+              id: "role",
+              class: "form-control",
+              data: { testid: "role-select" } %>
+      </div>
+    </div>
+
+    <div class="show-panel--actions" style="justify-content: flex-start;">
+      <button type="submit"
+              class="btn btn-primary-action"
+              data-testid="update-role-button">
+        <%= lucide_icon "shield", size: 16 %>
+        Update Role
+      </button>
+    </div>
+  <% end %>
+</div>
+
+<%# Status actions %>
+<div class="show-panel show-panel--actions" data-testid="user-actions-panel">
+  <%= link_to system_admin_users_path,
+        class: "btn btn-secondary",
+        data: { testid: "back-link" } do %>
+    <%= lucide_icon "arrow-left", size: 16 %>
+    Back to Users
+  <% end %>
+
+  <div class="action-group">
+    <% if @user.pending? %>
+      <%= button_to approve_system_admin_user_path(@user),
+            method: :post,
+            class: "btn btn-primary-action",
+            data: { testid: "approve-button", turbo: false } do %>
+        <%= lucide_icon "check-circle", size: 16 %>
+        Approve
+      <% end %>
+
+      <%= button_to reject_system_admin_user_path(@user),
+            method: :post,
+            class: "btn btn-danger",
+            data: {
+              testid:         "reject-button",
+              turbo_confirm:  "Reject and permanently delete this registration?",
+              turbo:          false
+            } do %>
+        <%= lucide_icon "x-circle", size: 16 %>
+        Reject
+      <% end %>
+    <% end %>
+
+    <% if @user.active? && @user != current_user %>
+      <%= button_to suspend_system_admin_user_path(@user),
+            method: :post,
+            class: "btn btn-danger",
+            data: {
+              testid:        "suspend-button",
+              turbo_confirm: "Suspend #{@user.first_name} #{@user.last_name}?",
+              turbo:         false
+            } do %>
+        <%= lucide_icon "ban", size: 16 %>
+        Suspend
+      <% end %>
+    <% end %>
+
+    <% if @user.suspended? %>
+      <%= button_to reactivate_system_admin_user_path(@user),
+            method: :post,
+            class: "btn btn-primary-action",
+            data: { testid: "reactivate-button", turbo: false } do %>
+        <%= lucide_icon "refresh-cw", size: 16 %>
+        Reactivate
+      <% end %>
+    <% end %>
+  </div>
+</div>

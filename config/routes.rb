@@ -33,4 +33,16 @@ Rails.application.routes.draw do
   get "about",      to: "pages#about"
   get "contact",    to: "pages#contact"
   get "blog-posts", to: "pages#blog_posts", as: :blog_posts
+
+  namespace :system_admin do
+    resources :users, only: %i[index show] do
+      member do
+        post :approve
+        post :suspend
+        post :reactivate
+        post :reject
+        patch :role
+      end
+    end
+  end
 end

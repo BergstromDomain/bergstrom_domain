@@ -20,5 +20,13 @@ FactoryBot.define do
     trait :system_admin do
       role { "system_admin" }
     end
+
+    trait :pending do
+      status { "pending" }
+    end
+
+    trait :suspended do
+      status { "suspended" }
+    end
   end
 end
