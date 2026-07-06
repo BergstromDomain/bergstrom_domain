@@ -24,10 +24,13 @@ Rails.application.routes.draw do
   delete "settings",                     to: "settings#destroy"
   post   "settings/resend_verification", to: "settings#resend_verification", as: :resend_verification
 
+  # Import & Export
+  get "import_export", to: "pages#import_export", as: :import_export
+  post "export",       to: "export#create",       as: :export
+  get "user_guide",    to: "pages#user_guide",    as: :user_guide
+
   # Stub pages
   get "event_tracker", to: "pages#event_tracker", as: :event_tracker
-  get "import_export", to: "pages#import_export", as: :import_export
-  get "user_guide",    to: "pages#user_guide",    as: :user_guide
 
   root "pages#home"
   get "about",      to: "pages#about"

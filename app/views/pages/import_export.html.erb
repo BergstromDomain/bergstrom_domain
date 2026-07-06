@@ -1,7 +1,40 @@
 <div class="page-header">
-  <h1 class="page-title">Import &amp; Export</h1>
+  <h1 class="page-title">Import & Export</h1>
+  <p class="page-subtitle">Download your event and contact data as a CSV file</p>
 </div>
 
-<div class="show-panel">
-  <p>Import and export tools coming in a future post.</p>
+<div class="show-panel" data-testid="export-panel">
+  <h2>Export</h2>
+  <p>Download your data as a CSV file that opens directly in Excel. Each row represents one person and one event.</p>
+
+  <% if current_user.can_export? %>
+    <%= form_with url: export_path, method: :post, data: { turbo: false } do |f| %>
+      <div class="show-panel">
+        <h3>Include in export</h3>
+        <div class="form-check">
+          <%= f.check_box :scope_own, checked: true, id: "scope_own" %>
+          <%= f.label :scope_own, "My own data", for: "scope_own" %>
+        </div>
+        <div class="form-check">
+          <%= f.check_box :scope_contacts, checked: true, id: "scope_contacts" %>
+          <%= f.label :scope_contacts, "My contacts", for: "scope_contacts" %>
+        </div>
+        <div class="form-check">
+          <%= f.check_box :scope_public, checked: false, id: "scope_public" %>
+          <%= f.label :scope_public, "Public data", for: "scope_public" %>
+        </div>
+      </div>
+      <div class="show-panel--actions">
+        <button type="submit" class="btn btn-primary-action" data-testid="export-button">
+          <%= lucide_icon "download", class: "btn-icon" %>
+          Export
+        </button>
+      </div>
+    <% end %>
+  <% else %>
+    <p data-testid="export-disabled" class="muted-note">
+      <%= lucide_icon "lock", class: "btn-icon" %>
+      Export is available to content creators and above.
+    </p>
+  <% end %>
 </div>
