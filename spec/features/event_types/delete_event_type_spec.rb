@@ -8,8 +8,8 @@ RSpec.describe "Delete event type", type: :feature do
   before { sign_in_as(admin) }
 
   # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "happy path" do
-    it "deletes an event type with no associated events and redirects to index" do
+  describe "Happy path" do
+    it "Deletes an event type with no associated events and redirects to index" do
       et = create(:event_type, name: "Wedding", icon: "heart", description: "Wedding events.")
       visit event_type_path(et)
       click_button "Delete Event Type"
@@ -17,7 +17,7 @@ RSpec.describe "Delete event type", type: :feature do
       expect(page).not_to have_content("Wedding")
     end
 
-    it "removes the event type from the database" do
+    it "Removes the event type from the database" do
       et = create(:event_type, name: "Wedding", icon: "heart", description: "Wedding events.")
       visit event_type_path(et)
       expect {
@@ -27,8 +27,8 @@ RSpec.describe "Delete event type", type: :feature do
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "negative path" do
-    it "does not delete an event type that has associated events" do
+  describe "Negative path" do
+    it "Does not delete an event type that has associated events" do
       et = create(:event_type, name: "Music", icon: "music", description: "Music events.")
       create(:event, event_type: et)
       visit event_type_path(et)
@@ -37,7 +37,7 @@ RSpec.describe "Delete event type", type: :feature do
       }.not_to change(EventType, :count)
     end
 
-    it "shows an error when deletion is prevented by associated events" do
+    it "Shows an error when deletion is prevented by associated events" do
       et = create(:event_type, name: "Music", icon: "music", description: "Music events.")
       create(:event, event_type: et)
       visit event_type_path(et)
@@ -45,7 +45,7 @@ RSpec.describe "Delete event type", type: :feature do
       expect(page).to have_content("Cannot delete record because dependent events exist")
     end
 
-    it "does not show the Delete button to a content creator" do
+    it "Does not show the 'Delete' button to 'Charlie Content Creator'" do
       et = create(:event_type, name: "Music", icon: "music", description: "Music events.")
       click_button "Sign Out"
       sign_in_as create(:user, :content_creator)
@@ -53,7 +53,7 @@ RSpec.describe "Delete event type", type: :feature do
       expect(page).not_to have_button("Delete Event Type")
     end
 
-    it "does not show the Delete button to an unauthenticated visitor" do
+    it "Does not show the 'Delete' button to 'Gary Guest'" do
       et = create(:event_type, name: "Music", icon: "music", description: "Music events.")
       click_button "Sign Out"
       visit event_type_path(et)
@@ -62,8 +62,8 @@ RSpec.describe "Delete event type", type: :feature do
   end
 
   # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "alternative path" do
-    it "allows a system admin to delete an event type" do
+  describe "Alternative path" do
+    it "Allows 'Sam SysAdmin' to delete an event type" do
       et = create(:event_type, name: "Wedding", icon: "heart", description: "Wedding events.")
       click_button "Sign Out"
       sign_in_as create(:user, :system_admin)
@@ -74,8 +74,8 @@ RSpec.describe "Delete event type", type: :feature do
   end
 
   # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "edge cases" do
-    it "shows the Delete Event Type button to an admin" do
+  describe "Edge cases" do
+    it "Shows the 'Delete Event Type' button to an 'Adam Admin'" do
       et = create(:event_type, name: "Wedding", icon: "heart", description: "Wedding events.")
       visit event_type_path(et)
       expect(page).to have_button("Delete Event Type")

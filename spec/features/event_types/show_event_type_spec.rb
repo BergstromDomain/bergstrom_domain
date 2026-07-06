@@ -13,56 +13,56 @@ RSpec.describe "Show event type", type: :feature do
   end
 
   # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "happy path" do
+  describe "Happy path" do
     before { visit event_type_path(event_type) }
 
-    it "displays the event type name in the page title" do
+    it "Displays the event type name in the page title" do
       expect(page).to have_selector("h1.page-title", text: "Music")
     end
 
-    it "renders the icon in the main panel" do
+    it "Renders the icon in the main panel" do
       expect(page).to have_selector("[data-testid='show-panel-main'] svg")
     end
 
-    it "displays the event type description" do
+    it "Displays the event type description" do
       expect(page).to have_selector("[data-testid='event-type-description']",
                                text: "Musical events and performances.")
     end
 
-    it "displays the event type name in the metadata panel" do
+    it "Displays the event type name in the metadata panel" do
       expect(page).to have_selector("[data-testid='event-type-name-value']", text: "Music")
     end
 
-    it "shows a back link to the index" do
+    it "Shows a back link to the index" do
       expect(page).to have_link("Back to Event Types", href: event_types_path)
     end
 
-    it "does not show Edit or Delete to an unauthenticated visitor" do
+    it "Does not show the 'Edit' nor the 'Delete' buttons to 'Gary Guest'" do
       expect(page).not_to have_link("Edit Event Type")
       expect(page).not_to have_button("Delete Event Type")
     end
 
-    it "is accessible by slug" do
+    it "Is accessible by slug" do
       visit event_type_path(event_type.slug)
       expect(page).to have_selector("h1.page-title", text: "Music")
     end
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "negative path" do
-    it "returns 404 for a non-existent slug" do
+  describe "Negative path" do
+    it "Returns 404 for a non-existent slug" do
       visit event_type_path("non-existent-slug")
       expect(page).to have_http_status(:not_found)
     end
 
-    it "does not show Edit or Delete to a content creator" do
+    it "Does not show the 'Edit' nor the 'Delete' buttons to 'Charlie Content Creator'" do
       sign_in_as content_creator
       visit event_type_path(event_type)
       expect(page).not_to have_link("Edit Event Type")
       expect(page).not_to have_button("Delete Event Type")
     end
 
-    it "does not show Edit or Delete to an app user" do
+    it "Does not show the 'Edit' nor the 'Delete' buttons to 'Uno User'" do
       sign_in_as create(:user, :app_user)
       visit event_type_path(event_type)
       expect(page).not_to have_link("Edit Event Type")
@@ -71,37 +71,37 @@ RSpec.describe "Show event type", type: :feature do
   end
 
   # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "alternative path" do
-    context "as an admin" do
+  describe "Alternative path" do
+    context "As 'Adam Admin'" do
       before do
         sign_in_as admin
         visit event_type_path(event_type)
       end
 
-      it "shows the Edit button" do
+      it "Shows the 'Edit' button" do
         expect(page).to have_link("Edit Event Type",
                                   href: edit_event_type_path(event_type))
       end
 
-      it "shows the Delete button" do
+      it "Shows the 'Delete' button" do
         expect(page).to have_button("Delete Event Type")
       end
 
-      it "shows the btn-divider between Back and Edit" do
+      it "Shows the button divider between the 'Back' and the 'Edit' buttons" do
         expect(page).to have_selector(".btn-divider")
       end
     end
   end
 
   # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "edge cases" do
-    it "handles an event type with a long name without breaking layout" do
+  describe "Edge cases" do
+    it "Handles an event type with a long name without breaking layout" do
       long = create(:event_type, name: "A" * 60, description: "Test.", icon: "star")
       visit event_type_path(long)
       expect(page).to have_selector("h1.page-title")
     end
 
-    it "shows both Edit and Delete to a system admin" do
+    it "Shows both the 'Edit' and the 'Delete' buttons to 'Sam SysAdmin'" do
       sign_in_as create(:user, :system_admin)
       visit event_type_path(event_type)
       expect(page).to have_link("Edit Event Type")

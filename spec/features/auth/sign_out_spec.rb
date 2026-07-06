@@ -5,8 +5,8 @@ RSpec.describe "Sign Out", type: :feature do
   let!(:user) { create(:user, email_address: "bergstrom@example.com", password: "password123", password_confirmation: "password123") }
 
   # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "happy path" do
-    it "signs out a signed-in user and redirects to the home page" do
+  describe "Happy path" do
+    it "Signs out a signed-in user and redirects to the 'Home' page" do
       sign_in_as(user)
 
       click_button "Sign Out"
@@ -14,7 +14,7 @@ RSpec.describe "Sign Out", type: :feature do
       expect(page.current_path).to eq(root_path)
     end
 
-    it "prevents accessing write actions after signing out" do
+    it "Prevents accessing write actions after signing out" do
       sign_in_as(user)
       click_button "Sign Out"
 
@@ -25,24 +25,24 @@ RSpec.describe "Sign Out", type: :feature do
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "negative path" do
-    it "does not expose a sign-out route for unauthenticated users" do
+  describe "Negative path" do
+    it "Does not expose a sign-out route for unauthenticated users" do
       visit root_path
       expect(page).not_to have_button("Sign Out")
     end
   end
 
   # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "alternative path" do
-    it "destroys the session record on sign Out" do
+  describe "Alternative path" do
+    it "Destroys the session record on sign out" do
       sign_in_as(user)
       expect { click_button "Sign Out" }.to change(Session, :count).by(-1)
     end
   end
 
   # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "edge cases" do
-    it "handles multiple sign-ins and signs out cleanly" do
+  describe "Edge cases" do
+    it "Handles multiple sign-ins and signs out cleanly" do
       sign_in_as(user)
       click_button "Sign Out"
       sign_in_as(user)
