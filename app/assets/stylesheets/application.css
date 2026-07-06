@@ -1342,6 +1342,63 @@ textarea.form-control {
   flex-wrap: wrap;
 }
 
+/* ── Status badges ─────────────────────────────────────────── */
+:root {
+  --color-pending:    #d97706;
+  --color-pending-bg: #fef3c7;
+  --color-active:     #16a34a;
+  --color-active-bg:  #dcfce7;
+  --color-suspended:  #dc2626;
+  --color-suspended-bg: #fee2e2;
+}
+.badge {
+  display: inline-block;
+  padding: var(--space-2xs) var(--space-xs);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.badge--pending {
+  color: var(--color-pending);
+  background-color: var(--color-pending-bg);
+}
+.badge--active {
+  color: var(--color-active);
+  background-color: var(--color-active-bg);
+}
+.badge--suspended {
+  color: var(--color-suspended);
+  background-color: var(--color-suspended-bg);
+}
+/* ── Data table ────────────────────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.data-table th {
+  text-align: left;
+  padding: var(--space-xs) var(--space-sm);
+  border-bottom: 2px solid var(--color-border);
+  color: var(--color-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.data-table td {
+  padding: var(--space-xs) var(--space-sm);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+.btn--small {
+  padding: var(--space-2xs) var(--space-xs);
+  font-size: 0.8rem;
+}
 /* Utilities */
 .muted-note {
   color: var(--color-text-secondary);
@@ -1351,21 +1408,18 @@ textarea.form-control {
   gap: var(--space-xs);
   margin-block-start: var(--space-sm);
 }
-
 .form-check {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
   margin-block-end: var(--space-xs);
 }
-
 .form-check input[type="checkbox"] {
   width: 1rem;
   height: 1rem;
   accent-color: var(--color-primary);
   cursor: pointer;
 }
-
 .form-check label {
   cursor: pointer;
   font-size: var(--font-size-base);

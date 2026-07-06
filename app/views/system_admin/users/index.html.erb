@@ -1,0 +1,68 @@
+<div class="page-header">
+  <div class="page-header__top">
+    <div class="page-header__title-group">
+      <h1 class="page-title">User Management</h1>
+      <p class="page-subtitle">
+        <%= lucide_icon "users", size: 16 %>
+        System Admin
+      </p>
+    </div>
+  </div>
+</div>
+
+<%# Status filter %>
+<div class="show-panel" data-testid="user-list-filters">
+  <div class="filter-row">
+    <%= link_to "All",       system_admin_users_path,                    class: "btn #{'btn-primary-action' unless params[:status].present?} btn-secondary" %>
+    <%= link_to "Pending",   system_admin_users_path(status: "pending"),   class: "btn #{'btn-primary-action' if params[:status] == 'pending'} btn-secondary" %>
+    <%= link_to "Active",    system_admin_users_path(status: "active"),    class: "btn #{'btn-primary-action' if params[:status] == 'active'} btn-secondary" %>
+    <%= link_to "Suspended", system_admin_users_path(status: "suspended"), class: "btn #{'btn-primary-action' if params[:status] == 'suspended'} btn-secondary" %>
+  </div>
+</div>
+
+<div class="show-panel">
+  <% if @users.any? %>
+    <table class="data-table" data-testid="user-list">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Registered</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr data-testid="user-row-<%= user.id %>">
+            <td><%= "#{user.first_name} #{user.last_name}" %></td>
+            <td><%= user.email_address %></td>
+            <td><%= user.role.humanize %></td>
+            <td>
+              <span class="badge badge--<%= user.status %>" data-testid="user-status-<%= user.id %>">
+                <%= user.status.humanize %>
+              </span>
+            </td>
+            <td><%= user.created_at.strftime("%d %b %Y") %></td>
+            <td>
+              <%= link_to "View",
+                    system_admin_user_path(user),
+                    class: "btn btn-secondary btn--small",
+                    data: { testid: "view-user-#{user.id}" } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="empty-state" data-testid="user-list-empty">No users found.</p>
+  <% end %>
+</div>
+
+<div class="show-panel show-panel--actions">
+  <%= link_to root_path, class: "btn btn-secondary", data: { testid: "back-link" } do %>
+    <%= lucide_icon "arrow-left", size: 16 %>
+    Back to Home
+  <% end %>
+</div>
