@@ -25,9 +25,11 @@ Rails.application.routes.draw do
   post   "settings/resend_verification", to: "settings#resend_verification", as: :resend_verification
 
   # Import & Export
-  get "import_export", to: "pages#import_export", as: :import_export
-  post "export",       to: "export#create",       as: :export
-  get "user_guide",    to: "pages#user_guide",    as: :user_guide
+  get  "import_export",   to: "pages#import_export", as: :import_export
+  post "export",          to: "export#create",       as: :export
+  post "import",          to: "import#create",       as: :import
+  get  "import/template", to: "import#template",     as: :import_template
+  get  "user_guide",      to: "pages#user_guide",    as: :user_guide
 
   # Stub pages
   get "event_tracker", to: "pages#event_tracker", as: :event_tracker
