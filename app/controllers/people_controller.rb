@@ -15,7 +15,7 @@ class PeopleController < ApplicationController
     else
       Person.visible_to_users(current_user)
     end.order("LOWER(last_name), LOWER(first_name)")
-       .includes(:image_attachment, :image_blob)
+       .includes(image_attachment: :blob)
   end
 
   def show
@@ -76,7 +76,7 @@ class PeopleController < ApplicationController
   private
 
   def set_person
-    @person = Person.friendly.find(params[:id])
+    @person = Person.includes(image_attachment: :blob).friendly.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     render file: "#{Rails.root}/public/404.html", status: :not_found
   end
