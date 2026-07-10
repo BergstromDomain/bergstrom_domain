@@ -121,13 +121,16 @@ class EventsController < ApplicationController
   end
 
   def events_in_week(start_date, end_date)
-    day_pairs    = (start_date..end_date).map { |d| [ d.month, d.day ] }
-    placeholders = day_pairs.map { "(?, ?)" }.join(", ")
+    day_pairs = (start_date..end_date).map { |d| [ d.month, d.day ] }
 
-    Event.where("(month, day) IN (#{placeholders})", *day_pairs.flatten)
-    .includes(:event_type, image_attachment: :blob,
-              people: { image_attachment: :blob })
-    .order(:year, :month, :day, "LOWER(title)")
+    scope = day_pairs
+      .map { |month, day| Event.where(month: month, day: day) }
+      .reduce { |combined, condition| combined.or(condition) }
+
+    scope
+      .includes(:event_type, image_attachment: :blob,
+                people: { image_attachment: :blob })
+      .order(:year, :month, :day, "LOWER(title)")
   end
 
   def parse_date_param(raw, fallback)
