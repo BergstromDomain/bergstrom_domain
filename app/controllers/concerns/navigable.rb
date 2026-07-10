@@ -15,7 +15,7 @@ module Navigable
 
   def left_nav_section_for(controller)
     case controller
-    when "events", "event_types", "people"
+    when "events", "event_types", "people", "pages"
       :event_tracker
     end
   end

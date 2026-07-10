@@ -3,6 +3,72 @@
   <p class="page-subtitle">Download your event and contact data as a CSV file</p>
 </div>
 
+<div class="show-panel" data-testid="import-panel">
+  <h2>Import</h2>
+  <p>Upload a CSV file to create or update people and events. Each row represents one person and one event.</p>
+
+  <% if current_user.can_export? %>
+    <%= form_with url: import_path, method: :post, data: { turbo: false }, html: { multipart: true } do |f| %>
+      <div class="form-group">
+        <%= f.label :file, "CSV file", class: "sr-only" %>
+        <%= f.file_field :file,
+              accept: ".csv",
+              class: "form-control",
+              id: "import-file-input",
+              data: { testid: "import-file-input" } %>
+      </div>
+      <div class="show-panel--actions">
+        <%= link_to import_template_path,
+              class: "btn btn-primary-action",
+              data: { testid: "import-template-link" } do %>
+          <%= lucide_icon "file-down", class: "btn-icon" %>
+          Download import template
+        <% end %>
+        <button type="submit" class="btn btn-primary-action" data-testid="import-button">
+          <%= lucide_icon "upload", class: "btn-icon" %>
+          Import
+        </button>
+      </div>
+    <% end %>
+
+    <% if @import_result %>
+      <div class="show-panel" data-testid="import-results">
+        <h3>Import results</h3>
+        <p data-testid="import-summary">
+          <%= pluralize(@import_result.imported_count, "row") %> imported,
+          <%= pluralize(@import_result.failed_count, "row") %> failed.
+        </p>
+
+        <% if @import_result.errors.any? %>
+          <div class="data-table-wrapper">
+            <table class="data-table" data-testid="import-errors-table">
+              <thead>
+                <tr>
+                  <th>Row</th>
+                  <th>Error</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @import_result.errors.each do |error| %>
+                  <tr data-testid="import-error-row">
+                    <td><%= error[:row] %></td>
+                    <td><%= error[:message] %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <p data-testid="import-disabled" class="muted-note">
+      <%= lucide_icon "lock", class: "btn-icon" %>
+      Import is available to content creators and above.
+    </p>
+  <% end %>
+</div>
+
 <div class="show-panel" data-testid="export-panel">
   <h2>Export</h2>
   <p>Download your data as a CSV file that opens directly in Excel. Each row represents one person and one event.</p>
