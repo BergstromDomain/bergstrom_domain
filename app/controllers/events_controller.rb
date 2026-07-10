@@ -17,7 +17,8 @@ class EventsController < ApplicationController
       Event.visible_to_admins
     else
       Event.visible_to_users(current_user)
-    end.includes(:people, :event_type, :image_attachment, :image_blob)
+    end.includes(:event_type, image_attachment: :blob,
+                 people: { image_attachment: :blob })
 
     base = base.where(month: @selected_month) if @selected_month&.between?(1, 12)
     base = base.where(event_type_id: @selected_type_id) if @selected_type_id.present?
@@ -46,22 +47,13 @@ class EventsController < ApplicationController
   end
 
   def by_month
-    year  = Integer(params[:year],  exception: false) || Date.current.year
-    month = Integer(params[:month], exception: false) || Date.current.month
+    @selected_month = Integer(params[:month], exception: false)
+    @selected_month = Date.current.month unless @selected_month&.between?(1, 12)
 
-    anchor = begin
-      Date.new(year, month, 1)
-    rescue Date::Error, ArgumentError
-      Date.current.beginning_of_month
-    end
-
-    @month_start    = anchor
-    @month_end      = anchor.end_of_month
-    @events = Event.where(month: anchor.month)
-               .includes(:people, :event_type, :image_attachment, :image_blob)
+    @events = Event.where(month: @selected_month)
+               .includes(:event_type, image_attachment: :blob,
+                         people: { image_attachment: :blob })
                .order(:year, :day, "LOWER(title)")
-    @previous_month = anchor - 1.month
-    @next_month     = anchor + 1.month
   end
 
   def show
@@ -123,17 +115,18 @@ class EventsController < ApplicationController
 
   def events_on_date(date)
     Event.where(month: date.month, day: date.day)
-      .includes(:people, :event_type, :image_attachment, :image_blob)
+      .includes(:event_type, image_attachment: :blob,
+                people: { image_attachment: :blob })
       .order("LOWER(title)")
   end
 
   def events_in_week(start_date, end_date)
-    Event.where(
-      "MAKE_DATE(year, month, day) BETWEEN ? AND ?",
-      start_date,
-      end_date
-    )
-    .includes(:people, :event_type, :image_attachment, :image_blob)
+    day_pairs    = (start_date..end_date).map { |d| [ d.month, d.day ] }
+    placeholders = day_pairs.map { "(?, ?)" }.join(", ")
+
+    Event.where("(month, day) IN (#{placeholders})", *day_pairs.flatten)
+    .includes(:event_type, image_attachment: :blob,
+              people: { image_attachment: :blob })
     .order(:year, :month, :day, "LOWER(title)")
   end
 
@@ -144,7 +137,9 @@ class EventsController < ApplicationController
   end
 
   def set_event
-    @event = Event.friendly.find(params[:id])
+    @event = Event.includes(:event_type, image_attachment: :blob,
+                             people: { image_attachment: :blob })
+                  .friendly.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     render file: "#{Rails.root}/public/404.html", status: :not_found
   end

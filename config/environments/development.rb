@@ -81,5 +81,14 @@ Rails.application.configure do
     Bullet.alert         = true
     Bullet.rails_logger  = true
     Bullet.add_footer    = true
+
+    # ActiveStorage::Attached::One#blob resolves the blob through the
+    # attachment proxy in a way Bullet's instrumentation doesn't reliably
+    # recognize as "using" the association — it flags :blob as unused
+    # eager loading even when a variant is genuinely rendered from it.
+    # Removing the include to satisfy this would reintroduce a real N+1
+    # the moment more than one attached image renders on a page, so the
+    # warning is safelisted here instead of acted on.
+    Bullet.add_safelist type: :unused_eager_loading, class_name: "ActiveStorage::Attachment", association: :blob
   end
 end

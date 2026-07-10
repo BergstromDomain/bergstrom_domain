@@ -37,7 +37,7 @@ RSpec.describe "Events By Week", type: :feature do
 
       it "Shows the current week heading" do
         expect(page).to have_selector("[data-testid='by-week-heading']",
-          text: "#{week_start.strftime("%-d %b")} – #{week_end.strftime("%-d %b %Y")}")
+          text: "#{week_start.strftime("%A %-d %B %Y")} - #{week_end.strftime("%A %-d %B %Y")}")
       end
 
       it "Shows events in the current week" do
@@ -121,7 +121,7 @@ RSpec.describe "Events By Week", type: :feature do
         visit events_by_week_path(date: "garbage")
 
         expect(page).to have_selector("[data-testid='by-week-heading']",
-          text: "#{week_start.strftime("%-d %b")} – #{week_end.strftime("%-d %b %Y")}")
+          text: "#{week_start.strftime("%A %-d %B %Y")} - #{week_end.strftime("%A %-d %B %Y")}")
       end
     end
 
@@ -159,6 +159,19 @@ RSpec.describe "Events By Week", type: :feature do
 
         expect(page).not_to have_link("Outside The Week Event")
         end
+    end
+
+    context "When an event in range has no year" do
+      let(:monday) { Date.current.beginning_of_week }
+
+      it "Shows the event, matching by month and day like the day and month views do" do
+        create(:event, :no_year, title: "Undated Recurring Event",
+          month: monday.month, day: monday.day)
+
+        visit events_by_week_path
+
+        expect(page).to have_link("Undated Recurring Event")
+      end
     end
   end
 end

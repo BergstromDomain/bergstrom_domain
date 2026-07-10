@@ -3,6 +3,10 @@ require "rails_helper"
 RSpec.describe "Events By Month", type: :feature do
   let(:today) { Date.current }
 
+  # A month at least 6 away from today's month in either direction, so it
+  # never collides with today/previous/next month's factory events below.
+  let(:safe_month) { ((today.month + 5) % 12) + 1 }
+
   let!(:this_month_event) do
     create(:event,
       title: "Orion Live Performance",
@@ -33,9 +37,11 @@ RSpec.describe "Events By Month", type: :feature do
     context "When 'Gary Guest' visits 'Events by month' with no params" do
       before { visit events_by_month_path }
 
-      it "Shows the current month heading" do
-        expect(page).to have_selector("[data-testid='by-month-heading']",
-          text: today.strftime("%B %Y"))
+      it "Highlights the current month in the tab bar" do
+        expect(page).to have_selector(
+          "[data-testid='month-nav-link'].month-nav__link--active",
+          text: today.strftime("%b")
+        )
       end
 
       it "Shows events in the current month" do
@@ -47,40 +53,48 @@ RSpec.describe "Events By Month", type: :feature do
         expect(page).not_to have_link("Enter Sandman Soundcheck")
       end
 
-      it "Shows previous and next month navigation links" do
-        expect(page).to have_selector("[data-testid='nav-previous-month']")
-        expect(page).to have_selector("[data-testid='nav-next-month']")
+      it "Shows the month tab navigation bar" do
+        expect(page).to have_selector("[data-testid='month-nav']")
+        expect(page).to have_selector("[data-testid='month-nav-all']")
+        expect(page).to have_selector("[data-testid='month-nav-link']", count: 12)
+      end
+
+      it "Does not show a previous/next month navigation row" do
+        expect(page).not_to have_selector("[data-testid='nav-previous-month']")
+        expect(page).not_to have_selector("[data-testid='nav-next-month']")
       end
     end
 
-    context "When 'Gary Guest' visits with year and month params" do
-      it "Shows events in the specified month" do
+    context "When 'Gary Guest' visits with a month param" do
+      it "Shows events in the specified month, regardless of the event's year" do
         last = today.beginning_of_month - 1.day
 
-        visit events_by_month_path(year: last.year, month: last.month)
+        visit events_by_month_path(month: last.month)
 
         expect(page).to have_link("The Unforgiven Recording")
         expect(page).not_to have_link("Orion Live Performance")
       end
-    end
 
-    context "When 'Gary Guest' clicks the previous month link" do
-      it "Navigates to the previous month" do
-        visit events_by_month_path
+      it "Highlights the requested month's tab" do
+        visit events_by_month_path(month: 6)
 
-        find("[data-testid='nav-previous-month']").click
-
-        expect(page).to have_link("The Unforgiven Recording")
+        expect(page).to have_selector(
+          "[data-testid='month-nav-link'].month-nav__link--active",
+          text: "Jun"
+        )
       end
     end
 
-    context "When 'Gary Guest' clicks the next month link" do
-      it "Navigates to the next month" do
+    context "When clicking a month tab" do
+      it "Navigates to that month" do
         visit events_by_month_path
 
-        find("[data-testid='nav-next-month']").click
+        click_link Date::ABBR_MONTHNAMES[safe_month]
 
-        expect(page).to have_link("Enter Sandman Soundcheck")
+        expect(page).to have_selector(
+          "[data-testid='month-nav-link'].month-nav__link--active",
+          text: Date::ABBR_MONTHNAMES[safe_month]
+        )
       end
     end
   end
@@ -88,7 +102,7 @@ RSpec.describe "Events By Month", type: :feature do
   describe "Negative Path" do
     context "When there are no events in the selected month" do
       it "Shows an empty state message" do
-        visit events_by_month_path(year: 2050, month: 1)
+        visit events_by_month_path(month: safe_month)
 
         expect(page).to have_selector("[data-testid='no-events-message']")
         expect(page).not_to have_selector("[data-testid='event-list']")
@@ -105,47 +119,40 @@ RSpec.describe "Events By Month", type: :feature do
       it "Shows the current month while authenticated" do
         visit events_by_month_path
 
-        expect(page).to have_selector("[data-testid='by-month-heading']")
         expect(page).to have_link("Orion Live Performance")
       end
     end
   end
 
   describe "Edge Cases" do
-    context "When invalid year and month params are passed" do
+    context "When an invalid month param is passed" do
       it "Falls back to the current month without raising an error" do
-        visit events_by_month_path(year: "abc", month: "xyz")
+        visit events_by_month_path(month: "xyz")
 
-        expect(page).to have_selector("[data-testid='by-month-heading']",
-          text: today.strftime("%B %Y"))
+        expect(page).to have_selector(
+          "[data-testid='month-nav-link'].month-nav__link--active",
+          text: today.strftime("%b")
+        )
       end
     end
 
     context "When month 13 is passed" do
       it "Falls back to the current month without raising an error" do
-        visit events_by_month_path(year: today.year, month: 13)
+        visit events_by_month_path(month: 13)
 
-        expect(page).to have_selector("[data-testid='by-month-heading']",
-          text: today.strftime("%B %Y"))
+        expect(page).to have_selector(
+          "[data-testid='month-nav-link'].month-nav__link--active",
+          text: today.strftime("%b")
+        )
       end
     end
 
-    context "When navigating from December to next month" do
-        it "Navigates to January" do
-            visit events_by_month_path(year: Date.current.year, month: 12)
-            find("[data-testid='nav-next-month']").click
-            expect(page).to have_selector("[data-testid='by-month-heading']",
-            text: "January #{Date.current.year + 1}")
-        end
-    end
+    context "When a year param is passed" do
+      it "Is ignored — the same month's events show regardless of year" do
+        visit events_by_month_path(month: today.month, year: 1999)
 
-    context "When navigating from January to previous month" do
-        it "Navigates to December" do
-            visit events_by_month_path(year: Date.current.year, month: 1)
-            find("[data-testid='nav-previous-month']").click
-            expect(page).to have_selector("[data-testid='by-month-heading']",
-            text: "December #{Date.current.year - 1}")
-        end
+        expect(page).to have_link("Orion Live Performance")
+      end
     end
   end
 end

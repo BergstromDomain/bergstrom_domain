@@ -1,27 +1,20 @@
-<%# app/views/events/by_month.html.erb %>
 <div class="page-header">
   <div class="page-header__top">
     <h1 class="page-title">Events</h1>
   </div>
 </div>
 
-<nav class="day-nav" data-testid="month-nav">
-  <%= link_to events_by_month_path(year: @previous_month.year, month: @previous_month.month),
-      class: "day-nav__link",
-      data: { testid: "nav-previous-month" } do %>
-    <%= lucide_icon("chevron-left", size: 16) %>
-    <%= @previous_month.strftime("%b %Y") %>
-  <% end %>
-
-  <span class="day-nav__heading" data-testid="by-month-heading">
-    <%= @month_start.strftime("%B %Y") %>
-  </span>
-
-  <%= link_to events_by_month_path(year: @next_month.year, month: @next_month.month),
-      class: "day-nav__link",
-      data: { testid: "nav-next-month" } do %>
-    <%= @next_month.strftime("%b %Y") %>
-    <%= lucide_icon("chevron-right", size: 16) %>
+<nav class="month-nav" data-testid="month-nav">
+  <%= link_to "All",
+        events_path,
+        class: "month-nav__link",
+        data: { testid: "month-nav-all" } %>
+  <% Date::ABBR_MONTHNAMES.compact.each_with_index do |abbr, i| %>
+    <% month_num = i + 1 %>
+    <%= link_to abbr,
+          events_by_month_path(month: month_num),
+          class: "month-nav__link #{'month-nav__link--active' if @selected_month == month_num}",
+          data: { testid: "month-nav-link" } %>
   <% end %>
 </nav>
 
@@ -79,7 +72,7 @@
             </td>
             <td data-testid="event-people">
               <div class="person-icon-group">
-                <% event.people.order(:last_name, :first_name).each do |person| %>
+                <% event.people.sort_by { |p| [ p.last_name.to_s.downcase, p.first_name.to_s.downcase ] }.each do |person| %>
                   <%= link_to person_path(person),
                         class: "person-icon-link",
                         title: person.full_name,

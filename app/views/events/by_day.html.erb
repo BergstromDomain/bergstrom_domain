@@ -1,4 +1,3 @@
-<%# app/views/events/by_day.html.erb %>
 <div class="page-header">
   <div class="page-header__top">
     <h1 class="page-title">Events</h1>
@@ -79,7 +78,7 @@
             </td>
             <td data-testid="event-people">
               <div class="person-icon-group">
-                <% event.people.order(:last_name, :first_name).each do |person| %>
+                <% event.people.sort_by { |p| [ p.last_name.to_s.downcase, p.first_name.to_s.downcase ] }.each do |person| %>
                   <%= link_to person_path(person),
                         class: "person-icon-link",
                         title: person.full_name,

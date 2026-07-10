@@ -70,6 +70,9 @@ input, button, textarea, select {
   --color-border:              #e2ddd6;   /* all content borders             */
   --color-border-focus:        #b07d56;   /* focus rings                     */
 
+  --color-secondary:           #d9d3c9;   /* gray — cancel / secondary btns  */
+  --color-secondary-hover:     #c8c1b4;   /* secondary hover                 */
+
   --color-text:                #2c2825;   /* alias used by typography block  */
   --color-text-primary:        #2c2825;   /* headings and body copy          */
   --color-text-secondary:      #6b6460;   /* labels, meta, placeholders      */
@@ -578,14 +581,14 @@ code, pre {
 }
 
 .btn-secondary {
-  background-color: var(--color-surface);
+  background-color: var(--color-secondary);
   color: var(--color-text-primary);
   border-color: var(--color-border);
   box-shadow: var(--shadow-xs);
 }
 
 .btn-secondary:hover {
-  background-color: var(--color-surface-raised);
+  background-color: var(--color-secondary-hover);
   color: var(--color-text-primary);
 }
 
