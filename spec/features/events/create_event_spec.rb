@@ -10,8 +10,8 @@ RSpec.describe "Create Event", type: :feature do
     sign_in_as(user) unless example.metadata[:js]
   end
 
-  context "with valid attributes" do
-    it "creates a new event and redirects to its page" do
+  context "With valid attributes" do
+    it "Creates a new event and redirects to its page" do
       visit new_event_path
 
       select "Music",          from: "Event Type"
@@ -30,8 +30,8 @@ RSpec.describe "Create Event", type: :feature do
     end
   end
 
-  context "without an event type" do
-    it "shows a validation error" do
+  context "Without an 'Event type'" do
+    it "Shows a validation error" do
       visit new_event_path
 
       select "James Hetfield", from: "People"
@@ -46,8 +46,8 @@ RSpec.describe "Create Event", type: :feature do
     end
   end
 
-  context "without people" do
-    it "shows a validation error" do
+  context "Without 'People'" do
+    it "Shows a validation error" do
       visit new_event_path
 
       select "Music", from: "Event Type"
@@ -61,8 +61,8 @@ RSpec.describe "Create Event", type: :feature do
     end
   end
 
-  context "without a year" do
-    it "is still valid" do
+  context "Without a 'Year'" do
+    it "Is still valid" do
       visit new_event_path
 
       select "Music",          from: "Event Type"
@@ -77,8 +77,8 @@ RSpec.describe "Create Event", type: :feature do
     end
   end
 
-  context "with a missing title" do
-    it "shows a validation error" do
+  context "With a missing 'Title'" do
+    it "Shows a validation error" do
       visit new_event_path
 
       select "Music",          from: "Event Type"
@@ -91,8 +91,8 @@ RSpec.describe "Create Event", type: :feature do
     end
   end
 
-  context "with a missing day" do
-    it "shows a validation error" do
+  context "With a missing 'Day'" do
+    it "Shows a validation error" do
       visit new_event_path
 
       select "Music",          from: "Event Type"
@@ -105,14 +105,14 @@ RSpec.describe "Create Event", type: :feature do
     end
   end
 
-  context "with a duplicate title" do
+  context "With a duplicate 'Title'" do
     before do
       e = create(:event, :unrestricted, title: "Kill 'Em All", day: 25, month: 7, year: 1983,
                 event_type: music, user: user)
       e.people << hetfield
     end
 
-    it "shows a uniqueness error" do
+    it "Shows a uniqueness error" do
       visit new_event_path
 
       select "Music",          from: "Event Type"
@@ -126,9 +126,9 @@ RSpec.describe "Create Event", type: :feature do
     end
   end
 
-  context "with an image", js: true do
+  context "With an 'Image'", js: true do
     # TODO: JS session isolation issue — revisit when front-end post addresses file upload interactions
-    xit "creates an event with an image and displays it on the show page" do
+    xit "Creates an event with an image and displays it on the show page" do
       visit new_event_path
 
       select "Music",          from: "Event Type"

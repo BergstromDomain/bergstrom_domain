@@ -28,7 +28,7 @@ RSpec.describe "Top navigation bar", type: :feature do
 
     it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
       click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: events_path)
+      expect(page).to have_link("Event Tracker", href: event_tracker_path)
     end
 
     it "Shows 'Blog Posts' link in the 'Apps' dropdown menu" do
@@ -77,7 +77,7 @@ RSpec.describe "Top navigation bar", type: :feature do
 
     it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
       click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: events_path)
+      expect(page).to have_link("Event Tracker", href: event_tracker_path)
     end
 
     it "Shows 'Blog Posts' link in the 'Apps' dropdown menu" do
@@ -126,7 +126,7 @@ RSpec.describe "Top navigation bar", type: :feature do
 
     it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
       click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: events_path)
+      expect(page).to have_link("Event Tracker", href: event_tracker_path)
     end
 
     it "Shows 'Blog Posts' link in the 'Apps' dropdown menu" do
@@ -175,7 +175,7 @@ RSpec.describe "Top navigation bar", type: :feature do
 
     it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
       click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: events_path)
+      expect(page).to have_link("Event Tracker", href: event_tracker_path)
     end
 
     it "Shows 'Blog Posts' link in the 'Apps' dropdown menu" do
@@ -224,7 +224,7 @@ RSpec.describe "Top navigation bar", type: :feature do
 
     it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
       click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: events_path)
+      expect(page).to have_link("Event Tracker", href: event_tracker_path)
     end
 
     it "Shows 'Blog Posts' link in the 'Apps' dropdown menu" do

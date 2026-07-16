@@ -1,7 +1,21 @@
-<div class="page-header">
-  <h1 class="page-title">Event Tracker</h1>
+<div class="page-header page-header--centered">
+  <div class="page-header__top">
+    <h1 class="page-title">Event Tracker</h1>
+  </div>
+  <p class="page-header__subtitle">
+    Track people, events, and the connections between them.
+  </p>
 </div>
 
-<div class="show-panel">
-  <p>The Event Tracker landing page. Under construction — coming soon.</p>
-</div>
+<%= render "shared/app_landing",
+      app_name: "Event Tracker",
+      hero_image: "event-tracker-hero.png",
+      about: [
+        "The Event Tracker app lets you track basic life events — " \
+        "birthdays, graduations, weddings — for family and friends.",
+        "Guest users can see publicly available data, like music " \
+        "album release dates. Signed-in users get more: concerts, " \
+        "sporting events, trips, and anything more personal.",
+        "Events can be viewed by day, week, or month, or all " \
+        "together for a specific person."
+      ] %>

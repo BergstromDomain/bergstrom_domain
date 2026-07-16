@@ -15,7 +15,7 @@ RSpec.describe "Delete Event", type: :feature do
     sign_in_as(user)
   end
 
-  it "deletes the event and redirects to the list" do
+  it "Deletes the event and redirects to the list" do
     visit event_path(event)
     click_button "Delete Event"
     expect(page).to have_current_path(events_path)
@@ -23,7 +23,7 @@ RSpec.describe "Delete Event", type: :feature do
     expect(page).not_to have_content("Load")
   end
 
-  it "reduces the event count by 1" do
+  it "Reduces the event count by 1" do
     expect {
       visit event_path(event)
       click_button "Delete Event"

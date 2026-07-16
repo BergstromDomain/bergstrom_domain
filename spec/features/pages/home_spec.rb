@@ -2,35 +2,33 @@
 require "rails_helper"
 
 RSpec.describe "Home page", type: :feature do
-  describe "Happy path" do
-    context "When 'Gary Guest' visits the 'Home' page" do
-      it "Renders the 'Under Construction' paragraph" do
-        visit root_path
-        expect(page).to have_content("Under construction")
-      end
+  describe "Happy Path" do
+    before { visit root_path }
 
-      it "Renders the 'Sign-Up' button" do
-        visit root_path
-        expect(page).to have_selector("[data-testid='home-sign-up']")
-      end
+    it "Renders the grid layout with the central portrait" do
+      expect(page).to have_selector("[data-testid='home-grid']")
+      expect(page).to have_selector("[data-testid='home-portrait']")
     end
 
-    context "When 'Uno User' is signed in and visits the 'Home' page" do
-      let(:uno) { create(:user) }
+    it "Shows the 'Hero' quadrant" do
+      expect(page).to have_selector("[data-testid='home-hero']")
+    end
 
-      before do
-        sign_in_as(uno)
-      end
+    it "shows the 'Friends & Family' quadrant" do
+      expect(page).to have_selector("[data-testid='home-audience-friends']")
+    end
+    
+    it "Shows the 'Sign Up' button linking to the 'Sign Up' page" do
+      expect(page).to have_link("Sign Up", href: sign_up_path)
+      expect(page).to have_selector("[data-testid='home-sign-up']")
+    end
 
-      it "Renders the 'Under Construction' paragraph" do
-        visit root_path
-        expect(page).to have_content("Under construction")
-      end
+    it "Shows the 'Recruiters' quadrant" do
+      expect(page).to have_selector("[data-testid='home-audience-recruiters']")
+    end
 
-      it "Renders the 'Sign-Up' button" do
-        visit root_path
-        expect(page).to have_selector("[data-testid='home-sign-up']")
-      end
+    it "Shows the 'Guests' quadrant" do
+      expect(page).to have_selector("[data-testid='home-audience-guests']")
     end
   end
 end
