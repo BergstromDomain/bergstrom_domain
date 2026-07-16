@@ -1789,3 +1789,51 @@ textarea.form-control {
     max-width: 16rem;
   }
 }
+
+/* ============================================================
+   A–Z navigation
+   ============================================================ */
+
+.az-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.az-nav__link {
+  padding: var(--space-2xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease,
+              color 0.15s ease,
+              border-color 0.15s ease;
+}
+
+.az-nav__link:hover {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.az-nav__link--active {
+  background-color: var(--color-accent-light);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.az-nav__link--disabled {
+  color: var(--color-text-muted);
+  border-color: transparent;
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.5;
+}
+

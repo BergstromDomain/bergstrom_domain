@@ -8,14 +8,21 @@ class PeopleController < ApplicationController
   before_action :set_policy,  only: %i[index new create edit update destroy]
 
   def index
-    @people = if !authenticated?
+    @selected_letter = params[:letter].presence&.upcase
+
+    visible = if !authenticated?
       Person.visible_to_visitors
     elsif current_user.can_administer?
       Person.visible_to_admins
     else
       Person.visible_to_users(current_user)
-    end.order("LOWER(last_name), LOWER(first_name)")
-       .includes(image_attachment: :blob)
+    end.includes(image_attachment: :blob)
+
+    @available_letters = Person.available_letters(visible)
+
+    scoped = @selected_letter.present? ? visible.by_letter(@selected_letter) : visible
+
+    @people = scoped.order("LOWER(last_name), LOWER(first_name)")
   end
 
   def show

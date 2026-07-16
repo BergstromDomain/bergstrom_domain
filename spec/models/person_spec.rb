@@ -5,7 +5,7 @@ RSpec.describe Person, type: :model do
   subject { build(:person) }
 
   # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  describe "Database columns" do
     it { is_expected.to have_db_column(:first_name).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:middle_name).of_type(:string) }
     it { is_expected.to have_db_column(:last_name).of_type(:string) }
@@ -16,7 +16,7 @@ RSpec.describe Person, type: :model do
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
+  describe "Associations" do
     it { is_expected.to belong_to(:user) }
     it { is_expected.to have_many(:event_people).dependent(:destroy) }
     it { is_expected.to have_many(:events).through(:event_people) }
@@ -24,43 +24,43 @@ RSpec.describe Person, type: :model do
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
-  describe "validations" do
+  describe "Validations" do
     # 1) Happy path ───────────────────────────────────────────────────────────
-    describe "happy path" do
-      context "name" do
-        it "is valid when full name is unique" do
+    describe "Happy path" do
+      context "Name" do
+        it "Is valid when full name is unique" do
           create(:person, :james_hetfield)
           lars = build(:person, :lars_ulrich)
           expect(lars).to be_valid
         end
       end
 
-      context "classification" do
-        it "is valid with classification set to contacts" do
+      context "Classification" do
+        it "Is valid with classification set to contacts" do
           expect(build(:person, classification: "contacts")).to be_valid
         end
 
-        it "is valid with classification set to unrestricted" do
+        it "Is valid with classification set to unrestricted" do
           expect(build(:person, classification: "unrestricted")).to be_valid
         end
 
-        it "is valid with classification set to restricted" do
+        it "Is valid with classification set to restricted" do
           expect(build(:person, classification: "restricted")).to be_valid
         end
 
-        it "defaults to contacts" do
+        it "Defaults to contacts" do
           expect(build(:person).classification).to eq("contacts")
         end
       end
 
-      context "user" do
-        it "is valid when a user is present" do
+      context "User" do
+        it "Is valid when a user is present" do
           expect(build(:person, user: create(:user))).to be_valid
         end
       end
 
-      context "image type" do
-        it "is valid with a JPEG image" do
+      context "Image type" do
+        it "Is valid with a JPEG image" do
           person = build(:person)
           person.image.attach(
             io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
@@ -70,7 +70,7 @@ RSpec.describe Person, type: :model do
           expect(person).to be_valid
         end
 
-        it "is valid with a PNG image" do
+        it "Is valid with a PNG image" do
           person = build(:person)
           person.image.attach(
             io:           File.open(Rails.root.join("spec/fixtures/files/test_image.png")),
@@ -80,7 +80,7 @@ RSpec.describe Person, type: :model do
           expect(person).to be_valid
         end
 
-        it "is valid with a WebP image" do
+        it "Is valid with a WebP image" do
           person = build(:person)
           person.image.attach(
             io:           File.open(Rails.root.join("spec/fixtures/files/test_image.webp")),
@@ -93,31 +93,31 @@ RSpec.describe Person, type: :model do
     end
 
     # 2) Negative path ────────────────────────────────────────────────────────
-    describe "negative path" do
+    describe "Negative path" do
       it { is_expected.to validate_presence_of(:first_name) }
 
-      context "name" do
-        it "is not valid when first name is missing" do
+      context "Name" do
+        it "Is not valid when first name is missing" do
           person = build(:person, first_name: "")
           expect(person).not_to be_valid
           expect(person.errors[:first_name]).to include("can't be blank")
         end
 
-        it "is not valid when full name already exists" do
+        it "Is not valid when full name already exists" do
           create(:person, :kirk_hammett)
           duplicate = build(:person, :kirk_hammett)
           expect(duplicate).not_to be_valid
           expect(duplicate.errors[:base]).to include("Full name has already been taken")
         end
 
-        it "treats nil middle name the same as blank" do
+        it "Treats nil middle name the same as blank" do
           create(:person, :lars_ulrich)
           duplicate = build(:person, first_name: "Lars", middle_name: "", last_name: "Ulrich")
           expect(duplicate).not_to be_valid
           expect(duplicate.errors[:base]).to include("Full name has already been taken")
         end
 
-        it "treats nil last name the same as blank" do
+        it "Treats nil last name the same as blank" do
           create(:person, first_name: "Lars", middle_name: nil, last_name: nil)
           duplicate = build(:person, first_name: "Lars", middle_name: "", last_name: "")
           expect(duplicate).not_to be_valid
@@ -125,14 +125,14 @@ RSpec.describe Person, type: :model do
         end
       end
 
-      context "classification" do
-        it "is not valid without a classification" do
+      context "Classification" do
+        it "Is not valid without a classification" do
           subject.classification = nil
           expect(subject).not_to be_valid
           expect(subject.errors[:classification]).to be_present
         end
 
-        it "is not valid when classification is set to an unrecognised value" do
+        it "Is not valid when classification is set to an unrecognised value" do
           person = build(:person)
           person.classification = "top_secret"
           expect(person).not_to be_valid
@@ -140,16 +140,16 @@ RSpec.describe Person, type: :model do
         end
       end
 
-      context "user" do
-        it "is not valid without a user" do
+      context "User" do
+        it "Is not valid without a user" do
           subject.user = nil
           expect(subject).not_to be_valid
           expect(subject.errors[:user]).to be_present
         end
       end
 
-      context "image type" do
-        it "is not valid with a text file as image" do
+      context "Image type" do
+        it "Is not valid with a text file as image" do
           person = build(:person)
           person.image.attach(
             io:           StringIO.new("not an image"),
@@ -160,7 +160,7 @@ RSpec.describe Person, type: :model do
           expect(person.errors[:image]).to be_present
         end
 
-        it "is not valid with a GIF image" do
+        it "Is not valid with a GIF image" do
           person = build(:person)
           person.image.attach(
             io:           File.open(Rails.root.join("spec/fixtures/files/test_image.gif")),
@@ -171,7 +171,7 @@ RSpec.describe Person, type: :model do
           expect(person.errors[:image]).to be_present
         end
 
-        it "is not valid with an image exceeding 5MB" do
+        it "Is not valid with an image exceeding 5MB" do
           person = build(:person)
           person.image.attach(
             io:           StringIO.new("0" * (5.megabytes + 1)),
@@ -185,42 +185,42 @@ RSpec.describe Person, type: :model do
     end
 
     # 3) Alternative path ─────────────────────────────────────────────────────
-    describe "alternative path" do
-      context "name" do
-        it "is valid with only a first name" do
+    describe "Alternative path" do
+      context "Name" do
+        it "Is valid with only a first name" do
           person = build(:person, first_name: "Cliff", middle_name: nil, last_name: nil)
           expect(person).to be_valid
           expect(person.full_name).to eq("Cliff")
         end
 
-        it "is valid with first name and middle name only" do
+        it "Is valid with first name and middle name only" do
           person = build(:person, first_name: "Cliff", middle_name: "Lee", last_name: nil)
           expect(person).to be_valid
           expect(person.full_name).to eq("Cliff Lee")
         end
 
-        it "is valid with first name and last name only" do
+        it "Is valid with first name and last name only" do
           person = build(:person, first_name: "Cliff", middle_name: nil, last_name: "Burton")
           expect(person).to be_valid
           expect(person.full_name).to eq("Cliff Burton")
         end
 
-        it "is valid with first, middle, and last name" do
+        it "Is valid with first, middle, and last name" do
           person = build(:person, :james_hetfield)
           expect(person).to be_valid
           expect(person.full_name).to eq("James Alan Hetfield")
         end
       end
 
-      context "description" do
-        it "is valid when updating description without changing the name" do
+      context "Description" do
+        it "Is valid when updating description without changing the name" do
           person = create(:person, :james_hetfield)
           person.description = "Updated description"
           expect(person).to be_valid
         end
       end
 
-      context "classification" do
+      context "Classification" do
         it "retains the classification when other attributes are updated" do
           person = create(:person, :james_hetfield, classification: "restricted")
           person.update!(first_name: "Jim")
@@ -228,33 +228,50 @@ RSpec.describe Person, type: :model do
         end
       end
 
-      context "slug" do
-        it "slug is regenerated when full name changes" do
+      context "Slug" do
+        it "Slug is regenerated when full name changes" do
           person = create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield")
           person.update!(last_name: "Newsted")
           expect(person.slug).to eq("james-newsted")
         end
       end
+
+      describe "#bucket_letter" do
+        it "Buckets by the first letter of last_name when present" do
+          person = build(:person, first_name: "Lars", last_name: "Ulrich")
+          expect(person.bucket_letter).to eq("U")
+        end
+
+        it "Buckets by the first letter of first_name when last_name is blank" do
+          person = build(:person, :first_name_only, first_name: "Cliff")
+          expect(person.bucket_letter).to eq("C")
+        end
+
+        it "Is case-insensitive on the input, upcased on the output" do
+          person = build(:person, first_name: "lars", last_name: "ulrich")
+          expect(person.bucket_letter).to eq("U")
+        end
+      end
     end
 
     # 4) Edge cases ───────────────────────────────────────────────────────────
-    describe "edge cases" do
-      context "name" do
-        it "is not valid when full name collides despite different middle and last name positions" do
+    describe "Edge cases" do
+      context "Name" do
+        it "Is not valid when full name collides despite different middle and last name positions" do
           create(:person, first_name: "Alfa", middle_name: nil,       last_name: "Charlie")
           duplicate = build(:person,  first_name: "Alfa", middle_name: "Charlie", last_name: nil)
           expect(duplicate).not_to be_valid
           expect(duplicate.errors[:base]).to include("Full name has already been taken")
         end
 
-        it "is not valid when full name already exists in a different case" do
+        it "Is not valid when full name already exists in a different case" do
           create(:person, first_name: "James", middle_name: "Alan", last_name: "Hetfield")
           duplicate = build(:person, first_name: "james", middle_name: "alan", last_name: "hetfield")
           expect(duplicate).not_to be_valid
           expect(duplicate.errors[:base]).to include("Full name has already been taken")
         end
 
-        it "is not valid when first name differs only in case" do
+        it "Is not valid when first name differs only in case" do
           create(:person, first_name: "Lars", middle_name: nil, last_name: "Ulrich")
           duplicate = build(:person, first_name: "lars", middle_name: nil, last_name: "Ulrich")
           expect(duplicate).not_to be_valid
@@ -262,8 +279,8 @@ RSpec.describe Person, type: :model do
         end
       end
 
-      context "slug" do
-        it "old slug is resolvable after a name change" do
+      context "Slug" do
+        it "Old slug is resolvable after a name change" do
           person = create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield")
           person.update!(last_name: "Newsted")
           expect(Person.friendly.find("james-hetfield")).to eq(person)
@@ -274,43 +291,43 @@ RSpec.describe Person, type: :model do
 
   # ── Instance methods ──────────────────────────────────────────────────────
   describe "#full_name" do
-    it "returns first and last name when no middle name" do
+    it "Returns first and last name when no middle name" do
       expect(build(:person, :lars_ulrich).full_name).to eq("Lars Ulrich")
     end
 
-    it "returns first, middle, and last name when all present" do
+    it "Returns first, middle, and last name when all present" do
       expect(build(:person, :james_hetfield).full_name).to eq("James Alan Hetfield")
     end
 
-    it "returns first, middle, and last name for all band members" do
+    it "Returns first, middle, and last name for all band members" do
       expect(build(:person, :james_hetfield).full_name).to eq("James Alan Hetfield")
       expect(build(:person, :lars_ulrich).full_name).to eq("Lars Ulrich")
       expect(build(:person, :kirk_hammett).full_name).to eq("Kirk Lee Hammett")
       expect(build(:person, :robert_trujillo).full_name).to eq("Robert Agustin Trujillo")
     end
 
-    it "returns only first name when middle and last are blank" do
+    it "Returns only first name when middle and last are blank" do
       expect(build(:person, first_name: "James", middle_name: nil, last_name: nil).full_name).to eq("James")
     end
 
-    it "strips extra whitespace when middle name is blank" do
+    it "Strips extra whitespace when middle name is blank" do
       expect(build(:person, first_name: "James", middle_name: "", last_name: "Hetfield").full_name).to eq("James Hetfield")
     end
   end
 
   describe "#slug" do
-    it "generates a slug from full_name" do
+    it "Generates a slug from full_name" do
       person = create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield")
       expect(person.slug).to eq("james-hetfield")
     end
 
-    it "regenerates the slug when the name changes" do
+    it "Regenerates the slug when the name changes" do
       person = create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield")
       person.update!(last_name: "Newsted")
       expect(person.slug).to eq("james-newsted")
     end
 
-    it "keeps the old slug resolvable after a name change" do
+    it "Keeps the old slug resolvable after a name change" do
       person = create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield")
       person.update!(last_name: "Newsted")
       expect(Person.friendly.find("james-hetfield")).to eq(person)
