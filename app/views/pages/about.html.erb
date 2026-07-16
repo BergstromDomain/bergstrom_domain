@@ -1,3 +1,55 @@
-<%# app/views/pages/about.html.erb %>
-<h1>About</h1>
-<p>Under construction — coming soon.</p>
+<div class="page-header page-header--centered">
+  <h1 class="page-title">About</h1>
+</div>
+
+<div class="page-container--narrow">
+  <div class="split-layout" data-testid="about-layout">
+    <div class="split-layout__media">
+      <%= image_tag "about.jpg",
+            class: "split-layout__media-image",
+            alt: "Niklas Bergstrom",
+            data: { testid: "about-photo" } %>
+    </div>
+
+    <div class="split-layout__cards">
+      <div class="show-panel about-card" data-testid="about-bio-1">
+        <p class="about-card__eyebrow">
+          <%= lucide_icon "briefcase", size: 14 %>
+          Professional
+        </p>
+        <p>
+          I'm a Test Manager and IT Consultant based in Brisbane,
+          Australia, with over 25 years of experience across
+          government, financial services, utilities, healthcare, and
+          telecommunications.
+        </p>
+      </div>
+
+      <div class="show-panel about-card" data-testid="about-bio-2">
+        <p class="about-card__eyebrow">
+          <%= lucide_icon "mountain", size: 14 %>
+          Outdoors
+        </p>
+        <p>
+          Love the outdoors and spend a lot of time rock climbing,
+          canyoning, and biking. Our camper van is frequently used and
+          I'm always looking for the next adventure.
+        </p>
+      </div>
+
+      <div class="show-panel about-card" data-testid="about-bio-3">
+        <p class="about-card__eyebrow">
+          <%= lucide_icon "code-2", size: 14 %>
+          Building in public
+        </p>
+        <p>
+          bergstromdomain.com is where I build things in public. It
+          started as a way to get properly hands-on with Rails again,
+          and it's become a place to work through Claude and Claude
+          Code as part of the day-to-day toolkit too — the blog series
+          documents the actual process, bugs included.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

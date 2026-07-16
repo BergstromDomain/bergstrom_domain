@@ -1,26 +1,28 @@
-# spec/features/pages/home_spec.rb
+# spec/features/pages/about_spec.rb
 require "rails_helper"
 
 RSpec.describe "About page", type: :feature do
-  describe "Happy path" do
-    context "When 'Gary Guest' visits the 'About' page" do
-      it "Renders the 'Under Construction' paragraph" do
-        visit about_path
-        expect(page).to have_content("Under construction")
-      end
+  describe "Happy Path" do
+    before { visit about_path }
+
+    it "Renders the heading" do
+      expect(page).to have_selector("h1", text: "About")
     end
 
-    context "When 'Uno User' is signed in and visits the 'About' page" do
-      let(:uno) { create(:user) }
+    it "Shows the photo" do
+      expect(page).to have_selector("[data-testid='about-photo']")
+    end
 
-      before do
-        sign_in_as(uno)
-      end
+    it "Shows the professional bio" do
+      expect(page).to have_selector("[data-testid='about-bio-1']", text: "Test Manager")
+    end
 
-      it "Renders the 'Under Construction' paragraph" do
-        visit about_path
-        expect(page).to have_content("Under construction")
-      end
+    it "Shows the outdoors bio" do
+      expect(page).to have_selector("[data-testid='about-bio-2']", text: "rock climbing")
+    end
+
+    it "Shows the building-in-public bio" do
+      expect(page).to have_selector("[data-testid='about-bio-3']", text: "bergstromdomain.com")
     end
   end
 end

@@ -1,26 +1,27 @@
-# spec/features/pages/home_spec.rb
+# spec/features/pages/contact_spec.rb
 require "rails_helper"
 
 RSpec.describe "Contact page", type: :feature do
-  describe "Happy path" do
-    context "When 'Gary Guest' visits the 'Contact' page" do
-      it "Renders the 'Under Construction' paragraph" do
-        visit contact_path
-        expect(page).to have_content("Under construction")
-      end
+  describe "Happy Path" do
+    before { visit contact_path }
+
+    it "Renders the 'Contact Me' heading" do
+      expect(page).to have_selector("h1", text: "Contact Me")
     end
 
-    context "When 'Uno User' is signed in and visits the 'Contact' page" do
-      let(:uno) { create(:user) }
+    it "Shows the Brisbane location" do
+      expect(page).to have_selector("[data-testid='contact-location']", text: "Brisbane, QLD, Australia")
+    end
 
-      before do
-        sign_in_as(uno)
-      end
+    it "Shows the bergstromdomain.com contact email, not a personal address" do
+      expect(page).to have_selector("[data-testid='contact-email']", text: "niklas@bergstromdomain.com")
+      expect(page).not_to have_text("gmail.com")
+    end
 
-      it "Renders the 'Under Construction' paragraph" do
-        visit contact_path
-        expect(page).to have_content("Under construction")
-      end
+    it "Links to LinkedIn" do
+      expect(page).to have_selector(
+        "[data-testid='contact-linkedin'] a[href='https://www.linkedin.com/in/niklasbergstrom/']"
+      )
     end
   end
 end

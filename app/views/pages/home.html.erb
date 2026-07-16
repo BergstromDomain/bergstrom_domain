@@ -1,10 +1,50 @@
-<%# app/views/pages/home.html.erb %>
-<h1>Welcome</h1>
-<p>bergstromdomain.com — Under construction.</p>
+<div class="home-grid" data-testid="home-grid">
+  <div class="home-grid__divider home-grid__divider--v" aria-hidden="true"></div>
+  <div class="home-grid__divider home-grid__divider--h" aria-hidden="true"></div>
 
-<%= link_to sign_up_path,
-      class: "btn btn-primary-action",
-      data: { testid: "home-sign-up" } do %>
-  <%= lucide_icon "user-plus", size: 16 %>
-  Sign Up
-<% end %>
+  <div class="home-grid__cell home-grid__cell--hero" data-testid="home-hero">
+    <h1 class="home-grid__title">Bergstrom Domain</h1>
+    <p class="home-grid__tagline">
+      A personal site — and a real Rails application, built in
+      public, one commit at a time.
+    </p>
+  </div>
+
+  <div class="home-grid__cell home-grid__cell--friends" data-testid="home-audience-friends">
+    <h2 class="home-grid__cell-title">For Friends &amp; Family</h2>
+    <p class="home-grid__cell-body">
+      Sign up to keep in touch and follow along as it's built.
+    </p>
+    <%= link_to sign_up_path,
+          class: "btn btn-primary-action",
+          data: { testid: "home-sign-up" } do %>
+      <%= lucide_icon "user-plus", size: 16 %>
+      Sign Up
+    <% end %>
+  </div>
+
+  <div class="home-grid__cell home-grid__cell--recruiters" data-testid="home-audience-recruiters">
+    <h2 class="home-grid__cell-title">For Recruiters</h2>
+    <p class="home-grid__cell-body">
+      A live Rails 8 application, not a portfolio mockup. Test
+      Manager / IT Consultant, Brisbane, Australia — 25+ years across
+      government, financial services, utilities, healthcare, and
+      telecommunications.
+    </p>
+    <p class="home-grid__cell-note">A dedicated Resume &amp; CV section is coming soon.</p>
+  </div>
+
+  <div class="home-grid__cell home-grid__cell--guests" data-testid="home-audience-guests">
+    <h2 class="home-grid__cell-title">New Here?</h2>
+    <p class="home-grid__cell-body">
+      A personal site and a Rails app, built and written about in
+      public. Poke around the Event Tracker, or check the blog for
+      the story of how each piece got built.
+    </p>
+  </div>
+
+  <%= image_tag "home-hero.png",
+        class: "home-grid__portrait",
+        alt: "Bergstrom Domain",
+        data: { testid: "home-portrait" } %>
+</div>

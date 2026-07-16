@@ -25,18 +25,18 @@ RSpec.describe "Edit Event", type: :feature do
   before { sign_in_as(user) }
 
   # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "happy path" do
-    it "displays the original title in the page heading" do
+  describe "Happy path" do
+    it "Displays the original title in the page heading" do
       visit edit_event_path(event)
       expect(page).to have_selector("h1.page-title", text: "Kill 'Em All")
     end
 
-    it "pre-populates the title field" do
+    it "Pre-populates the title field" do
       visit edit_event_path(event)
       expect(page).to have_field("Title", with: "Kill 'Em All")
     end
 
-    it "updates the title and redirects to the show page" do
+    it "Updates the title and redirects to the show page" do
       visit edit_event_path(event)
       fill_in "Title", with: "Kill 'Em All (Remastered)"
       click_button "Update Event"
@@ -46,7 +46,7 @@ RSpec.describe "Edit Event", type: :feature do
       expect(page).to have_selector("h1.page-title", text: "Kill 'Em All (Remastered)")
     end
 
-    it "updates the event type" do
+    it "Updates the event type" do
       visit edit_event_path(event)
       select "Sport", from: "Event Type"
       click_button "Update Event"
@@ -54,15 +54,15 @@ RSpec.describe "Edit Event", type: :feature do
       expect(event.event_type).to eq(sport)
     end
 
-    it "displays current people" do
+    it "Displays current people" do
       visit edit_event_path(event)
       expect(page).to have_selector("[data-testid='event-people']", text: "James Hetfield")
     end
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "negative path" do
-    it "shows a validation error when title is cleared" do
+  describe "Negative path" do
+    it "Shows a validation error when title is cleared" do
       visit edit_event_path(event)
       fill_in "Title", with: ""
       click_button "Update Event"
@@ -70,13 +70,13 @@ RSpec.describe "Edit Event", type: :feature do
       expect(page).to have_content("can't be blank")
     end
 
-    it "redirects an unauthenticated visitor to sign in" do
+    it "Redirects an unauthenticated visitor to sign in" do
       click_button "Sign Out"
       visit edit_event_path(event)
       expect(page).to have_current_path(new_session_path)
     end
 
-    it "redirects a non-owner to the event show page" do
+    it "Redirects a non-owner to the event show page" do
       click_button "Sign Out"
       sign_in_as create(:user, :content_creator)
       visit edit_event_path(event)
@@ -85,8 +85,8 @@ RSpec.describe "Edit Event", type: :feature do
   end
 
   # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "alternative path" do
-    it "preserves existing people when updating other fields" do
+  describe "Alternative path" do
+    it "Preserves existing people when updating other fields" do
       visit edit_event_path(event)
       fill_in "Title", with: "Kill 'Em All (Remastered)"
       click_button "Update Event"
@@ -94,7 +94,7 @@ RSpec.describe "Edit Event", type: :feature do
       expect(event.people).to include(hetfield)
     end
 
-    it "allows updating the visibility" do
+    it "Allows updating the visibility" do
       visit edit_event_path(event)
       select "Restricted — visible only to me", from: "Classification"
       click_button "Update Event"
@@ -102,7 +102,7 @@ RSpec.describe "Edit Event", type: :feature do
       expect(event.classification).to eq("restricted")
     end
 
-    it "allows an admin to edit any event" do
+    it "Allows an admin to edit any event" do
       click_button "Sign Out"
       sign_in_as create(:user, :admin)
       visit edit_event_path(event)
@@ -113,8 +113,8 @@ RSpec.describe "Edit Event", type: :feature do
   end
 
   # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "edge cases" do
-    it "preserves the slug history when title changes" do
+  describe "Edge cases" do
+    it "Preserves the slug history when title changes" do
       old_slug = event.slug
       visit edit_event_path(event)
       fill_in "Title", with: "Kill 'Em All (Remastered)"
@@ -123,7 +123,7 @@ RSpec.describe "Edit Event", type: :feature do
       expect(page).to have_selector("h1.page-title", text: "Kill 'Em All (Remastered)")
     end
 
-    xit "attaches the image and shows it on the show page", js: true do
+    xit "Attaches the image and shows it on the show page", js: true do
       visit edit_event_path(event)
       attach_file "Event image", Rails.root.join("spec/fixtures/files/test_image.jpg"),
                   make_visible: true

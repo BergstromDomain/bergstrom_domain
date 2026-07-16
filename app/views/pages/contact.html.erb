@@ -1,3 +1,33 @@
-<%# app/views/pages/contact.html.erb %>
-<h1>Contact</h1>
-<p>Under construction — coming soon.</p>
+<div class="page-header page-header--centered">
+  <h1 class="page-title">Contact Me</h1>
+</div>
+
+<div class="page-container--narrow">
+  <div class="show-panel" data-testid="contact-panel">
+    <p class="show-panel__heading">Get in touch</p>
+
+    <p data-testid="contact-intro">
+      Whether it's about the site, the blog series, or something else
+      entirely — get in touch.
+    </p>
+
+    <ul class="contact-list" data-testid="contact-list">
+      <li class="contact-list__item" data-testid="contact-location">
+        <%= lucide_icon "house", size: 16 %>
+        <span>Brisbane, QLD, Australia</span>
+      </li>
+
+      <li class="contact-list__item" data-testid="contact-email">
+        <%= lucide_icon "mail", size: 16 %>
+        <%= mail_to "niklas@bergstromdomain.com" %>
+      </li>
+
+      <li class="contact-list__item" data-testid="contact-linkedin">
+        <%= image_tag "icons/linkedin-brand.svg", class: "contact-list__brand-icon", alt: "" %>
+        <%= link_to "linkedin.com/in/niklasbergstrom",
+              "https://www.linkedin.com/in/niklasbergstrom/",
+              target: "_blank", rel: "noopener" %>
+      </li>
+    </ul>
+  </div>
+</div>
