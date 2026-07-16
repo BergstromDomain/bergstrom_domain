@@ -26,17 +26,6 @@ RSpec.describe "List People", type: :feature do
         click_link "James Alan Hetfield"
         expect(page).to have_current_path(person_path(james))
       end
-
-      it "shows an Add Person link for content creators" do
-        sign_in_as(create(:user, :content_creator))
-        visit people_path
-        expect(page).to have_selector("[data-testid='add-person-link']")
-      end
-
-      it "does not show an Add Person link for visitors" do
-        visit people_path
-        expect(page).not_to have_selector("[data-testid='add-person-link']")
-      end
     end
 
     context "when a person has an image" do

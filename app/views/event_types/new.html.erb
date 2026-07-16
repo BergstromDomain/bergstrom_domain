@@ -1,12 +1,12 @@
 <%# app/views/event_types/new.html.erb %>
 
 <div class="page-header">
-  <div class="page-header__top">
+  <div class="page-header__top page-header__top--centered">
     <h1 class="page-title">New Event Type</h1>
   </div>
 </div>
 
-<%= form_with model: @event_type, class: "event-type-new-form" do |f| %>
+<%= form_with model: @event_type, class: "resource-form" do |f| %>
   <% if @event_type.errors.any? %>
     <div class="form-errors" data-testid="form-errors">
       <p><%= pluralize(@event_type.errors.count, "error") %> prevented this event type from being saved:</p>

@@ -1,5 +1,5 @@
 <div class="page-header">
-  <div class="page-header__top">
+  <div class="page-header__top page-header__top--centered">
     <h1 class="page-title">People</h1>
   </div>
 </div>
@@ -76,10 +76,3 @@
   </div>
 <% end %>
 
-<% if authenticated? && @policy&.can_create? %>
-  <div class="page-actions" data-testid="page-actions">
-    <%= link_to new_person_path, class: "btn btn-primary", data: { testid: "add-person-link" } do %>
-      <%= lucide_icon("user-plus", size: 16) %> Add Person
-    <% end %>
-  </div>
-<% end %>
