@@ -1,10 +1,10 @@
 <div class="page-header">
-  <div class="page-header__top">
+  <div class="page-header__top page-header__top--centered">
     <h1 class="page-title"><%= @event.title %></h1>
   </div>
 </div>
 
-<%= form_with model: @event, class: "event-edit-form" do |f| %>
+<%= form_with model: @event, class: "resource-form" do |f| %>
   <% if @event.errors.any? %>
     <div class="form-errors" data-testid="form-errors">
       <p><%= pluralize(@event.errors.count, "error") %> prevented this event from being saved:</p>

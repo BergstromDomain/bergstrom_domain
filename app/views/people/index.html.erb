@@ -1,9 +1,26 @@
-<%# app/views/people/index.html.erb %>
 <div class="page-header">
-  <div class="page-header__top">
+  <div class="page-header__top page-header__top--centered">
     <h1 class="page-title">People</h1>
   </div>
 </div>
+
+<nav class="az-nav" data-testid="az-nav">
+  <%= link_to "All",
+        people_path,
+        class: "az-nav__link #{'az-nav__link--active' if @selected_letter.nil?}",
+        data: { testid: "az-nav-all" } %>
+  <% ("A".."Z").each do |letter| %>
+    <% if @available_letters.include?(letter) %>
+      <%= link_to letter,
+            people_path(letter: letter),
+            class: "az-nav__link #{'az-nav__link--active' if @selected_letter == letter}",
+            data: { testid: "az-nav-link" } %>
+    <% else %>
+      <span class="az-nav__link az-nav__link--disabled"
+            data-testid="az-nav-link-disabled"><%= letter %></span>
+    <% end %>
+  <% end %>
+</nav>
 
 <% if @people.any? %>
   <div class="data-table-wrapper">
@@ -53,17 +70,9 @@
       </tbody>
     </table>
   </div>
-  <div data-testid="pagination-placeholder"></div>
 <% else %>
   <div class="empty-state" data-testid="empty-state">
     <p>No people found.</p>
   </div>
 <% end %>
 
-<% if authenticated? && @policy&.can_create? %>
-  <div class="page-actions" data-testid="page-actions">
-    <%= link_to new_person_path, class: "btn btn-primary", data: { testid: "add-person-link" } do %>
-      <%= lucide_icon("user-plus", size: 16) %> Add Person
-    <% end %>
-  </div>
-<% end %>
