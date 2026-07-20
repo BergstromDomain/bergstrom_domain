@@ -252,6 +252,13 @@ RSpec.describe Person, type: :model do
           expect(person.bucket_letter).to eq("U")
         end
       end
+
+      describe "Swedish case-folding at the database level" do
+        it "Confirms Postgres UPPER() itself round-trips å/ä/ö, not just Ruby's upcase" do
+          result = ActiveRecord::Base.connection.select_value("SELECT UPPER('åäö')")
+          expect(result).to eq("ÅÄÖ")
+        end
+      end
     end
 
     # 4) Edge cases ───────────────────────────────────────────────────────────

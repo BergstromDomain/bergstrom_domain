@@ -22,7 +22,7 @@ class PeopleController < ApplicationController
 
     scoped = @selected_letter.present? ? visible.by_letter(@selected_letter) : visible
 
-    @people = scoped.order("LOWER(last_name), LOWER(first_name)")
+    @people = scoped.order(:last_name, :first_name)
   end
 
   def show

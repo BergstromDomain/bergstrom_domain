@@ -62,5 +62,26 @@ FactoryBot.define do
       last_name   { "Trujillo" }
       description { "Bassist of Metallica." }
     end
+
+    trait :peter_agren do
+      first_name  { "Peter" }
+      middle_name { nil }
+      last_name   { "Ågren" }
+      description { "Swedish test fixture — starts with Å." }
+    end
+
+    trait :astrid_arnstrom do
+      first_name  { "Astrid" }
+      middle_name { nil }
+      last_name   { "Ärnström" }
+      description { "Swedish test fixture — starts with Ä." }
+    end
+
+    trait :orjan_oberg do
+      first_name  { "Örjan" }
+      middle_name { nil }
+      last_name   { "Öberg" }
+      description { "Swedish test fixture — starts with Ö." }
+    end
   end
 end
