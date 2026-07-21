@@ -39,6 +39,24 @@ class Event < ApplicationRecord
     title_changed? || super
   end
 
+  # ── Class methods ─────────────────────────────────────────────────────────
+  # Narrows a scope by the user's mute preferences across the three
+  # independent, opt-out mute mechanisms (Person, Event, EventType), combined
+  # with OR-hide logic: an event is excluded if it is itself muted, its
+  # EventType is muted, or every person attached to it is muted. An event
+  # with at least one unmuted person stays visible even if some of its
+  # people are muted.
+  def self.not_muted_for(user)
+    muted_event_ids      = EventMute.where(user: user).select(:event_id)
+    muted_event_type_ids = EventTypeMute.where(user: user).select(:event_type_id)
+    muted_person_ids     = PersonMute.where(user: user).select(:person_id)
+    events_with_unmuted_person = EventPerson.where.not(person_id: muted_person_ids).select(:event_id)
+
+    where.not(id: muted_event_ids)
+         .where.not(event_type_id: muted_event_type_ids)
+         .where(id: events_with_unmuted_person)
+  end
+
   private
 
   def normalize_title
