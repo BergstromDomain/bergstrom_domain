@@ -9,7 +9,7 @@
         people_path,
         class: "az-nav__link #{'az-nav__link--active' if @selected_letter.nil?}",
         data: { testid: "az-nav-all" } %>
-  <% ("A".."Z").each do |letter| %>
+  <% Person::BUCKET_LETTERS.each do |letter| %>
     <% if @available_letters.include?(letter) %>
       <%= link_to letter,
             people_path(letter: letter),

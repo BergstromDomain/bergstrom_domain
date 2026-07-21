@@ -10,6 +10,10 @@ class Person < ApplicationRecord
   # `available_letters` lookup so the two can never disagree.
   BUCKET_LETTER_SQL = "UPPER(LEFT(COALESCE(NULLIF(last_name, ''), first_name), 1))".freeze
 
+  # Explicit array, not a Range — "Z".succ is "AA", not "Å", so a Range
+  # can't be extended to include the three extra Swedish letters.
+  BUCKET_LETTERS = ("A".."Z").to_a + %w[Å Ä Ö]
+
   # ── Associations ──────────────────────────────────────────────────────────
   has_many :event_people, dependent: :destroy
   has_many :events, through: :event_people
