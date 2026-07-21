@@ -18,6 +18,34 @@
   <% end %>
 </nav>
 
+<% if authenticated? %>
+  <%# ── Classification filter — single-select, deliberately not multi-select ── %>
+  <nav class="classification-nav" data-testid="classification-nav">
+    <%= link_to "All",
+          events_path(month: @selected_month, event_type_id: @selected_type_id, show_all: @show_all),
+          class: "classification-nav__link #{'classification-nav__link--active' if @selected_classification.nil?}",
+          data: { testid: "classification-nav-all" } %>
+    <% Event.classifications.keys.each do |classification| %>
+      <%= link_to classification.humanize,
+            events_path(month: @selected_month, event_type_id: @selected_type_id, show_all: @show_all, classification: classification),
+            class: "classification-nav__link #{'classification-nav__link--active' if @selected_classification == classification}",
+            data: { testid: "classification-nav-link" } %>
+    <% end %>
+  </nav>
+
+  <%# ── Mute filter — one global toggle bypassing all three mute types ──────── %>
+  <nav class="mute-filter-nav" data-testid="mute-filter-nav">
+    <%= link_to "Hide muted",
+          events_path(month: @selected_month, event_type_id: @selected_type_id, classification: @selected_classification),
+          class: "mute-filter-nav__link #{'mute-filter-nav__link--active' unless @show_all}",
+          data: { testid: "mute-filter-hide" } %>
+    <%= link_to "Show all",
+          events_path(month: @selected_month, event_type_id: @selected_type_id, classification: @selected_classification, show_all: true),
+          class: "mute-filter-nav__link #{'mute-filter-nav__link--active' if @show_all}",
+          data: { testid: "mute-filter-all" } %>
+  </nav>
+<% end %>
+
 <% if @events.any? %>
   <div class="data-table-wrapper">
     <table class="data-table" data-testid="events-table">
@@ -27,6 +55,7 @@
         <col style="width: 120px;">
         <col style="width: 56px;">
         <col style="width: 120px;">
+        <% if authenticated? %><col style="width: 48px;"><% end %>
       </colgroup>
       <thead>
         <tr>
@@ -35,6 +64,7 @@
           <th>Date</th>
           <th>Type</th>
           <th>People</th>
+          <% if authenticated? %><th></th><% end %>
         </tr>
       </thead>
       <tbody>
@@ -90,6 +120,27 @@
                 <% end %>
               </div>
             </td>
+            <% if authenticated? %>
+              <td class="data-table__icon-cell" data-testid="event-mute-cell">
+                <% if @muted_event_ids.include?(event.id) %>
+                  <%= button_to unmute_event_path(event),
+                        method: :delete,
+                        class: "icon-button",
+                        title: "Unmute #{event.title}",
+                        data: { testid: "unmute-event-#{event.id}", turbo: false } do %>
+                    <%= lucide_icon("bell-off", size: 18) %>
+                  <% end %>
+                <% else %>
+                  <%= button_to mute_event_path(event),
+                        method: :post,
+                        class: "icon-button",
+                        title: "Mute #{event.title}",
+                        data: { testid: "mute-event-#{event.id}", turbo: false } do %>
+                    <%= lucide_icon("bell", size: 18) %>
+                  <% end %>
+                <% end %>
+              </td>
+            <% end %>
           </tr>
         <% end %>
       </tbody>

@@ -692,6 +692,27 @@ code, pre {
   color: var(--color-accent);
 }
 
+/* button_to renders a block-level <form> by default — keep it inline so
+   text-align: center on the icon cell still centers its contents. */
+.data-table__icon-cell form {
+  display: inline;
+}
+
+/* Bare icon button — e.g. mute/unmute toggles inside a data-table row */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+}
+
+.icon-button:hover {
+  color: var(--color-text-primary);
+}
+
 /* Name cell — the clickable link */
 .data-table__name-link {
   font-weight: var(--font-weight-medium);
@@ -936,6 +957,86 @@ textarea.form-control {
 }
 
 .month-nav__link--active {
+  background-color: var(--color-accent-light);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ============================================================
+   Classification navigation
+   ============================================================ */
+
+.classification-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.classification-nav__link {
+  padding: var(--space-2xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease,
+              color 0.15s ease,
+              border-color 0.15s ease;
+}
+
+.classification-nav__link:hover {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.classification-nav__link--active {
+  background-color: var(--color-accent-light);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ============================================================
+   Mute filter navigation
+   ============================================================ */
+
+.mute-filter-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mute-filter-nav__link {
+  padding: var(--space-2xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease,
+              color 0.15s ease,
+              border-color 0.15s ease;
+}
+
+.mute-filter-nav__link:hover {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.mute-filter-nav__link--active {
   background-color: var(--color-accent-light);
   color: var(--color-accent);
   border-color: var(--color-accent);

@@ -9,6 +9,7 @@ class EventTypesController < ApplicationController
 
   def index
     @event_types = EventType.order("LOWER(name) ASC")
+    @muted_event_type_ids = authenticated? ? current_user.event_type_mutes.pluck(:event_type_id).to_set : Set.new
   end
 
   def show
