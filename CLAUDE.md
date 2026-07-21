@@ -89,6 +89,13 @@ Ruby sorting.
 like `:unrestricted, :contacts`); import always creates records as `restricted` and matches
 existing people/events/event-types by case-insensitive name to avoid duplicates.
 
+**View conventions**: Ruby files use a `# path/to/file.rb` comment on their first line
+(matches this repo's existing style throughout `app/models/`, `app/controllers/`, etc.) —
+keep doing that. `.html.erb` files should **not** get the equivalent `<%# path/to/file.html.erb %>`
+comment on their first line — it breaks ERB syntax highlighting in VS Code. Existing view
+files that already have this comment don't need to be retrofitted, but don't add it to new
+ones.
+
 **Testing**: RSpec + FactoryBot + Capybara (system specs use real Chrome, see CI's
 `google-chrome-stable` install) + shoulda-matchers + database_cleaner (transactional by
 default, truncation for `js: true` specs). SimpleCov enforces 90% minimum coverage when
