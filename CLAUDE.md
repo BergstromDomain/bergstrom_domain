@@ -146,3 +146,12 @@ model it as a tab, but actual history uses a single space (e.g. `Main: fix: pre-
 longer fails on an empty commit range`) — match that, not the template. Run `git config
 commit.template .gitmessage` / ensure `core.hooksPath` points at `.githooks` if commits are
 being rejected unexpectedly.
+
+**Merging a branch back to `main`**: this repo has no auto-merge — pushing a branch only
+creates it on the remote. `main` only advances once a PR for that branch is opened and
+merged **in the GitHub UI** (by the repo owner); there is no CLI/API step that accomplishes
+this from within a session. After push, wait for that merge to happen before running `git
+checkout main && git pull` — pulling beforehand just leaves local `main` unchanged and stale.
+This matters most when starting a new branch that needs to build on work just pushed: branch
+from `main` only after confirming (via `git pull`, or `git log --oneline -3 main` showing the
+expected merge commit) that the merge has actually landed, rather than assuming it has.
