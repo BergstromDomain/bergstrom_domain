@@ -4,7 +4,7 @@ class EventsController < ApplicationController
 
   allow_unauthenticated_access only: %i[index show by_day by_week by_month]
   before_action :resume_session_if_available, only: %i[index show by_day by_week by_month]
-  before_action :set_event,    only: %i[show edit update destroy]
+  before_action :set_event,    only: %i[show edit update destroy mute unmute]
   before_action :set_policy,   only: %i[new create edit update destroy]
 
   def index
@@ -109,6 +109,16 @@ class EventsController < ApplicationController
 
     @event.destroy
     redirect_to events_path, notice: "Event was successfully deleted."
+  end
+
+  def mute
+    current_user.event_mutes.find_or_create_by!(event: @event)
+    redirect_to events_path, notice: "#{@event.title} muted."
+  end
+
+  def unmute
+    current_user.event_mutes.find_by(event: @event)&.destroy
+    redirect_to events_path, notice: "#{@event.title} unmuted."
   end
 
   private

@@ -2,15 +2,30 @@
 Rails.application.routes.draw do
   resource  :session
   resources :passwords, param: :token
-  resources :people
-  resources :event_types
+  resources :people do
+    member do
+      post   :mute
+      delete :unmute
+    end
+  end
+  resources :event_types do
+    member do
+      post   :mute
+      delete :unmute
+    end
+  end
 
   # Calendar views — declared before resources :events
   get "events/by_day",   to: "events#by_day",   as: :events_by_day
   get "events/by_week",  to: "events#by_week",  as: :events_by_week
   get "events/by_month", to: "events#by_month", as: :events_by_month
 
-  resources :events
+  resources :events do
+    member do
+      post   :mute
+      delete :unmute
+    end
+  end
 
   # Sign up
   get  "sign_up", to: "registrations#new",    as: :sign_up

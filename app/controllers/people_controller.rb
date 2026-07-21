@@ -4,7 +4,7 @@ class PeopleController < ApplicationController
 
   allow_unauthenticated_access only: %i[index show]
   before_action :resume_session_if_available, only: %i[index show]
-  before_action :set_person,  only: %i[show edit update destroy]
+  before_action :set_person,  only: %i[show edit update destroy mute unmute]
   before_action :set_policy,  only: %i[index new create edit update destroy]
 
   def index
@@ -78,6 +78,16 @@ class PeopleController < ApplicationController
 
     @person.destroy
     redirect_to people_path, notice: "Person was successfully deleted."
+  end
+
+  def mute
+    current_user.person_mutes.find_or_create_by!(person: @person)
+    redirect_to people_path, notice: "#{@person.full_name} muted."
+  end
+
+  def unmute
+    current_user.person_mutes.find_by(person: @person)&.destroy
+    redirect_to people_path, notice: "#{@person.full_name} unmuted."
   end
 
   private
