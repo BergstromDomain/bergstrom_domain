@@ -89,6 +89,13 @@ Ruby sorting.
 like `:unrestricted, :contacts`); import always creates records as `restricted` and matches
 existing people/events/event-types by case-insensitive name to avoid duplicates.
 
+**View conventions**: Ruby files use a `# path/to/file.rb` comment on their first line
+(matches this repo's existing style throughout `app/models/`, `app/controllers/`, etc.) —
+keep doing that. `.html.erb` files should **not** get the equivalent `<%# path/to/file.html.erb %>`
+comment on their first line — it breaks ERB syntax highlighting in VS Code. Existing view
+files that already have this comment don't need to be retrofitted, but don't add it to new
+ones.
+
 **Testing**: RSpec + FactoryBot + Capybara (system specs use real Chrome, see CI's
 `google-chrome-stable` install) + shoulda-matchers + database_cleaner (transactional by
 default, truncation for `js: true` specs). SimpleCov enforces 90% minimum coverage when
@@ -146,3 +153,12 @@ model it as a tab, but actual history uses a single space (e.g. `Main: fix: pre-
 longer fails on an empty commit range`) — match that, not the template. Run `git config
 commit.template .gitmessage` / ensure `core.hooksPath` points at `.githooks` if commits are
 being rejected unexpectedly.
+
+**Merging a branch back to `main`**: this repo has no auto-merge — pushing a branch only
+creates it on the remote. `main` only advances once a PR for that branch is opened and
+merged **in the GitHub UI** (by the repo owner); there is no CLI/API step that accomplishes
+this from within a session. After push, wait for that merge to happen before running `git
+checkout main && git pull` — pulling beforehand just leaves local `main` unchanged and stale.
+This matters most when starting a new branch that needs to build on work just pushed: branch
+from `main` only after confirming (via `git pull`, or `git log --oneline -3 main` showing the
+expected merge commit) that the merge has actually landed, rather than assuming it has.
