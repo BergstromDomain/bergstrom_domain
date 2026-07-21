@@ -17,6 +17,7 @@ class Person < ApplicationRecord
   # ── Associations ──────────────────────────────────────────────────────────
   has_many :event_people, dependent: :destroy
   has_many :events, through: :event_people
+  has_many :person_mutes, dependent: :destroy
 
   has_one_attached :image do |attachable|
     attachable.variant :thumbnail, resize_to_fill: [ 200, 200 ]

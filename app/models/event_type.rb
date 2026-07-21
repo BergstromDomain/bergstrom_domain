@@ -6,6 +6,7 @@ class EventType < ApplicationRecord
   LUCIDE_VALID_ICONS = LucideRails::IconProvider.memory.keys.to_set.freeze
 
   has_many :events, dependent: :restrict_with_error
+  has_many :event_type_mutes, dependent: :destroy
 
   validates :name,        presence: true, uniqueness: { case_sensitive: false }
   validates :description, presence: true

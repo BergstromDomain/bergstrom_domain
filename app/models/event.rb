@@ -8,6 +8,7 @@ class Event < ApplicationRecord
   belongs_to :event_type
   has_many :event_people, dependent: :destroy
   has_many :people, through: :event_people
+  has_many :event_mutes, dependent: :destroy
 
   has_one_attached :image do |attachable|
     attachable.variant :thumbnail, resize_to_fill: [ 200, 200 ]

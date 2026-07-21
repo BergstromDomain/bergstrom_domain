@@ -200,6 +200,38 @@ ALTER SEQUENCE public.contacts_id_seq OWNED BY public.contacts.id;
 
 
 --
+-- Name: event_mutes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.event_mutes (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    event_id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: event_mutes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.event_mutes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: event_mutes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.event_mutes_id_seq OWNED BY public.event_mutes.id;
+
+
+--
 -- Name: event_people; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -229,6 +261,38 @@ CREATE SEQUENCE public.event_people_id_seq
 --
 
 ALTER SEQUENCE public.event_people_id_seq OWNED BY public.event_people.id;
+
+
+--
+-- Name: event_type_mutes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.event_type_mutes (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    event_type_id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: event_type_mutes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.event_type_mutes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: event_type_mutes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.event_type_mutes_id_seq OWNED BY public.event_type_mutes.id;
 
 
 --
@@ -375,6 +439,38 @@ ALTER SEQUENCE public.people_id_seq OWNED BY public.people.id;
 
 
 --
+-- Name: person_mutes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.person_mutes (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    person_id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: person_mutes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.person_mutes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: person_mutes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.person_mutes_id_seq OWNED BY public.person_mutes.id;
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -491,10 +587,24 @@ ALTER TABLE ONLY public.contacts ALTER COLUMN id SET DEFAULT nextval('public.con
 
 
 --
+-- Name: event_mutes id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.event_mutes ALTER COLUMN id SET DEFAULT nextval('public.event_mutes_id_seq'::regclass);
+
+
+--
 -- Name: event_people id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.event_people ALTER COLUMN id SET DEFAULT nextval('public.event_people_id_seq'::regclass);
+
+
+--
+-- Name: event_type_mutes id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.event_type_mutes ALTER COLUMN id SET DEFAULT nextval('public.event_type_mutes_id_seq'::regclass);
 
 
 --
@@ -523,6 +633,13 @@ ALTER TABLE ONLY public.friendly_id_slugs ALTER COLUMN id SET DEFAULT nextval('p
 --
 
 ALTER TABLE ONLY public.people ALTER COLUMN id SET DEFAULT nextval('public.people_id_seq'::regclass);
+
+
+--
+-- Name: person_mutes id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.person_mutes ALTER COLUMN id SET DEFAULT nextval('public.person_mutes_id_seq'::regclass);
 
 
 --
@@ -588,11 +705,27 @@ ALTER TABLE ONLY public.contacts
 
 
 --
+-- Name: event_mutes event_mutes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.event_mutes
+    ADD CONSTRAINT event_mutes_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: event_people event_people_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.event_people
     ADD CONSTRAINT event_people_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: event_type_mutes event_type_mutes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.event_type_mutes
+    ADD CONSTRAINT event_type_mutes_pkey PRIMARY KEY (id);
 
 
 --
@@ -625,6 +758,14 @@ ALTER TABLE ONLY public.friendly_id_slugs
 
 ALTER TABLE ONLY public.people
     ADD CONSTRAINT people_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: person_mutes person_mutes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.person_mutes
+    ADD CONSTRAINT person_mutes_pkey PRIMARY KEY (id);
 
 
 --
@@ -701,10 +842,24 @@ CREATE UNIQUE INDEX index_contacts_on_user_id_and_contact_id ON public.contacts 
 
 
 --
+-- Name: index_event_mutes_on_user_id_and_event_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_event_mutes_on_user_id_and_event_id ON public.event_mutes USING btree (user_id, event_id);
+
+
+--
 -- Name: index_event_people_on_event_id_and_person_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_event_people_on_event_id_and_person_id ON public.event_people USING btree (event_id, person_id);
+
+
+--
+-- Name: index_event_type_mutes_on_user_id_and_event_type_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_event_type_mutes_on_user_id_and_event_type_id ON public.event_type_mutes USING btree (user_id, event_type_id);
 
 
 --
@@ -813,6 +968,13 @@ CREATE INDEX index_people_on_user_id ON public.people USING btree (user_id);
 
 
 --
+-- Name: index_person_mutes_on_user_id_and_person_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_person_mutes_on_user_id_and_person_id ON public.person_mutes USING btree (user_id, person_id);
+
+
+--
 -- Name: index_sessions_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -842,11 +1004,27 @@ ALTER TABLE ONLY public.events
 
 
 --
+-- Name: event_mutes fk_rails_11b8aecf70; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.event_mutes
+    ADD CONSTRAINT fk_rails_11b8aecf70 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: event_people fk_rails_16070d7795; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.event_people
     ADD CONSTRAINT fk_rails_16070d7795 FOREIGN KEY (person_id) REFERENCES public.people(id);
+
+
+--
+-- Name: event_mutes fk_rails_4e19c316c3; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.event_mutes
+    ADD CONSTRAINT fk_rails_4e19c316c3 FOREIGN KEY (event_id) REFERENCES public.events(id);
 
 
 --
@@ -866,6 +1044,14 @@ ALTER TABLE ONLY public.events
 
 
 --
+-- Name: event_type_mutes fk_rails_832d8dfa00; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.event_type_mutes
+    ADD CONSTRAINT fk_rails_832d8dfa00 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: contacts fk_rails_8d2134e55e; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -879,6 +1065,22 @@ ALTER TABLE ONLY public.contacts
 
 ALTER TABLE ONLY public.active_storage_variant_records
     ADD CONSTRAINT fk_rails_993965df05 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
+
+--
+-- Name: event_type_mutes fk_rails_b0245c1ae8; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.event_type_mutes
+    ADD CONSTRAINT fk_rails_b0245c1ae8 FOREIGN KEY (event_type_id) REFERENCES public.event_types(id);
+
+
+--
+-- Name: person_mutes fk_rails_b1600aad51; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.person_mutes
+    ADD CONSTRAINT fk_rails_b1600aad51 FOREIGN KEY (person_id) REFERENCES public.people(id);
 
 
 --
@@ -914,6 +1116,14 @@ ALTER TABLE ONLY public.active_storage_attachments
 
 
 --
+-- Name: person_mutes fk_rails_d39bef10ba; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.person_mutes
+    ADD CONSTRAINT fk_rails_d39bef10ba FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: contacts fk_rails_d54e5dfe48; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -928,6 +1138,9 @@ ALTER TABLE ONLY public.contacts
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260721055911'),
+('20260721055910'),
+('20260721055909'),
 ('20260717063812'),
 ('20260605044713'),
 ('20260510060036'),
