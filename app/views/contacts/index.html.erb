@@ -1,0 +1,61 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Contacts Management</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Manage the connections that control who can see your <code>contacts</code>-classified
+    people and events.
+  </p>
+</div>
+
+<section data-testid="incoming-pending-contacts">
+  <h2>Incoming requests</h2>
+  <% if @incoming_pending.any? %>
+    <ul>
+      <% @incoming_pending.each do |contact| %>
+        <li data-testid="incoming-pending-contact-row">
+          <%= contact.user.first_name %> <%= contact.user.last_name %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <div class="empty-state" data-testid="empty-state-incoming">
+      <p>No incoming requests.</p>
+    </div>
+  <% end %>
+</section>
+
+<section data-testid="outgoing-pending-contacts">
+  <h2>Outgoing requests</h2>
+  <% if @outgoing_pending.any? %>
+    <ul>
+      <% @outgoing_pending.each do |contact| %>
+        <li data-testid="outgoing-pending-contact-row">
+          <%= contact.contact.first_name %> <%= contact.contact.last_name %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <div class="empty-state" data-testid="empty-state-outgoing">
+      <p>No outgoing requests.</p>
+    </div>
+  <% end %>
+</section>
+
+<section data-testid="confirmed-contacts">
+  <h2>Your contacts</h2>
+  <% if @confirmed.any? %>
+    <ul>
+      <% @confirmed.each do |contact| %>
+        <li data-testid="confirmed-contact-row">
+          <%= (contact.user_id == current_user.id ? contact.contact : contact.user).first_name %>
+          <%= (contact.user_id == current_user.id ? contact.contact : contact.user).last_name %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <div class="empty-state" data-testid="empty-state-confirmed">
+      <p>You have no confirmed contacts yet.</p>
+    </div>
+  <% end %>
+</section>

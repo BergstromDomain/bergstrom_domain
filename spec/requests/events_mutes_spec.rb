@@ -5,14 +5,10 @@ RSpec.describe "Events mute/unmute", type: :request do
   let(:alice)   { create(:user) }
   let(:wedding) { create(:event, user: alice) }
 
-  def sign_in(user)
-    post session_path, params: { email_address: user.email_address, password: "password123" }
-  end
-
   # 1) Happy path ───────────────────────────────────────────────────────────
   describe "happy path" do
     it "creates an EventMute for the current user when muting" do
-      sign_in(alice)
+      sign_in_as(alice)
       expect {
         post mute_event_path(wedding)
       }.to change { EventMute.where(user: alice, event: wedding).count }.by(1)
@@ -21,7 +17,7 @@ RSpec.describe "Events mute/unmute", type: :request do
 
     it "destroys the EventMute for the current user when unmuting" do
       create(:event_mute, user: alice, event: wedding)
-      sign_in(alice)
+      sign_in_as(alice)
       expect {
         delete unmute_event_path(wedding)
       }.to change { EventMute.where(user: alice, event: wedding).count }.by(-1)
@@ -45,7 +41,7 @@ RSpec.describe "Events mute/unmute", type: :request do
   # 3) Alternative path ─────────────────────────────────────────────────────
   describe "alternative path" do
     it "does not raise or duplicate a row when muting the same event twice" do
-      sign_in(alice)
+      sign_in_as(alice)
       post mute_event_path(wedding)
       expect {
         post mute_event_path(wedding)
@@ -56,7 +52,7 @@ RSpec.describe "Events mute/unmute", type: :request do
   # 4) Edge cases ───────────────────────────────────────────────────────────
   describe "edge cases" do
     it "does not raise when unmuting an event that was never muted" do
-      sign_in(alice)
+      sign_in_as(alice)
       expect {
         delete unmute_event_path(wedding)
       }.not_to raise_error

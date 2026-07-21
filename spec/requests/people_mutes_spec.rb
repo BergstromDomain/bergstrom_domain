@@ -5,14 +5,10 @@ RSpec.describe "People mute/unmute", type: :request do
   let(:alice) { create(:user) }
   let(:adam)  { create(:person, user: alice) }
 
-  def sign_in(user)
-    post session_path, params: { email_address: user.email_address, password: "password123" }
-  end
-
   # 1) Happy path ───────────────────────────────────────────────────────────
   describe "happy path" do
     it "creates a PersonMute for the current user when muting" do
-      sign_in(alice)
+      sign_in_as(alice)
       expect {
         post mute_person_path(adam)
       }.to change { PersonMute.where(user: alice, person: adam).count }.by(1)
@@ -21,7 +17,7 @@ RSpec.describe "People mute/unmute", type: :request do
 
     it "destroys the PersonMute for the current user when unmuting" do
       create(:person_mute, user: alice, person: adam)
-      sign_in(alice)
+      sign_in_as(alice)
       expect {
         delete unmute_person_path(adam)
       }.to change { PersonMute.where(user: alice, person: adam).count }.by(-1)
@@ -45,7 +41,7 @@ RSpec.describe "People mute/unmute", type: :request do
   # 3) Alternative path ─────────────────────────────────────────────────────
   describe "alternative path" do
     it "does not raise or duplicate a row when muting the same person twice" do
-      sign_in(alice)
+      sign_in_as(alice)
       post mute_person_path(adam)
       expect {
         post mute_person_path(adam)
@@ -56,7 +52,7 @@ RSpec.describe "People mute/unmute", type: :request do
   # 4) Edge cases ───────────────────────────────────────────────────────────
   describe "edge cases" do
     it "does not raise when unmuting a person who was never muted" do
-      sign_in(alice)
+      sign_in_as(alice)
       expect {
         delete unmute_person_path(adam)
       }.not_to raise_error
