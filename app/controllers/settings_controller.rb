@@ -1,4 +1,6 @@
 class SettingsController < ApplicationController
+  include Navigable
+
   before_action :require_authentication
 
   def show

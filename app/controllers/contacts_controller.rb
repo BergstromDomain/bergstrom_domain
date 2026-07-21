@@ -1,5 +1,7 @@
 # app/controllers/contacts_controller.rb
 class ContactsController < ApplicationController
+  include Navigable
+
   before_action :set_contact,           only: %i[confirm destroy]
   before_action :authorize_recipient!,  only: :confirm
   before_action :authorize_participant!, only: :destroy

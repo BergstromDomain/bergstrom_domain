@@ -112,5 +112,23 @@
       <% end %>
     </div>
 
+  <% elsif @left_nav_section == :settings %>
+
+    <%# ── Settings ──────────────────────────────────────────────────────── %>
+    <div class="left-nav-section">
+      <h2 class="left-nav-h2" data-testid="left-nav-settings-h2">
+        <%= lucide_icon("cog", size: 14) %> Settings
+      </h2>
+
+      <%= link_to settings_path, class: "left-nav-link" do %>
+        <%= lucide_icon("user-cog", size: 15) %>
+        <span>User details</span>
+      <% end %>
+      <%= link_to contacts_path, class: "left-nav-link" do %>
+        <%= lucide_icon("users", size: 15) %>
+        <span>Contacts Management</span>
+      <% end %>
+    </div>
+
   <% end %>
 </nav>
