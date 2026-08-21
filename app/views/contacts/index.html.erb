@@ -11,28 +11,57 @@
   </div>
 </div>
 
-<%# ── Send a request ─────────────────────────────────────────────────── %>
-<div class="show-panel" data-testid="send-contact-request-panel">
-  <h2 class="show-panel__heading">Send a Request</h2>
+<%# ── My Contacts ─────────────────────────────────────────────────────── %>
+<div class="show-panel" data-testid="my-contacts-panel">
+  <h2 class="show-panel__heading">My Contacts</h2>
 
-  <%= form_with url: contacts_path, method: :post, data: { turbo: false } do %>
-    <div class="form-field">
-      <label for="email_address" class="sr-only">Email address</label>
-      <h3 class="show-meta-cell__label">Email address</h3>
-      <%= email_field_tag :email_address,
-            nil,
-            placeholder: "friend@example.com",
-            autocomplete: "email",
-            class: "form-control",
-            data: { testid: "send-contact-request-email" } %>
+  <% if @confirmed.any? %>
+    <div class="data-table-wrapper">
+      <table class="data-table" data-testid="my-contacts-table">
+        <thead>
+          <tr>
+            <th class="col-thumbnail"></th>
+            <th>Name</th>
+            <th>Contact Since</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @confirmed.each do |contact| %>
+            <% other = other_party(contact, current_user) %>
+            <tr data-testid="my-contacts-row">
+              <td class="col-thumbnail">
+                <% if other.profile_image.attached? %>
+                  <%= image_tag other.profile_image.variant(:thumbnail),
+                        alt: "#{other.first_name} #{other.last_name}",
+                        class: "table-thumbnail table-thumbnail--person" %>
+                <% else %>
+                  <div class="table-thumbnail-icon table-thumbnail-icon--person">
+                    <%= lucide_icon("user", size: 20) %>
+                  </div>
+                <% end %>
+              </td>
+              <td><%= other.first_name %> <%= other.last_name %></td>
+              <td><%= contact.updated_at.to_date.to_fs(:long) %></td>
+              <td class="data-table__icon-cell">
+                <%= button_to remove_contact_path(contact),
+                      method: :delete,
+                      class: "icon-button",
+                      title: "Remove #{other.first_name} #{other.last_name}",
+                      data: {
+                        testid:        "remove-contact-#{contact.id}",
+                        turbo_confirm: "Are you sure you want to remove #{other.first_name} #{other.last_name} from your contacts?"
+                      } do %>
+                  <%= lucide_icon "user-minus", size: 18 %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
-
-    <div class="show-panel--actions" style="justify-content: flex-start; padding-left: 0; padding-right: 0;">
-      <button type="submit" class="btn btn-primary-action" data-testid="send-contact-request-button">
-        <%= lucide_icon "user-plus", size: 16 %>
-        Send Request
-      </button>
-    </div>
+  <% else %>
+    <p class="empty-state" data-testid="empty-state-confirmed">You have no confirmed contacts yet.</p>
   <% end %>
 </div>
 
@@ -41,39 +70,53 @@
   <h2 class="show-panel__heading">Incoming Requests</h2>
 
   <% if @incoming_pending.any? %>
-    <table class="data-table" data-testid="incoming-pending-contact-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @incoming_pending.each do |contact| %>
-          <tr data-testid="incoming-pending-contact-row">
-            <td><%= contact.user.first_name %> <%= contact.user.last_name %></td>
-            <td>
-              <div class="action-group">
+    <div class="data-table-wrapper">
+      <table class="data-table" data-testid="incoming-pending-contact-table">
+        <thead>
+          <tr>
+            <th class="col-thumbnail"></th>
+            <th>Name</th>
+            <th>Requested Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @incoming_pending.each do |contact| %>
+            <tr data-testid="incoming-pending-contact-row">
+              <td class="col-thumbnail">
+                <% if contact.user.profile_image.attached? %>
+                  <%= image_tag contact.user.profile_image.variant(:thumbnail),
+                        alt: "#{contact.user.first_name} #{contact.user.last_name}",
+                        class: "table-thumbnail table-thumbnail--person" %>
+                <% else %>
+                  <div class="table-thumbnail-icon table-thumbnail-icon--person">
+                    <%= lucide_icon("user", size: 20) %>
+                  </div>
+                <% end %>
+              </td>
+              <td><%= contact.user.first_name %> <%= contact.user.last_name %></td>
+              <td><%= contact.created_at.to_date.to_fs(:long) %></td>
+              <td class="data-table__icon-cell">
                 <%= button_to confirm_contact_path(contact),
                       method: :patch,
-                      class: "btn btn-primary-action btn--small",
+                      class: "icon-button",
+                      title: "Accept #{contact.user.first_name} #{contact.user.last_name}",
                       data: { testid: "accept-contact-#{contact.id}", turbo: false } do %>
-                  <%= lucide_icon "check-circle", size: 14 %>
-                  Accept
+                  <%= lucide_icon "check-circle", size: 18 %>
                 <% end %>
                 <%= button_to remove_contact_path(contact),
                       method: :delete,
-                      class: "btn btn-danger btn--small",
+                      class: "icon-button",
+                      title: "Decline #{contact.user.first_name} #{contact.user.last_name}",
                       data: { testid: "reject-contact-#{contact.id}", turbo: false } do %>
-                  <%= lucide_icon "x-circle", size: 14 %>
-                  Reject
+                  <%= lucide_icon "x-circle", size: 18 %>
                 <% end %>
-              </div>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
   <% else %>
     <p class="empty-state" data-testid="empty-state-incoming">No incoming requests.</p>
   <% end %>
@@ -84,70 +127,72 @@
   <h2 class="show-panel__heading">Outgoing Requests</h2>
 
   <% if @outgoing_pending.any? %>
-    <table class="data-table" data-testid="outgoing-pending-contact-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @outgoing_pending.each do |contact| %>
-          <tr data-testid="outgoing-pending-contact-row">
-            <td><%= contact.contact.first_name %> <%= contact.contact.last_name %></td>
-            <td>
-              <%= button_to remove_contact_path(contact),
-                    method: :delete,
-                    class: "btn btn-secondary btn--small",
-                    data: { testid: "cancel-contact-#{contact.id}", turbo: false } do %>
-                <%= lucide_icon "circle-x", size: 14 %>
-                Cancel
-              <% end %>
-            </td>
+    <div class="data-table-wrapper">
+      <table class="data-table" data-testid="outgoing-pending-contact-table">
+        <thead>
+          <tr>
+            <th class="col-thumbnail"></th>
+            <th>Name</th>
+            <th>Requested Date</th>
+            <th></th>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% @outgoing_pending.each do |contact| %>
+            <tr data-testid="outgoing-pending-contact-row">
+              <td class="col-thumbnail">
+                <% if contact.contact.profile_image.attached? %>
+                  <%= image_tag contact.contact.profile_image.variant(:thumbnail),
+                        alt: "#{contact.contact.first_name} #{contact.contact.last_name}",
+                        class: "table-thumbnail table-thumbnail--person" %>
+                <% else %>
+                  <div class="table-thumbnail-icon table-thumbnail-icon--person">
+                    <%= lucide_icon("user", size: 20) %>
+                  </div>
+                <% end %>
+              </td>
+              <td><%= contact.contact.first_name %> <%= contact.contact.last_name %></td>
+              <td><%= contact.created_at.to_date.to_fs(:long) %></td>
+              <td class="data-table__icon-cell">
+                <%= button_to remove_contact_path(contact),
+                      method: :delete,
+                      class: "icon-button",
+                      title: "Cancel request to #{contact.contact.first_name} #{contact.contact.last_name}",
+                      data: { testid: "cancel-contact-#{contact.id}", turbo: false } do %>
+                  <%= lucide_icon "circle-x", size: 18 %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
   <% else %>
     <p class="empty-state" data-testid="empty-state-outgoing">No outgoing requests.</p>
   <% end %>
 </div>
 
-<%# ── Confirmed contacts ─────────────────────────────────────────────── %>
-<div class="show-panel" data-testid="confirmed-contacts">
-  <h2 class="show-panel__heading">Your Contacts</h2>
+<%# ── New Contacts ───────────────────────────────────────────────────── %>
+<div class="show-panel" data-testid="new-contacts-panel">
+  <h2 class="show-panel__heading">New Contacts</h2>
 
-  <% if @confirmed.any? %>
-    <table class="data-table" data-testid="confirmed-contact-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @confirmed.each do |contact| %>
-          <% other = other_party(contact, current_user) %>
-          <tr data-testid="confirmed-contact-row">
-            <td><%= other.first_name %> <%= other.last_name %></td>
-            <td>
-              <%= button_to remove_contact_path(contact),
-                    method: :delete,
-                    class: "btn btn-danger btn--small",
-                    data: {
-                      testid:        "remove-contact-#{contact.id}",
-                      turbo_confirm: "Remove #{other.first_name} #{other.last_name} from your contacts?",
-                      turbo:         false
-                    } do %>
-                <%= lucide_icon "user-minus", size: 14 %>
-                Remove
-              <% end %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  <% else %>
-    <p class="empty-state" data-testid="empty-state-confirmed">You have no confirmed contacts yet.</p>
+  <%= form_with url: search_contacts_path,
+        method: :get,
+        data: {
+          controller:   "debounced-search",
+          action:       "input->debounced-search#submit",
+          turbo_frame:  "contact_search_results"
+        },
+        html: { autocomplete: "off" } do %>
+    <div class="form-field">
+      <label for="q" class="sr-only">Search by name</label>
+      <%= text_field_tag :q,
+            nil,
+            placeholder: "Start typing a name…",
+            class: "form-control",
+            data: { testid: "contact-search-input" } %>
+    </div>
   <% end %>
+
+  <%= turbo_frame_tag "contact_search_results", data: { testid: "contact-search-results" } %>
 </div>

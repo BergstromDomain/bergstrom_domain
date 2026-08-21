@@ -1,0 +1,37 @@
+<%= turbo_frame_tag "contact_search_results", data: { testid: "contact-search-results" } do %>
+  <% if results.any? %>
+    <div class="data-table-wrapper">
+      <table class="data-table" data-testid="contact-search-result-table">
+        <tbody>
+          <% results.each do |user| %>
+            <tr data-testid="contact-search-result-row">
+              <td class="col-thumbnail">
+                <% if user.profile_image.attached? %>
+                  <%= image_tag user.profile_image.variant(:thumbnail),
+                        alt: "#{user.first_name} #{user.last_name}",
+                        class: "table-thumbnail table-thumbnail--person" %>
+                <% else %>
+                  <div class="table-thumbnail-icon table-thumbnail-icon--person">
+                    <%= lucide_icon("user", size: 20) %>
+                  </div>
+                <% end %>
+              </td>
+              <td><%= user.first_name %> <%= user.last_name %></td>
+              <td class="data-table__icon-cell">
+                <%= button_to contacts_path(user_id: user.id),
+                      method: :post,
+                      class: "icon-button",
+                      title: "Connect with #{user.first_name} #{user.last_name}",
+                      data: { testid: "connect-contact-#{user.id}", turbo: false } do %>
+                  <%= lucide_icon "user-plus", size: 18 %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% elsif params[:q].present? %>
+    <p class="empty-state" data-testid="empty-state-search">No matching users found.</p>
+  <% end %>
+<% end %>
