@@ -9,40 +9,29 @@ RSpec.describe "Contacts Management", type: :feature do
 
   describe "Happy Path" do
     it "Uno sends a request, Ulrika sees it as incoming and accepts it" do
-      sign_in_as uno
-      visit contacts_path
-      fill_in "Email address", with: ulrika.email_address
-      click_button "Send Request"
-
-      expect(page).to have_css("[data-testid='flash-notice']")
-      within("[data-testid='outgoing-pending-contacts']") do
-        expect(page).to have_content("Ulrika User")
-      end
+      contact = create(:contact, user: uno, contact: ulrika, status: "pending")
 
       sign_in_as ulrika
       visit contacts_path
       within("[data-testid='incoming-pending-contacts']") do
         expect(page).to have_content("Uno User")
-        click_button "Accept"
+        find("[data-testid='accept-contact-#{contact.id}']").click
       end
 
       expect(page).to have_css("[data-testid='flash-notice']")
-      within("[data-testid='confirmed-contacts']") do
+      within("[data-testid='my-contacts-panel']") do
         expect(page).to have_content("Uno User")
       end
       expect(Contact.confirmed_between?(uno, ulrika)).to be true
     end
 
-    it "Charlie sends a request and Curtis rejects it, removing the row entirely" do
-      sign_in_as charlie
-      visit contacts_path
-      fill_in "Email address", with: curtis.email_address
-      click_button "Send Request"
+    it "Charlie sends a request and Curtis declines it, removing the row entirely" do
+      contact = create(:contact, user: charlie, contact: curtis, status: "pending")
 
       sign_in_as curtis
       visit contacts_path
       expect {
-        within("[data-testid='incoming-pending-contacts']") { click_button "Reject" }
+        find("[data-testid='reject-contact-#{contact.id}']").click
       }.to change(Contact, :count).by(-1)
 
       expect(page).to have_css("[data-testid='flash-notice']")
@@ -52,46 +41,64 @@ RSpec.describe "Contacts Management", type: :feature do
     end
 
     it "Removes a confirmed contact" do
-      create(:contact, user: uno, contact: ulrika, status: "confirmed")
+      contact = create(:contact, user: uno, contact: ulrika, status: "confirmed")
 
       sign_in_as uno
       visit contacts_path
-      within("[data-testid='confirmed-contacts']") do
+      within("[data-testid='my-contacts-panel']") do
         expect(page).to have_content("Ulrika User")
-        click_button "Remove"
+        find("[data-testid='remove-contact-#{contact.id}']").click
       end
 
       expect(page).to have_css("[data-testid='flash-notice']")
-      within("[data-testid='confirmed-contacts']") do
+      within("[data-testid='my-contacts-panel']") do
         expect(page).to have_css("[data-testid='empty-state-confirmed']")
       end
       expect(Contact.confirmed_between?(uno, ulrika)).to be false
     end
+
+    # TODO: JS session isolation issue — sign_in_as does not authenticate
+    # under the js:true/Selenium driver anywhere in this app (see the same
+    # TODO in create_event_spec.rb/create_person_spec.rb/edit_person_spec.rb).
+    # Server-side search behavior is covered by spec/requests/contacts_spec.rb.
+    xit "searches for a user by name and sends them a request", js: true do
+      sign_in_as uno
+      visit contacts_path
+
+      fill_in "Search by name", with: "Ulrika"
+      within("[data-testid='contact-search-results']") do
+        expect(page).to have_content("Ulrika User")
+        find("[data-testid='connect-contact-#{ulrika.id}']").click
+      end
+
+      expect(page).to have_css("[data-testid='flash-notice']")
+      within("[data-testid='outgoing-pending-contacts']") do
+        expect(page).to have_content("Ulrika User")
+      end
+    end
   end
 
   describe "Negative Path" do
-    it "Shows an alert when sending a request to an email with no matching user" do
+    # TODO: JS session isolation issue — see TODO above.
+    xit "shows no results when searching for a name that doesn't match anyone", js: true do
       sign_in_as uno
       visit contacts_path
-      fill_in "Email address", with: "nobody@example.com"
-      click_button "Send Request"
+      fill_in "Search by name", with: "Nobody"
 
-      expect(page).to have_css("[data-testid='flash-alert']")
-      within("[data-testid='outgoing-pending-contacts']") do
-        expect(page).to have_css("[data-testid='empty-state-outgoing']")
+      within("[data-testid='contact-search-results']") do
+        expect(page).to have_css("[data-testid='empty-state-search']")
       end
     end
   end
 
   describe "Alternative Path" do
     it "Allows the requester to cancel their own outgoing request" do
+      contact = create(:contact, user: uno, contact: ulrika, status: "pending")
+
       sign_in_as uno
       visit contacts_path
-      fill_in "Email address", with: ulrika.email_address
-      click_button "Send Request"
-
       expect {
-        within("[data-testid='outgoing-pending-contacts']") { click_button "Cancel" }
+        find("[data-testid='cancel-contact-#{contact.id}']").click
       }.to change(Contact, :count).by(-1)
 
       within("[data-testid='outgoing-pending-contacts']") do
