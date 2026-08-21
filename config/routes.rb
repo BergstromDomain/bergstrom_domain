@@ -33,7 +33,9 @@ Rails.application.routes.draw do
 
   # Contacts Management — custom-named member routes to avoid colliding with
   # the existing singular contact_path (the static "Contact Me" page below)
-  resources :contacts, only: %i[index create]
+  resources :contacts, only: %i[index create] do
+    collection { get :search }
+  end
   patch  "contacts/:id/confirm", to: "contacts#confirm", as: :confirm_contact
   delete "contacts/:id",         to: "contacts#destroy",  as: :remove_contact
 

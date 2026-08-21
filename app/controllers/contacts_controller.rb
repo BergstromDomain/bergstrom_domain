@@ -8,17 +8,35 @@ class ContactsController < ApplicationController
 
   def index
     @incoming_pending = Contact.where(contact: current_user, status: :pending)
+                                .joins(:user)
+                                .order("users.last_name, users.first_name")
+                                .preload(:user)
+
     @outgoing_pending = Contact.where(user: current_user, status: :pending)
+                                .joins(:contact)
+                                .order("users.last_name, users.first_name")
+                                .preload(:contact)
+
+    # The "other" user alternates between the user/contact columns depending
+    # on who sent the original request, so a plain ORDER BY can't express
+    # it — a CASE expression over both aliased sides of the self-join can.
     @confirmed = Contact.confirmed
-                        .where(user: current_user)
-                        .or(Contact.confirmed.where(contact: current_user))
+                         .where("contacts.user_id = :id OR contacts.contact_id = :id", id: current_user.id)
+                         .joins("INNER JOIN users AS requesters ON requesters.id = contacts.user_id")
+                         .joins("INNER JOIN users AS recipients ON recipients.id = contacts.contact_id")
+                         .order(Arel.sql(Contact.sanitize_sql_array([
+                           "CASE WHEN contacts.user_id = ? THEN recipients.last_name  ELSE requesters.last_name  END,
+                            CASE WHEN contacts.user_id = ? THEN recipients.first_name ELSE requesters.first_name END",
+                           current_user.id, current_user.id
+                         ])))
+                         .preload(:user, :contact)
   end
 
   def create
-    target = User.find_by(email_address: params[:email_address])
+    target = User.find_by(id: params[:user_id])
 
     unless target
-      redirect_to contacts_path, alert: "No user found with that email address."
+      redirect_to contacts_path, alert: "User not found."
       return
     end
 
@@ -38,6 +56,24 @@ class ContactsController < ApplicationController
     else
       redirect_to contacts_path, alert: contact.errors.full_messages.to_sentence
     end
+  end
+
+  def search
+    query = params[:q].to_s.strip
+    related_ids = Contact.where("user_id = :id OR contact_id = :id", id: current_user.id)
+                          .pluck(:user_id, :contact_id).flatten.to_set
+    related_ids << current_user.id
+
+    @results = if query.blank?
+      User.none
+    else
+      User.where.not(id: related_ids)
+          .where("first_name ILIKE :q OR last_name ILIKE :q", q: "%#{User.sanitize_sql_like(query)}%")
+          .order(:last_name, :first_name)
+          .limit(10)
+    end
+
+    render partial: "contacts/search_results", locals: { results: @results }, layout: false
   end
 
   def confirm
