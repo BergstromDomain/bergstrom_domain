@@ -523,8 +523,8 @@ CREATE TABLE public.users (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     role character varying DEFAULT 'app_user'::character varying NOT NULL,
-    first_name character varying DEFAULT ''::character varying NOT NULL,
-    last_name character varying DEFAULT ''::character varying NOT NULL,
+    first_name character varying DEFAULT ''::character varying NOT NULL COLLATE public.swedish,
+    last_name character varying DEFAULT ''::character varying NOT NULL COLLATE public.swedish,
     status character varying DEFAULT 'pending'::character varying NOT NULL,
     message_to_admin text,
     email_verified_at timestamp(6) without time zone,
@@ -1138,6 +1138,7 @@ ALTER TABLE ONLY public.contacts
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260821102017'),
 ('20260721055911'),
 ('20260721055910'),
 ('20260721055909'),
