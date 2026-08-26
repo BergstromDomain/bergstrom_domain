@@ -8,7 +8,8 @@ class PeopleController < ApplicationController
   before_action :set_policy,  only: %i[index new create edit update destroy]
 
   def index
-    @selected_letter = params[:letter].presence&.upcase
+    @selected_letter        = params[:letter].presence&.upcase
+    @selected_classification = params[:classification].presence
 
     visible = if !authenticated?
       Person.visible_to_visitors
@@ -17,6 +18,8 @@ class PeopleController < ApplicationController
     else
       Person.visible_to_users(current_user)
     end.includes(image_attachment: :blob)
+
+    visible = visible.where(classification: @selected_classification) if @selected_classification.present?
 
     @available_letters = Person.available_letters(visible)
 

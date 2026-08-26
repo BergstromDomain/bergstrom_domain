@@ -22,6 +22,22 @@
   <% end %>
 </nav>
 
+<% if authenticated? %>
+  <%# ── Classification filter — single-select, deliberately not multi-select ── %>
+  <nav class="classification-nav" data-testid="classification-nav">
+    <%= link_to "All",
+          people_path(letter: @selected_letter),
+          class: "classification-nav__link #{'classification-nav__link--active' if @selected_classification.nil?}",
+          data: { testid: "classification-nav-all" } %>
+    <% Person.classifications.keys.each do |classification| %>
+      <%= link_to classification.humanize,
+            people_path(letter: @selected_letter, classification: classification),
+            class: "classification-nav__link #{'classification-nav__link--active' if @selected_classification == classification}",
+            data: { testid: "classification-nav-link" } %>
+    <% end %>
+  </nav>
+<% end %>
+
 <% if @people.any? %>
   <div class="data-table-wrapper">
     <table class="data-table" data-testid="people-table">

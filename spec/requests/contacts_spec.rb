@@ -46,6 +46,26 @@ RSpec.describe "Contacts", type: :request do
       expect(response.body).to include(carol.first_name)
       expect(response.body).not_to include(bob.first_name)
     end
+
+    it "includes suspended users in search results" do
+      suspended = create(:user, first_name: "Sue", last_name: "Suspended", status: "suspended")
+      sign_in_as(alice)
+      get search_contacts_path, params: { q: "suspended" }
+      expect(response.body).to include(suspended.first_name)
+    end
+
+    it "shows the target's full name in the request-sent flash message" do
+      sign_in_as(alice)
+      post contacts_path, params: { user_id: bob.id }
+      follow_redirect!
+      expect(response.body).to include("Request sent to Bob Bergstrom")
+    end
+
+    it "preserves the search query on the redirect after sending a request" do
+      sign_in_as(alice)
+      post contacts_path, params: { user_id: bob.id, q: "berg" }
+      expect(response).to redirect_to(contacts_path(q: "berg"))
+    end
   end
 
   # 2) Negative path ────────────────────────────────────────────────────────
@@ -77,6 +97,13 @@ RSpec.describe "Contacts", type: :request do
       expect {
         delete remove_contact_path(contact)
       }.not_to change(Contact, :count)
+    end
+
+    it "excludes pending (unverified) users from search results" do
+      pending_user = create(:user, first_name: "Pat", last_name: "Pending", status: "pending")
+      sign_in_as(alice)
+      get search_contacts_path, params: { q: "pending" }
+      expect(response.body).not_to include(pending_user.first_name)
     end
 
     it "excludes users already related (confirmed, incoming, or outgoing) from search results" do

@@ -10,12 +10,12 @@ class ContactsController < ApplicationController
     @incoming_pending = Contact.where(contact: current_user, status: :pending)
                                 .joins(:user)
                                 .order("users.last_name, users.first_name")
-                                .preload(:user)
+                                .preload(user: { profile_image_attachment: :blob })
 
     @outgoing_pending = Contact.where(user: current_user, status: :pending)
                                 .joins(:contact)
                                 .order("users.last_name, users.first_name")
-                                .preload(:contact)
+                                .preload(contact: { profile_image_attachment: :blob })
 
     # The "other" user alternates between the user/contact columns depending
     # on who sent the original request, so a plain ORDER BY can't express
@@ -29,14 +29,17 @@ class ContactsController < ApplicationController
                             CASE WHEN contacts.user_id = ? THEN recipients.first_name ELSE requesters.first_name END",
                            current_user.id, current_user.id
                          ])))
-                         .preload(:user, :contact)
+                         .preload(user: { profile_image_attachment: :blob }, contact: { profile_image_attachment: :blob })
+
+    @search_query   = params[:q]
+    @search_results = search_results_for(@search_query)
   end
 
   def create
     target = User.find_by(id: params[:user_id])
 
     unless target
-      redirect_to contacts_path, alert: "User not found."
+      redirect_to contacts_path(q: params[:q]), alert: "User not found."
       return
     end
 
@@ -46,34 +49,21 @@ class ContactsController < ApplicationController
     reverse = Contact.find_by(user: target, contact: current_user, status: :pending)
     if reverse
       reverse.confirmed!
-      redirect_to contacts_path, notice: "You are now connected with #{target.first_name}."
+      redirect_to contacts_path(q: params[:q]), notice: "You are now connected with #{target.first_name} #{target.last_name}."
       return
     end
 
     contact = Contact.new(user: current_user, contact: target, status: :pending)
     if contact.save
-      redirect_to contacts_path, notice: "Request sent to #{target.first_name}."
+      redirect_to contacts_path(q: params[:q]), notice: "Request sent to #{target.first_name} #{target.last_name}."
     else
-      redirect_to contacts_path, alert: contact.errors.full_messages.to_sentence
+      redirect_to contacts_path(q: params[:q]), alert: contact.errors.full_messages.to_sentence
     end
   end
 
   def search
-    query = params[:q].to_s.strip
-    related_ids = Contact.where("user_id = :id OR contact_id = :id", id: current_user.id)
-                          .pluck(:user_id, :contact_id).flatten.to_set
-    related_ids << current_user.id
-
-    @results = if query.blank?
-      User.none
-    else
-      User.where.not(id: related_ids)
-          .where("first_name ILIKE :q OR last_name ILIKE :q", q: "%#{User.sanitize_sql_like(query)}%")
-          .order(:last_name, :first_name)
-          .limit(10)
-    end
-
-    render partial: "contacts/search_results", locals: { results: @results }, layout: false
+    @results = search_results_for(params[:q])
+    render partial: "contacts/search_results", locals: { results: @results, query: params[:q] }, layout: false
   end
 
   def confirm
@@ -94,6 +84,25 @@ class ContactsController < ApplicationController
   end
 
   private
+
+  # Pending users haven't verified their account yet, so they shouldn't be
+  # discoverable — but suspended users remain searchable, since suspension
+  # doesn't sever their existing/potential contact relationships.
+  def search_results_for(query)
+    query = query.to_s.strip
+    return User.none if query.blank?
+
+    related_ids = Contact.where("user_id = :id OR contact_id = :id", id: current_user.id)
+                          .pluck(:user_id, :contact_id).flatten.to_set
+    related_ids << current_user.id
+
+    User.where.not(id: related_ids)
+        .where.not(status: :pending)
+        .where("first_name ILIKE :q OR last_name ILIKE :q", q: "%#{User.sanitize_sql_like(query)}%")
+        .order(:last_name, :first_name)
+        .limit(10)
+        .with_attached_profile_image
+  end
 
   def set_contact
     @contact = Contact.find(params[:id])

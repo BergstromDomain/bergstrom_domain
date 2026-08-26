@@ -713,6 +713,30 @@ code, pre {
   color: var(--color-text-primary);
 }
 
+.icon-button--primary {
+  color: var(--color-primary);
+}
+
+.icon-button--primary:hover {
+  color: var(--color-primary-dark);
+}
+
+.icon-button--success {
+  color: var(--color-success);
+}
+
+.icon-button--success:hover {
+  filter: brightness(0.85);
+}
+
+.icon-button--danger {
+  color: var(--color-danger);
+}
+
+.icon-button--danger:hover {
+  color: var(--color-danger-dark);
+}
+
 /* Name cell — the clickable link */
 .data-table__name-link {
   font-weight: var(--font-weight-medium);

@@ -99,14 +99,14 @@
               <td class="data-table__icon-cell">
                 <%= button_to confirm_contact_path(contact),
                       method: :patch,
-                      class: "icon-button",
+                      class: "icon-button icon-button--success",
                       title: "Accept #{contact.user.first_name} #{contact.user.last_name}",
                       data: { testid: "accept-contact-#{contact.id}", turbo: false } do %>
                   <%= lucide_icon "check-circle", size: 18 %>
                 <% end %>
                 <%= button_to remove_contact_path(contact),
                       method: :delete,
-                      class: "icon-button",
+                      class: "icon-button icon-button--danger",
                       title: "Decline #{contact.user.first_name} #{contact.user.last_name}",
                       data: { testid: "reject-contact-#{contact.id}", turbo: false } do %>
                   <%= lucide_icon "x-circle", size: 18 %>
@@ -156,7 +156,7 @@
               <td class="data-table__icon-cell">
                 <%= button_to remove_contact_path(contact),
                       method: :delete,
-                      class: "icon-button",
+                      class: "icon-button icon-button--danger",
                       title: "Cancel request to #{contact.contact.first_name} #{contact.contact.last_name}",
                       data: { testid: "cancel-contact-#{contact.id}", turbo: false } do %>
                   <%= lucide_icon "circle-x", size: 18 %>
@@ -187,12 +187,12 @@
     <div class="form-field">
       <label for="q" class="sr-only">Search by name</label>
       <%= text_field_tag :q,
-            nil,
+            @search_query,
             placeholder: "Start typing a name…",
             class: "form-control",
             data: { testid: "contact-search-input" } %>
     </div>
   <% end %>
 
-  <%= turbo_frame_tag "contact_search_results", data: { testid: "contact-search-results" } %>
+  <%= render "contacts/search_results", results: @search_results, query: @search_query %>
 </div>

@@ -57,6 +57,30 @@ RSpec.describe "Contacts Management", type: :feature do
       expect(Contact.confirmed_between?(uno, ulrika)).to be false
     end
 
+    it "keeps the search active after connecting, so the next match can still be added" do
+      first_match = create(:user, first_name: "Gerald", last_name: "Findme")
+      create(:user, first_name: "Fiona", last_name: "Findme")
+
+      sign_in_as uno
+      visit contacts_path(q: "findme")
+
+      within("[data-testid='contact-search-results']") do
+        expect(page).to have_content("Gerald Findme")
+        expect(page).to have_content("Fiona Findme")
+        find("[data-testid='connect-contact-#{first_match.id}']").click
+      end
+
+      expect(page).to have_css("[data-testid='flash-notice']", text: "Request sent to Gerald Findme")
+      expect(page).to have_field("Search by name", with: "findme")
+      within("[data-testid='contact-search-results']") do
+        expect(page).not_to have_content("Gerald Findme")
+        expect(page).to have_content("Fiona Findme")
+      end
+      within("[data-testid='outgoing-pending-contacts']") do
+        expect(page).to have_content("Gerald Findme")
+      end
+    end
+
     # TODO: JS session isolation issue — sign_in_as does not authenticate
     # under the js:true/Selenium driver anywhere in this app (see the same
     # TODO in create_event_spec.rb/create_person_spec.rb/edit_person_spec.rb).
@@ -79,6 +103,17 @@ RSpec.describe "Contacts Management", type: :feature do
   end
 
   describe "Negative Path" do
+    it "does not show pending (unverified) users in search results" do
+      create(:user, first_name: "Pat", last_name: "Pending", status: "pending")
+
+      sign_in_as uno
+      visit contacts_path(q: "pending")
+
+      within("[data-testid='contact-search-results']") do
+        expect(page).to have_css("[data-testid='empty-state-search']")
+      end
+    end
+
     # TODO: JS session isolation issue — see TODO above.
     xit "shows no results when searching for a name that doesn't match anyone", js: true do
       sign_in_as uno
