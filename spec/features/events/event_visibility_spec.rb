@@ -95,6 +95,15 @@ RSpec.describe "Event visibility", type: :feature do
       expect(page).to have_content("Public Gig")
       expect(page).not_to have_content("Contacts Gig")
     end
+
+    it "shows an owner's own restricted event on their index, filtered by classification" do
+      sign_in_as(creator)
+      visit events_path
+      expect(page).to have_content("Private Gig")
+
+      visit events_path(classification: "restricted")
+      expect(page).to have_content("Private Gig")
+    end
   end
 
   # 4) Edge cases ───────────────────────────────────────────────────────────
