@@ -29,13 +29,16 @@ RSpec.describe "Filter events", type: :feature do
     e
   end
 
-  # Owned-by-self "contacts"-classified events are the only non-unrestricted
-  # classification that appears in a regular (non-admin) user's own index —
-  # Classifiable.visible_to_users never surfaces "restricted" events there,
-  # even to their own owner (that's existing, unrelated behavior).
   let!(:contacts_note) do
     e = create(:event, :contacts, title: "Contacts Note",
                event_type: music, day: 4, month: 1, year: 2020, user: uno)
+    e.people = [ adam ]
+    e
+  end
+
+  let!(:restricted_note) do
+    e = create(:event, :restricted, title: "Restricted Note",
+               event_type: music, day: 5, month: 1, year: 2020, user: uno)
     e.people = [ adam ]
     e
   end
@@ -53,9 +56,26 @@ RSpec.describe "Filter events", type: :feature do
       expect(page).to have_selector("[data-testid='mute-filter-nav']")
     end
 
-    it "filters events by classification" do
+    it "filters events by a single checked classification" do
       sign_in_as uno
-      visit events_path(classification: "contacts")
+      visit events_path(classifications: [ "contacts" ])
+      expect(page).to have_selector("[data-testid='event-title']", text: "Contacts Note")
+      expect(page).not_to have_selector("[data-testid='event-title']", text: "Adam's Birthday")
+      expect(page).not_to have_selector("[data-testid='event-title']", text: "Restricted Note")
+    end
+
+    it "combines two checked classifications at once" do
+      sign_in_as uno
+      visit events_path(classifications: %w[unrestricted restricted])
+      expect(page).to have_selector("[data-testid='event-title']", text: "Adam's Birthday")
+      expect(page).to have_selector("[data-testid='event-title']", text: "Restricted Note")
+      expect(page).not_to have_selector("[data-testid='event-title']", text: "Contacts Note")
+    end
+
+    it "applies the user's saved default classifications on a fresh visit" do
+      uno.update!(default_classifications: [ "contacts" ])
+      sign_in_as uno
+      visit events_path
       expect(page).to have_selector("[data-testid='event-title']", text: "Contacts Note")
       expect(page).not_to have_selector("[data-testid='event-title']", text: "Adam's Birthday")
     end
@@ -85,6 +105,12 @@ RSpec.describe "Filter events", type: :feature do
     it "does not show a mute button for unauthenticated visitors" do
       visit events_path
       expect(page).not_to have_selector("[data-testid='event-mute-cell']")
+    end
+
+    it "shows nothing when every classification is unchecked" do
+      sign_in_as uno
+      visit events_path(classifications: [ "none" ])
+      expect(page).not_to have_selector("[data-testid='event-title']")
     end
   end
 

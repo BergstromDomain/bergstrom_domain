@@ -23,19 +23,24 @@
 </nav>
 
 <% if authenticated? %>
-  <%# ── Classification filter — single-select, deliberately not multi-select ── %>
-  <nav class="classification-nav" data-testid="classification-nav">
-    <%= link_to "All",
-          people_path(letter: @selected_letter),
-          class: "classification-nav__link #{'classification-nav__link--active' if @selected_classification.nil?}",
-          data: { testid: "classification-nav-all" } %>
-    <% Person.classifications.keys.each do |classification| %>
-      <%= link_to classification.humanize,
-            people_path(letter: @selected_letter, classification: classification),
-            class: "classification-nav__link #{'classification-nav__link--active' if @selected_classification == classification}",
-            data: { testid: "classification-nav-link" } %>
-    <% end %>
-  </nav>
+  <%# ── Classification filter — independent checkboxes, any combination ──── %>
+  <%= form_with url: people_path, method: :get, class: "classification-nav",
+        data: { controller: "auto-submit", action: "change->auto-submit#submit", testid: "classification-nav" } do %>
+    <%= hidden_field_tag :letter, @selected_letter if @selected_letter.present? %>
+    <%= hidden_field_tag "classifications[]", "" %>
+    <div class="classification-checks">
+      <% Person.classifications.keys.each do |classification| %>
+        <div class="form-check">
+          <%= check_box_tag "classifications[]",
+                classification,
+                @selected_classifications.include?(classification),
+                id: "classification_#{classification}",
+                data: { testid: "classification-checkbox-#{classification}" } %>
+          <%= label_tag "classification_#{classification}", classification.humanize %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 <% end %>
 
 <% if @people.any? %>

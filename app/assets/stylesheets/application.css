@@ -1027,6 +1027,17 @@ textarea.form-control {
   font-weight: var(--font-weight-semibold);
 }
 
+.classification-checks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-md);
+}
+
+.classification-checks .form-check {
+  margin-block-end: 0;
+}
+
 /* ============================================================
    Mute filter navigation
    ============================================================ */

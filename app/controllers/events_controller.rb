@@ -8,10 +8,9 @@ class EventsController < ApplicationController
   before_action :set_policy,   only: %i[new create edit update destroy]
 
   def index
-    @selected_month          = params[:month]&.to_i
-    @selected_type_id        = params[:event_type_id]&.to_i
-    @selected_classification = params[:classification].presence
-    @show_all                = params[:show_all] == "true"
+    @selected_month   = params[:month]&.to_i
+    @selected_type_id = params[:event_type_id]&.to_i
+    @show_all         = params[:show_all] == "true"
 
     base = if !authenticated?
       Event.visible_to_visitors
@@ -24,7 +23,12 @@ class EventsController < ApplicationController
 
     base = base.where(month: @selected_month) if @selected_month&.between?(1, 12)
     base = base.where(event_type_id: @selected_type_id) if @selected_type_id.present?
-    base = base.where(classification: @selected_classification) if @selected_classification.present?
+
+    if authenticated?
+      @selected_classifications = selected_classifications
+      base = base.where(classification: @selected_classifications)
+    end
+
     base = base.merge(Event.not_muted_for(current_user)) if authenticated? && !@show_all
 
     @events = if @selected_month
@@ -128,6 +132,14 @@ class EventsController < ApplicationController
   end
 
   private
+
+  def selected_classifications
+    if params[:classifications]
+      Array(params[:classifications]) & Event.classifications.keys
+    else
+      current_user.default_classifications
+    end
+  end
 
   def events_on_date(date)
     Event.where(month: date.month, day: date.day)

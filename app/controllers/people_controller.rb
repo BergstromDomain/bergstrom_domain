@@ -8,8 +8,7 @@ class PeopleController < ApplicationController
   before_action :set_policy,  only: %i[index new create edit update destroy]
 
   def index
-    @selected_letter        = params[:letter].presence&.upcase
-    @selected_classification = params[:classification].presence
+    @selected_letter = params[:letter].presence&.upcase
 
     visible = if !authenticated?
       Person.visible_to_visitors
@@ -19,7 +18,10 @@ class PeopleController < ApplicationController
       Person.visible_to_users(current_user)
     end.includes(image_attachment: :blob)
 
-    visible = visible.where(classification: @selected_classification) if @selected_classification.present?
+    if authenticated?
+      @selected_classifications = selected_classifications
+      visible = visible.where(classification: @selected_classifications)
+    end
 
     @available_letters = Person.available_letters(visible)
 
@@ -96,6 +98,14 @@ class PeopleController < ApplicationController
   end
 
   private
+
+  def selected_classifications
+    if params[:classifications]
+      Array(params[:classifications]) & Person.classifications.keys
+    else
+      current_user.default_classifications
+    end
+  end
 
   def set_person
     @person = Person.includes(image_attachment: :blob).friendly.find(params[:id])

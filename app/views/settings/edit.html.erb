@@ -109,6 +109,22 @@
               { class: "form-control", data: { testid: "settings-start-page-field" } } %>
       </div>
     </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Default Visibility</h3>
+      <p class="form-hint">Which classifications to show by default on the People and Events pages.</p>
+      <%= hidden_field_tag "user[default_classifications][]", "" %>
+      <% Person.classifications.keys.each do |classification| %>
+        <div class="form-check">
+          <%= check_box_tag "user[default_classifications][]",
+                classification,
+                Current.user.default_classifications.include?(classification),
+                id: "default_classification_#{classification}",
+                data: { testid: "settings-default-classification-#{classification}" } %>
+          <%= label_tag "default_classification_#{classification}", classification.humanize %>
+        </div>
+      <% end %>
+    </div>
   </div>
 
   <%# Actions panel %>

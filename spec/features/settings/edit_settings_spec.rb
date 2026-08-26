@@ -122,6 +122,38 @@ RSpec.describe "Edit User Settings", type: :feature do
       # TODO
     end
 
+    it "Renders the 'Default Visibility' checkboxes, all checked by default" do
+      sign_in_as(uno)
+      visit edit_settings_path
+      expect(page).to have_checked_field("Restricted")
+      expect(page).to have_checked_field("Contacts")
+      expect(page).to have_checked_field("Unrestricted")
+    end
+
+    it "Updates 'Default Visibility' when a box is unchecked" do
+      sign_in_as(uno)
+      visit edit_settings_path
+
+      uncheck "Restricted"
+      click_button "Update Details"
+
+      expect(page).to have_current_path(settings_path)
+      expect(uno.reload.default_classifications).to contain_exactly("contacts", "unrestricted")
+    end
+
+    it "Saves an empty 'Default Visibility' when every box is unchecked" do
+      sign_in_as(uno)
+      visit edit_settings_path
+
+      uncheck "Restricted"
+      uncheck "Contacts"
+      uncheck "Unrestricted"
+      click_button "Update Details"
+
+      expect(page).to have_current_path(settings_path)
+      expect(uno.reload.default_classifications).to eq([])
+    end
+
     it "Updates the 'Email Address' and clears the 'Email Verified' flag" do
       uno.update!(email_verified_at: Time.current)
       sign_in_as(uno)
