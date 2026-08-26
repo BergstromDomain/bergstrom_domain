@@ -2,6 +2,11 @@
   <% if results.any? %>
     <div class="data-table-wrapper">
       <table class="data-table" data-testid="contact-search-result-table">
+        <colgroup>
+          <col style="width: 64px;">
+          <col>
+          <col style="width: 56px;">
+        </colgroup>
         <tbody>
           <% results.each do |user| %>
             <tr data-testid="contact-search-result-row">

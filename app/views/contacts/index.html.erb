@@ -18,6 +18,12 @@
   <% if @confirmed.any? %>
     <div class="data-table-wrapper">
       <table class="data-table" data-testid="my-contacts-table">
+        <colgroup>
+          <col style="width: 64px;">
+          <col>
+          <col style="width: 180px;">
+          <col style="width: 56px;">
+        </colgroup>
         <thead>
           <tr>
             <th class="col-thumbnail"></th>
@@ -72,6 +78,12 @@
   <% if @incoming_pending.any? %>
     <div class="data-table-wrapper">
       <table class="data-table" data-testid="incoming-pending-contact-table">
+        <colgroup>
+          <col style="width: 64px;">
+          <col>
+          <col style="width: 180px;">
+          <col style="width: 96px;">
+        </colgroup>
         <thead>
           <tr>
             <th class="col-thumbnail"></th>
@@ -129,6 +141,12 @@
   <% if @outgoing_pending.any? %>
     <div class="data-table-wrapper">
       <table class="data-table" data-testid="outgoing-pending-contact-table">
+        <colgroup>
+          <col style="width: 64px;">
+          <col>
+          <col style="width: 180px;">
+          <col style="width: 56px;">
+        </colgroup>
         <thead>
           <tr>
             <th class="col-thumbnail"></th>
