@@ -528,7 +528,8 @@ CREATE TABLE public.users (
     status character varying DEFAULT 'pending'::character varying NOT NULL,
     message_to_admin text,
     email_verified_at timestamp(6) without time zone,
-    start_page character varying DEFAULT 'home'::character varying NOT NULL
+    start_page character varying DEFAULT 'home'::character varying NOT NULL,
+    default_classifications character varying[] DEFAULT '{unrestricted,contacts,restricted}'::character varying[] NOT NULL
 );
 
 
@@ -1138,6 +1139,7 @@ ALTER TABLE ONLY public.contacts
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260826123421'),
 ('20260821102017'),
 ('20260721055911'),
 ('20260721055910'),
