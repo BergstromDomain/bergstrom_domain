@@ -23,11 +23,15 @@ class PeopleController < ApplicationController
       visible = visible.where(classification: @selected_classifications)
     end
 
+    # available_letters runs its own raw SQL against this scope — computed
+    # before adding the :user include below, since eager-loading a second
+    # table that also has first_name/last_name columns makes that raw SQL's
+    # bare column references ambiguous.
     @available_letters = Person.available_letters(visible)
 
     scoped = @selected_letter.present? ? visible.by_letter(@selected_letter) : visible
 
-    @people = scoped.order(:last_name, :first_name)
+    @people = scoped.order(:last_name, :first_name).includes(:user)
 
     @muted_person_ids = authenticated? ? current_user.person_mutes.pluck(:person_id).to_set : Set.new
   end

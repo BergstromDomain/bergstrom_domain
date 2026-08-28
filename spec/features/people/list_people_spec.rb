@@ -26,6 +26,11 @@ RSpec.describe "List People", type: :feature do
         click_link "James Alan Hetfield"
         expect(page).to have_current_path(person_path(james))
       end
+
+      it "shows who created each person" do
+        visit people_path
+        expect(page).to have_selector("[data-testid='person-created-by']", text: user.first_name, minimum: 4)
+      end
     end
 
     context "when a person has an image" do
@@ -67,6 +72,24 @@ RSpec.describe "List People", type: :feature do
       visit people_path
       names = page.all("[data-testid='person-name']").map(&:text)
       expect(names).to eq([ "James Hetfield", "Lars Ulrich" ])
+    end
+
+    it "shows a distinct classification icon per person" do
+      create(:person, :unrestricted, user: user, first_name: "Uni", middle_name: nil, last_name: "Zzz")
+      create(:person, :contacts,     user: user, first_name: "Con", middle_name: nil, last_name: "Yyy")
+      create(:person, :restricted,   user: user, first_name: "Res", middle_name: nil, last_name: "Aaa")
+      sign_in_as(user)
+      visit people_path
+
+      within("[data-testid='person-row']", text: "Res Aaa") do
+        expect(page).to have_selector("[data-testid='person-classification-icon'][title='Restricted']")
+      end
+      within("[data-testid='person-row']", text: "Con Yyy") do
+        expect(page).to have_selector("[data-testid='person-classification-icon'][title='Contacts']")
+      end
+      within("[data-testid='person-row']", text: "Uni Zzz") do
+        expect(page).to have_selector("[data-testid='person-classification-icon'][title='Unrestricted']")
+      end
     end
   end
 end

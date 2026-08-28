@@ -12,4 +12,16 @@ module ApplicationHelper
     base = "left-nav-link"
     controller_name == ctrl ? "#{base} left-nav-link--active" : base
   end
+
+  # Icon representing a Classifiable record's classification — used
+  # anywhere a record's visibility level needs a compact visual marker.
+  CLASSIFICATION_ICONS = {
+    "unrestricted" => "globe",
+    "contacts"     => "users",
+    "restricted"   => "lock"
+  }.freeze
+
+  def classification_icon(classification)
+    CLASSIFICATION_ICONS.fetch(classification, "help-circle")
+  end
 end

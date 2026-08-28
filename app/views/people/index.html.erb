@@ -50,6 +50,7 @@
         <tr>
           <th class="col-thumbnail"></th>
           <th>Name</th>
+          <th>Created By</th>
           <th>Event Types</th>
           <% if authenticated? %><th></th><% end %>
         </tr>
@@ -75,6 +76,13 @@
                     person_path(person),
                     class: "data-table__name-link",
                     data: { testid: "person-name" } %>
+            </td>
+            <td data-testid="person-created-by">
+              <%= person.user.first_name %> <%= person.user.last_name %>
+              <%= lucide_icon classification_icon(person.classification),
+                    size: 16,
+                    title: person.classification.humanize,
+                    data: { testid: "person-classification-icon" } %>
             </td>
             <td data-testid="person-event-types">
               <div class="person-icon-group">
