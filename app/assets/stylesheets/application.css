@@ -1258,6 +1258,14 @@ textarea.form-control {
   border: 0;
 }
 
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
 /* ============================================================
    Table thumbnails and person icons
    ============================================================ */
@@ -1307,6 +1315,10 @@ textarea.form-control {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2xs);
+}
+
+.person-icon-group--center {
+  justify-content: center;
 }
 
 .person-icon-link {
