@@ -737,6 +737,19 @@ code, pre {
   color: var(--color-danger-dark);
 }
 
+/* Classification marker icon — e.g. next to a "Created By" name */
+.classification-icon--primary {
+  color: var(--color-primary);
+}
+
+.classification-icon--success {
+  color: var(--color-success);
+}
+
+.classification-icon--danger {
+  color: var(--color-danger);
+}
+
 /* Name cell — the clickable link */
 .data-table__name-link {
   font-weight: var(--font-weight-medium);

@@ -13,15 +13,28 @@ module ApplicationHelper
     controller_name == ctrl ? "#{base} left-nav-link--active" : base
   end
 
-  # Icon representing a Classifiable record's classification — used
-  # anywhere a record's visibility level needs a compact visual marker.
+  # Icon (and color) representing a Classifiable record's classification —
+  # used anywhere a record's visibility level needs a compact visual marker.
+  # Colors mirror the icon-button--success/--primary/--danger scheme used
+  # for Contacts Management's action icons: green for the most open
+  # classification, red for the most locked-down, blue in between.
   CLASSIFICATION_ICONS = {
     "unrestricted" => "globe",
     "contacts"     => "users",
     "restricted"   => "lock"
   }.freeze
 
+  CLASSIFICATION_ICON_CLASSES = {
+    "unrestricted" => "classification-icon--success",
+    "contacts"     => "classification-icon--primary",
+    "restricted"   => "classification-icon--danger"
+  }.freeze
+
   def classification_icon(classification)
     CLASSIFICATION_ICONS.fetch(classification, "help-circle")
+  end
+
+  def classification_icon_class(classification)
+    CLASSIFICATION_ICON_CLASSES.fetch(classification, "")
   end
 end

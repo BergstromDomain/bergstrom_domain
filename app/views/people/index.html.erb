@@ -81,6 +81,7 @@
               <%= person.user.first_name %> <%= person.user.last_name %>
               <%= lucide_icon classification_icon(person.classification),
                     size: 16,
+                    class: classification_icon_class(person.classification),
                     title: person.classification.humanize,
                     data: { testid: "person-classification-icon" } %>
             </td>
