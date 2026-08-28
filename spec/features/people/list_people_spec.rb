@@ -31,6 +31,12 @@ RSpec.describe "List People", type: :feature do
         visit people_path
         expect(page).to have_selector("[data-testid='person-created-by']", text: user.first_name, minimum: 4)
       end
+
+      it "shows the Mute Person column header when authenticated" do
+        sign_in_as(user)
+        visit people_path
+        expect(page).to have_selector("th", text: "Mute Person")
+      end
     end
 
     context "when a person has an image" do
@@ -38,6 +44,15 @@ RSpec.describe "List People", type: :feature do
         create(:person, :with_image, :james_hetfield, :unrestricted, user: user)
         visit people_path
         expect(page).to have_selector("[data-testid='person-thumbnail'] img")
+      end
+    end
+
+    context "when the creator has a profile image" do
+      it "shows the creator's thumbnail next to their name" do
+        owner = create(:user, :with_profile_image)
+        create(:person, :unrestricted, user: owner, first_name: "Foo", middle_name: nil, last_name: "Bar")
+        visit people_path
+        expect(page).to have_selector("[data-testid='person-created-by'] img")
       end
     end
   end

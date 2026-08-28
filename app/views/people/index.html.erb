@@ -53,7 +53,7 @@
           <th class="text-center">Event Types</th>
           <th class="text-right">Created By</th>
           <th class="text-right">Classification</th>
-          <% if authenticated? %><th class="text-right"></th><% end %>
+          <% if authenticated? %><th class="text-right">Mute Person</th><% end %>
         </tr>
       </thead>
       <tbody>
@@ -90,7 +90,18 @@
               </div>
             </td>
             <td class="text-right" data-testid="person-created-by">
-              <%= person.user.first_name %> <%= person.user.last_name %>
+              <span class="created-by">
+                <% if person.user.profile_image.attached? %>
+                  <%= image_tag person.user.profile_image.variant(:thumbnail),
+                        alt: "#{person.user.first_name} #{person.user.last_name}",
+                        class: "table-thumbnail table-thumbnail--person table-thumbnail--small" %>
+                <% else %>
+                  <span class="table-thumbnail-icon table-thumbnail-icon--person table-thumbnail-icon--small">
+                    <%= lucide_icon("user", size: 14) %>
+                  </span>
+                <% end %>
+                <%= person.user.first_name %> <%= person.user.last_name %>
+              </span>
             </td>
             <td class="text-right" data-testid="person-classification-cell">
               <%= lucide_icon classification_icon(person.classification),

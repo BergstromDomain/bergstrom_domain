@@ -1266,6 +1266,19 @@ textarea.form-control {
   text-align: right;
 }
 
+/* .data-table th sets text-align: left explicitly, which otherwise beats
+   the plain utility classes above on specificity — these scoped overrides
+   win instead, so header alignment actually matches its column's data. */
+.data-table th.text-center,
+.data-table td.text-center {
+  text-align: center;
+}
+
+.data-table th.text-right,
+.data-table td.text-right {
+  text-align: right;
+}
+
 /* ============================================================
    Table thumbnails and person icons
    ============================================================ */
@@ -1289,6 +1302,12 @@ textarea.form-control {
   border-radius: var(--radius-full);
 }
 
+.table-thumbnail--small {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+}
+
 .table-thumbnail-icon {
   display: flex;
   align-items: center;
@@ -1306,6 +1325,11 @@ textarea.form-control {
   color: var(--color-text-secondary);
 }
 
+.table-thumbnail-icon--small {
+  width: 24px;
+  height: 24px;
+}
+
 .table-thumbnail-icon:hover {
   background-color: var(--color-accent-light);
   text-decoration: none;
@@ -1318,7 +1342,17 @@ textarea.form-control {
 }
 
 .person-icon-group--center {
+  /* inline-flex (not flex) so the group is an inline-level box and
+     text-align: center on the <td> actually centers it — a block-level
+     flex container ignores the parent's text-align entirely. */
+  display: inline-flex;
   justify-content: center;
+}
+
+.created-by {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
 }
 
 .person-icon-link {

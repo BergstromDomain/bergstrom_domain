@@ -31,7 +31,8 @@ class PeopleController < ApplicationController
 
     scoped = @selected_letter.present? ? visible.by_letter(@selected_letter) : visible
 
-    @people = scoped.order(:last_name, :first_name).includes(:user)
+    @people = scoped.order(:last_name, :first_name)
+                     .includes(user: { profile_image_attachment: :blob })
 
     @muted_person_ids = authenticated? ? current_user.person_mutes.pluck(:person_id).to_set : Set.new
   end
