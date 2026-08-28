@@ -6,7 +6,7 @@ RSpec.describe "Events By Week", type: :feature do
   let(:week_end)   { today.end_of_week }          # Sunday
 
   let!(:this_week_event) do
-    create(:event,
+    create(:event, :unrestricted,
       title: "Blackened Studio Session",
       year:  week_start.year,
       month: week_start.month,
@@ -15,7 +15,7 @@ RSpec.describe "Events By Week", type: :feature do
 
   let!(:last_week_event) do
     last_monday = week_start - 7.days
-    create(:event,
+    create(:event, :unrestricted,
       title: "One Acoustic Rehearsal",
       year:  last_monday.year,
       month: last_monday.month,
@@ -24,7 +24,7 @@ RSpec.describe "Events By Week", type: :feature do
 
   let!(:next_week_event) do
     next_monday = week_end + 1.day
-    create(:event,
+    create(:event, :unrestricted,
       title: "Nothing Else Matters Recording",
       year:  next_monday.year,
       month: next_monday.month,
@@ -130,7 +130,7 @@ RSpec.describe "Events By Week", type: :feature do
       let(:jan_4)  { dec_29 + 6.days }
 
       let!(:dec_event) do
-        create(:event,
+        create(:event, :unrestricted,
           title: "Metallica New Year Eve Concert",
         month: 12,
         day:   29,
@@ -138,7 +138,7 @@ RSpec.describe "Events By Week", type: :feature do
       end
 
       let!(:jan_event) do
-        create(:event,
+        create(:event, :unrestricted,
           title: "Metallica New Year Day Show",
           month: 1,
           day:   3,
@@ -153,7 +153,7 @@ RSpec.describe "Events By Week", type: :feature do
         end
 
         it "Does not show events with a day outside the week's day range" do
-        create(:event, title: "Outside The Week Event", month: 1, day: 28, year: Date.current.year)
+        create(:event, :unrestricted, title: "Outside The Week Event", month: 1, day: 28, year: Date.current.year)
 
         visit events_by_week_path(date: dec_29.iso8601)
 
@@ -165,7 +165,7 @@ RSpec.describe "Events By Week", type: :feature do
       let(:monday) { Date.current.beginning_of_week }
 
       it "Shows the event, matching by month and day like the day and month views do" do
-        create(:event, :no_year, title: "Undated Recurring Event",
+        create(:event, :no_year, :unrestricted, title: "Undated Recurring Event",
           month: monday.month, day: monday.day)
 
         visit events_by_week_path

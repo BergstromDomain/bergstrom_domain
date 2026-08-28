@@ -6,7 +6,7 @@ RSpec.describe "Events By Day", type: :feature do
   let(:tomorrow)  { today + 1.day }
 
   let!(:todays_event) do
-    create(:event,
+    create(:event, :unrestricted,
       title: "Master of Puppets Recording Session",
       month: today.month,
       day:   today.day,
@@ -14,7 +14,7 @@ RSpec.describe "Events By Day", type: :feature do
   end
 
   let!(:same_day_different_year) do
-    create(:event,
+    create(:event, :unrestricted,
       title: "Cliff Burton Joins Metallica",
       month: today.month,
       day:   today.day,
@@ -22,7 +22,7 @@ RSpec.describe "Events By Day", type: :feature do
   end
 
   let!(:yesterdays_event) do
-    create(:event,
+    create(:event, :unrestricted,
       title: "Fade to Black Rehearsal",
       month: yesterday.month,
       day:   yesterday.day,
@@ -30,7 +30,7 @@ RSpec.describe "Events By Day", type: :feature do
   end
 
   let!(:tomorrows_event) do
-    create(:event,
+    create(:event, :unrestricted,
       title: "Battery Live Performance",
       month: tomorrow.month,
       day:   tomorrow.day,

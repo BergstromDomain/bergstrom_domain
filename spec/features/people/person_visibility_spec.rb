@@ -20,6 +20,15 @@ RSpec.describe "Person visibility", type: :feature do
       expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Hetfield")
       expect(page).to have_selector("[data-testid='person-name']", text: "Lars Ulrich")
     end
+
+    it "shows the owner's own restricted people on their index" do
+      sign_in_as(owner)
+      visit people_path
+      expect(page).to have_selector("[data-testid='person-name']", text: "Kirk Lee Hammett")
+
+      visit people_path(classification: "restricted")
+      expect(page).to have_selector("[data-testid='person-name']", text: "Kirk Lee Hammett")
+    end
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────

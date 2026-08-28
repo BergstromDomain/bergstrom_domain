@@ -692,6 +692,64 @@ code, pre {
   color: var(--color-accent);
 }
 
+/* button_to renders a block-level <form> by default — keep it inline so
+   text-align: center on the icon cell still centers its contents. */
+.data-table__icon-cell form {
+  display: inline;
+}
+
+/* Bare icon button — e.g. mute/unmute toggles inside a data-table row */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+}
+
+.icon-button:hover {
+  color: var(--color-text-primary);
+}
+
+.icon-button--primary {
+  color: var(--color-primary);
+}
+
+.icon-button--primary:hover {
+  color: var(--color-primary-dark);
+}
+
+.icon-button--success {
+  color: var(--color-success);
+}
+
+.icon-button--success:hover {
+  filter: brightness(0.85);
+}
+
+.icon-button--danger {
+  color: var(--color-danger);
+}
+
+.icon-button--danger:hover {
+  color: var(--color-danger-dark);
+}
+
+/* Classification marker icon — e.g. next to a "Created By" name */
+.classification-icon--primary {
+  color: var(--color-primary);
+}
+
+.classification-icon--success {
+  color: var(--color-success);
+}
+
+.classification-icon--danger {
+  color: var(--color-danger);
+}
+
 /* Name cell — the clickable link */
 .data-table__name-link {
   font-weight: var(--font-weight-medium);
@@ -943,6 +1001,97 @@ textarea.form-control {
 }
 
 /* ============================================================
+   Classification navigation
+   ============================================================ */
+
+.classification-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.classification-nav__link {
+  padding: var(--space-2xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease,
+              color 0.15s ease,
+              border-color 0.15s ease;
+}
+
+.classification-nav__link:hover {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.classification-nav__link--active {
+  background-color: var(--color-accent-light);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.classification-checks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-md);
+}
+
+.classification-checks .form-check {
+  margin-block-end: 0;
+}
+
+/* ============================================================
+   Mute filter navigation
+   ============================================================ */
+
+.mute-filter-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mute-filter-nav__link {
+  padding: var(--space-2xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease,
+              color 0.15s ease,
+              border-color 0.15s ease;
+}
+
+.mute-filter-nav__link:hover {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.mute-filter-nav__link--active {
+  background-color: var(--color-accent-light);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ============================================================
    Day navigation
    ============================================================ */
 
@@ -1109,6 +1258,34 @@ textarea.form-control {
   border: 0;
 }
 
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* .data-table th sets text-align: left explicitly, which otherwise beats
+   the plain utility classes above on specificity — these scoped overrides
+   win instead, so header alignment actually matches its column's data. */
+.data-table th.text-center,
+.data-table td.text-center {
+  text-align: center;
+}
+
+.data-table th.text-right,
+.data-table td.text-right {
+  text-align: right;
+}
+
+/* Marks the first column of a new visual group within a table — a bigger
+   gap than the uniform spacing between columns within the same group. */
+.data-table th.group-start,
+.data-table td.group-start {
+  padding-left: var(--space-xl);
+}
+
 /* ============================================================
    Table thumbnails and person icons
    ============================================================ */
@@ -1132,6 +1309,12 @@ textarea.form-control {
   border-radius: var(--radius-full);
 }
 
+.table-thumbnail--small {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+}
+
 .table-thumbnail-icon {
   display: flex;
   align-items: center;
@@ -1149,6 +1332,11 @@ textarea.form-control {
   color: var(--color-text-secondary);
 }
 
+.table-thumbnail-icon--small {
+  width: 24px;
+  height: 24px;
+}
+
 .table-thumbnail-icon:hover {
   background-color: var(--color-accent-light);
   text-decoration: none;
@@ -1157,6 +1345,12 @@ textarea.form-control {
 .person-icon-group {
   display: flex;
   flex-wrap: wrap;
+  gap: var(--space-2xs);
+}
+
+.created-by {
+  display: inline-flex;
+  align-items: center;
   gap: var(--space-2xs);
 }
 

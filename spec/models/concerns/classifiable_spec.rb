@@ -35,6 +35,10 @@ RSpec.describe Classifiable, type: :model do
       it "returns contacts events to the owner" do
         expect(Event.visible_to_users(owner)).to include(contacts_event)
       end
+
+      it "returns restricted events to their owner" do
+        expect(Event.visible_to_users(owner)).to include(restricted_event)
+      end
     end
 
     describe "negative path" do
@@ -42,9 +46,8 @@ RSpec.describe Classifiable, type: :model do
         expect(Event.visible_to_users(stranger)).not_to include(contacts_event)
       end
 
-      it "does not return restricted events to any user" do
+      it "does not return restricted events to a non-owner" do
         expect(Event.visible_to_users(contact_user)).not_to include(restricted_event)
-        expect(Event.visible_to_users(owner)).not_to include(restricted_event)
         expect(Event.visible_to_users(stranger)).not_to include(restricted_event)
       end
     end

@@ -4,7 +4,7 @@ class PeopleController < ApplicationController
 
   allow_unauthenticated_access only: %i[index show]
   before_action :resume_session_if_available, only: %i[index show]
-  before_action :set_person,  only: %i[show edit update destroy]
+  before_action :set_person,  only: %i[show edit update destroy mute unmute]
   before_action :set_policy,  only: %i[index new create edit update destroy]
 
   def index
@@ -18,11 +18,23 @@ class PeopleController < ApplicationController
       Person.visible_to_users(current_user)
     end.includes(image_attachment: :blob)
 
+    if authenticated?
+      @selected_classifications = selected_classifications
+      visible = visible.where(classification: @selected_classifications)
+    end
+
+    # available_letters runs its own raw SQL against this scope — computed
+    # before adding the :user include below, since eager-loading a second
+    # table that also has first_name/last_name columns makes that raw SQL's
+    # bare column references ambiguous.
     @available_letters = Person.available_letters(visible)
 
     scoped = @selected_letter.present? ? visible.by_letter(@selected_letter) : visible
 
     @people = scoped.order(:last_name, :first_name)
+                     .includes(user: { profile_image_attachment: :blob })
+
+    @muted_person_ids = authenticated? ? current_user.person_mutes.pluck(:person_id).to_set : Set.new
   end
 
   def show
@@ -80,7 +92,25 @@ class PeopleController < ApplicationController
     redirect_to people_path, notice: "Person was successfully deleted."
   end
 
+  def mute
+    current_user.person_mutes.find_or_create_by!(person: @person)
+    redirect_to people_path, notice: "#{@person.full_name} muted."
+  end
+
+  def unmute
+    current_user.person_mutes.find_by(person: @person)&.destroy
+    redirect_to people_path, notice: "#{@person.full_name} unmuted."
+  end
+
   private
+
+  def selected_classifications
+    if params[:classifications]
+      Array(params[:classifications]) & Person.classifications.keys
+    else
+      current_user.default_classifications
+    end
+  end
 
   def set_person
     @person = Person.includes(image_attachment: :blob).friendly.find(params[:id])

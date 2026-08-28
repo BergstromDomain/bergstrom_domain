@@ -7,6 +7,13 @@ class User < ApplicationRecord
   has_many :contacts, dependent: :destroy
   has_many :contact_users, through: :contacts, source: :contact
 
+  has_many :person_mutes, dependent: :destroy
+  has_many :muted_people, through: :person_mutes, source: :person
+  has_many :event_mutes, dependent: :destroy
+  has_many :muted_events, through: :event_mutes, source: :event
+  has_many :event_type_mutes, dependent: :destroy
+  has_many :muted_event_types, through: :event_type_mutes, source: :event_type
+
   # ── Active Storage ────────────────────────────────────────────────────────
   has_one_attached :profile_image do |attachable|
     attachable.variant :thumbnail, resize_to_fill: [ 200, 200 ]

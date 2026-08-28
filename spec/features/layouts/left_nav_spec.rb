@@ -190,6 +190,55 @@ RSpec.describe "Left Navigation", type: :feature do
     end
   end
 
+  # ── Settings & Contacts ────────────────────────────────────────────────────
+
+  describe "Settings & Contacts" do
+    let(:uno) { create(:user) }
+
+    before { sign_in_as(uno) }
+
+    context "When 'Uno User' visits the 'Settings' page" do
+      before { visit settings_path }
+
+      it "Shows the left nav with the 'Settings H2' header" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_selector("[data-testid='left-nav-settings-h2']")
+        end
+      end
+
+      it "Shows the 'User details' and 'Contacts Management' links" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_link("User details", href: settings_path)
+          expect(page).to have_link("Contacts Management", href: contacts_path)
+        end
+      end
+
+      it "Does not show the Event Tracker 'Views' section" do
+        within("[data-testid='left-nav']") do
+          expect(page).not_to have_selector("[data-testid='left-nav-views-h2']")
+        end
+      end
+    end
+
+    context "When 'Uno User' visits the 'Contacts Management' page" do
+      before { visit contacts_path }
+
+      it "Shows the left nav with the 'Settings H2' header" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_selector("[data-testid='left-nav-settings-h2']")
+        end
+      end
+    end
+
+    context "When 'Uno User' clicks 'Contacts Management' from Settings" do
+      it "Navigates to the 'Contacts Management' page" do
+        visit settings_path
+        within("[data-testid='left-nav']") { click_link "Contacts Management" }
+        expect(page).to have_selector("h1.page-title", text: "Contacts Management")
+      end
+    end
+  end
+
   # ── Alternative Path ───────────────────────────────────────────────────────
 
   describe "Alternative Path" do

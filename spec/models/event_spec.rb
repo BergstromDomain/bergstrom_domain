@@ -396,4 +396,61 @@ RSpec.describe Event, type: :model do
       expect(Event.friendly.find("kill-em-all")).to eq(event)
     end
   end
+
+  # ── Class methods ──────────────────────────────────────────────────────────
+  describe ".not_muted_for" do
+    let(:alice) { create(:user) }
+    let(:adam)  { create(:person, user: alice) }
+    let(:anna)  { create(:person, user: alice) }
+    let(:sport) { create(:event_type) }
+
+    # 1) Happy path ───────────────────────────────────────────────────────────
+    describe "happy path" do
+      it "returns every event unchanged when the user has no mutes of any kind" do
+        event = create(:event).tap { |e| e.people = [ adam ] }
+        expect(Event.not_muted_for(alice)).to match_array(Event.all)
+        expect(Event.not_muted_for(alice)).to include(event)
+      end
+    end
+
+    # 2) Negative path ────────────────────────────────────────────────────────
+    describe "negative path" do
+      it "excludes an event the user has muted directly" do
+        event = create(:event).tap { |e| e.people = [ adam ] }
+        create(:event_mute, user: alice, event: event)
+        expect(Event.not_muted_for(alice)).not_to include(event)
+      end
+
+      it "excludes every event of an event_type the user has muted" do
+        event = create(:event, event_type: sport).tap { |e| e.people = [ adam ] }
+        create(:event_type_mute, user: alice, event_type: sport)
+        expect(Event.not_muted_for(alice)).not_to include(event)
+      end
+
+      it "excludes an event whose only person is muted" do
+        event = create(:event).tap { |e| e.people = [ adam ] }
+        create(:person_mute, user: alice, person: adam)
+        expect(Event.not_muted_for(alice)).not_to include(event)
+      end
+    end
+
+    # 3) Alternative path ─────────────────────────────────────────────────────
+    describe "alternative path" do
+      it "keeps an event visible if at least one attached person is unmuted" do
+        event = create(:event).tap { |e| e.people = [ adam, anna ] }
+        create(:person_mute, user: alice, person: adam)
+        expect(Event.not_muted_for(alice)).to include(event)
+      end
+    end
+
+    # 4) Edge cases ───────────────────────────────────────────────────────────
+    describe "edge cases" do
+      it "does not affect another user's visibility" do
+        bob   = create(:user)
+        event = create(:event).tap { |e| e.people = [ adam ] }
+        create(:person_mute, user: alice, person: adam)
+        expect(Event.not_muted_for(bob)).to include(event)
+      end
+    end
+  end
 end

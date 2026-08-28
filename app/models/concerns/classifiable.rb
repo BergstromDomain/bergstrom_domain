@@ -29,6 +29,7 @@ module Classifiable
             user_id: [ user.id ] + contact_owner_ids
           )
         )
+        .or(where(classification: "restricted", user_id: user.id))
     end
   end
 end

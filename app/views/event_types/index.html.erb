@@ -17,12 +17,14 @@
         <col style="width: 3.5rem;">
         <col style="width: 14rem;">
         <col>
+        <% if authenticated? %><col style="width: 48px;"><% end %>
       </colgroup>
       <thead>
         <tr>
           <th>Icon</th>
           <th>Name</th>
           <th>Description</th>
+          <% if authenticated? %><th></th><% end %>
         </tr>
       </thead>
       <tbody>
@@ -40,6 +42,27 @@
             <td class="data-table__description" data-testid="event-type-description">
               <%= event_type.description %>
             </td>
+            <% if authenticated? %>
+              <td class="data-table__icon-cell" data-testid="event-type-mute-cell">
+                <% if @muted_event_type_ids.include?(event_type.id) %>
+                  <%= button_to unmute_event_type_path(event_type),
+                        method: :delete,
+                        class: "icon-button",
+                        title: "Unmute #{event_type.name}",
+                        data: { testid: "unmute-event-type-#{event_type.id}", turbo: false } do %>
+                    <%= lucide_icon("bell-off", size: 18) %>
+                  <% end %>
+                <% else %>
+                  <%= button_to mute_event_type_path(event_type),
+                        method: :post,
+                        class: "icon-button",
+                        title: "Mute #{event_type.name}",
+                        data: { testid: "mute-event-type-#{event_type.id}", turbo: false } do %>
+                    <%= lucide_icon("bell", size: 18) %>
+                  <% end %>
+                <% end %>
+              </td>
+            <% end %>
           </tr>
         <% end %>
       </tbody>

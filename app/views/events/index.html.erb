@@ -18,6 +18,46 @@
   <% end %>
 </nav>
 
+<% if authenticated? %>
+  <%# ── Classification filter — independent checkboxes, any combination ──── %>
+  <%= form_with url: events_path, method: :get, class: "classification-nav",
+        data: { controller: "auto-submit", action: "change->auto-submit#submit", testid: "classification-nav" } do %>
+    <%= hidden_field_tag :month, @selected_month if @selected_month.present? %>
+    <%= hidden_field_tag :event_type_id, @selected_type_id if @selected_type_id.present? %>
+    <%= hidden_field_tag :show_all, @show_all if @show_all %>
+    <%= hidden_field_tag "classifications[]", "" %>
+    <div class="classification-checks">
+      <% Event.classifications.keys.each do |classification| %>
+        <div class="form-check">
+          <%= check_box_tag "classifications[]",
+                classification,
+                @selected_classifications.include?(classification),
+                id: "classification_#{classification}",
+                data: { testid: "classification-checkbox-#{classification}" } %>
+          <%= label_tag "classification_#{classification}", classification.humanize %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# ── Mute filter — one global toggle bypassing all three mute types ──────── %>
+  <%# An empty array param vanishes from the URL entirely, which would read %>
+  <%# back as "no classifications param" (→ falls back to the saved default) %>
+  <%# rather than "explicitly none" — "none" is not a real classification, so %>
+  <%# it survives the round trip while still filtering out to an empty set. %>
+  <% classifications_param = @selected_classifications.presence || %w[none] %>
+  <nav class="mute-filter-nav" data-testid="mute-filter-nav">
+    <%= link_to "Hide muted",
+          events_path(month: @selected_month, event_type_id: @selected_type_id, classifications: classifications_param),
+          class: "mute-filter-nav__link #{'mute-filter-nav__link--active' unless @show_all}",
+          data: { testid: "mute-filter-hide" } %>
+    <%= link_to "Show all",
+          events_path(month: @selected_month, event_type_id: @selected_type_id, classifications: classifications_param, show_all: true),
+          class: "mute-filter-nav__link #{'mute-filter-nav__link--active' if @show_all}",
+          data: { testid: "mute-filter-all" } %>
+  </nav>
+<% end %>
+
 <% if @events.any? %>
   <div class="data-table-wrapper">
     <table class="data-table" data-testid="events-table">
@@ -27,6 +67,7 @@
         <col style="width: 120px;">
         <col style="width: 56px;">
         <col style="width: 120px;">
+        <% if authenticated? %><col style="width: 48px;"><% end %>
       </colgroup>
       <thead>
         <tr>
@@ -35,6 +76,7 @@
           <th>Date</th>
           <th>Type</th>
           <th>People</th>
+          <% if authenticated? %><th></th><% end %>
         </tr>
       </thead>
       <tbody>
@@ -90,6 +132,27 @@
                 <% end %>
               </div>
             </td>
+            <% if authenticated? %>
+              <td class="data-table__icon-cell" data-testid="event-mute-cell">
+                <% if @muted_event_ids.include?(event.id) %>
+                  <%= button_to unmute_event_path(event),
+                        method: :delete,
+                        class: "icon-button",
+                        title: "Unmute #{event.title}",
+                        data: { testid: "unmute-event-#{event.id}", turbo: false } do %>
+                    <%= lucide_icon("bell-off", size: 18) %>
+                  <% end %>
+                <% else %>
+                  <%= button_to mute_event_path(event),
+                        method: :post,
+                        class: "icon-button",
+                        title: "Mute #{event.title}",
+                        data: { testid: "mute-event-#{event.id}", turbo: false } do %>
+                    <%= lucide_icon("bell", size: 18) %>
+                  <% end %>
+                <% end %>
+              </td>
+            <% end %>
           </tr>
         <% end %>
       </tbody>

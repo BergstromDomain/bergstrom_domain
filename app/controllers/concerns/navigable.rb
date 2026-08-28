@@ -17,6 +17,8 @@ module Navigable
     case controller
     when "events", "event_types", "people", "pages"
       :event_tracker
+    when "settings", "contacts"
+      :settings
     end
   end
 end

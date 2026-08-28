@@ -4,7 +4,7 @@
 # The following named users are used consistently across all feature specs.
 # Gary Guest               — unauthenticated visitor, no account, no let declaration needed
 # Pat Pending              — create(:user)                      status: "pending"
-# Sue Suspended            — create(:user)                      status: "suspended"
+# Sue Suspended            — create(:user)                      status: "suspended"    app_user role
 # Uno User                 — create(:user)                      status: "active"      app_user role
 # Ulrika User              — create(:user)                      status: "active"      app_user role
 # Charlie Content Creator  — create(:user, :content_creator)    status: "active"      content_creator role

@@ -36,6 +36,7 @@ RSpec.configure do |config|
 
   config.include FactoryBot::Syntax::Methods
   config.include AuthenticationHelpers, type: :feature
+  config.include RequestAuthenticationHelpers, type: :request
 
   # Database Cleaner
   config.before(:suite) { DatabaseCleaner.clean_with(:truncation) }

@@ -22,14 +22,45 @@
   <% end %>
 </nav>
 
+<% if authenticated? %>
+  <%# ── Classification filter — independent checkboxes, any combination ──── %>
+  <%= form_with url: people_path, method: :get, class: "classification-nav",
+        data: { controller: "auto-submit", action: "change->auto-submit#submit", testid: "classification-nav" } do %>
+    <%= hidden_field_tag :letter, @selected_letter if @selected_letter.present? %>
+    <%= hidden_field_tag "classifications[]", "" %>
+    <div class="classification-checks">
+      <% Person.classifications.keys.each do |classification| %>
+        <div class="form-check">
+          <%= check_box_tag "classifications[]",
+                classification,
+                @selected_classifications.include?(classification),
+                id: "classification_#{classification}",
+                data: { testid: "classification-checkbox-#{classification}" } %>
+          <%= label_tag "classification_#{classification}", classification.humanize %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
 <% if @people.any? %>
   <div class="data-table-wrapper">
     <table class="data-table" data-testid="people-table">
+      <colgroup>
+        <col style="width: 56px;">
+        <col>
+        <col style="width: 180px;">
+        <col style="width: 180px;">
+        <col style="width: 130px;">
+        <% if authenticated? %><col style="width: 130px;"><% end %>
+      </colgroup>
       <thead>
         <tr>
-          <th class="col-thumbnail"></th>
-          <th>Name</th>
-          <th>Event Types</th>
+          <th colspan="2">Name</th>
+          <th class="group-start">Event Types</th>
+          <th class="group-start">Created By</th>
+          <th class="text-center">Classification</th>
+          <% if authenticated? %><th class="text-center">Mute Person</th><% end %>
         </tr>
       </thead>
       <tbody>
@@ -54,7 +85,7 @@
                     class: "data-table__name-link",
                     data: { testid: "person-name" } %>
             </td>
-            <td data-testid="person-event-types">
+            <td class="group-start" data-testid="person-event-types">
               <div class="person-icon-group">
                 <% person.events.includes(:event_type).map(&:event_type).uniq.each do |event_type| %>
                   <%= link_to events_path(event_type_id: event_type.id),
@@ -65,6 +96,48 @@
                 <% end %>
               </div>
             </td>
+            <td class="group-start" data-testid="person-created-by">
+              <span class="created-by">
+                <% if person.user.profile_image.attached? %>
+                  <%= image_tag person.user.profile_image.variant(:thumbnail),
+                        alt: "#{person.user.first_name} #{person.user.last_name}",
+                        class: "table-thumbnail table-thumbnail--person table-thumbnail--small" %>
+                <% else %>
+                  <span class="table-thumbnail-icon table-thumbnail-icon--person table-thumbnail-icon--small">
+                    <%= lucide_icon("user", size: 14) %>
+                  </span>
+                <% end %>
+                <%= person.user.first_name %> <%= person.user.last_name %>
+              </span>
+            </td>
+            <td class="text-center" data-testid="person-classification-cell">
+              <%= lucide_icon classification_icon(person.classification),
+                    size: 16,
+                    class: classification_icon_class(person.classification),
+                    title: person.classification.humanize,
+                    data: { testid: "person-classification-icon" } %>
+            </td>
+            <% if authenticated? %>
+              <td class="data-table__icon-cell" data-testid="person-mute-cell">
+                <% if @muted_person_ids.include?(person.id) %>
+                  <%= button_to unmute_person_path(person),
+                        method: :delete,
+                        class: "icon-button",
+                        title: "Unmute #{person.full_name}",
+                        data: { testid: "unmute-person-#{person.id}", turbo: false } do %>
+                    <%= lucide_icon("bell-off", size: 18) %>
+                  <% end %>
+                <% else %>
+                  <%= button_to mute_person_path(person),
+                        method: :post,
+                        class: "icon-button",
+                        title: "Mute #{person.full_name}",
+                        data: { testid: "mute-person-#{person.id}", turbo: false } do %>
+                    <%= lucide_icon("bell", size: 18) %>
+                  <% end %>
+                <% end %>
+              </td>
+            <% end %>
           </tr>
         <% end %>
       </tbody>

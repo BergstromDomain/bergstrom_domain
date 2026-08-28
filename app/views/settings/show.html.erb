@@ -65,6 +65,12 @@
       <h3 class="show-meta-cell__label">Start Page</h3>
       <p class="show-meta-cell__value" data-testid="settings-start-page">Home</p>
     </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Default Visibility</h3>
+      <p class="show-meta-cell__value" data-testid="settings-default-classifications">
+        <%= Current.user.default_classifications.any? ? Current.user.default_classifications.map(&:humanize).join(", ") : "None" %>
+      </p>
+    </div>
   </div>
 </div>
 

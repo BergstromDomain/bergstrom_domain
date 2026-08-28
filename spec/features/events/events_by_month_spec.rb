@@ -8,7 +8,7 @@ RSpec.describe "Events By Month", type: :feature do
   let(:safe_month) { ((today.month + 5) % 12) + 1 }
 
   let!(:this_month_event) do
-    create(:event,
+    create(:event, :unrestricted,
       title: "Orion Live Performance",
       year:  today.year,
       month: today.month,
@@ -17,7 +17,7 @@ RSpec.describe "Events By Month", type: :feature do
 
   let!(:last_month_event) do
     last = today.beginning_of_month - 1.day
-    create(:event,
+    create(:event, :unrestricted,
       title: "The Unforgiven Recording",
       year:  last.year,
       month: last.month,
@@ -26,7 +26,7 @@ RSpec.describe "Events By Month", type: :feature do
 
   let!(:next_month_event) do
     nxt = today.end_of_month + 1.day
-    create(:event,
+    create(:event, :unrestricted,
       title: "Enter Sandman Soundcheck",
       year:  nxt.year,
       month: nxt.month,
@@ -120,6 +120,22 @@ RSpec.describe "Events By Month", type: :feature do
         visit events_by_month_path
 
         expect(page).to have_link("Orion Live Performance")
+      end
+
+      it "Hides an event the signed-in user has muted directly" do
+        create(:event_mute, user: uno, event: this_month_event)
+        visit events_by_month_path
+
+        expect(page).not_to have_link("Orion Live Performance")
+      end
+
+      it "Hides a restricted event owned by someone else" do
+        owner = create(:user)
+        create(:event, :restricted, title: "Someone Else's Private Event",
+               year: today.year, month: today.month, day: 2, user: owner)
+        visit events_by_month_path
+
+        expect(page).not_to have_link("Someone Else's Private Event")
       end
     end
   end

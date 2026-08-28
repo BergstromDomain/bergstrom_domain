@@ -3,12 +3,13 @@ class EventTypesController < ApplicationController
   include Navigable
   allow_unauthenticated_access only: %i[index show]
   before_action :resume_session_if_present
-  before_action :set_event_type, only: %i[show edit update destroy]
+  before_action :set_event_type, only: %i[show edit update destroy mute unmute]
   before_action :set_policy,     only: %i[show edit update destroy]
   before_action :require_admin, only: %i[new create]
 
   def index
     @event_types = EventType.order("LOWER(name) ASC")
+    @muted_event_type_ids = authenticated? ? current_user.event_type_mutes.pluck(:event_type_id).to_set : Set.new
   end
 
   def show
@@ -53,6 +54,16 @@ class EventTypesController < ApplicationController
     else
       redirect_to event_types_path, notice: "Event type deleted."
     end
+  end
+
+  def mute
+    current_user.event_type_mutes.find_or_create_by!(event_type: @event_type)
+    redirect_to event_types_path, notice: "#{@event_type.name} muted."
+  end
+
+  def unmute
+    current_user.event_type_mutes.find_by(event_type: @event_type)&.destroy
+    redirect_to event_types_path, notice: "#{@event_type.name} unmuted."
   end
 
   private

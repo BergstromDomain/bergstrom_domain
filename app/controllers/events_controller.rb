@@ -4,30 +4,34 @@ class EventsController < ApplicationController
 
   allow_unauthenticated_access only: %i[index show by_day by_week by_month]
   before_action :resume_session_if_available, only: %i[index show by_day by_week by_month]
-  before_action :set_event,    only: %i[show edit update destroy]
+  before_action :set_event,    only: %i[show edit update destroy mute unmute]
   before_action :set_policy,   only: %i[new create edit update destroy]
 
   def index
-    @selected_month    = params[:month]&.to_i
-    @selected_type_id  = params[:event_type_id]&.to_i
+    @selected_month   = params[:month]&.to_i
+    @selected_type_id = params[:event_type_id]&.to_i
+    @show_all         = params[:show_all] == "true"
 
-    base = if !authenticated?
-      Event.visible_to_visitors
-    elsif current_user.can_administer?
-      Event.visible_to_admins
-    else
-      Event.visible_to_users(current_user)
-    end.includes(:event_type, image_attachment: :blob,
-                 people: { image_attachment: :blob })
+    base = visible_events_base.includes(:event_type, image_attachment: :blob,
+                                         people: { image_attachment: :blob })
 
     base = base.where(month: @selected_month) if @selected_month&.between?(1, 12)
     base = base.where(event_type_id: @selected_type_id) if @selected_type_id.present?
+
+    if authenticated?
+      @selected_classifications = selected_classifications
+      base = base.where(classification: @selected_classifications)
+    end
+
+    base = base.merge(Event.not_muted_for(current_user)) if authenticated? && !@show_all
 
     @events = if @selected_month
       base.order(:day, :title)
     else
       base.order(:month, :day, :title)
     end
+
+    @muted_event_ids = authenticated? ? current_user.event_mutes.pluck(:event_id).to_set : Set.new
   end
 
   def by_day
@@ -50,9 +54,11 @@ class EventsController < ApplicationController
     @selected_month = Integer(params[:month], exception: false)
     @selected_month = Date.current.month unless @selected_month&.between?(1, 12)
 
-    @events = Event.where(month: @selected_month)
-               .includes(:event_type, image_attachment: :blob,
-                         people: { image_attachment: :blob })
+    scope = visible_events_base.where(month: @selected_month)
+    scope = scope.merge(Event.not_muted_for(current_user)) if authenticated?
+
+    @events = scope.includes(:event_type, image_attachment: :blob,
+                              people: { image_attachment: :blob })
                .order(:year, :day, "LOWER(title)")
   end
 
@@ -111,10 +117,41 @@ class EventsController < ApplicationController
     redirect_to events_path, notice: "Event was successfully deleted."
   end
 
+  def mute
+    current_user.event_mutes.find_or_create_by!(event: @event)
+    redirect_to events_path, notice: "#{@event.title} muted."
+  end
+
+  def unmute
+    current_user.event_mutes.find_by(event: @event)&.destroy
+    redirect_to events_path, notice: "#{@event.title} unmuted."
+  end
+
   private
 
+  def visible_events_base
+    if !authenticated?
+      Event.visible_to_visitors
+    elsif current_user.can_administer?
+      Event.visible_to_admins
+    else
+      Event.visible_to_users(current_user)
+    end
+  end
+
+  def selected_classifications
+    if params[:classifications]
+      Array(params[:classifications]) & Event.classifications.keys
+    else
+      current_user.default_classifications
+    end
+  end
+
   def events_on_date(date)
-    Event.where(month: date.month, day: date.day)
+    scope = visible_events_base.where(month: date.month, day: date.day)
+    scope = scope.merge(Event.not_muted_for(current_user)) if authenticated?
+
+    scope
       .includes(:event_type, image_attachment: :blob,
                 people: { image_attachment: :blob })
       .order("LOWER(title)")
@@ -124,8 +161,9 @@ class EventsController < ApplicationController
     day_pairs = (start_date..end_date).map { |d| [ d.month, d.day ] }
 
     scope = day_pairs
-      .map { |month, day| Event.where(month: month, day: day) }
+      .map { |month, day| visible_events_base.where(month: month, day: day) }
       .reduce { |combined, condition| combined.or(condition) }
+    scope = scope.merge(Event.not_muted_for(current_user)) if authenticated?
 
     scope
       .includes(:event_type, image_attachment: :blob,
