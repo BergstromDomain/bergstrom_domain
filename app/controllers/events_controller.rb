@@ -12,14 +12,8 @@ class EventsController < ApplicationController
     @selected_type_id = params[:event_type_id]&.to_i
     @show_all         = params[:show_all] == "true"
 
-    base = if !authenticated?
-      Event.visible_to_visitors
-    elsif current_user.can_administer?
-      Event.visible_to_admins
-    else
-      Event.visible_to_users(current_user)
-    end.includes(:event_type, image_attachment: :blob,
-                 people: { image_attachment: :blob })
+    base = visible_events_base.includes(:event_type, image_attachment: :blob,
+                                         people: { image_attachment: :blob })
 
     base = base.where(month: @selected_month) if @selected_month&.between?(1, 12)
     base = base.where(event_type_id: @selected_type_id) if @selected_type_id.present?
@@ -60,9 +54,11 @@ class EventsController < ApplicationController
     @selected_month = Integer(params[:month], exception: false)
     @selected_month = Date.current.month unless @selected_month&.between?(1, 12)
 
-    @events = Event.where(month: @selected_month)
-               .includes(:event_type, image_attachment: :blob,
-                         people: { image_attachment: :blob })
+    scope = visible_events_base.where(month: @selected_month)
+    scope = scope.merge(Event.not_muted_for(current_user)) if authenticated?
+
+    @events = scope.includes(:event_type, image_attachment: :blob,
+                              people: { image_attachment: :blob })
                .order(:year, :day, "LOWER(title)")
   end
 
@@ -133,6 +129,16 @@ class EventsController < ApplicationController
 
   private
 
+  def visible_events_base
+    if !authenticated?
+      Event.visible_to_visitors
+    elsif current_user.can_administer?
+      Event.visible_to_admins
+    else
+      Event.visible_to_users(current_user)
+    end
+  end
+
   def selected_classifications
     if params[:classifications]
       Array(params[:classifications]) & Event.classifications.keys
@@ -142,7 +148,10 @@ class EventsController < ApplicationController
   end
 
   def events_on_date(date)
-    Event.where(month: date.month, day: date.day)
+    scope = visible_events_base.where(month: date.month, day: date.day)
+    scope = scope.merge(Event.not_muted_for(current_user)) if authenticated?
+
+    scope
       .includes(:event_type, image_attachment: :blob,
                 people: { image_attachment: :blob })
       .order("LOWER(title)")
@@ -152,8 +161,9 @@ class EventsController < ApplicationController
     day_pairs = (start_date..end_date).map { |d| [ d.month, d.day ] }
 
     scope = day_pairs
-      .map { |month, day| Event.where(month: month, day: day) }
+      .map { |month, day| visible_events_base.where(month: month, day: day) }
       .reduce { |combined, condition| combined.or(condition) }
+    scope = scope.merge(Event.not_muted_for(current_user)) if authenticated?
 
     scope
       .includes(:event_type, image_attachment: :blob,
