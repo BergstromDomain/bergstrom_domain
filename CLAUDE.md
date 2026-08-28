@@ -135,6 +135,13 @@ into exactly four sections, in this order:
 
 New specs should follow the same structure and ordering as these existing files.
 
+## Manual testing
+
+Automated coverage (rspec, rubocop, brakeman, bundler-audit) is necessary but not
+sufficient. Before opening a PR for a new feature, manually exercise it end-to-end via
+`bin/dev` in a real browser — automated specs verify code correctness, not that the feature
+actually works and feels right to use.
+
 ## Commit conventions
 
 Commit messages (and thus PR titles containing them) are enforced by both a local
