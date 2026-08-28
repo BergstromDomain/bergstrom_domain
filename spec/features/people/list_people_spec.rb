@@ -106,5 +106,24 @@ RSpec.describe "List People", type: :feature do
         expect(page).to have_selector("[data-testid='person-classification-icon'][title='Unrestricted']")
       end
     end
+
+    it "left-aligns the Name/Event Types/Created By column group headers, matching their data" do
+      create(:person, :unrestricted, user: user, first_name: "Group", middle_name: nil, last_name: "Test")
+      visit people_path
+      expect(page).to have_selector("thead th[colspan='2']", text: "Name")
+      expect(page).to have_selector("thead th.group-start", text: "Event Types")
+      expect(page).to have_selector("thead th.group-start", text: "Created By")
+      expect(page).not_to have_selector("thead th.text-center", text: "Event Types")
+    end
+
+    it "centers the Classification column header and icon" do
+      sign_in_as(user)
+      create(:person, :unrestricted, user: user, first_name: "Cen", middle_name: nil, last_name: "Tered")
+      visit people_path
+      expect(page).to have_selector("thead th.text-center", text: "Classification")
+      within("[data-testid='person-row']", text: "Cen Tered") do
+        expect(page).to have_selector("[data-testid='person-classification-cell'].text-center")
+      end
+    end
   end
 end

@@ -46,14 +46,21 @@
 <% if @people.any? %>
   <div class="data-table-wrapper">
     <table class="data-table" data-testid="people-table">
+      <colgroup>
+        <col style="width: 56px;">
+        <col>
+        <col style="width: 180px;">
+        <col style="width: 180px;">
+        <col style="width: 130px;">
+        <% if authenticated? %><col style="width: 130px;"><% end %>
+      </colgroup>
       <thead>
         <tr>
-          <th class="col-thumbnail"></th>
-          <th>Name</th>
-          <th class="text-center">Event Types</th>
-          <th class="text-right">Created By</th>
-          <th class="text-right">Classification</th>
-          <% if authenticated? %><th class="text-right">Mute Person</th><% end %>
+          <th colspan="2">Name</th>
+          <th class="group-start">Event Types</th>
+          <th class="group-start">Created By</th>
+          <th class="text-center">Classification</th>
+          <% if authenticated? %><th class="text-center">Mute Person</th><% end %>
         </tr>
       </thead>
       <tbody>
@@ -78,8 +85,8 @@
                     class: "data-table__name-link",
                     data: { testid: "person-name" } %>
             </td>
-            <td class="text-center" data-testid="person-event-types">
-              <div class="person-icon-group person-icon-group--center">
+            <td class="group-start" data-testid="person-event-types">
+              <div class="person-icon-group">
                 <% person.events.includes(:event_type).map(&:event_type).uniq.each do |event_type| %>
                   <%= link_to events_path(event_type_id: event_type.id),
                         class: "person-icon-link",
@@ -89,7 +96,7 @@
                 <% end %>
               </div>
             </td>
-            <td class="text-right" data-testid="person-created-by">
+            <td class="group-start" data-testid="person-created-by">
               <span class="created-by">
                 <% if person.user.profile_image.attached? %>
                   <%= image_tag person.user.profile_image.variant(:thumbnail),
@@ -103,7 +110,7 @@
                 <%= person.user.first_name %> <%= person.user.last_name %>
               </span>
             </td>
-            <td class="text-right" data-testid="person-classification-cell">
+            <td class="text-center" data-testid="person-classification-cell">
               <%= lucide_icon classification_icon(person.classification),
                     size: 16,
                     class: classification_icon_class(person.classification),
@@ -111,7 +118,7 @@
                     data: { testid: "person-classification-icon" } %>
             </td>
             <% if authenticated? %>
-              <td class="data-table__icon-cell text-right" data-testid="person-mute-cell">
+              <td class="data-table__icon-cell" data-testid="person-mute-cell">
                 <% if @muted_person_ids.include?(person.id) %>
                   <%= button_to unmute_person_path(person),
                         method: :delete,
