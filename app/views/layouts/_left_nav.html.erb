@@ -133,8 +133,8 @@
   <% elsif @left_nav_section == :blog_posts %>
 
     <%# ── Views ─────────────────────────────────────────────────────────── %>
-    <%# Only the landing page exists so far — later blocks add All Posts, %>
-    <%# Categories, and Create Post links here as those controllers land. %>
+    <%# All Posts and Create Post links land here once those blocks build %>
+    <%# their controllers. %>
     <div class="left-nav-section">
       <h2 class="left-nav-h2" data-testid="left-nav-views-h2">
         <%= lucide_icon("eye", size: 14) %> Views
@@ -144,7 +144,31 @@
         <%= lucide_icon("newspaper", size: 15) %>
         <span>Chronicle</span>
       <% end %>
+
+      <h3 class="left-nav-h3" data-testid="left-nav-blog-category-h3">
+        Blog Category
+      </h3>
+      <%= link_to blog_categories_path, class: "left-nav-link" do %>
+        <%= lucide_icon("boxes", size: 15) %>
+        <span>Blog Categories</span>
+      <% end %>
     </div>
+
+    <% if current_user&.can_administer? %>
+      <hr class="left-nav-divider">
+
+      <%# ── Actions (Admin and above) ────────────────────────────────────── %>
+      <div class="left-nav-section">
+        <h2 class="left-nav-h2" data-testid="left-nav-actions-h2">
+          <%= lucide_icon("cog", size: 14) %> Actions
+        </h2>
+
+        <%= link_to new_blog_category_path, class: "left-nav-link" do %>
+          <%= lucide_icon("box", size: 15) %>
+          <span>Create Blog Category</span>
+        <% end %>
+      </div>
+    <% end %>
 
   <% end %>
 </nav>

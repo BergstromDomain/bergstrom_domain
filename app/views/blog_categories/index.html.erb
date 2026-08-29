@@ -1,0 +1,51 @@
+<%# app/views/blog_categories/index.html.erb %>
+
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Blog Categories</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Categories are used to classify Chronicle posts into meaningful groups.
+  </p>
+</div>
+
+<% if @blog_categories.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="blog-category-table">
+      <colgroup>
+        <col style="width: 3.5rem;">
+        <col style="width: 14rem;">
+        <col>
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Icon</th>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @blog_categories.each do |blog_category| %>
+          <tr data-testid="blog-category-row">
+            <td class="data-table__icon-cell" data-testid="blog-category-icon">
+              <%= lucide_icon(blog_category.icon, size: 22) %>
+            </td>
+            <td>
+              <%= link_to blog_category.name,
+                    blog_category_path(blog_category),
+                    class: "data-table__name-link",
+                    data: { testid: "blog-category-name" } %>
+            </td>
+            <td class="data-table__description" data-testid="blog-category-description">
+              <%= blog_category.description %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No blog categories have been added yet.</p>
+  </div>
+<% end %>
