@@ -1,0 +1,151 @@
+<%# app/views/blog_posts/_form.html.erb %>
+
+<% content_for :head do %>
+  <%= stylesheet_link_tag "vendor/quill.snow" %>
+<% end %>
+
+<%= form_with model: blog_post,
+      class: "resource-form",
+      data: {
+        controller: "author-shuttle blog-post-editor",
+        blog_post_editor_convert_url_value: convert_format_blog_posts_path
+      } do |f| %>
+  <% if blog_post.errors.any? %>
+    <div class="form-errors" data-testid="form-errors">
+      <p><%= pluralize(blog_post.errors.count, "error") %> prevented this blog post from being saved:</p>
+      <ul>
+        <% blog_post.errors.each do |error| %>
+          <li data-testid="field-error"><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# Title Frame %>
+  <div class="show-panel" data-testid="new-panel-title">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Title</h2>
+      <div class="form-group">
+        <%= f.label :title, class: "sr-only" %>
+        <%= f.text_field :title,
+              class: "form-control #{'form-control--error' if blog_post.errors[:title].any?}",
+              data: { testid: "title-field" } %>
+        <% if blog_post.errors[:title].any? %>
+          <span class="field-error" data-testid="field-error"><%= blog_post.errors[:title].first %></span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%# Metadata Frame %>
+  <div class="show-panel" data-testid="new-panel-metadata">
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Category</h3>
+      <div class="form-group">
+        <%= f.label :blog_category_id, class: "sr-only" %>
+        <%= f.collection_select :blog_category_id,
+              BlogCategory.order("LOWER(name) ASC"), :id, :name,
+              { include_blank: "Select a category (optional)" },
+              { class: "form-control", data: { testid: "category-field" } } %>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Sub Category</h3>
+      <div class="form-group">
+        <%= f.label :sub_category, class: "sr-only" %>
+        <%= f.text_field :sub_category, class: "form-control", data: { testid: "sub-category-field" } %>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Topic</h3>
+      <div class="form-group">
+        <%= f.label :topic, class: "sr-only" %>
+        <%= f.text_field :topic,
+              class: "form-control #{'form-control--error' if blog_post.errors[:sub_category].any?}",
+              data: { testid: "topic-field" } %>
+        <% if blog_post.errors[:sub_category].any? %>
+          <span class="field-error" data-testid="field-error"><%= blog_post.errors[:sub_category].first %></span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Add Author</h3>
+      <p class="form-hint">Only your confirmed contacts can be added as co-authors.</p>
+      <div class="dual-select">
+        <div class="dual-select__column">
+          <label class="dual-select__label" for="author_filter">Available</label>
+          <input type="text" id="author_filter" class="form-control"
+                 placeholder="Filter by name…"
+                 data-author-shuttle-target="filter"
+                 data-action="input->author-shuttle#filter"
+                 data-testid="author-filter-field">
+          <select multiple size="8" class="dual-select__box"
+                  data-author-shuttle-target="available"
+                  data-testid="available-authors">
+            <% @available_authors.each do |user| %>
+              <option value="<%= user.id %>"><%= user.first_name %> <%= user.last_name %></option>
+            <% end %>
+          </select>
+        </div>
+
+        <div class="dual-select__buttons">
+          <button type="button" class="btn btn-secondary" data-action="author-shuttle#add" data-testid="add-author-button">►</button>
+          <button type="button" class="btn btn-secondary" data-action="author-shuttle#remove" data-testid="remove-author-button">◄</button>
+        </div>
+
+        <div class="dual-select__column">
+          <label class="dual-select__label">Co-Authors</label>
+          <select multiple size="8" class="dual-select__box" name="blog_post[author_ids][]"
+                  data-author-shuttle-target="selected"
+                  data-testid="selected-authors">
+            <% @selected_authors.each do |user| %>
+              <option value="<%= user.id %>"><%= user.first_name %> <%= user.last_name %></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Blog Post Frame %>
+  <div class="show-panel" data-testid="new-panel-body">
+    <div class="editor-tabs" role="tablist">
+      <button type="button" class="editor-tab" role="tab"
+              data-blog-post-editor-target="rawTab"
+              data-action="blog-post-editor#switchToRaw"
+              data-testid="raw-tab">Raw</button>
+      <button type="button" class="editor-tab tab--active" role="tab"
+              data-blog-post-editor-target="formattedTab"
+              data-action="blog-post-editor#switchToFormatted"
+              data-testid="formatted-tab">Formatted</button>
+    </div>
+
+    <%= f.hidden_field :format, data: { "blog-post-editor-target": "format" } %>
+
+    <div data-blog-post-editor-target="rawPanel" hidden data-testid="raw-panel">
+      <%= f.label :body, "Body (Markdown)", class: "sr-only" %>
+      <%= f.text_area :body,
+            rows: 16,
+            class: "form-control",
+            data: { "blog-post-editor-target": "raw", testid: "body-field" } %>
+    </div>
+
+    <div data-blog-post-editor-target="formattedPanel" data-testid="formatted-panel">
+      <div data-blog-post-editor-target="editor" data-testid="quill-editor"></div>
+    </div>
+  </div>
+
+  <%# Action Frame %>
+  <div class="show-panel show-panel--actions" data-testid="new-panel-actions">
+    <%= link_to chronicle_path, class: "btn btn-secondary" do %>
+      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary" data-testid="save-button">
+      <%= lucide_icon("save", size: 16) %> Save Blog Post
+    </button>
+  </div>
+<% end %>

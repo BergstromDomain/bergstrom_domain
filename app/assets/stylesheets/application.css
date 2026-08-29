@@ -2043,3 +2043,88 @@ textarea.form-control {
   opacity: 0.5;
 }
 
+/* ============================================================
+   Author shuttle (Chronicle — add co-authors on the Create Post form)
+   ============================================================ */
+
+.dual-select {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-sm);
+  margin-top: var(--space-xs);
+}
+
+.dual-select__column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.dual-select__label {
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.dual-select__box {
+  flex: 1;
+  min-height: 12rem;
+  padding: var(--space-2xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.dual-select__box option {
+  padding: var(--space-2xs) var(--space-xs);
+}
+
+.dual-select__buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-xs);
+}
+
+/* ============================================================
+   Chronicle Blog Post editor (Raw/Formatted tabs + Quill)
+   ============================================================ */
+
+.editor-tabs {
+  display: flex;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.editor-tab {
+  padding: var(--space-xs) var(--space-md);
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.editor-tab.tab--active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+.ql-toolbar.ql-snow {
+  border-color: var(--color-border);
+  border-top-left-radius: var(--radius-sm);
+  border-top-right-radius: var(--radius-sm);
+}
+
+.ql-container.ql-snow {
+  border-color: var(--color-border);
+  border-bottom-left-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+  min-height: 16rem;
+  font-size: 1rem;
+}
+

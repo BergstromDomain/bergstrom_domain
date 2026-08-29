@@ -133,8 +133,7 @@
   <% elsif @left_nav_section == :blog_posts %>
 
     <%# ── Views ─────────────────────────────────────────────────────────── %>
-    <%# All Posts and Create Post links land here once those blocks build %>
-    <%# their controllers. %>
+    <%# The All Posts link lands here once the Read a Post block builds it. %>
     <div class="left-nav-section">
       <h2 class="left-nav-h2" data-testid="left-nav-views-h2">
         <%= lucide_icon("eye", size: 14) %> Views
@@ -154,18 +153,28 @@
       <% end %>
     </div>
 
-    <% if current_user&.can_administer? %>
+    <% if can_see_left_nav_actions? %>
+      <% blog_post_policy = Policy.new(current_user, :blog_posts) %>
       <hr class="left-nav-divider">
 
-      <%# ── Actions (Admin and above) ────────────────────────────────────── %>
+      <%# ── Actions (Content Creator and above) ────────────────────────────── %>
       <div class="left-nav-section">
         <h2 class="left-nav-h2" data-testid="left-nav-actions-h2">
           <%= lucide_icon("cog", size: 14) %> Actions
         </h2>
 
-        <%= link_to new_blog_category_path, class: "left-nav-link" do %>
-          <%= lucide_icon("box", size: 15) %>
-          <span>Create Blog Category</span>
+        <% if blog_post_policy.can_create? %>
+          <%= link_to new_blog_post_path, class: "left-nav-link" do %>
+            <%= lucide_icon("file-plus-2", size: 15) %>
+            <span>Create Post</span>
+          <% end %>
+        <% end %>
+
+        <% if current_user&.can_administer? %>
+          <%= link_to new_blog_category_path, class: "left-nav-link" do %>
+            <%= lucide_icon("box", size: 15) %>
+            <span>Create Blog Category</span>
+          <% end %>
         <% end %>
       </div>
     <% end %>

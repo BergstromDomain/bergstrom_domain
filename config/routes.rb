@@ -59,7 +59,9 @@ Rails.application.routes.draw do
   get "chronicle",     to: "pages#chronicle",     as: :chronicle
 
   # Chronicle (Blog Posts)
-  resources :blog_posts,      path: "blog-posts"
+  resources :blog_posts, path: "blog-posts" do
+    collection { post :convert_format }
+  end
   resources :blog_categories, path: "blog-post-categories"
 
   root "pages#home"

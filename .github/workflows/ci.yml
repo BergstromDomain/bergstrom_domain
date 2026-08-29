@@ -38,7 +38,8 @@ jobs:
           bundler-cache: true
 
       - name: Scan for security vulnerabilities in JavaScript dependencies
-        run: bin/importmap audit
+        # Ignores managed via config/importmap-audit.yml
+        run: bin/importmap-audit
 
   lint:
     runs-on: ubuntu-latest
