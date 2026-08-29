@@ -110,6 +110,42 @@ RSpec.describe Policy do
         expect(policy.can_read?).to be true
       end
     end
+
+    context "blog post drafts" do
+      let(:unrestricted_draft) { create(:blog_post, :unrestricted, user: owner) }
+
+      it "returns true for the author, even though the post is unrestricted" do
+        policy = Policy.new(owner, unrestricted_draft)
+        expect(policy.can_read?).to be true
+      end
+
+      it "returns true for a co-author" do
+        unrestricted_draft.blog_post_authors.create!(user: other_user)
+        policy = Policy.new(other_user, unrestricted_draft)
+        expect(policy.can_read?).to be true
+      end
+
+      it "returns false for anyone else, even though the post is unrestricted" do
+        policy = Policy.new(app_user, unrestricted_draft)
+        expect(policy.can_read?).to be false
+      end
+
+      it "returns false for visitors" do
+        policy = Policy.new(nil, unrestricted_draft)
+        expect(policy.can_read?).to be false
+      end
+
+      it "returns true for an admin" do
+        policy = Policy.new(admin, unrestricted_draft)
+        expect(policy.can_read?).to be true
+      end
+
+      it "falls back to normal classification rules once published" do
+        unrestricted_draft.update!(published_at: Time.current)
+        policy = Policy.new(app_user, unrestricted_draft)
+        expect(policy.can_read?).to be true
+      end
+    end
   end
 
   # ── can_create? ───────────────────────────────────────────────────────────
@@ -199,6 +235,13 @@ RSpec.describe Policy do
         policy = Policy.new(owner, :event_tracker)
         expect(policy.can_update?).to be false
       end
+
+      it "returns true for a content_creator co-author who is not the primary author" do
+        post = create(:blog_post, user: owner)
+        post.blog_post_authors.create!(user: other_user)
+        policy = Policy.new(other_user, post)
+        expect(policy.can_update?).to be true
+      end
     end
 
     context "with an AppPermission override" do
@@ -261,6 +304,13 @@ RSpec.describe Policy do
 
       it "returns true for a system_admin regardless of ownership" do
         policy = Policy.new(system_admin, owned_event)
+        expect(policy.can_delete?).to be true
+      end
+
+      it "returns true for a content_creator co-author who is not the primary author" do
+        post = create(:blog_post, user: owner)
+        post.blog_post_authors.create!(user: other_user)
+        policy = Policy.new(other_user, post)
         expect(policy.can_delete?).to be true
       end
     end

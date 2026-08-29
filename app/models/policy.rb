@@ -8,6 +8,12 @@ class Policy
   def can_read?
     return false unless @resource.respond_to?(:classification)
 
+    # A draft BlogPost is visible only to its authors/admins, regardless of
+    # classification — Classifiable's normal rules only govern published posts.
+    if @resource.is_a?(BlogPost) && !@resource.published?
+      return !!(owner? || can_administer?)
+    end
+
     case @resource.classification
     when "unrestricted"
       true
@@ -69,7 +75,9 @@ class Policy
   end
 
   def owner?
-    record? && @resource.user_id == @user.id
+    return false unless record? && @user
+    return @resource.authors.exists?(id: @user.id) if @resource.is_a?(BlogPost)
+    @resource.user_id == @user.id
   end
 
   def record?
@@ -84,9 +92,9 @@ class Policy
   def app_name_for(resource)
     case resource
     when Event, EventType, Person, :event_tracker then "event_tracker"
-    when :blog_posts                      then "blog_posts"
-    when :recipes                         then "recipes"
-    when :photo_albums                    then "photo_albums"
+    when BlogPost, BlogCategory, :blog_posts      then "blog_posts"
+    when :recipes                                 then "recipes"
+    when :photo_albums                            then "photo_albums"
     end
   end
 end
