@@ -56,11 +56,15 @@ Rails.application.routes.draw do
 
   # Stub pages
   get "event_tracker", to: "pages#event_tracker", as: :event_tracker
+  get "chronicle",     to: "pages#chronicle",     as: :chronicle
+
+  # Chronicle (Blog Posts)
+  resources :blog_posts,      path: "blog-posts"
+  resources :blog_categories, path: "blog-post-categories"
 
   root "pages#home"
   get "about",      to: "pages#about"
   get "contact",    to: "pages#contact"
-  get "blog-posts", to: "pages#blog_posts", as: :blog_posts
 
   namespace :system_admin do
     resources :users, only: %i[index show] do

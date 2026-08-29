@@ -22,11 +22,6 @@ RSpec.describe "Left Navigation", type: :feature do
       visit contact_path
       expect(page).not_to have_selector("[data-testid='left-nav']")
     end
-
-    it "Is not present on the 'Blog Posts' page" do
-      visit blog_posts_path
-      expect(page).not_to have_selector("[data-testid='left-nav']")
-    end
   end
 
   # ── Happy Path ─────────────────────────────────────────────────────────────
@@ -235,6 +230,31 @@ RSpec.describe "Left Navigation", type: :feature do
         visit settings_path
         within("[data-testid='left-nav']") { click_link "Contacts Management" }
         expect(page).to have_selector("h1.page-title", text: "Contacts Management")
+      end
+    end
+  end
+
+  # ── Chronicle ──────────────────────────────────────────────────────────────
+
+  describe "Chronicle" do
+    context "When 'Gary Guest' visits the 'Chronicle' landing page" do
+      before { visit chronicle_path }
+
+      it "Shows the left nav" do
+        expect(page).to have_selector("[data-testid='left-nav']")
+      end
+
+      it "Shows the 'Views' section with a 'Chronicle' link" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_selector("[data-testid='left-nav-views-h2']")
+          expect(page).to have_link("Chronicle", href: chronicle_path)
+        end
+      end
+
+      it "Does not show the Event Tracker 'Event Tracker' link" do
+        within("[data-testid='left-nav']") do
+          expect(page).not_to have_link("Event Tracker", href: event_tracker_path)
+        end
       end
     end
   end
