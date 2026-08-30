@@ -70,6 +70,7 @@ Rails.application.routes.draw do
     collection do
       post :convert_format
       get  :deleted
+      get  :filter
     end
   end
   resources :blog_categories, path: "blog-post-categories"

@@ -1,0 +1,135 @@
+<%# app/views/blog_posts/filter.html.erb %>
+
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Filter Blog Posts</h1>
+  </div>
+</div>
+
+<%= form_with url: filter_blog_posts_path, method: :get, data: { controller: "filter-mode" } do %>
+  <%= hidden_field_tag :mode, @mode, data: { "filter-mode-target": "mode" } %>
+
+  <div class="editor-tabs" role="tablist">
+    <button type="button" class="editor-tab<%= " tab--active" if @mode == "basic" %>" role="tab"
+            data-filter-mode-target="basicTab" data-action="filter-mode#switchToBasic"
+            data-testid="basic-tab">Basic</button>
+    <button type="button" class="editor-tab<%= " tab--active" if @mode == "sql" %>" role="tab"
+            data-filter-mode-target="sqlTab" data-action="filter-mode#switchToSql"
+            data-testid="sql-tab">SQL</button>
+  </div>
+
+  <div class="show-panel" data-filter-mode-target="basicPanel" data-testid="basic-panel"
+       <%= "hidden" if @mode == "sql" %>>
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Category</h3>
+      <%= select_tag :category_id,
+            options_for_select([ [ "All Categories", "" ] ] + @category_options.map { |c| [ c.name, c.slug ] },
+              params[:category_id]),
+            class: "form-control", data: { testid: "category-filter" } %>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Subject</h3>
+      <%= select_tag :subject,
+            options_for_select([ [ "All Subjects", "" ] ] + @subject_options.map { |s| [ s, s ] }, params[:subject]),
+            class: "form-control", data: { testid: "subject-filter" } %>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Topic</h3>
+      <%= select_tag :topic,
+            options_for_select([ [ "All Topics", "" ] ] + @topic_options.map { |t| [ t, t ] }, params[:topic]),
+            class: "form-control", data: { testid: "topic-filter" } %>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Author</h3>
+      <%= select_tag :author_id,
+            options_for_select([ [ "All Authors", "" ] ] +
+              @author_options.map { |u| [ "#{u.first_name} #{u.last_name}", u.id ] }, params[:author_id]),
+            class: "form-control", data: { testid: "author-filter" } %>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Created</h3>
+      <%= select_tag :created,
+            options_for_select([ [ "Anytime", "" ], [ "Today", "today" ], [ "This Week", "this_week" ],
+              [ "This Month", "this_month" ], [ "This Year", "this_year" ] ], params[:created]),
+            class: "form-control", data: { testid: "created-filter" } %>
+    </div>
+  </div>
+
+  <div class="show-panel" data-filter-mode-target="sqlPanel" data-testid="sql-panel"
+       <%= "hidden" if @mode == "basic" %>>
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Query</h3>
+      <%= text_area_tag :query, @query, rows: 4, class: "form-control",
+            placeholder: 'category = "Technology" AND (topic = "Ruby On Rails" OR comments > 5)',
+            data: { testid: "jql-query-field" } %>
+      <% if @filter_error %>
+        <span class="field-error" data-testid="filter-error"><%= @filter_error %></span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="show-panel show-panel--actions">
+    <button type="submit" class="btn btn-primary" data-testid="apply-filters-button">
+      <%= lucide_icon("filter", size: 16) %> Apply Filters
+    </button>
+  </div>
+<% end %>
+
+<% if @posts.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="filter-results-table">
+      <thead>
+        <tr>
+          <th><%= filter_sort_link("category") %></th>
+          <th><%= filter_sort_link("subject") %></th>
+          <th><%= filter_sort_link("topic") %></th>
+          <th><%= filter_sort_link("title") %></th>
+          <th><%= filter_sort_link("author") %></th>
+          <th><%= filter_sort_link("created") %></th>
+          <th><%= filter_sort_link("comments") %></th>
+          <th><%= filter_sort_link("smiles") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @posts.each do |post| %>
+          <tr data-testid="filter-post-row">
+            <td data-testid="filter-post-category"><%= post.blog_category&.name || "(Uncategorized)" %></td>
+            <td data-testid="filter-post-subject"><%= post.subject.presence || "—" %></td>
+            <td data-testid="filter-post-topic"><%= post.topic.presence || "—" %></td>
+            <td>
+              <%= link_to post.title, post, class: "data-table__name-link", data: { testid: "filter-post-title" } %>
+            </td>
+            <td>
+              <div class="comment__header">
+                <% if post.user.profile_image.attached? %>
+                  <%= image_tag post.user.profile_image.variant(:thumbnail),
+                        alt: "#{post.user.first_name} #{post.user.last_name}",
+                        class: "table-thumbnail table-thumbnail--person table-thumbnail--small" %>
+                <% else %>
+                  <div class="table-thumbnail-icon table-thumbnail-icon--person table-thumbnail-icon--small">
+                    <%= lucide_icon("user", size: 16) %>
+                  </div>
+                <% end %>
+                <span data-testid="filter-post-author"><%= post.user.first_name %> <%= post.user.last_name %></span>
+              </div>
+            </td>
+            <td data-testid="filter-post-created"><%= post.created_at.strftime("%d-%b-%Y") %></td>
+            <td data-testid="filter-post-comments"><%= post.comments_count %></td>
+            <td data-testid="filter-post-smiles">
+              <%= lucide_icon(Like::FACES[post.like_score_face][:icon], size: 16) %>
+              <%= number_with_precision(post.like_score, precision: 1) %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% elsif @filter_error.blank? %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No blog posts match this filter.</p>
+  </div>
+<% end %>

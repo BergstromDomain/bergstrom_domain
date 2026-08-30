@@ -148,6 +148,11 @@
         <span>Browse Posts</span>
       <% end %>
 
+      <%= link_to filter_blog_posts_path, class: "left-nav-link" do %>
+        <%= lucide_icon("list-filter", size: 15) %>
+        <span>Filter Posts</span>
+      <% end %>
+
       <h3 class="left-nav-h3" data-testid="left-nav-blog-category-h3">
         Blog Category
       </h3>

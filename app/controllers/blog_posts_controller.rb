@@ -2,8 +2,8 @@
 class BlogPostsController < ApplicationController
   include Navigable
 
-  allow_unauthenticated_access only: %i[index show]
-  before_action :resume_session_if_present, only: %i[index show]
+  allow_unauthenticated_access only: %i[index show filter]
+  before_action :resume_session_if_present, only: %i[index show filter]
   before_action :set_blog_post,             only: %i[show edit update publish unpublish destroy restore]
   before_action :require_create_access,     only: %i[new create convert_format]
   before_action :require_write_access,      only: %i[edit update publish unpublish]
@@ -45,6 +45,40 @@ class BlogPostsController < ApplicationController
     else
       @categories = category_counts(scope)
     end
+  end
+
+  FILTER_SORT_COLUMNS = %w[category subject topic title author created comments smiles].freeze
+
+  def filter
+    posts = visible_blog_posts_scope.includes(:user, :blog_category).to_a
+
+    @mode  = params[:mode] == "sql" ? "sql" : "basic"
+    @query = params[:query].to_s
+    @filter_error = nil
+    @posts = posts
+
+    begin
+      ast =
+        if @mode == "sql"
+          @query.presence && Jql::Parser.parse(@query)
+        else
+          BlogPostFilter.basic_ast(**basic_filter_params)
+        end
+
+      if ast
+        BlogPostFilter::EVALUATOR.validate!(ast)
+        @posts = posts.select { |post| BlogPostFilter::EVALUATOR.matches?(ast, BlogPostFilter.attributes_for(post)) }
+      end
+    rescue Jql::ParseError => e
+      @filter_error = e.message
+      @posts = []
+    end
+
+    @sort      = FILTER_SORT_COLUMNS.include?(params[:sort]) ? params[:sort] : "created"
+    @direction = params[:direction] == "asc" ? "asc" : "desc"
+    @posts = BlogPostFilter.sort(@posts, @sort, @direction)
+
+    set_filter_options(posts)
   end
 
   def new
@@ -159,6 +193,47 @@ class BlogPostsController < ApplicationController
     uncategorized = scope.where(blog_category_id: nil).count
     counts[:uncategorized] = uncategorized if uncategorized.positive?
     counts
+  end
+
+  def basic_filter_params
+    category = params[:category_id].presence && safe_find_category(params[:category_id])
+    author   = params[:author_id].presence && safe_find_author(params[:author_id])
+
+    {
+      category:      category&.name,
+      subject:       params[:subject].presence,
+      topic:         params[:topic].presence,
+      author_name:   author && "#{author.first_name} #{author.last_name}",
+      created_range: created_range_for(params[:created])
+    }
+  end
+
+  def safe_find_category(id)
+    BlogCategory.friendly.find(id)
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+
+  def safe_find_author(id)
+    User.find(id)
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+
+  def created_range_for(value)
+    case value
+    when "today"      then Date.current..Date.current
+    when "this_week"  then Date.current.beginning_of_week..Date.current
+    when "this_month" then Date.current.beginning_of_month..Date.current
+    when "this_year"  then Date.current.beginning_of_year..Date.current
+    end
+  end
+
+  def set_filter_options(posts)
+    @category_options = BlogCategory.where(id: posts.filter_map(&:blog_category_id)).order("LOWER(name) ASC")
+    @subject_options   = posts.map(&:subject).compact_blank.uniq.sort
+    @topic_options     = posts.map(&:topic).compact_blank.uniq.sort
+    @author_options    = posts.map(&:user).uniq.sort_by { |user| [ user.last_name.downcase, user.first_name.downcase ] }
   end
 
   def require_create_access
