@@ -247,7 +247,6 @@ CREATE TABLE public.blog_posts (
     published_at timestamp(6) without time zone,
     deleted_at timestamp(6) without time zone,
     comments_count integer DEFAULT 0 NOT NULL,
-    likes_count integer DEFAULT 0 NOT NULL,
     user_id bigint NOT NULL,
     blog_category_id bigint,
     classification character varying DEFAULT 'contacts'::character varying NOT NULL,
@@ -511,6 +510,39 @@ ALTER SEQUENCE public.friendly_id_slugs_id_seq OWNED BY public.friendly_id_slugs
 
 
 --
+-- Name: likes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.likes (
+    id bigint NOT NULL,
+    blog_post_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    face character varying DEFAULT 'neutral'::character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: likes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.likes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: likes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.likes_id_seq OWNED BY public.likes.id;
+
+
+--
 -- Name: people; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -760,6 +792,13 @@ ALTER TABLE ONLY public.friendly_id_slugs ALTER COLUMN id SET DEFAULT nextval('p
 
 
 --
+-- Name: likes id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.likes ALTER COLUMN id SET DEFAULT nextval('public.likes_id_seq'::regclass);
+
+
+--
 -- Name: people id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -905,6 +944,14 @@ ALTER TABLE ONLY public.events
 
 ALTER TABLE ONLY public.friendly_id_slugs
     ADD CONSTRAINT friendly_id_slugs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: likes likes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.likes
+    ADD CONSTRAINT likes_pkey PRIMARY KEY (id);
 
 
 --
@@ -1158,6 +1205,27 @@ CREATE INDEX index_friendly_id_slugs_on_sluggable_type_and_sluggable_id ON publi
 
 
 --
+-- Name: index_likes_on_blog_post_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_likes_on_blog_post_id ON public.likes USING btree (blog_post_id);
+
+
+--
+-- Name: index_likes_on_blog_post_id_and_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_likes_on_blog_post_id_and_user_id ON public.likes USING btree (blog_post_id, user_id);
+
+
+--
+-- Name: index_likes_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_likes_on_user_id ON public.likes USING btree (user_id);
+
+
+--
 -- Name: index_people_on_full_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1228,6 +1296,14 @@ ALTER TABLE ONLY public.event_mutes
 
 ALTER TABLE ONLY public.event_people
     ADD CONSTRAINT fk_rails_16070d7795 FOREIGN KEY (person_id) REFERENCES public.people(id);
+
+
+--
+-- Name: likes fk_rails_1e09b5dabf; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.likes
+    ADD CONSTRAINT fk_rails_1e09b5dabf FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -1375,12 +1451,22 @@ ALTER TABLE ONLY public.contacts
 
 
 --
+-- Name: likes fk_rails_f911311d38; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.likes
+    ADD CONSTRAINT fk_rails_f911311d38 FOREIGN KEY (blog_post_id) REFERENCES public.blog_posts(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260830080655'),
+('20260830080654'),
 ('20260829070624'),
 ('20260829070623'),
 ('20260829070622'),

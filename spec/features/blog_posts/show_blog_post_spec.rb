@@ -50,9 +50,10 @@ RSpec.describe "Show blog post", type: :feature do
                                text: "#{owner.first_name} #{owner.last_name}")
     end
 
-    it "Displays comment and like counts" do
+    it "Displays the comment count and the default like score" do
       expect(page).to have_selector("[data-testid='blog-post-comments-count']", text: "0")
-      expect(page).to have_selector("[data-testid='blog-post-likes-count']", text: "0")
+      # No one has explicitly reacted yet, so the score is the neutral baseline.
+      expect(page).to have_selector("[data-testid='blog-post-likes-count']", text: "3.0")
     end
 
     it "Shows a back link to Chronicle" do

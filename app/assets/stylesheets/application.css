@@ -2128,3 +2128,34 @@ textarea.form-control {
   font-size: 1rem;
 }
 
+/* ============================================================
+   Chronicle Likes (5-face reaction row on a Blog Post's show page)
+   ============================================================ */
+
+.likes-row {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.like-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.like-button--active {
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+}
+
+.like-button--disabled {
+  cursor: default;
+}
+

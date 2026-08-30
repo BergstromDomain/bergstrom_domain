@@ -16,7 +16,6 @@ RSpec.describe BlogPost, type: :model do
     it { is_expected.to have_db_column(:published_at).of_type(:datetime) }
     it { is_expected.to have_db_column(:deleted_at).of_type(:datetime) }
     it { is_expected.to have_db_column(:comments_count).of_type(:integer).with_options(null: false, default: 0) }
-    it { is_expected.to have_db_column(:likes_count).of_type(:integer).with_options(null: false, default: 0) }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
@@ -245,6 +244,81 @@ RSpec.describe BlogPost, type: :model do
     it "is nil when not deleted" do
       post = build(:blog_post, deleted_at: nil)
       expect(post.purge_at).to be_nil
+    end
+  end
+
+  # ── #current_user_face ────────────────────────────────────────────────────
+  describe "#current_user_face" do
+    it "defaults to neutral when the user has never reacted" do
+      post = create(:blog_post, user: owner)
+      expect(post.current_user_face(other)).to eq("neutral")
+    end
+
+    it "returns the user's own explicit reaction" do
+      post = create(:blog_post, user: owner)
+      post.likes.create!(user: other, face: "angry")
+      expect(post.current_user_face(other)).to eq("angry")
+    end
+
+    it "is nil for a nil (guest) user" do
+      post = create(:blog_post, user: owner)
+      expect(post.current_user_face(nil)).to be_nil
+    end
+  end
+
+  # ── #like_score / #like_score_face ────────────────────────────────────────
+  describe "#like_score" do
+    it "is exactly 3.0 when nobody has explicitly reacted, regardless of user count" do
+      User.delete_all
+      create_list(:user, 5)
+      post = create(:blog_post, user: User.first)
+      expect(post.like_score).to eq(3.0)
+    end
+
+    it "weights explicit reactions against implicit-neutral non-voters" do
+      User.delete_all
+      users = create_list(:user, 4)
+      post = create(:blog_post, user: users.first)
+      post.likes.create!(user: users.first, face: "grinning")
+      # (5 [grinning] + 3 + 3 + 3 [implicit neutral non-voters]) / 4 users
+      expect(post.like_score).to eq(3.5)
+    end
+
+    it "reflects multiple different explicit reactions correctly" do
+      User.delete_all
+      users = create_list(:user, 5)
+      post = create(:blog_post, user: users.first)
+      post.likes.create!(user: users[0], face: "grinning")
+      post.likes.create!(user: users[1], face: "angry")
+      post.likes.create!(user: users[2], face: "slightly_smiling")
+      # (5 + 1 + 4 + 3 [users[3] implicit neutral] + 3 [users[4] implicit neutral]) / 5
+      expect(post.like_score).to eq(3.2)
+    end
+  end
+
+  describe "#like_score_face" do
+    it "rounds up at the midpoint, matching Ruby's default rounding" do
+      post = build(:blog_post)
+      allow(post).to receive(:like_score).and_return(2.5)
+      expect(post.like_score_face).to eq("neutral")
+    end
+
+    it "maps a score of 3.2 to neutral" do
+      post = build(:blog_post)
+      allow(post).to receive(:like_score).and_return(3.2)
+      expect(post.like_score_face).to eq("neutral")
+    end
+
+    it "maps a score of 4.6 to grinning" do
+      post = build(:blog_post)
+      allow(post).to receive(:like_score).and_return(4.6)
+      expect(post.like_score_face).to eq("grinning")
+    end
+
+    it "maps a score of 1.0 to angry" do
+      post = build(:blog_post)
+      allow(post).to receive(:like_score).and_return(1.0)
+      expect(post.like_score_face).to eq("angry")
     end
   end
 

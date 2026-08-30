@@ -27,6 +27,7 @@ class BlogPost < ApplicationRecord
   belongs_to :blog_category, optional: true
   has_many :blog_post_authors, dependent: :destroy
   has_many :authors, through: :blog_post_authors, source: :user
+  has_many :likes, dependent: :destroy
 
   has_one_attached :blog_image do |attachable|
     attachable.variant :thumbnail, resize_to_fill: [ 200, 200 ]
@@ -76,6 +77,31 @@ class BlogPost < ApplicationRecord
 
   def purge_at
     deleted_at + DELETION_RETENTION_PERIOD if deleted_at
+  end
+
+  # A user who's never explicitly reacted defaults to "neutral" for display
+  # purposes — this deliberately matches like_score's treatment of non-voters
+  # as implicit neutral votes, so nothing is inconsistent between the two.
+  def current_user_face(user)
+    return nil unless user
+    likes.find_by(user: user)&.face || "neutral"
+  end
+
+  # "Divide by the number of users in the system" + "default is neutral"
+  # combine into one rule: every user who hasn't explicitly reacted counts as
+  # an implicit neutral (3) vote, not just the users who actually voted.
+  def like_score
+    total_users = User.count
+    return 3.0 if total_users.zero?
+
+    explicit_points = likes.sum { |like| Like::FACES[like.face][:points] }
+    non_voters = total_users - likes.count
+    (explicit_points + non_voters * Like::FACES["neutral"][:points]).to_f / total_users
+  end
+
+  def like_score_face
+    target_points = like_score.round.clamp(1, 5)
+    Like::FACES.find { |_, data| data[:points] == target_points }.first
   end
 
   def rendered_body
