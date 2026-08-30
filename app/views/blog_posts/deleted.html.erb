@@ -1,0 +1,67 @@
+<%# app/views/blog_posts/deleted.html.erb %>
+
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Deleted Posts</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Deleted blog posts are kept for 30 days before being permanently removed.
+  </p>
+</div>
+
+<% if @blog_posts.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="deleted-blog-post-table">
+      <colgroup>
+        <col>
+        <col style="width: 14rem;">
+        <col style="width: 10rem;">
+        <col style="width: 10rem;">
+        <col style="width: 8rem;">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author(s)</th>
+          <th>Deleted</th>
+          <th>Days remaining</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @blog_posts.each do |blog_post| %>
+          <tr data-testid="deleted-blog-post-row">
+            <td>
+              <%= link_to blog_post.title,
+                    blog_post_path(blog_post),
+                    class: "data-table__name-link",
+                    data: { testid: "deleted-blog-post-title" } %>
+            </td>
+            <td data-testid="deleted-blog-post-authors">
+              <%= blog_post.authors.map { |author| "#{author.first_name} #{author.last_name}" }.join(", ") %>
+            </td>
+            <td data-testid="deleted-blog-post-deleted-at">
+              <%= blog_post.deleted_at.to_date.to_fs(:long) %>
+            </td>
+            <td data-testid="deleted-blog-post-days-remaining">
+              <%= ((blog_post.purge_at - Time.current) / 1.day).ceil %>
+            </td>
+            <td class="data-table__icon-cell">
+              <%= button_to restore_blog_post_path(blog_post),
+                    method: :post,
+                    class: "icon-button icon-button--success",
+                    title: "Restore #{blog_post.title}",
+                    data: { testid: "restore-blog-post-#{blog_post.id}", turbo: false } do %>
+                <%= lucide_icon("undo-2", size: 18) %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No deleted blog posts.</p>
+  </div>
+<% end %>

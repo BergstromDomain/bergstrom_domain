@@ -100,4 +100,17 @@
       <% end %>
     <% end %>
   <% end %>
+
+  <% if @policy.can_delete? %>
+    <span class="btn-divider">|</span>
+    <%= button_to blog_post_path(@blog_post),
+          method: :delete,
+          class: "btn btn-danger",
+          data: {
+            testid: "delete-button",
+            turbo_confirm: "Delete \"#{@blog_post.title}\"? This can be restored by an admin within 30 days."
+          } do %>
+      <%= lucide_icon("trash-2", size: 16) %> Delete
+    <% end %>
+  <% end %>
 </div>

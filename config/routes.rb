@@ -63,8 +63,12 @@ Rails.application.routes.draw do
     member do
       post :publish
       post :unpublish
+      post :restore
     end
-    collection { post :convert_format }
+    collection do
+      post :convert_format
+      get  :deleted
+    end
   end
   resources :blog_categories, path: "blog-post-categories"
 

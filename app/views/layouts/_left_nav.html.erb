@@ -175,6 +175,10 @@
             <%= lucide_icon("box", size: 15) %>
             <span>Create Blog Category</span>
           <% end %>
+          <%= link_to deleted_blog_posts_path, class: "left-nav-link" do %>
+            <%= lucide_icon("trash-2", size: 15) %>
+            <span>Deleted Posts</span>
+          <% end %>
         <% end %>
       </div>
     <% end %>

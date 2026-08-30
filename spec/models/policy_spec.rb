@@ -146,6 +146,38 @@ RSpec.describe Policy do
         expect(policy.can_read?).to be true
       end
     end
+
+    context "a discarded blog post" do
+      let(:discarded_post) do
+        create(:blog_post, :unrestricted, :published, user: owner, deleted_at: Time.current)
+      end
+
+      it "returns false for the author, even though it's their own unrestricted published post" do
+        policy = Policy.new(owner, discarded_post)
+        expect(policy.can_read?).to be false
+      end
+
+      it "returns false for a co-author" do
+        discarded_post.blog_post_authors.create!(user: other_user)
+        policy = Policy.new(other_user, discarded_post)
+        expect(policy.can_read?).to be false
+      end
+
+      it "returns false for a stranger" do
+        policy = Policy.new(app_user, discarded_post)
+        expect(policy.can_read?).to be false
+      end
+
+      it "returns false for visitors" do
+        policy = Policy.new(nil, discarded_post)
+        expect(policy.can_read?).to be false
+      end
+
+      it "returns true for an admin" do
+        policy = Policy.new(admin, discarded_post)
+        expect(policy.can_read?).to be true
+      end
+    end
   end
 
   # ── can_create? ───────────────────────────────────────────────────────────

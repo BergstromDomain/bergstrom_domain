@@ -8,6 +8,13 @@ class Policy
   def can_read?
     return false unless @resource.respond_to?(:classification)
 
+    # A soft-deleted post is hidden from everyone but admins, regardless of
+    # draft/published/classification — checked first since it overrides both
+    # of the branches below.
+    if @resource.respond_to?(:deleted_at) && @resource.deleted_at.present?
+      return !!can_administer?
+    end
+
     # A draft BlogPost is visible only to its authors/admins, regardless of
     # classification — Classifiable's normal rules only govern published posts.
     if @resource.is_a?(BlogPost) && !@resource.published?

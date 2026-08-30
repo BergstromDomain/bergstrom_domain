@@ -11,6 +11,11 @@ class BlogPost < ApplicationRecord
   RENDERED_BODY_ALLOWED_TAGS       = %w[h1 h2 h3 h4 h5 h6 p br strong em u s blockquote ol ul li a code pre].freeze
   RENDERED_BODY_ALLOWED_ATTRIBUTES = %w[href].freeze
 
+  # How long a soft-deleted post is kept before PurgeDeletedBlogPostsJob
+  # permanently destroys it — 30 days, wider than the spec's literal "7" per
+  # the user's explicit request for more safety margin.
+  DELETION_RETENTION_PERIOD = 30.days
+
   extend FriendlyId
   # :title alone isn't globally unique (only unique per user), so two
   # different users sharing a title need a fallback candidate — user_id is
@@ -63,6 +68,14 @@ class BlogPost < ApplicationRecord
 
   def published?
     published_at.present?
+  end
+
+  def discarded?
+    deleted_at.present?
+  end
+
+  def purge_at
+    deleted_at + DELETION_RETENTION_PERIOD if deleted_at
   end
 
   def rendered_body

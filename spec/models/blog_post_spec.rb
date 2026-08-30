@@ -223,6 +223,31 @@ RSpec.describe BlogPost, type: :model do
     end
   end
 
+  # ── #discarded? ───────────────────────────────────────────────────────────
+  describe "#discarded?" do
+    it "is false when deleted_at is nil" do
+      expect(build(:blog_post, deleted_at: nil)).not_to be_discarded
+    end
+
+    it "is true when deleted_at is set" do
+      expect(build(:blog_post, deleted_at: Time.current)).to be_discarded
+    end
+  end
+
+  # ── #purge_at ─────────────────────────────────────────────────────────────
+  describe "#purge_at" do
+    it "is deleted_at plus the retention period" do
+      deleted_at = Time.zone.parse("2026-01-01 12:00:00")
+      post = build(:blog_post, deleted_at: deleted_at)
+      expect(post.purge_at).to eq(deleted_at + BlogPost::DELETION_RETENTION_PERIOD)
+    end
+
+    it "is nil when not deleted" do
+      post = build(:blog_post, deleted_at: nil)
+      expect(post.purge_at).to be_nil
+    end
+  end
+
   # ── Visibility ────────────────────────────────────────────────────────────
   describe "visibility" do
     let!(:published_unrestricted) { create(:blog_post, :unrestricted, :published, user: owner) }

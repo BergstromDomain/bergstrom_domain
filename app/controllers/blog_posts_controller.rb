@@ -4,9 +4,11 @@ class BlogPostsController < ApplicationController
 
   allow_unauthenticated_access only: %i[show]
   before_action :resume_session_if_present, only: %i[show]
-  before_action :set_blog_post,             only: %i[show edit update publish unpublish]
+  before_action :set_blog_post,             only: %i[show edit update publish unpublish destroy restore]
   before_action :require_create_access,     only: %i[new create convert_format]
   before_action :require_write_access,      only: %i[edit update publish unpublish]
+  before_action :require_delete_access,     only: %i[destroy]
+  before_action :require_admin,             only: %i[deleted restore]
 
   def new
     @blog_post = current_user.blog_posts.build
@@ -59,6 +61,20 @@ class BlogPostsController < ApplicationController
     redirect_to @blog_post, notice: "Blog post moved back to draft."
   end
 
+  def destroy
+    @blog_post.update!(deleted_at: Time.current)
+    redirect_to chronicle_path, notice: "Blog post deleted. An admin can restore it within 30 days."
+  end
+
+  def deleted
+    @blog_posts = BlogPost.discarded.order(deleted_at: :desc)
+  end
+
+  def restore
+    @blog_post.update!(deleted_at: nil)
+    redirect_to deleted_blog_posts_path, notice: "Blog post restored."
+  end
+
   def convert_format
     case params[:source]
     when "markdown"
@@ -81,6 +97,15 @@ class BlogPostsController < ApplicationController
   def require_write_access
     @policy = Policy.new(current_user, @blog_post)
     redirect_to @blog_post, alert: "Not authorised." unless @policy.can_update?
+  end
+
+  def require_delete_access
+    @policy = Policy.new(current_user, @blog_post)
+    redirect_to @blog_post, alert: "Not authorised." unless @policy.can_delete?
+  end
+
+  def require_admin
+    redirect_to chronicle_path, alert: "Not authorised." unless current_user&.can_administer?
   end
 
   def set_blog_post
