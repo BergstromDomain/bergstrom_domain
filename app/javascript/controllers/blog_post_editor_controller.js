@@ -33,7 +33,18 @@ export default class extends Controller {
     this.submitHandler = (event) => this.handleSubmit(event)
     this.element.addEventListener("submit", this.submitHandler)
 
-    this.activatePanel({ formatted: this.formatTarget.value === "formatted" })
+    // A fresh Create form starts blank, so this is a no-op there — but Edit
+    // loads existing Markdown into the Raw textarea server-side, and without
+    // seeding Quill from it here, defaulting to the Formatted tab would show
+    // an empty editor despite real content already existing.
+    if (this.formatTarget.value === "formatted") {
+      this.convert("markdown", this.rawTarget.value).then((html) => {
+        this.quill.clipboard.dangerouslyPasteHTML(html || "")
+        this.activatePanel({ formatted: true })
+      })
+    } else {
+      this.activatePanel({ formatted: false })
+    }
   }
 
   disconnect() {

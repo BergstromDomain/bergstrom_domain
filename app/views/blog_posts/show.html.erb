@@ -76,4 +76,28 @@
   <%= link_to chronicle_path, class: "btn btn-secondary" do %>
     <%= lucide_icon("arrow-left", size: 16) %> Back to Chronicle
   <% end %>
+
+  <% if @policy.can_update? %>
+    <span class="btn-divider">|</span>
+    <%= link_to edit_blog_post_path(@blog_post), class: "btn btn-secondary" do %>
+      <%= lucide_icon("pencil", size: 16) %> Edit
+    <% end %>
+
+    <span class="btn-divider">|</span>
+    <% if @blog_post.published? %>
+      <%= button_to unpublish_blog_post_path(@blog_post),
+            method: :post,
+            class: "btn btn-secondary",
+            data: { testid: "unpublish-button" } do %>
+        <%= lucide_icon("eye-off", size: 16) %> Unpublish
+      <% end %>
+    <% else %>
+      <%= button_to publish_blog_post_path(@blog_post),
+            method: :post,
+            class: "btn btn-primary",
+            data: { testid: "publish-button" } do %>
+        <%= lucide_icon("upload", size: 16) %> Publish
+      <% end %>
+    <% end %>
+  <% end %>
 </div>

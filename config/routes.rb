@@ -60,6 +60,10 @@ Rails.application.routes.draw do
 
   # Chronicle (Blog Posts)
   resources :blog_posts, path: "blog-posts" do
+    member do
+      post :publish
+      post :unpublish
+    end
     collection { post :convert_format }
   end
   resources :blog_categories, path: "blog-post-categories"

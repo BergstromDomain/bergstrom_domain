@@ -60,6 +60,12 @@ RSpec.describe BlogPost, type: :model do
         )
         expect(post).to be_valid
       end
+
+      it "is valid to publish when Category and body are both present" do
+        category = create(:blog_category)
+        post = build(:blog_post, :published, user: owner, blog_category: category, body: "Some content.")
+        expect(post).to be_valid
+      end
     end
 
     # 2) Negative path ────────────────────────────────────────────────────────
@@ -116,6 +122,19 @@ RSpec.describe BlogPost, type: :model do
         expect(post).not_to be_valid
         expect(post.errors[:blog_image]).to be_present
       end
+
+      it "is invalid to publish without a Category" do
+        post = build(:blog_post, :published, user: owner, blog_category: nil, body: "Some content.")
+        expect(post).not_to be_valid
+        expect(post.errors[:blog_category]).to include("can't be blank")
+      end
+
+      it "is invalid to publish without a body" do
+        category = create(:blog_category)
+        post = build(:blog_post, :published, user: owner, blog_category: category, body: nil)
+        expect(post).not_to be_valid
+        expect(post.errors[:body]).to include("can't be blank")
+      end
     end
 
     # 3) Alternative path ─────────────────────────────────────────────────────
@@ -131,6 +150,11 @@ RSpec.describe BlogPost, type: :model do
     describe "edge cases" do
       it "is valid with sub_category present and topic blank" do
         post = build(:blog_post, user: owner, sub_category: "Ruby", topic: nil)
+        expect(post).to be_valid
+      end
+
+      it "does not require a Category or body while still a draft" do
+        post = build(:blog_post, user: owner, blog_category: nil, body: nil)
         expect(post).to be_valid
       end
     end
@@ -181,6 +205,10 @@ RSpec.describe BlogPost, type: :model do
     it "#rendered_body renders the post's own body" do
       post = build(:blog_post, user: owner, body: "Some **bold** text.")
       expect(post.rendered_body).to include("<strong>bold</strong>")
+    end
+
+    it "does not raise on a nil body (e.g. a fresh draft)" do
+      expect(BlogPost.render_markdown(nil)).to eq("")
     end
   end
 

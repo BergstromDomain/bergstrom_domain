@@ -127,7 +127,11 @@ RSpec.describe "Show blog post", type: :feature do
     end
 
     it "Hides the Category section entirely and shows no icon when no Category is set" do
-      post = create(:blog_post, :unrestricted, :published, user: owner, blog_category: nil)
+      # A published post always has a Category (required to publish, Block 4)
+      # — a draft is the only state that can lack one, so it's what exercises
+      # this display branch; the author views their own draft to see it.
+      post = create(:blog_post, :unrestricted, user: owner, blog_category: nil)
+      sign_in_as(owner)
       visit blog_post_path(post)
 
       expect(page).not_to have_selector("[data-testid='blog-post-category']")

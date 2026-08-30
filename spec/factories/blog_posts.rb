@@ -20,6 +20,7 @@ FactoryBot.define do
 
     trait :published do
       published_at { Time.current }
+      association :blog_category
     end
 
     trait :raw do

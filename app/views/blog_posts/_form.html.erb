@@ -158,12 +158,22 @@
 
   <%# Action Frame %>
   <div class="show-panel show-panel--actions" data-testid="new-panel-actions">
-    <%= link_to chronicle_path, class: "btn btn-secondary" do %>
-      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% if blog_post.persisted? %>
+      <%= link_to blog_post_path(blog_post), class: "btn btn-secondary" do %>
+        <%= lucide_icon("circle-x", size: 16) %> Cancel
+      <% end %>
+      <span class="btn-divider">|</span>
+      <button type="submit" class="btn btn-primary" data-testid="save-button">
+        <%= lucide_icon("save", size: 16) %> Update Blog Post
+      </button>
+    <% else %>
+      <%= link_to chronicle_path, class: "btn btn-secondary" do %>
+        <%= lucide_icon("circle-x", size: 16) %> Cancel
+      <% end %>
+      <span class="btn-divider">|</span>
+      <button type="submit" class="btn btn-primary" data-testid="save-button">
+        <%= lucide_icon("save", size: 16) %> Save Blog Post
+      </button>
     <% end %>
-    <span class="btn-divider">|</span>
-    <button type="submit" class="btn btn-primary" data-testid="save-button">
-      <%= lucide_icon("save", size: 16) %> Save Blog Post
-    </button>
   </div>
 <% end %>

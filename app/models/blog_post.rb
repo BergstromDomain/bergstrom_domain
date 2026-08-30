@@ -38,6 +38,12 @@ class BlogPost < ApplicationRecord
     content_type: { in: %w[image/jpeg image/png image/webp], message: "must be a JPEG, PNG, or WebP" },
     size:         { less_than: 5.megabytes, message: "must be smaller than 5MB" }
 
+  # Unique 'User: Title' is already enforced unconditionally above — these
+  # two are the rest of the Publish block's validation rules, only required
+  # once published_at is actually being set.
+  validates :blog_category, presence: true, if: :published?
+  validates :body,          presence: true, if: :published?
+
   scope :published, -> { where.not(published_at: nil) }
   scope :draft,      -> { where(published_at: nil) }
   scope :kept,       -> { where(deleted_at: nil) }
@@ -67,7 +73,11 @@ class BlogPost < ApplicationRecord
   # generation (it's on by default, even with header_ids left unset) — Quill
   # has no use for those anchors and they'd just clutter the editor/reader.
   def self.render_markdown(markdown)
-    Commonmarker.to_html(markdown.to_s, options: { render: { unsafe: true }, extension: { header_ids: nil } })
+    # nil.to_s is a US-ASCII "", not UTF-8 — Commonmarker rejects anything
+    # that isn't explicitly UTF-8, even an empty string (e.g. rendering an
+    # unpublished draft with no body yet).
+    text = markdown.to_s.dup.force_encoding(Encoding::UTF_8)
+    Commonmarker.to_html(text, options: { render: { unsafe: true }, extension: { header_ids: nil } })
   end
 
   def should_generate_new_friendly_id?
