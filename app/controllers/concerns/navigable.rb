@@ -21,7 +21,7 @@ module Navigable
       :event_tracker
     when "settings", "contacts"
       :settings
-    when "blog_posts", "blog_categories"
+    when "blog_posts", "blog_categories", "blog_exports"
       :blog_posts
     end
   end

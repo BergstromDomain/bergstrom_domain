@@ -57,6 +57,14 @@
               [ "This Month", "this_month" ], [ "This Year", "this_year" ] ], params[:created]),
             class: "form-control", data: { testid: "created-filter" } %>
     </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Published</h3>
+      <%= select_tag :published,
+            options_for_select([ [ "All", "" ], [ "Published Only", "published" ], [ "Drafts Only", "draft" ] ],
+              params[:published]),
+            class: "form-control", data: { testid: "published-filter" } %>
+    </div>
   </div>
 
   <div class="show-panel" data-filter-mode-target="sqlPanel" data-testid="sql-panel"

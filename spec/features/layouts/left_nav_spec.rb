@@ -256,6 +256,106 @@ RSpec.describe "Left Navigation", type: :feature do
           expect(page).not_to have_link("Event Tracker", href: event_tracker_path)
         end
       end
+
+      it "Shows the Chronicle/Posts/Categories subgroups but not 'My Posts'" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_selector("[data-testid='left-nav-chronicle-h3']")
+          expect(page).to have_selector("[data-testid='left-nav-posts-h3']")
+          expect(page).to have_selector("[data-testid='left-nav-categories-h3']")
+          expect(page).not_to have_selector("[data-testid='left-nav-my-posts-h3']")
+        end
+      end
+
+      it "Does not show the Actions or Exports sections" do
+        within("[data-testid='left-nav']") do
+          expect(page).not_to have_selector("[data-testid='left-nav-actions-h2']")
+          expect(page).not_to have_selector("[data-testid='left-nav-exports-h2']")
+        end
+      end
+
+      it "Shows the How To section with a User Guide link" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_selector("[data-testid='left-nav-how-to-h2']")
+          expect(page).to have_link("User Guide", href: user_guide_path)
+        end
+      end
+    end
+
+    context "When 'Uno User' (app_user role) is signed in and visits Chronicle" do
+      let(:uno) { create(:user, first_name: "Uno", last_name: "User") }
+
+      before do
+        sign_in_as(uno)
+        visit chronicle_path
+      end
+
+      it "Shows 'My Posts' with Published/Unpublished links pre-scoped to the current user" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_selector("[data-testid='left-nav-my-posts-h3']")
+          expect(page).to have_link("My Published Posts",
+            href: filter_blog_posts_path(author_id: uno.id, published: "published"))
+          expect(page).to have_link("My Unpublished Posts",
+            href: filter_blog_posts_path(author_id: uno.id, published: "draft"))
+        end
+      end
+
+      it "Still does not show the Actions or Exports sections" do
+        within("[data-testid='left-nav']") do
+          expect(page).not_to have_selector("[data-testid='left-nav-actions-h2']")
+          expect(page).not_to have_selector("[data-testid='left-nav-exports-h2']")
+        end
+      end
+    end
+
+    context "When 'Charlie Content Creator' is signed in and visits Chronicle" do
+      before do
+        sign_in_as(create(:user, :content_creator))
+        visit chronicle_path
+      end
+
+      it "Shows the Actions section with Create A Post" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
+          expect(page).to have_link("Create A Post", href: new_blog_post_path)
+        end
+      end
+
+      it "Shows the Exports section with a Download Blog Posts link" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_selector("[data-testid='left-nav-exports-h2']")
+          expect(page).to have_link("Download Blog Posts", href: blog_exports_path)
+        end
+      end
+
+      it "Does not show admin-only actions" do
+        within("[data-testid='left-nav']") do
+          expect(page).not_to have_link("Create A Blog Category")
+          expect(page).not_to have_link("Deleted Posts")
+        end
+      end
+    end
+
+    context "When 'Adam Admin' is signed in and visits Chronicle" do
+      before do
+        sign_in_as(create(:user, :admin))
+        visit chronicle_path
+      end
+
+      it "Shows the admin-only Create A Blog Category and Deleted Posts links" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_link("Create A Blog Category", href: new_blog_category_path)
+          expect(page).to have_link("Deleted Posts", href: deleted_blog_posts_path)
+        end
+      end
+    end
+
+    context "When 'Gary Guest' clicks 'My Published Posts'" do
+      it "Is not reachable — the link doesn't exist for a guest" do
+        visit chronicle_path
+        within("[data-testid='left-nav']") do
+          expect(page).not_to have_link("My Published Posts")
+        end
+      end
     end
   end
 

@@ -53,6 +53,18 @@ RSpec.describe "Filter blog posts", type: :feature do
       titles = all("[data-testid='filter-post-title']").map(&:text)
       expect(titles).to eq([ "Zebra Rails Tips", "Apple Pie" ])
     end
+
+    it "Narrows results using the Published dropdown" do
+      sign_in_as(owner)
+      create(:blog_post, user: owner, title: "My Draft") # no :published trait
+
+      visit filter_blog_posts_path
+      select "Published Only", from: "published"
+      click_button "Apply Filters"
+
+      expect(page).to have_content("Apple Pie")
+      expect(page).not_to have_content("My Draft")
+    end
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
@@ -117,6 +129,18 @@ RSpec.describe "Filter blog posts", type: :feature do
       visit filter_blog_posts_path(mode: "sql", query: 'title CONTAINS "rails"')
 
       expect(page).to have_content("Learning RAILS Deeply")
+    end
+
+    it "Combines Author and Published — the exact shape the 'My Posts' nav links use" do
+      other_author = create(:user, :content_creator, first_name: "Grace", last_name: "Hopper")
+      create(:blog_post, user: other_author, title: "Someone Else's Draft")
+      create(:blog_post, user: owner, title: "My Own Draft")
+
+      sign_in_as(owner)
+      visit filter_blog_posts_path(author_id: owner.id, published: "draft")
+
+      expect(page).to have_content("My Own Draft")
+      expect(page).not_to have_content("Someone Else's Draft")
     end
 
     it "Keeps a post with no Category/Subject/Topic filterable via the 'All ...' defaults" do

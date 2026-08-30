@@ -14,6 +14,7 @@ module Jql
   class Evaluator
     STRING_OPERATORS  = %w[= != CONTAINS].freeze
     ORDERED_OPERATORS = %w[= != > < >= <=].freeze
+    BOOLEAN_OPERATORS = %w[= !=].freeze
 
     def initialize(schema)
       @schema = schema
@@ -56,8 +57,19 @@ module Jql
 
       if type == :string
         validate_string_comparison!(node)
+      elsif type == :boolean
+        validate_boolean_comparison!(node)
       else
         validate_ordered_comparison!(node, type)
+      end
+    end
+
+    def validate_boolean_comparison!(node)
+      unless BOOLEAN_OPERATORS.include?(node.operator)
+        raise ParseError, "Operator '#{node.operator}' is not valid for boolean field '#{node.field}'. Use = or !=."
+      end
+      unless node.value_type == :string && %w[true false].include?(node.value.downcase)
+        raise ParseError, "Field '#{node.field}' expects true or false."
       end
     end
 
@@ -102,6 +114,9 @@ module Jql
       when :date
         return false if actual.nil?
         compare(node.operator, actual.to_date, coerce_date(node))
+      when :boolean
+        return false if actual.nil?
+        compare(node.operator, actual, node.value.downcase == "true")
       else
         return false if actual.nil?
         compare(node.operator, actual, node.value)

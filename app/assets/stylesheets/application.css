@@ -2275,3 +2275,17 @@ textarea.form-control {
   margin-top: var(--space-xs);
 }
 
+
+/* ============================================================
+   Chronicle Download (print-to-PDF export)
+   ============================================================ */
+
+@media print {
+  .top-nav,
+  .left-nav,
+  .site-footer,
+  .print-hide {
+    display: none !important;
+  }
+}
+

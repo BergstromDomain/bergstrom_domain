@@ -1,0 +1,22 @@
+<%# app/views/blog_exports/index.html.erb %>
+
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Download Blog Posts</h1>
+  </div>
+</div>
+
+<div class="show-panel" data-testid="export-panel">
+  <p>Download every blog post you can currently see, either as a printable page
+    (use your browser's Print dialog to save it as a PDF) or as a CSV file with
+    each post's body included in Markdown format.</p>
+
+  <div class="show-panel show-panel--actions">
+    <%= link_to print_blog_exports_path, class: "btn btn-primary", data: { testid: "print-export-link" } do %>
+      <%= lucide_icon("printer", size: 16) %> Print / Save as PDF
+    <% end %>
+    <%= link_to csv_blog_exports_path, class: "btn btn-secondary", data: { testid: "csv-export-link" } do %>
+      <%= lucide_icon("file-down", size: 16) %> Download CSV
+    <% end %>
+  </div>
+</div>

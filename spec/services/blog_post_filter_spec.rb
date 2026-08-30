@@ -17,14 +17,15 @@ RSpec.describe BlogPostFilter do
         attrs = described_class.attributes_for(post)
 
         expect(attrs).to eq(
-          category: "Technology",
-          subject:  "Ruby",
-          topic:    "Rails",
-          title:    "My Post",
-          author:   "Ada Lovelace",
-          created:  post.created_at,
-          comments: 1,
-          smiles:   post.like_score
+          category:  "Technology",
+          subject:   "Ruby",
+          topic:     "Rails",
+          title:     "My Post",
+          author:    "Ada Lovelace",
+          created:   post.created_at,
+          comments:  1,
+          smiles:    post.like_score,
+          published: true
         )
       end
 
@@ -54,6 +55,15 @@ RSpec.describe BlogPostFilter do
 
         expect(described_class::EVALUATOR.matches?(ast, base)).to be true
         expect(described_class::EVALUATOR.matches?(ast, base.merge(topic: "Java"))).to be false
+      end
+
+      it "Builds an AST that matches only on the given Published status" do
+        ast = described_class.basic_ast(published: "true")
+        base = { category: nil, subject: nil, topic: nil, title: "X", author: "A B",
+                 created: Time.current, comments: 0, smiles: 3.0 }
+
+        expect(described_class::EVALUATOR.matches?(ast, base.merge(published: true))).to be true
+        expect(described_class::EVALUATOR.matches?(ast, base.merge(published: false))).to be false
       end
 
       it "Filters by the Created range boundaries" do
@@ -127,6 +137,18 @@ RSpec.describe BlogPostFilter do
         lower = create(:blog_post, user: owner, title: "apple")
 
         expect(described_class.sort([ upper, lower ], :title, "asc")).to eq([ lower, upper ])
+      end
+    end
+
+    describe ".basic_ast" do
+      it "Combines Author and Published, the exact shape the 'My Posts' nav links produce" do
+        ast = described_class.basic_ast(author_name: "Ada Lovelace", published: "false")
+        base = { category: nil, subject: nil, topic: nil, title: "X", created: Time.current,
+                 comments: 0, smiles: 3.0 }
+
+        expect(described_class::EVALUATOR.matches?(ast, base.merge(author: "Ada Lovelace", published: false))).to be true
+        expect(described_class::EVALUATOR.matches?(ast, base.merge(author: "Ada Lovelace", published: true))).to be false
+        expect(described_class::EVALUATOR.matches?(ast, base.merge(author: "Someone Else", published: false))).to be false
       end
     end
   end

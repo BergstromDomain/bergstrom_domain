@@ -138,24 +138,37 @@
         <%= lucide_icon("eye", size: 14) %> Views
       </h2>
 
+      <h3 class="left-nav-h3" data-testid="left-nav-chronicle-h3">Chronicle</h3>
       <%= link_to chronicle_path, class: "left-nav-link" do %>
         <%= lucide_icon("newspaper", size: 15) %>
         <span>Chronicle</span>
       <% end %>
 
+      <h3 class="left-nav-h3" data-testid="left-nav-posts-h3">Posts</h3>
       <%= link_to blog_posts_path, class: "left-nav-link" do %>
         <%= lucide_icon("list-tree", size: 15) %>
         <span>Browse Posts</span>
       <% end %>
-
       <%= link_to filter_blog_posts_path, class: "left-nav-link" do %>
         <%= lucide_icon("list-filter", size: 15) %>
         <span>Filter Posts</span>
       <% end %>
 
-      <h3 class="left-nav-h3" data-testid="left-nav-blog-category-h3">
-        Blog Category
-      </h3>
+      <% if current_user %>
+        <h3 class="left-nav-h3" data-testid="left-nav-my-posts-h3">My Posts</h3>
+        <%= link_to filter_blog_posts_path(author_id: current_user.id, published: "published"),
+              class: "left-nav-link" do %>
+          <%= lucide_icon("file-check", size: 15) %>
+          <span>My Published Posts</span>
+        <% end %>
+        <%= link_to filter_blog_posts_path(author_id: current_user.id, published: "draft"),
+              class: "left-nav-link" do %>
+          <%= lucide_icon("pencil-line", size: 15) %>
+          <span>My Unpublished Posts</span>
+        <% end %>
+      <% end %>
+
+      <h3 class="left-nav-h3" data-testid="left-nav-categories-h3">Categories</h3>
       <%= link_to blog_categories_path, class: "left-nav-link" do %>
         <%= lucide_icon("boxes", size: 15) %>
         <span>Blog Categories</span>
@@ -175,14 +188,14 @@
         <% if blog_post_policy.can_create? %>
           <%= link_to new_blog_post_path, class: "left-nav-link" do %>
             <%= lucide_icon("file-plus-2", size: 15) %>
-            <span>Create Post</span>
+            <span>Create A Post</span>
           <% end %>
         <% end %>
 
         <% if current_user&.can_administer? %>
           <%= link_to new_blog_category_path, class: "left-nav-link" do %>
             <%= lucide_icon("box", size: 15) %>
-            <span>Create Blog Category</span>
+            <span>Create A Blog Category</span>
           <% end %>
           <%= link_to deleted_blog_posts_path, class: "left-nav-link" do %>
             <%= lucide_icon("trash-2", size: 15) %>
@@ -190,7 +203,35 @@
           <% end %>
         <% end %>
       </div>
+
+      <hr class="left-nav-divider">
+
+      <%# ── Exports (Content Creator and above) ─────────────────────────────── %>
+      <div class="left-nav-section">
+        <h2 class="left-nav-h2" data-testid="left-nav-exports-h2">
+          <%= lucide_icon("hard-drive-download", size: 14) %> Exports
+        </h2>
+
+        <%= link_to blog_exports_path, class: "left-nav-link" do %>
+          <%= lucide_icon("download", size: 15) %>
+          <span>Download Blog Posts</span>
+        <% end %>
+      </div>
     <% end %>
+
+    <hr class="left-nav-divider">
+
+    <%# ── How To ────────────────────────────────────────────────────────── %>
+    <div class="left-nav-section">
+      <h2 class="left-nav-h2" data-testid="left-nav-how-to-h2">
+        <%= lucide_icon("book-open", size: 14) %> How To
+      </h2>
+
+      <%= link_to user_guide_path, class: "left-nav-link" do %>
+        <%= lucide_icon("book-open-check", size: 15) %>
+        <span>User Guide</span>
+      <% end %>
+    </div>
 
   <% end %>
 </nav>

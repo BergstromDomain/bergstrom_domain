@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe Jql::Evaluator do
-  let(:schema) { { title: :string, comments: :integer, smiles: :decimal, created: :date } }
+  let(:schema) { { title: :string, comments: :integer, smiles: :decimal, created: :date, published: :boolean } }
   let(:evaluator) { described_class.new(schema) }
 
   def comparison(field:, operator:, value:, value_type:)
@@ -26,6 +26,7 @@ RSpec.describe Jql::Evaluator do
         expect { evaluator.validate!(number_comparison(:comments, ">", 1)) }.not_to raise_error
         expect { evaluator.validate!(number_comparison(:smiles, ">=", 3.5)) }.not_to raise_error
         expect { evaluator.validate!(string_comparison(:created, "=", "2026-01-01")) }.not_to raise_error
+        expect { evaluator.validate!(string_comparison(:published, "=", "true")) }.not_to raise_error
       end
 
       it "Accepts an AND/OR tree where every leaf is valid" do
@@ -80,6 +81,12 @@ RSpec.describe Jql::Evaluator do
         )
         expect(evaluator.matches?(ast, title: "Something Else", comments: 20)).to be true
       end
+
+      it "Matches a boolean field case-insensitively" do
+        ast = string_comparison(:published, "=", "TRUE")
+        expect(evaluator.matches?(ast, published: true)).to be true
+        expect(evaluator.matches?(ast, published: false)).to be false
+      end
     end
   end
 
@@ -114,6 +121,21 @@ RSpec.describe Jql::Evaluator do
       expect { evaluator.validate!(string_comparison(:created, "=", "not-a-date")) }
         .to raise_error(Jql::ParseError, /Invalid date/)
     end
+
+    it "Raises when an ordering operator is used on a boolean field" do
+      expect { evaluator.validate!(string_comparison(:published, ">", "true")) }
+        .to raise_error(Jql::ParseError, /not valid for boolean field/)
+    end
+
+    it "Raises when a boolean field's literal isn't true or false" do
+      expect { evaluator.validate!(string_comparison(:published, "=", "maybe")) }
+        .to raise_error(Jql::ParseError, /expects true or false/)
+    end
+
+    it "Raises when a numeric literal is given for a boolean field" do
+      expect { evaluator.validate!(number_comparison(:published, "=", 1)) }
+        .to raise_error(Jql::ParseError, /expects true or false/)
+    end
   end
 
   # 3) Alternative path ───────────────────────────────────────────────────────
@@ -129,6 +151,12 @@ RSpec.describe Jql::Evaluator do
       ast = number_comparison(:smiles, ">=", 3.5)
       expect(schema_with_smiles.matches?(ast, smiles: 4.0)).to be true
       expect(schema_with_smiles.matches?(ast, smiles: 3.0)).to be false
+    end
+
+    it "Matches != as the negation of = for a boolean field" do
+      ast = string_comparison(:published, "!=", "false")
+      expect(evaluator.matches?(ast, published: true)).to be true
+      expect(evaluator.matches?(ast, published: false)).to be false
     end
   end
 
@@ -152,6 +180,11 @@ RSpec.describe Jql::Evaluator do
     it "Correctly matches != for a nil string record value against a non-blank literal" do
       ast = string_comparison(:title, "!=", "Ruby")
       expect(evaluator.matches?(ast, title: nil)).to be true
+    end
+
+    it "Never matches a boolean comparison when the record's value is nil" do
+      ast = string_comparison(:published, "=", "true")
+      expect(evaluator.matches?(ast, published: nil)).to be false
     end
   end
 end

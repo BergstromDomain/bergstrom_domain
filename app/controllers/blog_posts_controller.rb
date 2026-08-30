@@ -204,8 +204,16 @@ class BlogPostsController < ApplicationController
       subject:       params[:subject].presence,
       topic:         params[:topic].presence,
       author_name:   author && "#{author.first_name} #{author.last_name}",
-      created_range: created_range_for(params[:created])
+      created_range: created_range_for(params[:created]),
+      published:     published_filter_for(params[:published])
     }
+  end
+
+  def published_filter_for(value)
+    case value
+    when "published" then "true"
+    when "draft"      then "false"
+    end
   end
 
   def safe_find_category(id)
