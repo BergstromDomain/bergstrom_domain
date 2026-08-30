@@ -1,0 +1,31 @@
+<%# app/views/comments/_form.html.erb %>
+
+<%= form_with model: comment,
+      url: comment.persisted? ? comment_path(comment) : blog_post_comments_path(blog_post),
+      class: "comment-form" do |f| %>
+  <% if comment.errors.any? %>
+    <div class="form-errors" data-testid="form-errors">
+      <ul>
+        <% comment.errors.each do |error| %>
+          <li data-testid="field-error"><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if local_assigns[:parent_id].present? %>
+    <%= hidden_field_tag "comment[parent_id]", parent_id %>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :body, class: "sr-only" %>
+    <%= f.text_area :body,
+          rows: 3,
+          class: "form-control",
+          data: { testid: "comment-body-field" } %>
+  </div>
+
+  <div class="comment-form__actions">
+    <%= f.submit comment.persisted? ? "Update" : "Post", class: "btn btn-primary" %>
+  </div>
+<% end %>

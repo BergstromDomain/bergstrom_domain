@@ -1,0 +1,66 @@
+<%# app/views/comments/_comment.html.erb %>
+<%# One comment or reply — no recursion needed, since replies never have
+    their own replies (2-level model, enforced in CommentsController). %>
+
+<% is_reply = local_assigns[:reply] == true %>
+
+<div class="comment<%= ' comment--reply' if is_reply %>" data-testid="<%= is_reply ? 'reply' : 'comment' %>-<%= comment.id %>">
+  <div class="comment__header">
+    <% if comment.user.profile_image.attached? %>
+      <%= image_tag comment.user.profile_image.variant(:thumbnail),
+            alt: "#{comment.user.first_name} #{comment.user.last_name}",
+            class: "table-thumbnail table-thumbnail--person table-thumbnail--small" %>
+    <% else %>
+      <div class="table-thumbnail-icon table-thumbnail-icon--person table-thumbnail-icon--small">
+        <%= lucide_icon("user", size: 16) %>
+      </div>
+    <% end %>
+    <div class="comment__meta">
+      <span class="comment__author" data-testid="comment-author">
+        <%= comment.user.first_name %> <%= comment.user.last_name %>
+      </span>
+      <span class="comment__date" data-testid="comment-date">
+        <%= comment.created_at.strftime("%d-%b-%Y") %>
+      </span>
+    </div>
+  </div>
+
+  <p class="comment__body" data-testid="comment-body"><%= comment.body %></p>
+
+  <% if authenticated? %>
+    <div class="comment__actions">
+      <% unless is_reply %>
+        <div data-controller="comment-toggle" data-testid="reply-toggle-<%= comment.id %>">
+          <button type="button" class="comment__action-link"
+                  data-action="comment-toggle#toggle" data-testid="reply-link-<%= comment.id %>">
+            Reply
+          </button>
+          <div class="comment-form-wrapper" hidden data-comment-toggle-target="form">
+            <%= render "comments/form", blog_post: blog_post, comment: Comment.new, parent_id: comment.id %>
+          </div>
+        </div>
+      <% end %>
+
+      <% if comment.user_id == current_user.id %>
+        <div data-controller="comment-toggle" data-testid="edit-toggle-<%= comment.id %>">
+          <button type="button" class="comment__action-link"
+                  data-action="comment-toggle#toggle" data-testid="edit-link-<%= comment.id %>">
+            Edit
+          </button>
+          <div class="comment-form-wrapper" hidden data-comment-toggle-target="form">
+            <%= render "comments/form", blog_post: blog_post, comment: comment %>
+          </div>
+        </div>
+      <% end %>
+
+      <% if comment.user_id == current_user.id || current_user.can_administer? %>
+        <%= button_to comment_path(comment),
+              method: :delete,
+              class: "comment__action-link comment__action-link--danger",
+              data: { testid: "delete-comment-#{comment.id}", turbo_confirm: "Delete this comment?" } do %>
+          Delete
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

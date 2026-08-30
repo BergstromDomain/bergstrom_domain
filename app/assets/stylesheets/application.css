@@ -2159,3 +2159,84 @@ textarea.form-control {
   cursor: default;
 }
 
+/* ============================================================
+   Chronicle Comments (threaded, 2-level: thread + flat replies)
+   ============================================================ */
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.comment {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.comment--reply {
+  margin-left: var(--space-2xl);
+  border-bottom: none;
+}
+
+.comment__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.comment__meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment__author {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.comment__date {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.comment__body {
+  white-space: pre-wrap;
+}
+
+.comment__actions {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+.comment__action-link {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.comment__action-link:hover {
+  color: var(--color-accent);
+}
+
+.comment__action-link--danger:hover {
+  color: var(--color-danger);
+}
+
+.comment-form-wrapper {
+  flex-basis: 100%;
+  margin-top: var(--space-xs);
+}
+
+.comment-form__actions {
+  margin-top: var(--space-xs);
+}
+

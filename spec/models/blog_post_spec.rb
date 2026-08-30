@@ -25,6 +25,8 @@ RSpec.describe BlogPost, type: :model do
     it { is_expected.to have_many(:blog_post_authors).dependent(:destroy) }
     it { is_expected.to have_many(:authors).through(:blog_post_authors).source(:user) }
     it { is_expected.to have_one_attached(:blog_image) }
+    it { is_expected.to have_many(:likes).dependent(:destroy) }
+    it { is_expected.to have_many(:comments).dependent(:destroy) }
   end
 
   # ── format enum ───────────────────────────────────────────────────────────

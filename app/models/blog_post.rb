@@ -28,6 +28,7 @@ class BlogPost < ApplicationRecord
   has_many :blog_post_authors, dependent: :destroy
   has_many :authors, through: :blog_post_authors, source: :user
   has_many :likes, dependent: :destroy
+  has_many :comments, dependent: :destroy
 
   has_one_attached :blog_image do |attachable|
     attachable.variant :thumbnail, resize_to_fill: [ 200, 200 ]
