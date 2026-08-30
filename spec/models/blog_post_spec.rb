@@ -25,6 +25,7 @@ RSpec.describe BlogPost, type: :model do
     it { is_expected.to belong_to(:blog_category).optional }
     it { is_expected.to have_many(:blog_post_authors).dependent(:destroy) }
     it { is_expected.to have_many(:authors).through(:blog_post_authors).source(:user) }
+    it { is_expected.to have_one_attached(:blog_image) }
   end
 
   # ── format enum ───────────────────────────────────────────────────────────
@@ -47,6 +48,16 @@ RSpec.describe BlogPost, type: :model do
 
       it "is valid with a topic when sub_category is also present" do
         post = build(:blog_post, user: owner, sub_category: "Ruby", topic: "Rails")
+        expect(post).to be_valid
+      end
+
+      it "is valid with a JPEG blog image" do
+        post = build(:blog_post, user: owner)
+        post.blog_image.attach(
+          io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
+          filename:     "test_image.jpg",
+          content_type: "image/jpeg"
+        )
         expect(post).to be_valid
       end
     end
@@ -82,6 +93,28 @@ RSpec.describe BlogPost, type: :model do
         post = build(:blog_post, user: owner, sub_category: nil, topic: "Rails")
         expect(post).not_to be_valid
         expect(post.errors[:sub_category]).to include("must be present if Topic is set")
+      end
+
+      it "is invalid with a non-image file as the blog image" do
+        post = build(:blog_post, user: owner)
+        post.blog_image.attach(
+          io:           StringIO.new("not an image"),
+          filename:     "bad.txt",
+          content_type: "text/plain"
+        )
+        expect(post).not_to be_valid
+        expect(post.errors[:blog_image]).to be_present
+      end
+
+      it "is invalid with a blog image exceeding 5MB" do
+        post = build(:blog_post, user: owner)
+        post.blog_image.attach(
+          io:           StringIO.new("0" * (5.megabytes + 1)),
+          filename:     "huge.jpg",
+          content_type: "image/jpeg"
+        )
+        expect(post).not_to be_valid
+        expect(post.errors[:blog_image]).to be_present
       end
     end
 
@@ -129,6 +162,25 @@ RSpec.describe BlogPost, type: :model do
       post = create(:blog_post, user: owner)
       post.blog_post_authors.create!(user: other)
       expect(post.reload.authors).to contain_exactly(owner, other)
+    end
+  end
+
+  # ── Markdown rendering ────────────────────────────────────────────────────
+  describe ".render_markdown / #rendered_body" do
+    it "converts Markdown to HTML" do
+      html = BlogPost.render_markdown("# Hello\n\nSome **bold** text.")
+      expect(html).to include("<h1>Hello</h1>")
+      expect(html).to include("<strong>bold</strong>")
+    end
+
+    it "does not add heading anchor links" do
+      html = BlogPost.render_markdown("# Hello")
+      expect(html).to eq("<h1>Hello</h1>\n")
+    end
+
+    it "#rendered_body renders the post's own body" do
+      post = build(:blog_post, user: owner, body: "Some **bold** text.")
+      expect(post.rendered_body).to include("<strong>bold</strong>")
     end
   end
 

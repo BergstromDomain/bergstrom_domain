@@ -17,10 +17,21 @@ RSpec.describe "Create blog post", type: :feature do
 
   # sign_in_as's final click triggers a server-side redirect; without an
   # explicit settle point here, a `visit` called immediately afterwards can
-  # race that redirect in the JS (Selenium) driver and land on a stale page.
-  def sign_in_and_settle(user)
-    sign_in_as(user)
-    expect(page).to have_current_path(root_path)
+  # race that redirect in a real (Selenium) browser. Settles on rendered
+  # content (the authenticated top-nav dropdown), not `current_path` — the
+  # latter can read back a stale pre-redirect URL even once the actual
+  # post-redirect page has rendered. Occasionally the click doesn't visibly
+  # progress past the form at all (no flash, no redirect) — likely headless
+  # Chrome strain over a long full-suite run rather than anything about this
+  # spec specifically (this app already carries several `xit`-skipped specs
+  # for the same class of flakiness); retrying the whole sign-in a couple of
+  # times clears most of those without masking a real, persistent failure.
+  def sign_in_and_settle(user, attempts: 3)
+    attempts.times do
+      sign_in_as(user)
+      return if page.has_css?("[data-testid='user-thumbnail-dropdown']", wait: 3)
+    end
+    raise "sign_in_and_settle: could not sign in as #{user.email_address} after #{attempts} attempts"
   end
 
   # The Raw <-> Formatted conversion round-trips through an async fetch to

@@ -2,7 +2,10 @@
 class BlogPostsController < ApplicationController
   include Navigable
 
-  before_action :require_create_access, only: %i[new create convert_format]
+  allow_unauthenticated_access only: %i[show]
+  before_action :resume_session_if_present, only: %i[show]
+  before_action :set_blog_post,             only: %i[show]
+  before_action :require_create_access,     only: %i[new create convert_format]
 
   def new
     @blog_post = current_user.blog_posts.build
@@ -20,10 +23,17 @@ class BlogPostsController < ApplicationController
     end
   end
 
+  def show
+    @policy = Policy.new(current_user, @blog_post)
+    unless @policy.can_read?
+      redirect_to chronicle_path, alert: "You do not have permission to view that blog post."
+    end
+  end
+
   def convert_format
     case params[:source]
     when "markdown"
-      render json: { html: markdown_to_html(params[:content].to_s) }
+      render json: { html: BlogPost.render_markdown(params[:content]) }
     when "html"
       render json: { markdown: ReverseMarkdown.convert(params[:content].to_s) }
     else
@@ -39,8 +49,18 @@ class BlogPostsController < ApplicationController
     end
   end
 
+  def set_blog_post
+    @blog_post = BlogPost.friendly.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render file: "#{Rails.root}/public/404.html", status: :not_found
+  end
+
+  def resume_session_if_present
+    Current.session ||= find_session_by_cookie
+  end
+
   def blog_post_params
-    params.require(:blog_post).permit(:title, :body, :format, :blog_category_id, :sub_category, :topic)
+    params.require(:blog_post).permit(:title, :body, :format, :blog_category_id, :sub_category, :topic, :blog_image)
   end
 
   def add_co_authors
@@ -58,12 +78,5 @@ class BlogPostsController < ApplicationController
     contacts = User.where(id: Contact.confirmed_contact_ids_for(current_user)).order(:last_name, :first_name)
     @selected_authors  = contacts.select { |user| selected_ids.include?(user.id) }
     @available_authors = contacts - @selected_authors
-  end
-
-  def markdown_to_html(markdown)
-    # header_ids: nil turns off Commonmarker's default heading-anchor-link
-    # generation (it's on by default, even with header_ids left unset) —
-    # Quill has no use for those anchors and they'd just clutter the editor.
-    Commonmarker.to_html(markdown, options: { render: { unsafe: true }, extension: { header_ids: nil } })
   end
 end
