@@ -133,7 +133,6 @@
   <% elsif @left_nav_section == :blog_posts %>
 
     <%# ── Views ─────────────────────────────────────────────────────────── %>
-    <%# The All Posts link lands here once the Read a Post block builds it. %>
     <div class="left-nav-section">
       <h2 class="left-nav-h2" data-testid="left-nav-views-h2">
         <%= lucide_icon("eye", size: 14) %> Views
@@ -142,6 +141,11 @@
       <%= link_to chronicle_path, class: "left-nav-link" do %>
         <%= lucide_icon("newspaper", size: 15) %>
         <span>Chronicle</span>
+      <% end %>
+
+      <%= link_to blog_posts_path, class: "left-nav-link" do %>
+        <%= lucide_icon("list-tree", size: 15) %>
+        <span>Browse Posts</span>
       <% end %>
 
       <h3 class="left-nav-h3" data-testid="left-nav-blog-category-h3">

@@ -39,7 +39,7 @@ class BlogPost < ApplicationRecord
   after_create :add_primary_author_as_blog_post_author
 
   validates :title, presence: true, uniqueness: { scope: :user_id, case_sensitive: false }
-  validate  :topic_requires_sub_category
+  validate  :topic_requires_subject
 
   validates :blog_image,
     content_type: { in: %w[image/jpeg image/png image/webp], message: "must be a JPEG, PNG, or WebP" },
@@ -137,7 +137,7 @@ class BlogPost < ApplicationRecord
     blog_post_authors.find_or_create_by!(user: user)
   end
 
-  def topic_requires_sub_category
-    errors.add(:sub_category, "must be present if Topic is set") if topic.present? && sub_category.blank?
+  def topic_requires_subject
+    errors.add(:subject, "must be present if Topic is set") if topic.present? && subject.blank?
   end
 end

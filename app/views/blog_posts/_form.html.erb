@@ -69,10 +69,10 @@
     </div>
 
     <div class="show-panel__section">
-      <h3 class="show-meta-cell__label">Sub Category</h3>
+      <h3 class="show-meta-cell__label">Subject</h3>
       <div class="form-group">
-        <%= f.label :sub_category, class: "sr-only" %>
-        <%= f.text_field :sub_category, class: "form-control", data: { testid: "sub-category-field" } %>
+        <%= f.label :subject, class: "sr-only" %>
+        <%= f.text_field :subject, class: "form-control", data: { testid: "subject-field" } %>
       </div>
     </div>
 
@@ -81,10 +81,10 @@
       <div class="form-group">
         <%= f.label :topic, class: "sr-only" %>
         <%= f.text_field :topic,
-              class: "form-control #{'form-control--error' if blog_post.errors[:sub_category].any?}",
+              class: "form-control #{'form-control--error' if blog_post.errors[:subject].any?}",
               data: { testid: "topic-field" } %>
-        <% if blog_post.errors[:sub_category].any? %>
-          <span class="field-error" data-testid="field-error"><%= blog_post.errors[:sub_category].first %></span>
+        <% if blog_post.errors[:subject].any? %>
+          <span class="field-error" data-testid="field-error"><%= blog_post.errors[:subject].first %></span>
         <% end %>
       </div>
     </div>

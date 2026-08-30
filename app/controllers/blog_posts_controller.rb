@@ -2,13 +2,50 @@
 class BlogPostsController < ApplicationController
   include Navigable
 
-  allow_unauthenticated_access only: %i[show]
-  before_action :resume_session_if_present, only: %i[show]
+  allow_unauthenticated_access only: %i[index show]
+  before_action :resume_session_if_present, only: %i[index show]
   before_action :set_blog_post,             only: %i[show edit update publish unpublish destroy restore]
   before_action :require_create_access,     only: %i[new create convert_format]
   before_action :require_write_access,      only: %i[edit update publish unpublish]
   before_action :require_delete_access,     only: %i[destroy]
   before_action :require_admin,             only: %i[deleted restore]
+
+  def index
+    scope = visible_blog_posts_scope
+
+    @total_count = scope.count
+    @category_param = params[:category_id].presence
+    @subject_param  = params[:subject].presence
+    @topic_param    = params[:topic].presence
+
+    if @category_param
+      @category = find_category_from_param(@category_param)
+      redirect_to(blog_posts_path) && return if @category.nil? && @category_param != "none"
+      @category_scope = @category ? scope.where(blog_category: @category) : scope.where(blog_category_id: nil)
+      @category_label = @category&.name || "(Uncategorized)"
+      @category_count = @category_scope.count
+    end
+
+    if @subject_param
+      @subject = @subject_param == "none" ? nil : @subject_param
+      @subject_scope = @subject.present? ? @category_scope.where(subject: @subject) : @category_scope.where(subject: [ nil, "" ])
+      @subject_label = @subject.presence || "(No Subject)"
+      @subject_count = @subject_scope.count
+    end
+
+    if @topic_param
+      @topic = @topic_param == "none" ? nil : @topic_param
+      post_scope = @topic.present? ? @subject_scope.where(topic: @topic) : @subject_scope.where(topic: [ nil, "" ])
+      @topic_label = @topic.presence || "(No Topic)"
+      @posts = post_scope.includes(:user, :authors, :blog_category).order(created_at: :desc)
+    elsif @subject_param
+      @topics = grouped_counts(@subject_scope, :topic)
+    elsif @category_param
+      @subjects = grouped_counts(@category_scope, :subject)
+    else
+      @categories = category_counts(scope)
+    end
+  end
 
   def new
     @blog_post = current_user.blog_posts.build
@@ -88,6 +125,42 @@ class BlogPostsController < ApplicationController
 
   private
 
+  # Mirrors PeopleController#index's exact three-way visibility split
+  # (app/controllers/people_controller.rb) — BlogPost already has all three
+  # scopes from Foundation.
+  def visible_blog_posts_scope
+    if !authenticated?
+      BlogPost.visible_to_visitors
+    elsif current_user.can_administer?
+      BlogPost.visible_to_admins
+    else
+      BlogPost.visible_to_users(current_user)
+    end
+  end
+
+  def find_category_from_param(param)
+    return nil if param == "none"
+    BlogCategory.friendly.find(param)
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+
+  # Ruby-side grouping (not SQL GROUP BY) — deliberately simple at this app's
+  # scale, and sidesteps NULL-vs-empty-string edge cases entirely.
+  def grouped_counts(scope, column)
+    scope.pluck(column).map { |v| v.presence || "none" }.tally.sort.to_h
+  end
+
+  def category_counts(scope)
+    counts = BlogCategory.order("LOWER(name) ASC").filter_map do |category|
+      count = scope.where(blog_category: category).count
+      [ category, count ] if count.positive?
+    end.to_h
+    uncategorized = scope.where(blog_category_id: nil).count
+    counts[:uncategorized] = uncategorized if uncategorized.positive?
+    counts
+  end
+
   def require_create_access
     unless Policy.new(current_user, :blog_posts).can_create?
       redirect_to chronicle_path, alert: "Not authorised."
@@ -119,7 +192,7 @@ class BlogPostsController < ApplicationController
   end
 
   def blog_post_params
-    params.require(:blog_post).permit(:title, :body, :format, :blog_category_id, :sub_category, :topic, :blog_image)
+    params.require(:blog_post).permit(:title, :body, :format, :blog_category_id, :subject, :topic, :blog_image)
   end
 
   def add_co_authors

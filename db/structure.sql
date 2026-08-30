@@ -241,7 +241,7 @@ CREATE TABLE public.blog_posts (
     title character varying NOT NULL,
     body text,
     format character varying DEFAULT 'formatted'::character varying NOT NULL,
-    sub_category character varying,
+    subject character varying,
     topic character varying,
     slug character varying,
     published_at timestamp(6) without time zone,
@@ -1559,6 +1559,7 @@ ALTER TABLE ONLY public.likes
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260830113004'),
 ('20260830092142'),
 ('20260830080655'),
 ('20260830080654'),

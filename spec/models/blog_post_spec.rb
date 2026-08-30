@@ -11,7 +11,7 @@ RSpec.describe BlogPost, type: :model do
     it { is_expected.to have_db_column(:title).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:body).of_type(:text) }
     it { is_expected.to have_db_column(:format).of_type(:string).with_options(null: false) }
-    it { is_expected.to have_db_column(:sub_category).of_type(:string) }
+    it { is_expected.to have_db_column(:subject).of_type(:string) }
     it { is_expected.to have_db_column(:topic).of_type(:string) }
     it { is_expected.to have_db_column(:published_at).of_type(:datetime) }
     it { is_expected.to have_db_column(:deleted_at).of_type(:datetime) }
@@ -47,8 +47,8 @@ RSpec.describe BlogPost, type: :model do
         expect(post).to be_valid
       end
 
-      it "is valid with a topic when sub_category is also present" do
-        post = build(:blog_post, user: owner, sub_category: "Ruby", topic: "Rails")
+      it "is valid with a topic when subject is also present" do
+        post = build(:blog_post, user: owner, subject: "Ruby", topic: "Rails")
         expect(post).to be_valid
       end
 
@@ -96,10 +96,10 @@ RSpec.describe BlogPost, type: :model do
         expect(post).not_to be_valid
       end
 
-      it "is invalid when topic is set without sub_category" do
-        post = build(:blog_post, user: owner, sub_category: nil, topic: "Rails")
+      it "is invalid when topic is set without subject" do
+        post = build(:blog_post, user: owner, subject: nil, topic: "Rails")
         expect(post).not_to be_valid
-        expect(post.errors[:sub_category]).to include("must be present if Topic is set")
+        expect(post.errors[:subject]).to include("must be present if Topic is set")
       end
 
       it "is invalid with a non-image file as the blog image" do
@@ -149,8 +149,8 @@ RSpec.describe BlogPost, type: :model do
 
     # 4) Edge cases ────────────────────────────────────────────────────────────
     describe "edge cases" do
-      it "is valid with sub_category present and topic blank" do
-        post = build(:blog_post, user: owner, sub_category: "Ruby", topic: nil)
+      it "is valid with subject present and topic blank" do
+        post = build(:blog_post, user: owner, subject: "Ruby", topic: nil)
         expect(post).to be_valid
       end
 

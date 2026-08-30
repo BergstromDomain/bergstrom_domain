@@ -66,10 +66,10 @@
       </div>
     <% end %>
 
-    <% if @blog_post.sub_category.present? %>
+    <% if @blog_post.subject.present? %>
       <div class="show-meta-cell">
-        <h3 class="show-meta-cell__label">Sub Category</h3>
-        <p class="show-meta-cell__value" data-testid="blog-post-sub-category"><%= @blog_post.sub_category %></p>
+        <h3 class="show-meta-cell__label">Subject</h3>
+        <p class="show-meta-cell__value" data-testid="blog-post-subject"><%= @blog_post.subject %></p>
       </div>
     <% end %>
 

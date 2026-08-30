@@ -56,7 +56,7 @@ RSpec.describe "Create blog post", type: :feature do
     it "Creates a blog post as a draft and redirects to Chronicle" do
       visit new_blog_post_path
       fill_title("My First Post")
-      find("[data-testid='sub-category-field']").set("Ruby")
+      find("[data-testid='subject-field']").set("Ruby")
       find("[data-testid='topic-field']").set("Rails")
       click_button "Save Blog Post"
 
@@ -173,7 +173,7 @@ RSpec.describe "Create blog post", type: :feature do
         expect(BlogPost.where(title: "Shared Title").count).to eq(2)
       end
 
-      it "Shows an error when Topic is set without Sub Category" do
+      it "Shows an error when Topic is set without Subject" do
         visit new_blog_post_path
         fill_title("Bad Topic Post")
         find("[data-testid='topic-field']").set("Rails")
@@ -206,10 +206,10 @@ RSpec.describe "Create blog post", type: :feature do
     it "Re-renders the form with entered values when validation fails" do
       sign_in_as(charlie)
       visit new_blog_post_path
-      find("[data-testid='sub-category-field']").set("Ruby")
+      find("[data-testid='subject-field']").set("Ruby")
       click_button "Save Blog Post"
 
-      expect(find("[data-testid='sub-category-field']").value).to eq("Ruby")
+      expect(find("[data-testid='subject-field']").value).to eq("Ruby")
     end
   end
 

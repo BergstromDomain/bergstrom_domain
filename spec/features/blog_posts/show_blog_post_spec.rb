@@ -15,7 +15,7 @@ RSpec.describe "Show blog post", type: :feature do
         title:            "My Great Post",
         body:             "# Heading\n\nSome **bold** text.",
         blog_category:    category,
-        sub_category:     "Ruby",
+        subject:          "Ruby",
         topic:            "Rails")
     end
 
@@ -30,9 +30,9 @@ RSpec.describe "Show blog post", type: :feature do
       expect(page).to have_selector("strong", text: "bold")
     end
 
-    it "Displays the Category, Sub Category, and Topic" do
+    it "Displays the Category, Subject, and Topic" do
       expect(page).to have_selector("[data-testid='blog-post-category']", text: "Technology")
-      expect(page).to have_selector("[data-testid='blog-post-sub-category']", text: "Ruby")
+      expect(page).to have_selector("[data-testid='blog-post-subject']", text: "Ruby")
       expect(page).to have_selector("[data-testid='blog-post-topic']", text: "Rails")
     end
 
@@ -117,13 +117,13 @@ RSpec.describe "Show blog post", type: :feature do
 
   # 4) Edge cases ─────────────────────────────────────────────────────────────
   describe "Edge cases" do
-    it "Shows Category without Sub Category or Topic when neither is set" do
+    it "Shows Category without Subject or Topic when neither is set" do
       category = create(:blog_category, name: "Cooking", icon: "chef-hat", description: "Cooking posts.")
       post = create(:blog_post, :unrestricted, :published, user: owner, blog_category: category)
       visit blog_post_path(post)
 
       expect(page).to have_selector("[data-testid='blog-post-category']", text: "Cooking")
-      expect(page).not_to have_selector("[data-testid='blog-post-sub-category']")
+      expect(page).not_to have_selector("[data-testid='blog-post-subject']")
       expect(page).not_to have_selector("[data-testid='blog-post-topic']")
     end
 

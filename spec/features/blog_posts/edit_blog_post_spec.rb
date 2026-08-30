@@ -53,12 +53,12 @@ RSpec.describe "Edit blog post", type: :feature do
     end
 
     it "Pre-populates the form with the post's current values" do
-      post = create(:blog_post, user: owner, title: "Existing", sub_category: "Ruby", topic: "Rails")
+      post = create(:blog_post, user: owner, title: "Existing", subject: "Ruby", topic: "Rails")
       sign_in_as(owner)
       visit edit_blog_post_path(post)
 
       expect(find("[data-testid='title-field']").value).to eq("Existing")
-      expect(find("[data-testid='sub-category-field']").value).to eq("Ruby")
+      expect(find("[data-testid='subject-field']").value).to eq("Ruby")
       expect(find("[data-testid='topic-field']").value).to eq("Rails")
     end
 
