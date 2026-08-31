@@ -53,7 +53,8 @@
               <td data-testid="browse-post-created"><%= post.created_at.strftime("%d-%b-%Y") %></td>
               <td data-testid="browse-post-comments"><%= post.comments_count %></td>
               <td data-testid="browse-post-smiles">
-                <%= lucide_icon(Like::FACES[post.like_score_face][:icon], size: 16) %>
+                <%= lucide_icon(Like::FACES[post.like_score_face][:icon], size: 16,
+                      class: "like-face--#{post.like_score_face}") %>
                 <%= number_with_precision(post.like_score, precision: 1) %>
               </td>
             </tr>

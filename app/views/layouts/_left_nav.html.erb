@@ -188,7 +188,7 @@
         <% if blog_post_policy.can_create? %>
           <%= link_to new_blog_post_path, class: "left-nav-link" do %>
             <%= lucide_icon("file-plus-2", size: 15) %>
-            <span>Create A Post</span>
+            <span>Create A Blog Post</span>
           <% end %>
         <% end %>
 
@@ -201,20 +201,6 @@
             <%= lucide_icon("trash-2", size: 15) %>
             <span>Deleted Posts</span>
           <% end %>
-        <% end %>
-      </div>
-
-      <hr class="left-nav-divider">
-
-      <%# ── Exports (Content Creator and above) ─────────────────────────────── %>
-      <div class="left-nav-section">
-        <h2 class="left-nav-h2" data-testid="left-nav-exports-h2">
-          <%= lucide_icon("hard-drive-download", size: 14) %> Exports
-        </h2>
-
-        <%= link_to blog_exports_path, class: "left-nav-link" do %>
-          <%= lucide_icon("download", size: 15) %>
-          <span>Download Blog Posts</span>
         <% end %>
       </div>
     <% end %>

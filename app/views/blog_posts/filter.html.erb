@@ -20,50 +20,52 @@
 
   <div class="show-panel" data-filter-mode-target="basicPanel" data-testid="basic-panel"
        <%= "hidden" if @mode == "sql" %>>
-    <div class="show-panel__section">
-      <h3 class="show-meta-cell__label">Category</h3>
-      <%= select_tag :category_id,
-            options_for_select([ [ "All Categories", "" ] ] + @category_options.map { |c| [ c.name, c.slug ] },
-              params[:category_id]),
-            class: "form-control", data: { testid: "category-filter" } %>
-    </div>
+    <div class="filter-grid">
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Category</h3>
+        <%= select_tag :category_id,
+              options_for_select([ [ "All Categories", "" ] ] + @category_options.map { |c| [ c.name, c.slug ] },
+                params[:category_id]),
+              class: "form-control", data: { testid: "category-filter" } %>
+      </div>
 
-    <div class="show-panel__section">
-      <h3 class="show-meta-cell__label">Subject</h3>
-      <%= select_tag :subject,
-            options_for_select([ [ "All Subjects", "" ] ] + @subject_options.map { |s| [ s, s ] }, params[:subject]),
-            class: "form-control", data: { testid: "subject-filter" } %>
-    </div>
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Subject</h3>
+        <%= select_tag :subject,
+              options_for_select([ [ "All Subjects", "" ] ] + @subject_options.map { |s| [ s, s ] }, params[:subject]),
+              class: "form-control", data: { testid: "subject-filter" } %>
+      </div>
 
-    <div class="show-panel__section">
-      <h3 class="show-meta-cell__label">Topic</h3>
-      <%= select_tag :topic,
-            options_for_select([ [ "All Topics", "" ] ] + @topic_options.map { |t| [ t, t ] }, params[:topic]),
-            class: "form-control", data: { testid: "topic-filter" } %>
-    </div>
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Topic</h3>
+        <%= select_tag :topic,
+              options_for_select([ [ "All Topics", "" ] ] + @topic_options.map { |t| [ t, t ] }, params[:topic]),
+              class: "form-control", data: { testid: "topic-filter" } %>
+      </div>
 
-    <div class="show-panel__section">
-      <h3 class="show-meta-cell__label">Author</h3>
-      <%= select_tag :author_id,
-            options_for_select([ [ "All Authors", "" ] ] +
-              @author_options.map { |u| [ "#{u.first_name} #{u.last_name}", u.id ] }, params[:author_id]),
-            class: "form-control", data: { testid: "author-filter" } %>
-    </div>
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Author</h3>
+        <%= select_tag :author_id,
+              options_for_select([ [ "All Authors", "" ] ] +
+                @author_options.map { |u| [ "#{u.first_name} #{u.last_name}", u.id ] }, params[:author_id]),
+              class: "form-control", data: { testid: "author-filter" } %>
+      </div>
 
-    <div class="show-panel__section">
-      <h3 class="show-meta-cell__label">Created</h3>
-      <%= select_tag :created,
-            options_for_select([ [ "Anytime", "" ], [ "Today", "today" ], [ "This Week", "this_week" ],
-              [ "This Month", "this_month" ], [ "This Year", "this_year" ] ], params[:created]),
-            class: "form-control", data: { testid: "created-filter" } %>
-    </div>
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Created</h3>
+        <%= select_tag :created,
+              options_for_select([ [ "Anytime", "" ], [ "Today", "today" ], [ "This Week", "this_week" ],
+                [ "This Month", "this_month" ], [ "This Year", "this_year" ] ], params[:created]),
+              class: "form-control", data: { testid: "created-filter" } %>
+      </div>
 
-    <div class="show-panel__section">
-      <h3 class="show-meta-cell__label">Published</h3>
-      <%= select_tag :published,
-            options_for_select([ [ "All", "" ], [ "Published Only", "published" ], [ "Drafts Only", "draft" ] ],
-              params[:published]),
-            class: "form-control", data: { testid: "published-filter" } %>
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Published</h3>
+        <%= select_tag :published,
+              options_for_select([ [ "All", "" ], [ "Published Only", "published" ], [ "Drafts Only", "draft" ] ],
+                params[:published]),
+              class: "form-control", data: { testid: "published-filter" } %>
+      </div>
     </div>
   </div>
 
@@ -84,6 +86,9 @@
     <button type="submit" class="btn btn-primary" data-testid="apply-filters-button">
       <%= lucide_icon("filter", size: 16) %> Apply Filters
     </button>
+    <%= link_to filter_blog_posts_path, class: "btn btn-secondary", data: { testid: "clear-filters-link" } do %>
+      <%= lucide_icon("x", size: 16) %> Clear Filters
+    <% end %>
   </div>
 <% end %>
 
@@ -128,7 +133,8 @@
             <td data-testid="filter-post-created"><%= post.created_at.strftime("%d-%b-%Y") %></td>
             <td data-testid="filter-post-comments"><%= post.comments_count %></td>
             <td data-testid="filter-post-smiles">
-              <%= lucide_icon(Like::FACES[post.like_score_face][:icon], size: 16) %>
+              <%= lucide_icon(Like::FACES[post.like_score_face][:icon], size: 16,
+                    class: "like-face--#{post.like_score_face}") %>
               <%= number_with_precision(post.like_score, precision: 1) %>
             </td>
           </tr>

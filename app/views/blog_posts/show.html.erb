@@ -2,7 +2,14 @@
 
 <div class="page-header">
   <div class="page-header__top page-header__top--centered">
-    <h1 class="page-title" data-testid="blog-post-title"><%= @blog_post.title %></h1>
+    <h1 class="page-title" data-testid="blog-post-title">
+      <%= @blog_post.title %>
+      <% unless @blog_post.published? %>
+        <span class="draft-badge" data-testid="draft-badge">
+          <%= lucide_icon("book-dashed", size: 18) %> DRAFT
+        </span>
+      <% end %>
+    </h1>
   </div>
 </div>
 
@@ -39,12 +46,12 @@
         <%= button_to blog_post_like_path(@blog_post),
               method: :post,
               params: { face: face },
-              class: "like-button #{'like-button--active' if active}",
+              class: "like-button like-face--#{face} #{'like-button--active' if active}",
               data: { testid: "like-#{face}", turbo: false } do %>
           <%= lucide_icon(icon, size: 28) %>
         <% end %>
       <% else %>
-        <span class="like-button like-button--disabled<%= ' like-button--active' if active %>"
+        <span class="like-button like-face--<%= face %> like-button--disabled<%= ' like-button--active' if active %>"
               data-testid="like-<%= face %>">
           <%= lucide_icon(icon, size: 28) %>
         </span>
@@ -96,7 +103,8 @@
       <h3 class="show-meta-cell__label">Likes</h3>
       <p class="show-meta-cell__value" data-testid="blog-post-likes-count">
         <%= number_with_precision(@blog_post.like_score, precision: 1) %>
-        <%= lucide_icon(Like::FACES[@blog_post.like_score_face][:icon], size: 16) %>
+        <%= lucide_icon(Like::FACES[@blog_post.like_score_face][:icon], size: 16,
+              class: "like-face--#{@blog_post.like_score_face}") %>
       </p>
     </div>
   </div>

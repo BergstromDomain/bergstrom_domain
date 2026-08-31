@@ -20,7 +20,7 @@
         <%= comment.user.first_name %> <%= comment.user.last_name %>
       </span>
       <span class="comment__date" data-testid="comment-date">
-        <%= comment.created_at.strftime("%d-%b-%Y") %>
+        <%= comment.created_at.strftime("%d-%b-%Y %H:%M") %>
       </span>
     </div>
   </div>
@@ -33,7 +33,7 @@
         <div data-controller="comment-toggle" data-testid="reply-toggle-<%= comment.id %>">
           <button type="button" class="comment__action-link"
                   data-action="comment-toggle#toggle" data-testid="reply-link-<%= comment.id %>">
-            Reply
+            <%= lucide_icon("message-circle-reply", size: 14) %> Reply
           </button>
           <div class="comment-form-wrapper" hidden data-comment-toggle-target="form">
             <%= render "comments/form", blog_post: blog_post, comment: Comment.new, parent_id: comment.id %>
@@ -45,7 +45,7 @@
         <div data-controller="comment-toggle" data-testid="edit-toggle-<%= comment.id %>">
           <button type="button" class="comment__action-link"
                   data-action="comment-toggle#toggle" data-testid="edit-link-<%= comment.id %>">
-            Edit
+            <%= lucide_icon("pencil", size: 14) %> Edit
           </button>
           <div class="comment-form-wrapper" hidden data-comment-toggle-target="form">
             <%= render "comments/form", blog_post: blog_post, comment: comment %>
@@ -58,7 +58,7 @@
               method: :delete,
               class: "comment__action-link comment__action-link--danger",
               data: { testid: "delete-comment-#{comment.id}", turbo_confirm: "Delete this comment?" } do %>
-          Delete
+          <%= lucide_icon("trash-2", size: 14) %> Delete
         <% end %>
       <% end %>
     </div>

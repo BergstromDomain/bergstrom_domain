@@ -152,6 +152,26 @@ RSpec.describe "Show blog post", type: :feature do
       end
     end
 
+    it "Renders a fenced code block with syntax highlighting" do
+      post = create(:blog_post, :unrestricted, :published, user: owner,
+        body: "```ruby\ndef foo\nend\n```")
+      visit blog_post_path(post)
+
+      within("[data-testid='show-panel-main']") do
+        expect(page).to have_selector("pre[lang='ruby'] code span[style]")
+      end
+    end
+
+    it "Displays an image embedded in the body (e.g. pasted into the Formatted editor)" do
+      post = create(:blog_post, :unrestricted, :published, user: owner,
+        body: "![A cat](https://example.com/cat.png)")
+      visit blog_post_path(post)
+
+      within("[data-testid='show-panel-main']") do
+        expect(page).to have_selector("img[src='https://example.com/cat.png'][alt='A cat']")
+      end
+    end
+
     it "Displays a real uploaded blog image instead of the category icon fallback", js: true do
       category = create(:blog_category, name: "Travel", icon: "plane", description: "Travel posts.")
       post = create(:blog_post, :unrestricted, :published, user: owner, blog_category: category)

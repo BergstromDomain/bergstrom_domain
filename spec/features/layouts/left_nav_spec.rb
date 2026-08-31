@@ -313,17 +313,17 @@ RSpec.describe "Left Navigation", type: :feature do
         visit chronicle_path
       end
 
-      it "Shows the Actions section with Create A Post" do
+      it "Shows the Actions section with Create A Blog Post" do
         within("[data-testid='left-nav']") do
           expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
-          expect(page).to have_link("Create A Post", href: new_blog_post_path)
+          expect(page).to have_link("Create A Blog Post", href: new_blog_post_path)
         end
       end
 
-      it "Shows the Exports section with a Download Blog Posts link" do
+      it "Does not show the Exports section (hidden pending redesign)" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_selector("[data-testid='left-nav-exports-h2']")
-          expect(page).to have_link("Download Blog Posts", href: blog_exports_path)
+          expect(page).not_to have_selector("[data-testid='left-nav-exports-h2']")
+          expect(page).not_to have_link("Download Blog Posts")
         end
       end
 

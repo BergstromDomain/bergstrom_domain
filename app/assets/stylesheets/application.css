@@ -176,6 +176,20 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0;
 }
 
+.draft-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  margin-left: var(--space-sm);
+  padding: var(--space-2xs) var(--space-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  vertical-align: middle;
+}
+
 h1 { font-size: var(--font-size-2xl); }
 h2 { font-size: var(--font-size-xl);  }
 h3 { font-size: var(--font-size-lg);  }
@@ -799,6 +813,16 @@ code, pre {
 
 .browse-tree > li > a {
   font-weight: var(--font-weight-semibold);
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-md);
+}
+
+.filter-grid .show-panel__section {
+  margin-top: 0;
 }
 
 
@@ -2186,13 +2210,18 @@ textarea.form-control {
 }
 
 .like-button--active {
-  color: var(--color-accent);
   background: var(--color-accent-light);
 }
 
 .like-button--disabled {
   cursor: default;
 }
+
+.like-face--grinning          { color: #166534; }
+.like-face--slightly_smiling  { color: #16a34a; }
+.like-face--neutral           { color: #ca8a04; }
+.like-face--slightly_frowning { color: #ea580c; }
+.like-face--angry             { color: #dc2626; }
 
 /* ============================================================
    Chronicle Comments (threaded, 2-level: thread + flat replies)
@@ -2250,6 +2279,9 @@ textarea.form-control {
 }
 
 .comment__action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
   border: none;
   background: none;
   padding: 0;

@@ -6,10 +6,18 @@ class BlogPost < ApplicationRecord
   # Rails' default sanitizer allowlist drops <u>/<s> and any table, so a
   # plain `sanitize(rendered_body)` would silently lose formatting the editor
   # shows the author — extend the list explicitly instead. Revisit when the
-  # media/embeds block adds tables/images/video to what the editor can
-  # actually produce.
-  RENDERED_BODY_ALLOWED_TAGS       = %w[h1 h2 h3 h4 h5 h6 p br strong em u s blockquote ol ul li a code pre].freeze
-  RENDERED_BODY_ALLOWED_ATTRIBUTES = %w[href].freeze
+  # media/embeds block adds tables/video to what the editor can actually
+  # produce (images are already covered below — Quill's default clipboard
+  # handling base64-embeds a pasted image, which round-trips through
+  # Markdown fine; without `img` in this allowlist it silently vanished on
+  # render instead of erroring, which is why it looked like paste "did
+  # nothing" until this was added). `span`/`style`/`lang` are for syntax
+  # highlighting — Commonmarker's `unsafe: true` rendering already runs
+  # fenced code blocks through a built-in (Comrak/syntect) highlighter that
+  # emits `<pre lang="ruby" style="..."><code><span style="color:...">`, no
+  # separate highlighting library needed — see `.render_markdown` below.
+  RENDERED_BODY_ALLOWED_TAGS       = %w[h1 h2 h3 h4 h5 h6 p br strong em u s blockquote ol ul li a code pre img span].freeze
+  RENDERED_BODY_ALLOWED_ATTRIBUTES = %w[href src alt style lang].freeze
 
   # How long a soft-deleted post is kept before PurgeDeletedBlogPostsJob
   # permanently destroys it — 30 days, wider than the spec's literal "7" per
@@ -112,12 +120,17 @@ class BlogPost < ApplicationRecord
   # header_ids: nil turns off Commonmarker's default heading-anchor-link
   # generation (it's on by default, even with header_ids left unset) — Quill
   # has no use for those anchors and they'd just clutter the editor/reader.
+  # syntax_highlighter theme: InspiredGitHub is a light theme matching this
+  # site's light background — the built-in default (base16-ocean.dark) reads
+  # fine on its own but looks out of place embedded in a light page.
   def self.render_markdown(markdown)
     # nil.to_s is a US-ASCII "", not UTF-8 — Commonmarker rejects anything
     # that isn't explicitly UTF-8, even an empty string (e.g. rendering an
     # unpublished draft with no body yet).
     text = markdown.to_s.dup.force_encoding(Encoding::UTF_8)
-    Commonmarker.to_html(text, options: { render: { unsafe: true }, extension: { header_ids: nil } })
+    Commonmarker.to_html(text,
+      options: { render: { unsafe: true }, extension: { header_ids: nil } },
+      plugins: { syntax_highlighter: { theme: "InspiredGitHub" } })
   end
 
   def should_generate_new_friendly_id?
