@@ -5,7 +5,7 @@
 <% end %>
 
 <%= form_with model: blog_post,
-      class: "resource-form",
+      class: "resource-form resource-form--wide",
       data: {
         controller: "author-shuttle blog-post-editor",
         blog_post_editor_convert_url_value: convert_format_blog_posts_path
@@ -23,34 +23,36 @@
 
   <%# Title Frame %>
   <div class="show-panel" data-testid="new-panel-title">
-    <div class="show-panel__section">
-      <h2 class="show-panel__heading">Title</h2>
-      <div class="form-group">
-        <%= f.label :title, class: "sr-only" %>
-        <%= f.text_field :title,
-              class: "form-control #{'form-control--error' if blog_post.errors[:title].any?}",
-              data: { testid: "title-field" } %>
-        <% if blog_post.errors[:title].any? %>
-          <span class="field-error" data-testid="field-error"><%= blog_post.errors[:title].first %></span>
-        <% end %>
+    <div class="post-form-header">
+      <div class="show-panel__section post-form-header__title">
+        <h2 class="show-panel__heading">Title</h2>
+        <div class="form-group">
+          <%= f.label :title, class: "sr-only" %>
+          <%= f.text_field :title,
+                class: "form-control #{'form-control--error' if blog_post.errors[:title].any?}",
+                data: { testid: "title-field" } %>
+          <% if blog_post.errors[:title].any? %>
+            <span class="field-error" data-testid="field-error"><%= blog_post.errors[:title].first %></span>
+          <% end %>
+        </div>
       </div>
-    </div>
 
-    <div class="show-panel__section">
-      <h3 class="show-meta-cell__label">Blog Image</h3>
-      <div class="form-group">
-        <%= f.label :blog_image, class: "sr-only" %>
-        <% if blog_post.blog_image.attached? %>
-          <%= image_tag blog_post.blog_image.variant(:thumbnail), alt: "Current image", class: "form-image-preview" %>
-          <p class="form-hint">Upload a new file to replace the current image.</p>
-        <% end %>
-        <%= f.file_field :blog_image,
-              accept: "image/jpeg,image/png,image/webp",
-              class: "form-control",
-              data: { testid: "blog-image-field" } %>
-        <% if blog_post.errors[:blog_image].any? %>
-          <span class="field-error" data-testid="field-error"><%= blog_post.errors[:blog_image].first %></span>
-        <% end %>
+      <div class="show-panel__section post-form-header__image">
+        <h3 class="show-meta-cell__label">Blog Image</h3>
+        <div class="form-group">
+          <%= f.label :blog_image, class: "sr-only" %>
+          <% if blog_post.blog_image.attached? %>
+            <%= image_tag blog_post.blog_image.variant(:thumbnail), alt: "Current image", class: "form-image-preview" %>
+            <p class="form-hint">Upload a new file to replace the current image.</p>
+          <% end %>
+          <%= f.file_field :blog_image,
+                accept: "image/jpeg,image/png,image/webp",
+                class: "form-control",
+                data: { testid: "blog-image-field" } %>
+          <% if blog_post.errors[:blog_image].any? %>
+            <span class="field-error" data-testid="field-error"><%= blog_post.errors[:blog_image].first %></span>
+          <% end %>
+        </div>
       </div>
     </div>
   </div>
@@ -146,13 +148,12 @@
     <div data-blog-post-editor-target="rawPanel" hidden data-testid="raw-panel">
       <%= f.label :body, "Body (Markdown)", class: "sr-only" %>
       <%= f.text_area :body,
-            rows: 16,
-            class: "form-control",
+            class: "form-control editor-panel",
             data: { "blog-post-editor-target": "raw", testid: "body-field" } %>
     </div>
 
     <div data-blog-post-editor-target="formattedPanel" data-testid="formatted-panel">
-      <div data-blog-post-editor-target="editor" data-testid="quill-editor"></div>
+      <div class="editor-panel" data-blog-post-editor-target="editor" data-testid="quill-editor"></div>
     </div>
   </div>
 

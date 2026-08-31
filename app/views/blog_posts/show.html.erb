@@ -2,6 +2,15 @@
 
 <div class="page-header">
   <div class="page-header__top page-header__top--centered">
+    <% if @blog_post.blog_image.attached? %>
+      <div class="page-header__image" data-testid="blog-post-image">
+        <%= image_tag @blog_post.blog_image.variant(:thumbnail), alt: @blog_post.title %>
+      </div>
+    <% elsif @blog_post.blog_category.present? %>
+      <span class="event-type-icon-large page-header__image" data-testid="blog-post-category-icon">
+        <%= lucide_icon(@blog_post.blog_category.icon, size: 40) %>
+      </span>
+    <% end %>
     <h1 class="page-title" data-testid="blog-post-title">
       <%= @blog_post.title %>
       <% unless @blog_post.published? %>
@@ -13,54 +22,7 @@
   </div>
 </div>
 
-<%# Main div — image/category-icon + body %>
-<div class="show-panel" data-testid="show-panel-main">
-  <% if @blog_post.blog_image.attached? %>
-    <div class="event-image" data-testid="blog-post-image">
-      <%= image_tag @blog_post.blog_image, alt: @blog_post.title, class: "event-image__full" %>
-    </div>
-  <% elsif @blog_post.blog_category.present? %>
-    <span class="event-type-icon-large" data-testid="blog-post-category-icon">
-      <%= lucide_icon(@blog_post.blog_category.icon, size: 64) %>
-    </span>
-  <% end %>
-
-  <div class="show-panel__section">
-    <%= sanitize @blog_post.rendered_body,
-          tags:       BlogPost::RENDERED_BODY_ALLOWED_TAGS,
-          attributes: BlogPost::RENDERED_BODY_ALLOWED_ATTRIBUTES %>
-  </div>
-</div>
-
-<%# Likes div — guests see the same row, highlighted to the post's aggregate
-    face, but not clickable; signed-in users see their own status (neutral
-    by default) and can change it. %>
-<% highlighted_face = authenticated? ? @blog_post.current_user_face(current_user) : @blog_post.like_score_face %>
-<div class="show-panel" data-testid="likes-panel">
-  <h2 class="show-panel__heading">React to this post</h2>
-  <div class="likes-row">
-    <% Like::FACES.each_key do |face| %>
-      <% icon = Like::FACES[face][:icon] %>
-      <% active = face == highlighted_face %>
-      <% if authenticated? %>
-        <%= button_to blog_post_like_path(@blog_post),
-              method: :post,
-              params: { face: face },
-              class: "like-button like-face--#{face} #{'like-button--active' if active}",
-              data: { testid: "like-#{face}", turbo: false } do %>
-          <%= lucide_icon(icon, size: 28) %>
-        <% end %>
-      <% else %>
-        <span class="like-button like-face--<%= face %> like-button--disabled<%= ' like-button--active' if active %>"
-              data-testid="like-<%= face %>">
-          <%= lucide_icon(icon, size: 28) %>
-        </span>
-      <% end %>
-    <% end %>
-  </div>
-</div>
-
-<%# Metadata div %>
+<%# Metadata div — moved above the body, per manual-testing feedback %>
 <div class="show-panel" data-testid="show-panel-metadata">
   <div class="show-meta-row">
     <% if @blog_post.blog_category.present? %>
@@ -107,6 +69,43 @@
               class: "like-face--#{@blog_post.like_score_face}") %>
       </p>
     </div>
+  </div>
+</div>
+
+<%# Main div — body %>
+<div class="show-panel" data-testid="show-panel-main">
+  <div class="show-panel__section">
+    <%= sanitize @blog_post.rendered_body,
+          tags:       BlogPost::RENDERED_BODY_ALLOWED_TAGS,
+          attributes: BlogPost::RENDERED_BODY_ALLOWED_ATTRIBUTES %>
+  </div>
+</div>
+
+<%# Likes div — guests see the same row, highlighted to the post's aggregate
+    face, but not clickable; signed-in users see their own status (neutral
+    by default) and can change it. %>
+<% highlighted_face = authenticated? ? @blog_post.current_user_face(current_user) : @blog_post.like_score_face %>
+<div class="show-panel" data-testid="likes-panel">
+  <h2 class="show-panel__heading">React to this post</h2>
+  <div class="likes-row">
+    <% Like::FACES.each_key do |face| %>
+      <% icon = Like::FACES[face][:icon] %>
+      <% active = face == highlighted_face %>
+      <% if authenticated? %>
+        <%= button_to blog_post_like_path(@blog_post),
+              method: :post,
+              params: { face: face },
+              class: "like-button like-face--#{face} #{'like-button--active' if active}",
+              data: { testid: "like-#{face}", turbo: false } do %>
+          <%= lucide_icon(icon, size: 28) %>
+        <% end %>
+      <% else %>
+        <span class="like-button like-face--<%= face %> like-button--disabled<%= ' like-button--active' if active %>"
+              data-testid="like-<%= face %>">
+          <%= lucide_icon(icon, size: 28) %>
+        </span>
+      <% end %>
+    <% end %>
   </div>
 </div>
 
