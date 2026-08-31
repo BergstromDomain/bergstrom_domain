@@ -54,6 +54,20 @@ RSpec.describe "Filter blog posts", type: :feature do
       expect(titles).to eq([ "Zebra Rails Tips", "Apple Pie" ])
     end
 
+    it "Displays a thumbnail fallback, a Summary teaser, and a Published icon per row" do
+      create(:blog_post, :unrestricted, :published, user: owner, blog_category: technology,
+        title: "Published With Icon", body: "B" * 250)
+
+      visit filter_blog_posts_path(category_id: technology.slug)
+
+      row = all("[data-testid='filter-post-row']").find { |r| r.text.include?("Published With Icon") }
+      within(row) do
+        expect(page).to have_selector(".table-thumbnail-icon svg, .table-thumbnail")
+        expect(page).to have_selector("[data-testid='filter-post-summary']", text: "B" * 197 + "...")
+        expect(page).to have_selector("[data-testid='filter-post-published'] svg")
+      end
+    end
+
     it "Narrows results using the Published dropdown" do
       sign_in_as(owner)
       create(:blog_post, user: owner, title: "My Draft") # no :published trait
@@ -152,6 +166,24 @@ RSpec.describe "Filter blog posts", type: :feature do
 
       expect(page).to have_content("Bare Post")
       expect(page).to have_selector("[data-testid='filter-post-category']", text: "(Uncategorized)")
+    end
+
+    it "Shows a different Published icon for a published post vs. a draft" do
+      sign_in_as(owner)
+      create(:blog_post, :unrestricted, :published, user: owner, title: "Is Published")
+      create(:blog_post, user: owner, title: "Is Draft")
+
+      visit filter_blog_posts_path
+
+      published_row = all("[data-testid='filter-post-row']").find { |r| r.text.include?("Is Published") }
+      draft_row     = all("[data-testid='filter-post-row']").find { |r| r.text.include?("Is Draft") }
+
+      within(published_row) { expect(page).to have_selector("[data-testid='filter-post-published'] svg") }
+      within(draft_row)     { expect(page).to have_selector("[data-testid='filter-post-published'] svg") }
+
+      published_icon = published_row.find("[data-testid='filter-post-published'] svg").native.inner_html
+      draft_icon     = draft_row.find("[data-testid='filter-post-published'] svg").native.inner_html
+      expect(published_icon).not_to eq(draft_icon)
     end
   end
 end

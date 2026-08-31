@@ -7,7 +7,6 @@ module BlogPostsHelper
     "title"    => "Blog Title",
     "author"   => "Author",
     "created"  => "Created",
-    "comments" => "Comments",
     "smiles"   => "Smiles"
   }.freeze
 
@@ -21,5 +20,12 @@ module BlogPostsHelper
 
     link_to "#{FILTER_SORT_LABELS.fetch(column)}#{arrow}", filter_blog_posts_path(query),
       data: { testid: "sort-#{column}" }
+  end
+
+  # A plain-text teaser for Browse's cards and Filter's Summary column — strips
+  # the rendered Markdown down to plain text (including any syntax-highlighting
+  # spans) before truncating, so the preview never shows raw HTML/markup.
+  def blog_post_teaser(post)
+    strip_tags(post.rendered_body).squish.truncate(200)
   end
 end

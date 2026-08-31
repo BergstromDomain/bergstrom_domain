@@ -101,9 +101,10 @@
           <th><%= filter_sort_link("subject") %></th>
           <th><%= filter_sort_link("topic") %></th>
           <th><%= filter_sort_link("title") %></th>
+          <th>Summary</th>
           <th><%= filter_sort_link("author") %></th>
           <th><%= filter_sort_link("created") %></th>
-          <th><%= filter_sort_link("comments") %></th>
+          <th>Published</th>
           <th><%= filter_sort_link("smiles") %></th>
         </tr>
       </thead>
@@ -114,8 +115,24 @@
             <td data-testid="filter-post-subject"><%= post.subject.presence || "—" %></td>
             <td data-testid="filter-post-topic"><%= post.topic.presence || "—" %></td>
             <td>
-              <%= link_to post.title, post, class: "data-table__name-link", data: { testid: "filter-post-title" } %>
+              <div class="comment__header">
+                <% if post.blog_image.attached? %>
+                  <%= image_tag post.blog_image.variant(:thumbnail),
+                        alt: post.title,
+                        class: "table-thumbnail table-thumbnail--small" %>
+                <% elsif post.blog_category.present? %>
+                  <div class="table-thumbnail-icon table-thumbnail-icon--small">
+                    <%= lucide_icon(post.blog_category.icon, size: 16) %>
+                  </div>
+                <% else %>
+                  <div class="table-thumbnail-icon table-thumbnail-icon--small">
+                    <%= lucide_icon("file-text", size: 16) %>
+                  </div>
+                <% end %>
+                <%= link_to post.title, post, class: "data-table__name-link", data: { testid: "filter-post-title" } %>
+              </div>
             </td>
+            <td data-testid="filter-post-summary"><%= blog_post_teaser(post) %></td>
             <td>
               <div class="comment__header">
                 <% if post.user.profile_image.attached? %>
@@ -131,7 +148,13 @@
               </div>
             </td>
             <td data-testid="filter-post-created"><%= post.created_at.strftime("%d-%b-%Y") %></td>
-            <td data-testid="filter-post-comments"><%= post.comments_count %></td>
+            <td data-testid="filter-post-published">
+              <% if post.published? %>
+                <%= lucide_icon("book-check", size: 16) %>
+              <% else %>
+                <%= lucide_icon("book-dashed", size: 16) %>
+              <% end %>
+            </td>
             <td data-testid="filter-post-smiles">
               <%= lucide_icon(Like::FACES[post.like_score_face][:icon], size: 16,
                     class: "like-face--#{post.like_score_face}") %>

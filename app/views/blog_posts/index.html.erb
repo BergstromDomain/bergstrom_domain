@@ -2,7 +2,7 @@
 
 <div class="page-header">
   <div class="page-header__top page-header__top--centered">
-    <h1 class="page-title" data-testid="browse-root">Chronicle (<%= @total_count %>)</h1>
+    <h1 class="page-title" data-testid="browse-root">Browse Blog Posts</h1>
   </div>
 </div>
 
@@ -19,48 +19,44 @@
   </nav>
 
   <% if @posts.any? %>
-    <div class="data-table-wrapper">
-      <table class="data-table" data-testid="browse-posts-table">
-        <thead>
-          <tr>
-            <th>Blog Title</th>
-            <th>Author</th>
-            <th>Created</th>
-            <th>Comments</th>
-            <th>Smiles</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @posts.each do |post| %>
-            <tr data-testid="browse-post-row">
-              <td>
-                <%= link_to post.title, post, class: "data-table__name-link", data: { testid: "browse-post-title" } %>
-              </td>
-              <td>
-                <div class="comment__header">
-                  <% if post.user.profile_image.attached? %>
-                    <%= image_tag post.user.profile_image.variant(:thumbnail),
-                          alt: "#{post.user.first_name} #{post.user.last_name}",
-                          class: "table-thumbnail table-thumbnail--person table-thumbnail--small" %>
-                  <% else %>
-                    <div class="table-thumbnail-icon table-thumbnail-icon--person table-thumbnail-icon--small">
-                      <%= lucide_icon("user", size: 16) %>
-                    </div>
-                  <% end %>
-                  <span data-testid="browse-post-author"><%= post.user.first_name %> <%= post.user.last_name %></span>
-                </div>
-              </td>
-              <td data-testid="browse-post-created"><%= post.created_at.strftime("%d-%b-%Y") %></td>
-              <td data-testid="browse-post-comments"><%= post.comments_count %></td>
-              <td data-testid="browse-post-smiles">
-                <%= lucide_icon(Like::FACES[post.like_score_face][:icon], size: 16,
-                      class: "like-face--#{post.like_score_face}") %>
-                <%= number_with_precision(post.like_score, precision: 1) %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+    <div class="blog-cards" data-testid="browse-posts-list">
+      <% @posts.each do |post| %>
+        <div class="blog-card" data-testid="browse-post-card">
+          <div class="blog-card__header">
+            <div class="blog-card__thumbnail">
+              <% if post.blog_image.attached? %>
+                <%= image_tag post.blog_image.variant(:thumbnail), alt: post.title %>
+              <% elsif post.blog_category.present? %>
+                <span class="event-type-icon-large">
+                  <%= lucide_icon(post.blog_category.icon, size: 32) %>
+                </span>
+              <% else %>
+                <span class="event-type-icon-large">
+                  <%= lucide_icon("file-text", size: 32) %>
+                </span>
+              <% end %>
+            </div>
+            <h2 class="blog-card__title">
+              <%= link_to post.title, post, data: { testid: "browse-post-title" } %>
+            </h2>
+          </div>
+
+          <div class="blog-card__meta">
+            <span><strong>Author:</strong> <span data-testid="browse-post-author"><%= post.user.first_name %> <%= post.user.last_name %></span></span>
+            <span class="btn-divider">|</span>
+            <span><strong>Created:</strong> <span data-testid="browse-post-created"><%= post.created_at.strftime("%d-%b-%Y") %></span></span>
+            <span class="btn-divider">|</span>
+            <span>
+              <strong>Likes:</strong>
+              <%= lucide_icon(Like::FACES[post.like_score_face][:icon], size: 16,
+                    class: "like-face--#{post.like_score_face}") %>
+              <span data-testid="browse-post-smiles"><%= number_with_precision(post.like_score, precision: 1) %></span>
+            </span>
+          </div>
+
+          <p class="blog-card__teaser" data-testid="browse-post-teaser"><%= blog_post_teaser(post) %></p>
+        </div>
+      <% end %>
     </div>
   <% else %>
     <div class="empty-state" data-testid="empty-state">
@@ -68,47 +64,53 @@
     </div>
   <% end %>
 <% else %>
-  <%# Tree levels — accumulates the selected path, then lists the next %>
-  <%# level's children (categories at root, subjects within a category,  %>
-  <%# topics within a category+subject). %>
+  <%# Tree levels — "Chronicle (N)" is always the top node (so there's always
+      a way back up after drilling into a Category), then accumulates the
+      selected path, listing the next level's children (categories at root,
+      subjects within a category, topics within a category+subject). %>
   <ul class="browse-tree" data-testid="browse-tree">
-    <% if @category_param %>
-      <li data-testid="browse-category-node">
-        <%= link_to "#{@category_label} (#{@category_count})", blog_posts_path(category_id: @category_param) %>
-        <ul>
-          <% if @subject_param %>
-            <li data-testid="browse-subject-node">
-              <%= link_to "#{@subject_label} (#{@subject_count})",
-                    blog_posts_path(category_id: @category_param, subject: @subject_param) %>
-              <ul>
-                <% @topics.each do |topic, count| %>
-                  <li data-testid="browse-topic-node">
-                    <%= link_to "#{topic == 'none' ? '(No Topic)' : topic} (#{count})",
-                          blog_posts_path(category_id: @category_param, subject: @subject_param, topic: topic) %>
+    <li data-testid="browse-chronicle-node">
+      <%= link_to "Chronicle (#{@total_count})", blog_posts_path %>
+      <ul>
+        <% if @category_param %>
+          <li data-testid="browse-category-node">
+            <%= link_to "#{@category_label} (#{@category_count})", blog_posts_path(category_id: @category_param) %>
+            <ul>
+              <% if @subject_param %>
+                <li data-testid="browse-subject-node">
+                  <%= link_to "#{@subject_label} (#{@subject_count})",
+                        blog_posts_path(category_id: @category_param, subject: @subject_param) %>
+                  <ul>
+                    <% @topics.each do |topic, count| %>
+                      <li data-testid="browse-topic-node">
+                        <%= link_to "#{topic == 'none' ? '(No Topic)' : topic} (#{count})",
+                              blog_posts_path(category_id: @category_param, subject: @subject_param, topic: topic) %>
+                      </li>
+                    <% end %>
+                  </ul>
+                </li>
+              <% else %>
+                <% @subjects.each do |subject, count| %>
+                  <li data-testid="browse-subject-node">
+                    <%= link_to "#{subject == 'none' ? '(No Subject)' : subject} (#{count})",
+                          blog_posts_path(category_id: @category_param, subject: subject) %>
                   </li>
                 <% end %>
-              </ul>
+              <% end %>
+            </ul>
+          </li>
+        <% else %>
+          <% @categories.each do |category, count| %>
+            <li data-testid="browse-category-node">
+              <% if category == :uncategorized %>
+                <%= link_to "(Uncategorized) (#{count})", blog_posts_path(category_id: "none") %>
+              <% else %>
+                <%= link_to "#{category.name} (#{count})", blog_posts_path(category_id: category.slug) %>
+              <% end %>
             </li>
-          <% else %>
-            <% @subjects.each do |subject, count| %>
-              <li data-testid="browse-subject-node">
-                <%= link_to "#{subject == 'none' ? '(No Subject)' : subject} (#{count})",
-                      blog_posts_path(category_id: @category_param, subject: subject) %>
-              </li>
-            <% end %>
           <% end %>
-        </ul>
-      </li>
-    <% else %>
-      <% @categories.each do |category, count| %>
-        <li data-testid="browse-category-node">
-          <% if category == :uncategorized %>
-            <%= link_to "(Uncategorized) (#{count})", blog_posts_path(category_id: "none") %>
-          <% else %>
-            <%= link_to "#{category.name} (#{count})", blog_posts_path(category_id: category.slug) %>
-          <% end %>
-        </li>
-      <% end %>
-    <% end %>
+        <% end %>
+      </ul>
+    </li>
   </ul>
 <% end %>

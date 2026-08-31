@@ -37,7 +37,7 @@ class BlogPostsController < ApplicationController
       @topic = @topic_param == "none" ? nil : @topic_param
       post_scope = @topic.present? ? @subject_scope.where(topic: @topic) : @subject_scope.where(topic: [ nil, "" ])
       @topic_label = @topic.presence || "(No Topic)"
-      @posts = post_scope.includes(:user, :authors, :blog_category).order(created_at: :desc)
+      @posts = post_scope.includes(:user, :blog_category, :likes).order(created_at: :desc)
     elsif @subject_param
       @topics = grouped_counts(@subject_scope, :topic)
     elsif @category_param
@@ -47,10 +47,10 @@ class BlogPostsController < ApplicationController
     end
   end
 
-  FILTER_SORT_COLUMNS = %w[category subject topic title author created comments smiles].freeze
+  FILTER_SORT_COLUMNS = %w[category subject topic title author created smiles].freeze
 
   def filter
-    posts = visible_blog_posts_scope.includes(:user, :blog_category).to_a
+    posts = visible_blog_posts_scope.includes(:user, :blog_category, :likes).to_a
 
     @mode  = params[:mode] == "sql" ? "sql" : "basic"
     @query = params[:query].to_s

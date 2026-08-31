@@ -11,7 +11,8 @@ RSpec.describe "Browse blog posts", type: :feature do
     let!(:technology) { create(:blog_category, name: "Technology") }
     let!(:java_post) do
       create(:blog_post, :unrestricted, :published, user: owner, blog_category: technology,
-        subject: "Software Development", topic: "Java", title: "Java Basics")
+        subject: "Software Development", topic: "Java", title: "Java Basics",
+        body: "A" * 250)
     end
 
     before do
@@ -21,11 +22,12 @@ RSpec.describe "Browse blog posts", type: :feature do
         subject: "Software Development", topic: "Ruby On Rails")
     end
 
-    it "Shows the root level with a total count and one row per Category" do
+    it "Shows the static heading and a Chronicle root link with the total count" do
       visit blog_posts_path
 
-      expect(page).to have_selector("[data-testid='browse-root']", text: "Chronicle (10)")
+      expect(page).to have_selector("[data-testid='browse-root']", text: "Browse Blog Posts")
       within("[data-testid='browse-tree']") do
+        expect(page).to have_link("Chronicle (10)", href: blog_posts_path)
         expect(page).to have_link("Food (5)")
         expect(page).to have_link("Technology (5)")
       end
@@ -55,28 +57,36 @@ RSpec.describe "Browse blog posts", type: :feature do
       end
     end
 
-    it "Drills into a Topic and shows a breadcrumb and the posts table" do
+    it "Navigates back up to the root via the Chronicle link after drilling into a Category" do
+      visit blog_posts_path(category_id: technology.slug)
+      within("[data-testid='browse-tree']") { click_link "Chronicle (10)" }
+
+      within("[data-testid='browse-tree']") do
+        expect(page).to have_link("Food (5)")
+        expect(page).to have_link("Technology (5)")
+      end
+    end
+
+    it "Drills into a Topic and shows a breadcrumb and a card per post" do
       visit blog_posts_path(category_id: technology.slug, subject: "Software Development", topic: "Ruby On Rails")
 
       expect(page).to have_selector("[data-testid='browse-breadcrumb']", text: "Technology")
       expect(page).to have_selector("[data-testid='browse-breadcrumb']", text: "Software Development")
       expect(page).to have_selector("[data-testid='browse-breadcrumb-topic']", text: "Ruby On Rails")
-      expect(page).to have_selector("[data-testid='browse-post-row']", count: 3)
+      expect(page).to have_selector("[data-testid='browse-post-card']", count: 3)
     end
 
-    it "Displays the correct columns for each post row" do
-      create(:comment, blog_post: java_post, user: owner)
-      create(:comment, blog_post: java_post, user: owner)
-
+    it "Displays the correct fields on each post card" do
       visit blog_posts_path(category_id: technology.slug, subject: "Software Development", topic: "Java")
 
-      row = find("[data-testid='browse-post-row']")
-      within(row) do
+      card = find("[data-testid='browse-post-card']")
+      within(card) do
+        expect(page).to have_selector("h2", text: "Java Basics")
         expect(page).to have_link("Java Basics", href: blog_post_path(java_post))
         expect(page).to have_selector("[data-testid='browse-post-author']", text: "#{owner.first_name} #{owner.last_name}")
         expect(page).to have_selector("[data-testid='browse-post-created']", text: java_post.created_at.strftime("%d-%b-%Y"))
-        expect(page).to have_selector("[data-testid='browse-post-comments']", text: "2")
         expect(page).to have_selector("[data-testid='browse-post-smiles']", text: "3.0")
+        expect(page).to have_selector("[data-testid='browse-post-teaser']", text: "A" * 197 + "...")
       end
     end
   end
@@ -89,8 +99,8 @@ RSpec.describe "Browse blog posts", type: :feature do
 
       visit blog_posts_path
 
-      expect(page).to have_selector("[data-testid='browse-root']", text: "Chronicle (0)")
       within("[data-testid='browse-tree']") do
+        expect(page).to have_link("Chronicle (0)", href: blog_posts_path)
         expect(page).not_to have_link(text: /Secrets/)
       end
     end
@@ -179,6 +189,17 @@ RSpec.describe "Browse blog posts", type: :feature do
 
       within("[data-testid='browse-tree']") do
         expect(page).to have_link("Software Development (1)")
+      end
+    end
+
+    it "Falls back to a generic icon for a card whose post has neither an image nor a Category" do
+      post = create(:blog_post, :unrestricted, :published, user: owner, title: "Bare Post")
+      post.update_column(:blog_category_id, nil)
+
+      visit blog_posts_path(category_id: "none", subject: "none", topic: "none")
+
+      within("[data-testid='browse-post-card']") do
+        expect(page).to have_selector(".event-type-icon-large svg")
       end
     end
   end
