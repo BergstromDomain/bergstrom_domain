@@ -2323,7 +2323,7 @@ textarea.form-control {
 }
 
 .comment__body {
-  white-space: pre-wrap;
+  margin: 0;
 }
 
 .comment__actions {
@@ -2355,6 +2355,12 @@ textarea.form-control {
 .comment-form-wrapper {
   flex-basis: 100%;
   margin-top: var(--space-xs);
+}
+
+/* Taller editor for Reply/Edit — the top-level new-comment form keeps
+   Trix's default height. */
+.comment-form-wrapper trix-editor {
+  min-height: 8rem;
 }
 
 .comment-form__actions {

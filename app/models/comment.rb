@@ -7,6 +7,8 @@ class Comment < ApplicationRecord
   has_many :replies, -> { order(created_at: :asc) },
     class_name: "Comment", foreign_key: :parent_id, dependent: :destroy, inverse_of: :parent
 
+  has_rich_text :body
+
   validates :body, presence: true
   validate  :parent_must_be_top_level
 

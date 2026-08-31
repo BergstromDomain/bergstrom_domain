@@ -20,9 +20,9 @@ RSpec.describe "Comment on blog post", type: :feature do
 
   # 1) Happy path ─────────────────────────────────────────────────────────────
   describe "Happy path" do
-    it "Posts a top-level comment and shows the correct count" do
+    it "Posts a top-level comment and shows the correct count", js: true do
       post = published_post
-      sign_in_as(reader)
+      sign_in_and_settle(reader)
       visit blog_post_path(post)
 
       find("[data-testid='comment-body-field']").set("A great post!")
@@ -93,7 +93,7 @@ RSpec.describe "Comment on blog post", type: :feature do
       page.driver.submit :patch, comment_path(comment), { comment: { body: "Hacked" } }
 
       expect(page).to have_content("Not authorised")
-      expect(comment.reload.body).to eq("Original")
+      expect(comment.reload.body.to_plain_text).to eq("Original")
     end
 
     it "Denies deleting someone else's comment" do
@@ -133,7 +133,24 @@ RSpec.describe "Comment on blog post", type: :feature do
       within("[data-testid='edit-toggle-#{comment.id}']") { click_button "Update" }
 
       expect(page).to have_selector("[data-testid='comment-body']", text: "Updated text")
-      expect(comment.reload.body).to eq("Updated text")
+      expect(comment.reload.body.to_plain_text).to eq("Updated text")
+    end
+
+    it "Displays an image attached to a comment (rich text, not Markdown)" do
+      post = published_post
+      blob = ActiveStorage::Blob.create_and_upload!(
+        io:           File.open(Rails.root.join("spec/fixtures/files/test_image.jpg")),
+        filename:     "test_image.jpg",
+        content_type: "image/jpeg"
+      )
+      body = ActionText::Content.new.append_attachables(blob)
+      create(:comment, blog_post: post, user: owner, body: body)
+
+      visit blog_post_path(post)
+
+      within("[data-testid='comment-body']") do
+        expect(page).to have_selector("img")
+      end
     end
   end
 
@@ -162,7 +179,8 @@ RSpec.describe "Comment on blog post", type: :feature do
       page.driver.submit :post, blog_post_comments_path(post),
         { comment: { body: "Reply to a reply", parent_id: reply.id } }
 
-      new_comment = Comment.find_by(body: "Reply to a reply")
+      new_comment = Comment.order(:created_at).last
+      expect(new_comment.body.to_plain_text).to eq("Reply to a reply")
       expect(new_comment.parent_id).to eq(thread.id)
     end
   end

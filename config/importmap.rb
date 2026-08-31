@@ -18,3 +18,5 @@ pin "quill-delta" # @5.1.0
 pin "fast-diff" # @1.3.0
 pin "lodash.clonedeep" # @4.5.0
 pin "lodash.isequal" # @4.5.0
+pin "trix"
+pin "@rails/actiontext", to: "actiontext.esm.js"

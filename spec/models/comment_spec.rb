@@ -5,17 +5,21 @@ RSpec.describe Comment, type: :model do
   let(:post) { create(:blog_post) }
   let(:user) { create(:user) }
 
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
-    it { is_expected.to have_db_column(:body).of_type(:text).with_options(null: false) }
-  end
-
   # ── Associations ──────────────────────────────────────────────────────────
   describe "associations" do
     it { is_expected.to belong_to(:blog_post).counter_cache(true) }
     it { is_expected.to belong_to(:user) }
     it { is_expected.to belong_to(:parent).class_name("Comment").optional }
     it { is_expected.to have_many(:replies).class_name("Comment").dependent(:destroy) }
+  end
+
+  # ── Rich text ─────────────────────────────────────────────────────────────
+  describe "rich text" do
+    it "Stores body as Action Text rich text, not a plain column" do
+      comment = create(:comment, blog_post: post, user: user, body: "<strong>Hi</strong>")
+      expect(comment.body).to be_a(ActionText::RichText)
+      expect(comment.body.to_s).to include("<strong>Hi</strong>")
+    end
   end
 
   # 1) Happy path ─────────────────────────────────────────────────────────────
