@@ -18,6 +18,41 @@ RSpec.describe "Comment on blog post", type: :feature do
     raise "sign_in_and_settle: could not sign in as #{user.email_address} after #{attempts} attempts"
   end
 
+  # Sets a Trix editor's content. Two real, reproducible (not just "slow CI")
+  # issues found while chasing a failure that only showed up as the *second or
+  # later* js:true browser interaction in a run, never the first or in
+  # isolation:
+  #   1. Selenium's `.click()` on a freshly-revealed (e.g. right after
+  #      clicking Reply/Edit) contenteditable custom element doesn't always
+  #      transfer keyboard focus away from the just-clicked toggle button —
+  #      `document.activeElement` stayed the <button>, so `.set()`'s keystrokes
+  #      went nowhere. Forcing focus via JS first fixes this reliably.
+  #   2. Trix syncs the visible editor into its paired hidden input
+  #      asynchronously — wait for that before the caller submits, or the
+  #      form can submit the pre-edit value.
+  # Bounded retry: forcing focus right before typing occasionally still races
+  # with Trix's own focus handling, dropping all but the first character —
+  # rare enough that a single retry (which re-focuses and re-sets from
+  # scratch each time, not appending) reliably clears it.
+  def set_trix(selector, text, attempts: 3)
+    attempts.times do
+      field = find(selector, visible: true)
+      page.execute_script("document.getElementById(arguments[0]).focus()", field["id"])
+      field.set(text)
+      return if page.has_field?(field["input"], type: :hidden, with: /#{Regexp.escape(text)}/, wait: 5)
+    end
+    raise "set_trix: #{selector.inspect} never synced #{text.inspect} after #{attempts} attempts"
+  end
+
+  # `within(scope) { click_button(...) }` re-resolves `scope` and the button
+  # inside it right when the block runs — same class of staleness this file
+  # already works around for `find` right after a JS-driven reveal (see
+  # sign_in_and_settle/set_trix above): finding the exact scoped element
+  # directly, rather than through `within`, is what's proven reliable here.
+  def click_submit_within(scope_selector)
+    find("#{scope_selector} input[type='submit']", visible: true).click
+  end
+
   # 1) Happy path ─────────────────────────────────────────────────────────────
   describe "Happy path" do
     it "Posts a top-level comment and shows the correct count", js: true do
@@ -25,7 +60,8 @@ RSpec.describe "Comment on blog post", type: :feature do
       sign_in_and_settle(reader)
       visit blog_post_path(post)
 
-      find("[data-testid='comment-body-field']").set("A great post!")
+      set_trix("[data-testid='comment-body-field']", "A great post!")
+
       click_button "Post"
 
       expect(page).to have_selector("[data-testid='comment-body']", text: "A great post!")
@@ -50,9 +86,9 @@ RSpec.describe "Comment on blog post", type: :feature do
       visit blog_post_path(post)
 
       find("[data-testid='reply-link-#{thread.id}']").click
-      reply_field = find("[data-testid='reply-toggle-#{thread.id}'] [data-testid='comment-body-field']", visible: true)
-      reply_field.set("A reply!")
-      within("[data-testid='reply-toggle-#{thread.id}']") { click_button "Post" }
+      set_trix("[data-testid='reply-toggle-#{thread.id}'] [data-testid='comment-body-field']", "A reply!")
+
+      click_submit_within("[data-testid='reply-toggle-#{thread.id}']")
 
       expect(page).to have_selector("[data-testid='comments-count']", text: "2 comments in 1 thread")
       expect(page).to have_selector("[data-testid='reply-#{thread.reload.replies.last.id}']")
@@ -128,9 +164,9 @@ RSpec.describe "Comment on blog post", type: :feature do
       visit blog_post_path(post)
 
       find("[data-testid='edit-link-#{comment.id}']").click
-      edit_field = find("[data-testid='edit-toggle-#{comment.id}'] [data-testid='comment-body-field']", visible: true)
-      edit_field.set("Updated text")
-      within("[data-testid='edit-toggle-#{comment.id}']") { click_button "Update" }
+      set_trix("[data-testid='edit-toggle-#{comment.id}'] [data-testid='comment-body-field']", "Updated text")
+
+      click_submit_within("[data-testid='edit-toggle-#{comment.id}']")
 
       expect(page).to have_selector("[data-testid='comment-body']", text: "Updated text")
       expect(comment.reload.body.to_plain_text).to eq("Updated text")

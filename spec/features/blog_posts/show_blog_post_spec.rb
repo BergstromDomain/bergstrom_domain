@@ -172,7 +172,7 @@ RSpec.describe "Show blog post", type: :feature do
       end
     end
 
-    it "Displays a real uploaded blog image instead of the category icon fallback", js: true do
+    it "Displays a real uploaded blog image instead of the category icon fallback" do
       category = create(:blog_category, name: "Travel", icon: "plane", description: "Travel posts.")
       post = create(:blog_post, :unrestricted, :published, user: owner, blog_category: category)
       post.blog_image.attach(
