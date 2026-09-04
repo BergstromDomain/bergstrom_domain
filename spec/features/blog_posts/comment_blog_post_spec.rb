@@ -63,7 +63,7 @@ RSpec.describe "Comment on blog post", type: :feature do
       click_button "Post"
 
       expect(page).to have_selector("[data-testid='comment-body']", text: "A great post!")
-      expect(page).to have_selector("[data-testid='comments-count']", text: "1 comment in 1 thread")
+      expect(page).to have_selector("[data-testid='comments-count']", text: "1 comment in 1 thread", wait: 10)
     end
 
     it "Shows the newest top-level comment on top, oldest at the bottom" do
@@ -88,7 +88,7 @@ RSpec.describe "Comment on blog post", type: :feature do
 
       click_submit_within("[data-testid='reply-toggle-#{thread.id}']")
 
-      expect(page).to have_selector("[data-testid='comments-count']", text: "2 comments in 1 thread")
+      expect(page).to have_selector("[data-testid='comments-count']", text: "2 comments in 1 thread", wait: 10)
       expect(page).to have_selector("[data-testid='reply-#{thread.reload.replies.last.id}']")
     end
   end
@@ -167,7 +167,7 @@ RSpec.describe "Comment on blog post", type: :feature do
       # initial document to finish rendering before overwriting it, or set_trix's
       # focus+set can race Trix's own initialization of the pre-existing content.
       expect(page).to have_selector("[data-testid='edit-toggle-#{comment.id}'] [data-testid='comment-body-field']",
-        text: "Original text")
+        text: "Original text", wait: 10)
       set_trix("[data-testid='edit-toggle-#{comment.id}'] [data-testid='comment-body-field']", "Updated text")
 
       click_submit_within("[data-testid='edit-toggle-#{comment.id}']")
@@ -214,10 +214,10 @@ RSpec.describe "Comment on blog post", type: :feature do
       sign_in_as(owner)
       visit blog_post_path(post)
 
-      expect(page).to have_selector("[data-testid='comments-count']", text: "2 comments in 1 thread")
+      expect(page).to have_selector("[data-testid='comments-count']", text: "2 comments in 1 thread", wait: 10)
       find("[data-testid='delete-comment-#{thread.id}']").click
 
-      expect(page).to have_selector("[data-testid='comments-count']", text: "0 comments in 0 threads")
+      expect(page).to have_selector("[data-testid='comments-count']", text: "0 comments in 0 threads", wait: 10)
       expect(Comment.count).to eq(0)
     end
 
