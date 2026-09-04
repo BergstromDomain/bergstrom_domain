@@ -18,30 +18,28 @@ RSpec.describe "Comment on blog post", type: :feature do
     raise "sign_in_and_settle: could not sign in as #{user.email_address} after #{attempts} attempts"
   end
 
-  # Sets a Trix editor's content. Two real, reproducible (not just "slow CI")
-  # issues found while chasing a failure that only showed up as the *second or
-  # later* js:true browser interaction in a run, never the first or in
-  # isolation:
-  #   1. Selenium's `.click()` on a freshly-revealed (e.g. right after
-  #      clicking Reply/Edit) contenteditable custom element doesn't always
-  #      transfer keyboard focus away from the just-clicked toggle button —
-  #      `document.activeElement` stayed the <button>, so `.set()`'s keystrokes
-  #      went nowhere. Forcing focus via JS first fixes this reliably.
-  #   2. Trix syncs the visible editor into its paired hidden input
-  #      asynchronously — wait for that before the caller submits, or the
-  #      form can submit the pre-edit value.
-  # Bounded retry: forcing focus right before typing occasionally still races
-  # with Trix's own focus handling, dropping all but the first character —
-  # rare enough that a single retry (which re-focuses and re-sets from
-  # scratch each time, not appending) reliably clears it.
-  def set_trix(selector, text, attempts: 3)
-    attempts.times do
-      field = find(selector, visible: true)
-      page.execute_script("document.getElementById(arguments[0]).focus()", field["id"])
-      field.set(text)
-      return if page.has_field?(field["input"], type: :hidden, with: /#{Regexp.escape(text)}/, wait: 5)
-    end
-    raise "set_trix: #{selector.inspect} never synced #{text.inspect} after #{attempts} attempts"
+  # Sets a Trix editor's content by driving Trix's own document API
+  # (editor.setSelectedRange + editor.insertString) via execute_script, rather
+  # than Capybara's `.set()`, which drives a contenteditable element through
+  # synthetic keystrokes (select-all, delete, type). That keystroke simulation
+  # proved unreliable specifically when replacing a *non-empty* editor (e.g.
+  # editing an existing comment) under full-suite-only conditions — confirmed
+  # by direct evidence, not guesswork: a temporary diagnostic dump showed
+  # `.set()` returning normally with focus correctly on the trix-editor and
+  # Trix fully initialized, yet the visible editor's content was completely
+  # unchanged (still the pre-existing text). Driving Trix's API directly
+  # sidesteps whatever makes the synthetic-keystroke clear-and-type path
+  # unreliable, since it mutates the document model the same way Trix's own
+  # toolbar/attachment code does, which is what actually fires the
+  # "trix-change" event syncing the paired hidden input.
+  def set_trix(selector, text)
+    field = find(selector, visible: true, wait: 10)
+    page.execute_script(<<~JS, field["id"], text)
+      const editor = document.getElementById(arguments[0]).editor
+      editor.setSelectedRange([0, editor.getDocument().toString().length])
+      editor.insertString(arguments[1])
+    JS
+    expect(page).to have_field(field["input"], type: :hidden, with: /#{Regexp.escape(text)}/, wait: 10)
   end
 
   # `within(scope) { click_button(...) }` re-resolves `scope` and the button
@@ -164,11 +162,28 @@ RSpec.describe "Comment on blog post", type: :feature do
       visit blog_post_path(post)
 
       find("[data-testid='edit-link-#{comment.id}']").click
+      # Unlike a brand-new/empty comment or reply editor, this one loads with
+      # existing rich-text content — wait for Trix's own async parse of that
+      # initial document to finish rendering before overwriting it, or set_trix's
+      # focus+set can race Trix's own initialization of the pre-existing content.
+      expect(page).to have_selector("[data-testid='edit-toggle-#{comment.id}'] [data-testid='comment-body-field']",
+        text: "Original text")
       set_trix("[data-testid='edit-toggle-#{comment.id}'] [data-testid='comment-body-field']", "Updated text")
 
       click_submit_within("[data-testid='edit-toggle-#{comment.id}']")
 
-      expect(page).to have_selector("[data-testid='comment-body']", text: "Updated text")
+      # Confirm the post-submit navigation has actually landed (the old
+      # edit form is gone) before checking the new body text — a resource-
+      # starved full-suite run can make this specific full-page Turbo
+      # navigation take longer than Capybara's default wait, and unlike
+      # Create/Reply (whose assertions match brand-new text with no stale
+      # match to land on first), this selector already matches an element on
+      # the pre-navigation page, so an under-waited check can appear to have
+      # "found" something and fail on the old value instead of retrying long
+      # enough to see the new page.
+      expect(page).to have_no_selector("[data-testid='edit-toggle-#{comment.id}'] [data-testid='comment-body-field']",
+        wait: 10)
+      expect(page).to have_selector("[data-testid='comment-body']", text: "Updated text", wait: 10)
       expect(comment.reload.body.to_plain_text).to eq("Updated text")
     end
 
