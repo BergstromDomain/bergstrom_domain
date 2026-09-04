@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+# bin/importmap-audit
+#
+# `bin/importmap audit` has no allowlist mechanism (unlike bin/bundler-audit's
+# config/bundler-audit.yml), so this wraps it: any finding whose GitHub
+# Security Advisory id isn't listed in config/importmap-audit.yml still fails
+# the build. Ignored entries are for vulnerabilities with no available fix —
+# see that file for why each one is there.
+
+require_relative "../config/application"
+require "importmap/npm"
+require "yaml"
+
+ignored_ids = YAML.load_file(File.expand_path("../config/importmap-audit.yml", __dir__))["ignore"] || []
+
+advisories = Importmap::Npm.new.send(:get_audit)
+
+ignored_found = []
+unexpected    = []
+
+advisories.each do |package, vulnerabilities|
+  vulnerabilities.each do |vulnerability|
+    advisory_id = vulnerability["url"].to_s.split("/").last
+    entry = { package: package, severity: vulnerability["severity"], title: vulnerability["title"], id: advisory_id }
+
+    if ignored_ids.include?(advisory_id)
+      ignored_found << entry
+    else
+      unexpected << entry
+    end
+  end
+end
+
+unless ignored_found.empty?
+  puts "Ignored (reviewed, no fix available — see config/importmap-audit.yml):"
+  ignored_found.each { |e| puts "  - #{e[:package]} (#{e[:severity]}): #{e[:title]} [#{e[:id]}]" }
+end
+
+if unexpected.any?
+  puts "\nUnexpected JavaScript dependency vulnerabilities found:"
+  unexpected.each { |e| puts "  - #{e[:package]} (#{e[:severity]}): #{e[:title]} [#{e[:id]}]" }
+  puts "\nIf reviewed and accepted, add the advisory id to config/importmap-audit.yml."
+  exit 1
+end
+
+puts "\nNo unexpected JavaScript dependency vulnerabilities found."

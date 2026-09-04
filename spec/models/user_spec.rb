@@ -16,6 +16,7 @@ RSpec.describe User, type: :model do
     it { is_expected.to have_many(:sessions).dependent(:destroy) }
     it { is_expected.to have_many(:contacts).dependent(:destroy) }
     it { is_expected.to have_many(:contact_users).through(:contacts).source(:contact) }
+    it { is_expected.to have_many(:blog_posts) }
   end
 
   # ── Roleable ──────────────────────────────────────────────────────────────

@@ -1,0 +1,20 @@
+# Advisories flagged by bin/importmap-audit that have been reviewed and have
+# no available fix. Each entry is a GitHub Security Advisory id (the last path
+# segment of the advisory's github.com/advisories/GHSA-... URL).
+
+ignore:
+  # lodash-es has no patched 4.x release for any of these — lodash is
+  # effectively unmaintained upstream. Pulled in transitively by Quill
+  # (Chronicle's Formatted-tab editor); none of the vulnerable functions
+  # (_.template, _.unset, _.omit) are called by our code or by Quill's own
+  # usage of lodash-es (isEqual/cloneDeep/merge only). Reviewed 2026-08-30.
+  - GHSA-r5fr-rjxr-66jc # lodash-es: Code Injection via `_.template`
+  - GHSA-xxjr-mmjv-4gpg # lodash-es: Prototype Pollution in `_.unset`/`_.omit`
+  - GHSA-f23m-r3pf-42rh # lodash-es: Prototype Pollution via array path bypass
+
+  # Quill 2.0.3 is the latest stable release (checked npm, no newer patch
+  # exists). The XSS is in Quill's own HTML-export feature; we only use Quill
+  # for signed-in content-creator/admin authors editing their own drafts, the
+  # same trust boundary the rest of this app already applies to that role.
+  # Reviewed 2026-08-30.
+  - GHSA-v3m3-f69x-jf25 # quill: XSS via HTML export feature

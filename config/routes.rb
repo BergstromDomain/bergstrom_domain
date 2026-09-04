@@ -56,11 +56,34 @@ Rails.application.routes.draw do
 
   # Stub pages
   get "event_tracker", to: "pages#event_tracker", as: :event_tracker
+  get "chronicle",     to: "pages#chronicle",     as: :chronicle
+
+  # Chronicle export — declared before resources :blog_posts so these literal
+  # paths win over the :id wildcard on GET /blog-posts/:id
+  get "blog-posts/export",       to: "blog_exports#index", as: :blog_exports
+  get "blog-posts/export/print", to: "blog_exports#print",  as: :print_blog_exports
+  get "blog-posts/export/csv",   to: "blog_exports#csv",    as: :csv_blog_exports
+
+  # Chronicle (Blog Posts)
+  resources :blog_posts, path: "blog-posts" do
+    resource :like, only: %i[create], controller: "likes"
+    resources :comments, only: %i[create update destroy], shallow: true
+    member do
+      post :publish
+      post :unpublish
+      post :restore
+    end
+    collection do
+      post :convert_format
+      get  :deleted
+      get  :filter
+    end
+  end
+  resources :blog_categories, path: "blog-post-categories"
 
   root "pages#home"
   get "about",      to: "pages#about"
   get "contact",    to: "pages#contact"
-  get "blog-posts", to: "pages#blog_posts", as: :blog_posts
 
   namespace :system_admin do
     resources :users, only: %i[index show] do

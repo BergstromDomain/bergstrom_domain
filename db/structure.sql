@@ -21,6 +21,40 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: action_text_rich_texts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.action_text_rich_texts (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    body text,
+    record_type character varying NOT NULL,
+    record_id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: action_text_rich_texts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.action_text_rich_texts_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: action_text_rich_texts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.action_text_rich_texts_id_seq OWNED BY public.action_text_rich_texts.id;
+
+
+--
 -- Name: active_storage_attachments; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -164,6 +198,147 @@ CREATE TABLE public.ar_internal_metadata (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL
 );
+
+
+--
+-- Name: blog_categories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.blog_categories (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    description text NOT NULL,
+    icon character varying NOT NULL,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: blog_categories_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.blog_categories_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: blog_categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.blog_categories_id_seq OWNED BY public.blog_categories.id;
+
+
+--
+-- Name: blog_post_authors; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.blog_post_authors (
+    id bigint NOT NULL,
+    blog_post_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: blog_post_authors_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.blog_post_authors_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: blog_post_authors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.blog_post_authors_id_seq OWNED BY public.blog_post_authors.id;
+
+
+--
+-- Name: blog_posts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.blog_posts (
+    id bigint NOT NULL,
+    title character varying NOT NULL,
+    body text,
+    format character varying DEFAULT 'formatted'::character varying NOT NULL,
+    subject character varying,
+    topic character varying,
+    slug character varying,
+    published_at timestamp(6) without time zone,
+    deleted_at timestamp(6) without time zone,
+    comments_count integer DEFAULT 0 NOT NULL,
+    user_id bigint NOT NULL,
+    blog_category_id bigint,
+    classification character varying DEFAULT 'contacts'::character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: blog_posts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.blog_posts_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: blog_posts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.blog_posts_id_seq OWNED BY public.blog_posts.id;
+
+
+--
+-- Name: comments; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.comments (
+    id bigint NOT NULL,
+    blog_post_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    parent_id bigint,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: comments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.comments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: comments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.comments_id_seq OWNED BY public.comments.id;
 
 
 --
@@ -402,6 +577,39 @@ ALTER SEQUENCE public.friendly_id_slugs_id_seq OWNED BY public.friendly_id_slugs
 
 
 --
+-- Name: likes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.likes (
+    id bigint NOT NULL,
+    blog_post_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    face character varying DEFAULT 'neutral'::character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: likes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.likes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: likes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.likes_id_seq OWNED BY public.likes.id;
+
+
+--
 -- Name: people; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -553,6 +761,13 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
+-- Name: action_text_rich_texts id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.action_text_rich_texts ALTER COLUMN id SET DEFAULT nextval('public.action_text_rich_texts_id_seq'::regclass);
+
+
+--
 -- Name: active_storage_attachments id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -578,6 +793,34 @@ ALTER TABLE ONLY public.active_storage_variant_records ALTER COLUMN id SET DEFAU
 --
 
 ALTER TABLE ONLY public.app_permissions ALTER COLUMN id SET DEFAULT nextval('public.app_permissions_id_seq'::regclass);
+
+
+--
+-- Name: blog_categories id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.blog_categories ALTER COLUMN id SET DEFAULT nextval('public.blog_categories_id_seq'::regclass);
+
+
+--
+-- Name: blog_post_authors id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.blog_post_authors ALTER COLUMN id SET DEFAULT nextval('public.blog_post_authors_id_seq'::regclass);
+
+
+--
+-- Name: blog_posts id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.blog_posts ALTER COLUMN id SET DEFAULT nextval('public.blog_posts_id_seq'::regclass);
+
+
+--
+-- Name: comments id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comments ALTER COLUMN id SET DEFAULT nextval('public.comments_id_seq'::regclass);
 
 
 --
@@ -630,6 +873,13 @@ ALTER TABLE ONLY public.friendly_id_slugs ALTER COLUMN id SET DEFAULT nextval('p
 
 
 --
+-- Name: likes id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.likes ALTER COLUMN id SET DEFAULT nextval('public.likes_id_seq'::regclass);
+
+
+--
 -- Name: people id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -655,6 +905,14 @@ ALTER TABLE ONLY public.sessions ALTER COLUMN id SET DEFAULT nextval('public.ses
 --
 
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- Name: action_text_rich_texts action_text_rich_texts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.action_text_rich_texts
+    ADD CONSTRAINT action_text_rich_texts_pkey PRIMARY KEY (id);
 
 
 --
@@ -695,6 +953,38 @@ ALTER TABLE ONLY public.app_permissions
 
 ALTER TABLE ONLY public.ar_internal_metadata
     ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
+
+
+--
+-- Name: blog_categories blog_categories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.blog_categories
+    ADD CONSTRAINT blog_categories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: blog_post_authors blog_post_authors_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.blog_post_authors
+    ADD CONSTRAINT blog_post_authors_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: blog_posts blog_posts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.blog_posts
+    ADD CONSTRAINT blog_posts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: comments comments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comments
+    ADD CONSTRAINT comments_pkey PRIMARY KEY (id);
 
 
 --
@@ -754,6 +1044,14 @@ ALTER TABLE ONLY public.friendly_id_slugs
 
 
 --
+-- Name: likes likes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.likes
+    ADD CONSTRAINT likes_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: people people_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -791,6 +1089,13 @@ ALTER TABLE ONLY public.sessions
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: index_action_text_rich_texts_uniqueness; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_action_text_rich_texts_uniqueness ON public.action_text_rich_texts USING btree (record_type, record_id, name);
 
 
 --
@@ -833,6 +1138,83 @@ CREATE INDEX index_app_permissions_on_user_id ON public.app_permissions USING bt
 --
 
 CREATE UNIQUE INDEX index_app_permissions_on_user_id_and_app_name ON public.app_permissions USING btree (user_id, app_name);
+
+
+--
+-- Name: index_blog_categories_on_icon; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_blog_categories_on_icon ON public.blog_categories USING btree (icon);
+
+
+--
+-- Name: index_blog_categories_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_blog_categories_on_name ON public.blog_categories USING btree (name);
+
+
+--
+-- Name: index_blog_categories_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_blog_categories_on_slug ON public.blog_categories USING btree (slug);
+
+
+--
+-- Name: index_blog_post_authors_on_blog_post_id_and_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_blog_post_authors_on_blog_post_id_and_user_id ON public.blog_post_authors USING btree (blog_post_id, user_id);
+
+
+--
+-- Name: index_blog_posts_on_blog_category_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_blog_posts_on_blog_category_id ON public.blog_posts USING btree (blog_category_id);
+
+
+--
+-- Name: index_blog_posts_on_deleted_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_blog_posts_on_deleted_at ON public.blog_posts USING btree (deleted_at);
+
+
+--
+-- Name: index_blog_posts_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_blog_posts_on_slug ON public.blog_posts USING btree (slug);
+
+
+--
+-- Name: index_blog_posts_on_user_id_and_title; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_blog_posts_on_user_id_and_title ON public.blog_posts USING btree (user_id, title);
+
+
+--
+-- Name: index_comments_on_blog_post_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_comments_on_blog_post_id ON public.comments USING btree (blog_post_id);
+
+
+--
+-- Name: index_comments_on_parent_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_comments_on_parent_id ON public.comments USING btree (parent_id);
+
+
+--
+-- Name: index_comments_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_comments_on_user_id ON public.comments USING btree (user_id);
 
 
 --
@@ -948,6 +1330,27 @@ CREATE INDEX index_friendly_id_slugs_on_sluggable_type_and_sluggable_id ON publi
 
 
 --
+-- Name: index_likes_on_blog_post_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_likes_on_blog_post_id ON public.likes USING btree (blog_post_id);
+
+
+--
+-- Name: index_likes_on_blog_post_id_and_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_likes_on_blog_post_id_and_user_id ON public.likes USING btree (blog_post_id, user_id);
+
+
+--
+-- Name: index_likes_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_likes_on_user_id ON public.likes USING btree (user_id);
+
+
+--
 -- Name: index_people_on_full_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -997,6 +1400,14 @@ CREATE INDEX index_users_on_status ON public.users USING btree (status);
 
 
 --
+-- Name: comments fk_rails_03de2dc08c; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comments
+    ADD CONSTRAINT fk_rails_03de2dc08c FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: events fk_rails_0cb5590091; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1021,11 +1432,43 @@ ALTER TABLE ONLY public.event_people
 
 
 --
+-- Name: likes fk_rails_1e09b5dabf; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.likes
+    ADD CONSTRAINT fk_rails_1e09b5dabf FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: comments fk_rails_29c545254e; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comments
+    ADD CONSTRAINT fk_rails_29c545254e FOREIGN KEY (blog_post_id) REFERENCES public.blog_posts(id);
+
+
+--
+-- Name: comments fk_rails_31554e7034; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comments
+    ADD CONSTRAINT fk_rails_31554e7034 FOREIGN KEY (parent_id) REFERENCES public.comments(id);
+
+
+--
 -- Name: event_mutes fk_rails_4e19c316c3; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.event_mutes
     ADD CONSTRAINT fk_rails_4e19c316c3 FOREIGN KEY (event_id) REFERENCES public.events(id);
+
+
+--
+-- Name: blog_post_authors fk_rails_70d1b5e3c1; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.blog_post_authors
+    ADD CONSTRAINT fk_rails_70d1b5e3c1 FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -1037,11 +1480,27 @@ ALTER TABLE ONLY public.sessions
 
 
 --
+-- Name: blog_post_authors fk_rails_759096bb35; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.blog_post_authors
+    ADD CONSTRAINT fk_rails_759096bb35 FOREIGN KEY (blog_post_id) REFERENCES public.blog_posts(id);
+
+
+--
 -- Name: events fk_rails_75f14fef31; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.events
     ADD CONSTRAINT fk_rails_75f14fef31 FOREIGN KEY (event_type_id) REFERENCES public.event_types(id);
+
+
+--
+-- Name: blog_posts fk_rails_829fc99162; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.blog_posts
+    ADD CONSTRAINT fk_rails_829fc99162 FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -1058,6 +1517,14 @@ ALTER TABLE ONLY public.event_type_mutes
 
 ALTER TABLE ONLY public.contacts
     ADD CONSTRAINT fk_rails_8d2134e55e FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: blog_posts fk_rails_915634ded9; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.blog_posts
+    ADD CONSTRAINT fk_rails_915634ded9 FOREIGN KEY (blog_category_id) REFERENCES public.blog_categories(id);
 
 
 --
@@ -1133,12 +1600,29 @@ ALTER TABLE ONLY public.contacts
 
 
 --
+-- Name: likes fk_rails_f911311d38; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.likes
+    ADD CONSTRAINT fk_rails_f911311d38 FOREIGN KEY (blog_post_id) REFERENCES public.blog_posts(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260831105707'),
+('20260831105541'),
+('20260830113004'),
+('20260830092142'),
+('20260830080655'),
+('20260830080654'),
+('20260829070624'),
+('20260829070623'),
+('20260829070622'),
 ('20260826123421'),
 ('20260821102017'),
 ('20260721055911'),

@@ -32,7 +32,8 @@ bin/rubocop                # lint (rubocop-rails-omakase base + .rubocop_todo.ym
 bin/rubocop -A              # autocorrect
 bin/brakeman --no-pager     # static security scan
 bundle exec bundler-audit check --update   # gem vulnerability scan (.bundler-audit.yml ignores)
-bin/importmap audit         # JS dependency vulnerability scan
+bin/importmap-audit         # JS dependency vulnerability scan (config/importmap-audit.yml ignores —
+                            # bin/importmap audit itself has no ignore mechanism, unlike bundler-audit)
 ```
 
 CI (`.github/workflows/`) runs all of the above (brakeman, bundler-audit, importmap audit,

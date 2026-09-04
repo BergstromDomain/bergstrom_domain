@@ -1,0 +1,38 @@
+<%# app/views/comments/_form.html.erb %>
+
+<% content_for :head do %>
+  <%= stylesheet_link_tag "actiontext" %>
+<% end %>
+
+<%= form_with model: comment,
+      url: comment.persisted? ? comment_path(comment) : blog_post_comments_path(blog_post),
+      class: "comment-form" do |f| %>
+  <% if comment.errors.any? %>
+    <div class="form-errors" data-testid="form-errors">
+      <ul>
+        <% comment.errors.each do |error| %>
+          <li data-testid="field-error"><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if local_assigns[:parent_id].present? %>
+    <%= hidden_field_tag "comment[parent_id]", parent_id %>
+  <% end %>
+
+  <%# Rails derives a Trix editor's id from the record's id, which is nil for
+      every unpersisted Comment.new — the top-level new-comment form and every
+      thread's Reply form would otherwise all render the same id, so Trix's
+      input-lookup-by-id would wire multiple editors to the same hidden field.
+      An explicit, context-unique id avoids that collision. %>
+  <% body_field_id = "comment_body_#{comment.persisted? ? comment.id : "new_#{local_assigns[:parent_id] || 'top'}"}" %>
+  <div class="form-group">
+    <%= f.label :body, class: "sr-only" %>
+    <%= f.rich_text_area :body, id: body_field_id, data: { testid: "comment-body-field" } %>
+  </div>
+
+  <div class="comment-form__actions">
+    <%= f.submit comment.persisted? ? "Update" : "Post", class: "btn btn-primary" %>
+  </div>
+<% end %>

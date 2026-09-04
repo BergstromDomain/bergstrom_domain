@@ -176,6 +176,20 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0;
 }
 
+.draft-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  margin-left: var(--space-sm);
+  padding: var(--space-2xs) var(--space-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  vertical-align: middle;
+}
+
 h1 { font-size: var(--font-size-2xl); }
 h2 { font-size: var(--font-size-xl);  }
 h3 { font-size: var(--font-size-lg);  }
@@ -510,6 +524,20 @@ code, pre {
   text-align: center;
 }
 
+.page-header__image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.page-header__image img {
+  width: 4rem;
+  height: 4rem;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
 .page-header__subtitle--centered {
   text-align: center;
 }
@@ -766,6 +794,97 @@ code, pre {
   font-size: var(--font-size-sm);
 }
 
+/* Chronicle browsing — tree levels and leaf breadcrumb */
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+}
+
+.breadcrumb a {
+  color: var(--color-accent);
+}
+
+.browse-tree,
+.browse-tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.browse-tree ul {
+  margin-top: var(--space-xs);
+  padding-left: var(--space-lg);
+}
+
+.browse-tree li {
+  padding: var(--space-xs) 0;
+}
+
+.browse-tree > li > a {
+  font-weight: var(--font-weight-semibold);
+}
+
+.blog-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.blog-card {
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.blog-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+
+.blog-card__thumbnail img {
+  width: 4rem;
+  height: 4rem;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+.blog-card__title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+
+.blog-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.blog-card__teaser {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-md);
+}
+
+.filter-grid .show-panel__section {
+  margin-top: 0;
+}
+
 
 /* ============================================================
    11. Forms
@@ -774,6 +893,41 @@ code, pre {
 .resource-form {
   max-width: 560px;
   margin: 0 auto;
+}
+
+/* Blog Post's create/edit form only — it uses the full show-page-style
+   width instead of the narrow centered column every other resource form
+   (People/Events/etc.) uses, since a one-line post shouldn't force a
+   tall, narrow, scroll-heavy layout. */
+.resource-form--wide {
+  max-width: none;
+  margin: 0;
+}
+
+.post-form-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-lg);
+}
+
+.post-form-header__title {
+  flex: 1;
+}
+
+.post-form-header__image {
+  flex: 0 0 auto;
+  min-width: 220px;
+}
+
+@media (max-width: 48rem) {
+  .post-form-header {
+    flex-direction: column;
+  }
+
+  .post-form-header__image {
+    min-width: 0;
+    width: 100%;
+  }
 }
 
 .form-group {
@@ -2041,5 +2195,235 @@ textarea.form-control {
   cursor: default;
   pointer-events: none;
   opacity: 0.5;
+}
+
+/* ============================================================
+   Author shuttle (Chronicle — add co-authors on the Create Post form)
+   ============================================================ */
+
+.dual-select {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-sm);
+  margin-top: var(--space-xs);
+}
+
+.dual-select__column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.dual-select__label {
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.dual-select__box {
+  flex: 1;
+  min-height: 12rem;
+  padding: var(--space-2xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.dual-select__box option {
+  padding: var(--space-2xs) var(--space-xs);
+}
+
+.dual-select__buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-xs);
+}
+
+/* ============================================================
+   Chronicle Blog Post editor (Raw/Formatted tabs + Quill)
+   ============================================================ */
+
+.editor-tabs {
+  display: flex;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.editor-tab {
+  padding: var(--space-xs) var(--space-md);
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.editor-tab.tab--active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+.ql-toolbar.ql-snow {
+  border-color: var(--color-border);
+  border-top-left-radius: var(--radius-sm);
+  border-top-right-radius: var(--radius-sm);
+}
+
+.ql-container.ql-snow {
+  border-color: var(--color-border);
+  border-bottom-left-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+  font-size: 1rem;
+}
+
+/* Single source of truth for the Raw textarea and the Quill container's
+   height, so switching between Raw/Formatted tabs doesn't visibly jump. */
+.editor-panel {
+  min-height: 24rem;
+}
+
+/* ============================================================
+   Chronicle Likes (5-face reaction row on a Blog Post's show page)
+   ============================================================ */
+
+.likes-row {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.like-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.like-button--active {
+  background: var(--color-accent-light);
+}
+
+.like-button--disabled {
+  cursor: default;
+}
+
+.like-face--grinning          { color: #166534; }
+.like-face--slightly_smiling  { color: #16a34a; }
+.like-face--neutral           { color: #ca8a04; }
+.like-face--slightly_frowning { color: #ea580c; }
+.like-face--angry             { color: #dc2626; }
+
+/* ============================================================
+   Chronicle Comments (threaded, 2-level: thread + flat replies)
+   ============================================================ */
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.comment {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.comment--reply {
+  margin-left: var(--space-2xl);
+  border-bottom: none;
+}
+
+.comment__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.comment__meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment__author {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.comment__date {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.comment__body {
+  margin: 0;
+}
+
+.comment__actions {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+.comment__action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.comment__action-link:hover {
+  color: var(--color-accent);
+}
+
+.comment__action-link--danger:hover {
+  color: var(--color-danger);
+}
+
+.comment-form-wrapper {
+  flex-basis: 100%;
+  margin-top: var(--space-xs);
+}
+
+/* Taller editor for Reply/Edit — the top-level new-comment form keeps
+   Trix's default height. */
+.comment-form-wrapper trix-editor {
+  min-height: 8rem;
+}
+
+.comment-form__actions {
+  margin-top: var(--space-xs);
+}
+
+
+/* ============================================================
+   Chronicle Download (print-to-PDF export)
+   ============================================================ */
+
+@media print {
+  .top-nav,
+  .left-nav,
+  .site-footer,
+  .print-hide {
+    display: none !important;
+  }
 }
 

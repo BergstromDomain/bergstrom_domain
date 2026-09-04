@@ -1,0 +1,38 @@
+<%# app/views/blog_exports/print.html.erb %>
+
+<div class="page-header print-hide">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Blog Posts</h1>
+  </div>
+</div>
+
+<div class="show-panel--actions print-hide" data-controller="print">
+  <button type="button" class="btn btn-primary" data-action="print#trigger" data-testid="print-button">
+    <%= lucide_icon("printer", size: 16) %> Print this page
+  </button>
+</div>
+
+<div class="data-table-wrapper">
+  <table class="data-table" data-testid="print-posts-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Author</th>
+        <th>Created</th>
+        <th>Published</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @posts.each do |post| %>
+        <tr data-testid="print-post-row">
+          <td><%= post.title %></td>
+          <td><%= post.blog_category&.name || "(Uncategorized)" %></td>
+          <td><%= post.user.first_name %> <%= post.user.last_name %></td>
+          <td><%= post.created_at.strftime("%d-%b-%Y") %></td>
+          <td><%= post.published? ? "Yes" : "No" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
