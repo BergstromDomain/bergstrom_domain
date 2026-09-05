@@ -124,51 +124,78 @@ Two distinct trigger mechanisms, not one:
 ---
 
 # INTEGRATION / MIGRATION
-* Call sites to retrofit onto the new pattern (from the Scope audit):
-  * [ ] `app/views/layouts/application.html.erb:25-26` — the flash-render loop itself, replaced by
-    the new toast component
+* Call sites to retrofit onto the new pattern. **Correction:** the original audit list below was
+  built from a truncated grep and only surfaced 9 of the actual 17 controllers using
+  `notice:`/`alert:` — corrected during Block 2. `to_toast_label` and the `Toastable` concern
+  (`toast_created`/`toast_updated`/`toast_deleted`/`toast_validation_error`) are the generic
+  mechanism now available to every remaining controller below:
+  * [x] `app/views/layouts/application.html.erb:25-26` — the flash-render loop itself, replaced by
+    the new toast component (Block 1)
+  * [x] `app/controllers/people_controller.rb` — create/update/destroy now use `Toastable` and the
+    specific-name pattern, including the Update-rename Info companion (Block 2, proof-of-concept)
+  * [x] `app/views/blog_posts/show.html.erb:14-21` — the `draft-badge` span, replaced by the
+    **state-based** Draft-mode Warning toast, non-dismissible (Block 2, proof-of-concept)
+  * [ ] `app/controllers/events_controller.rb` — create/update/destroy/mute/unmute
   * [ ] `app/controllers/event_types_controller.rb` — create/update/destroy/mute/unmute,
     authorisation alerts
   * [ ] `app/controllers/blog_categories_controller.rb` — create/update/destroy, authorisation
     alerts
   * [ ] `app/controllers/blog_posts_controller.rb` — publish/unpublish/restore; `destroy`'s
     combined message ("Blog post deleted. An admin can restore it within 30 days.") splits into a
-    Success + Info pair
-  * [ ] `app/views/blog_posts/show.html.erb:14-21` — the `draft-badge` span, replaced by the
-    **state-based** Draft-mode Warning toast (not a flash retrofit — see Behaviour Spec)
+    Success + Info pair via `toast_deleted(@blog_post, info: "...")`
   * [ ] `app/controllers/likes_controller.rb` — authorisation/invalid-reaction alerts
   * [ ] `app/controllers/comments_controller.rb` — create/destroy, authorisation alerts
+  * [ ] `app/controllers/contacts_controller.rb` — contact request notices/alerts
   * [ ] `app/controllers/import_controller.rb` — validation alerts
+  * [ ] `app/controllers/export_controller.rb` — export notices/alerts
+  * [ ] `app/controllers/registrations_controller.rb` — sign-up notices/alerts
+  * [ ] `app/controllers/settings_controller.rb` — settings update notices/alerts
   * [ ] `app/controllers/passwords_controller.rb` — reset-flow notices/alerts
   * [ ] `app/controllers/sessions_controller.rb` — auth alerts
+  * [ ] `app/controllers/blog_exports_controller.rb` — authorisation alerts
+  * [ ] `app/controllers/system_admin/base_controller.rb` — authorisation alerts
   * [ ] `app/controllers/system_admin/users_controller.rb` — approve/reject/suspend/reactivate
     notices
 * Rollout approach: Global — audit and retrofit existing flash-like messages everywhere, not just Event Tracker/Chronicle.
-* Anything that must keep working unchanged during the transition? Rails' flash hash itself is the
-  right underlying mechanism to keep for flash-based toasts (it's just a hash — arbitrary keys are
-  fine, e.g. `flash[:success]`/`flash[:error]`), but the two-bucket `notice:`/`alert:` vocabulary
-  doesn't map cleanly onto four variants, so every one of the 90 call sites will need its keyword
-  updated to the new success/info/error/warning vocabulary, not just the render partial. Worth a
-  precise decision in Block 1 (Core Component) rather than improvising per controller as they're
-  retrofitted.
+* Anything that must keep working unchanged during the transition? **Resolved, revised from the
+  original plan:** rather than renaming all 90 call sites' flash keys, `ToastHelper#toast_variant_for`
+  maps the existing `notice`/`alert` keys onto success/error styling, so untouched controllers
+  render correctly today with zero changes. This was discovered to matter more than expected — 19
+  existing feature specs assert directly on `data-testid="flash-notice"`/`"flash-alert"`, which
+  would otherwise have broken across the board. Retrofitting a controller now means switching it
+  onto the `Toastable` concern for the *specific-name* message pattern and any Info companion, not
+  a mandatory key rename — `notice:`/`alert:` remain valid, just visually mapped rather than
+  canonical going forward.
 
 ---
 
 # DEVELOPMENT BLOCKS
 
-## Core Component
-* Partial/component structure — full-width banner, icon + single-line text, per Netflix-style reference
-* Style variants (Success, Info, Error, Warning — all four have real triggers per Behaviour Spec, none are placeholder-only)
-* Decide the flash-key vocabulary (success/info/error/warning) that replaces `notice:`/`alert:` — see Integration/Migration
-* TBD — fill in per feature
+## Core Component — done
+* `app/views/shared/_toast.html.erb` / `_toasts.html.erb`, `app/helpers/toast_helper.rb`,
+  `app/javascript/controllers/toast_controller.js`. Four style variants, all wired to real design
+  tokens (`--color-success`/`--color-info`/`--color-warning`/`--color-danger`, which — corrected
+  during Block 1 — already existed; no new tokens were needed).
+* Flash-key vocabulary decision, revised from the original plan: `notice`/`alert` stay valid,
+  mapped visually onto success/error; `success`/`info`/`warning`/`error` are canonical for new
+  code. See Integration/Migration for why (19 specs assert on the old testids).
 
-## Trigger API
-* Two invocation paths, not one:
-  * Flash-based helper/concern for controllers — Create/Update/Delete/Publish/Unpublish call this
-    on redirect, same call shape as today's `notice:`/`alert:` but with the new vocabulary
-  * State-based partial for views — Draft-mode Warning is rendered directly from
-    `@blog_post.published?`, no controller involvement, no flash
-* Minimal interface a controller/view needs to call, for each path
+## Trigger API — done (proof-of-concept on one controller + one view; full sweep is Retrofit)
+* Flash-based: `Toastable` concern (`app/controllers/concerns/toastable.rb`, included in
+  `ApplicationController`) — `toast_created(record)`, `toast_updated(record, previous_label:)`,
+  `toast_deleted(record, info: nil)`, `toast_validation_error(record)`. Depends on a
+  `to_toast_label` method on the model (added to Person, Event, EventType, BlogPost,
+  BlogCategory — full_name/title/name respectively). Proven end-to-end on
+  `PeopleController#create/update/destroy`.
+* State-based: the `shared/_toast` partial takes a `testid:` override (added in Block 2, alongside
+  the flash-key default) so it can be called directly from a view outside the flash pipeline.
+  Proven end-to-end on `blog_posts/show.html.erb`'s Draft-mode Warning, replacing the old
+  `draft-badge` span (also removed its now-dead `.draft-badge` CSS).
+* **Note surfaced while wiring Person's create/update failure path:** Person's forms already show
+  a well-tested inline `.form-errors` block on validation failure — `toast_validation_error` adds
+  an Error toast *alongside* that, not instead of it. Both are live now, which is arguably
+  belt-and-suspenders for every remaining controller too. Flag for confirmation before the
+  Retrofit block treats this as the standard pattern everywhere, rather than assuming it.
 
 ## Behaviour / Interaction
 * Show/dismiss logic per Behaviour Spec: 3s auto-timer + manual close for flash-based toasts;
@@ -196,5 +223,8 @@ Two distinct trigger mechanisms, not one:
 *
 
 # OPEN QUESTIONS
-*(Running log of unresolved design questions raised during planning.)*
-*
+* Person's create/update failure now shows both an Error toast and the pre-existing inline
+  `.form-errors` box, saying the same thing twice. Keep both (toast for attention, inline for
+  per-field detail) as the standard pattern for the Retrofit block, or drop the Error toast for
+  actions that already render inline validation errors and reserve it for failures that don't
+  (e.g. the restrict-with-error Delete case on EventType/BlogCategory)?
