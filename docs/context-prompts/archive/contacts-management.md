@@ -1,3 +1,7 @@
+> **Archived** — historical planning prompt for the Contacts Management / Filtered Views feature,
+> now shipped. This is a point-in-time snapshot of the original ask; it does not track later
+> changes. See the code and specs for current behavior.
+
 # Context Prompt — Contacts Management and Filtered Views
 
 This is the first feature built with Claude Code instead of a
