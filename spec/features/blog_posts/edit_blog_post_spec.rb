@@ -37,7 +37,8 @@ RSpec.describe "Edit blog post", type: :feature do
       post.reload
 
       expect(page).to have_current_path(blog_post_path(post))
-      expect(page).to have_content("Blog post updated")
+      expect(page).to have_css("[data-testid='flash-success']", text: "New Title has been successfully updated")
+      expect(page).to have_css("[data-testid='flash-info']", text: "Old Title has been updated to New Title")
       expect(post.title).to eq("New Title")
     end
 
@@ -94,7 +95,7 @@ RSpec.describe "Edit blog post", type: :feature do
         # can race ahead of the real request the same way it did for
         # create_blog_post_spec.rb's equivalent test.
         expect(page).to have_current_path(blog_post_path(post))
-        expect(page).to have_content("Blog post updated")
+        expect(page).to have_css("[data-testid='flash-success']", text: "#{post.title} has been successfully updated")
         expect(post.reload.authors).to contain_exactly(owner, chris)
       end
 
@@ -111,7 +112,7 @@ RSpec.describe "Edit blog post", type: :feature do
         click_button "Update Blog Post"
 
         expect(page).to have_current_path(blog_post_path(post))
-        expect(page).to have_content("Blog post updated")
+        expect(page).to have_css("[data-testid='flash-success']", text: "#{post.title} has been successfully updated")
         expect(post.reload.authors).to contain_exactly(owner)
       end
 
@@ -161,7 +162,7 @@ RSpec.describe "Edit blog post", type: :feature do
       click_button "Update Blog Post"
 
       expect(page).to have_current_path(blog_post_path(post))
-      expect(page).to have_content("Blog post updated")
+      expect(page).to have_css("[data-testid='flash-success']", text: "#{post.title} has been successfully updated")
       expect(post.reload.authors).not_to include(curtis)
     end
   end
@@ -214,7 +215,7 @@ RSpec.describe "Edit blog post", type: :feature do
       click_button "Update Blog Post"
 
       expect(page).to have_current_path(blog_post_path(post))
-      expect(page).to have_content("Blog post updated")
+      expect(page).to have_css("[data-testid='flash-success']", text: "#{post.title} has been successfully updated")
       expect(post.reload.authors).to contain_exactly(owner)
     end
   end

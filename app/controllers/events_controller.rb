@@ -82,7 +82,8 @@ class EventsController < ApplicationController
     @event = Event.new(event_params)
     @event.user = current_user
     if @event.save
-      redirect_to @event, notice: "Event was successfully created."
+      toast_created(@event)
+      redirect_to @event
     else
       render :new, status: :unprocessable_entity
     end
@@ -100,8 +101,10 @@ class EventsController < ApplicationController
       return
     end
 
+    previous_label = @event.to_toast_label
     if @event.update(event_params)
-      redirect_to @event, notice: "Event was successfully updated."
+      toast_updated(@event, previous_label: previous_label)
+      redirect_to @event
     else
       render :edit, status: :unprocessable_entity
     end
@@ -114,7 +117,8 @@ class EventsController < ApplicationController
     end
 
     @event.destroy
-    redirect_to events_path, notice: "Event was successfully deleted."
+    toast_deleted(@event)
+    redirect_to events_path
   end
 
   def mute

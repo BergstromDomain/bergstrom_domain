@@ -17,4 +17,17 @@ module Toastable
     flash[:success] = "#{record.to_toast_label} has been successfully deleted"
     flash[:info] = info if info
   end
+
+  def toast_published(record)
+    flash[:success] = "#{record.to_toast_label} has been successfully published"
+  end
+
+  def toast_unpublished(record)
+    flash[:success] = "#{record.to_toast_label} has been successfully unpublished"
+  end
+
+  def toast_error(record, prefix: nil)
+    message = record.errors.full_messages.to_sentence
+    flash[:error] = prefix ? "#{prefix}: #{message}" : message
+  end
 end

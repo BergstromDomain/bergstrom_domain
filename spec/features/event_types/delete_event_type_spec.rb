@@ -14,7 +14,8 @@ RSpec.describe "Delete event type", type: :feature do
       visit event_type_path(et)
       click_button "Delete Event Type"
       expect(page).to have_current_path(event_types_path)
-      expect(page).not_to have_content("Wedding")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Wedding has been successfully deleted")
+      expect(page).to have_no_css("[data-testid='event-type-table']", text: "Wedding")
     end
 
     it "Removes the event type from the database" do

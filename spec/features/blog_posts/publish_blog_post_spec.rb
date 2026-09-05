@@ -16,7 +16,8 @@ RSpec.describe "Publish blog post", type: :feature do
       click_button "Publish"
 
       expect(page).to have_current_path(blog_post_path(post))
-      expect(page).to have_content("Blog post published")
+      expect(page).to have_css("[data-testid='flash-success']", text: "#{post.title} has been successfully published")
+      expect(page).to have_no_css("[data-testid='draft-mode-warning']")
       expect(page).to have_button("Unpublish")
       expect(post.reload.published_at).to be_present
     end
@@ -28,7 +29,8 @@ RSpec.describe "Publish blog post", type: :feature do
 
       click_button "Unpublish"
 
-      expect(page).to have_content("Blog post moved back to draft")
+      expect(page).to have_css("[data-testid='flash-success']", text: "#{post.title} has been successfully unpublished")
+      expect(page).to have_css("[data-testid='draft-mode-warning']", text: "This post is still in Draft mode.")
       expect(page).to have_button("Publish")
       expect(post.reload.published_at).to be_nil
     end

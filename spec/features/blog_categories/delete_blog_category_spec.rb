@@ -14,7 +14,8 @@ RSpec.describe "Delete blog category", type: :feature do
       visit blog_category_path(bc)
       click_button "Delete Blog Category"
       expect(page).to have_current_path(blog_categories_path)
-      expect(page).not_to have_content("Travel")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Travel has been successfully deleted")
+      expect(page).to have_no_css("[data-testid='blog-category-table']", text: "Travel")
     end
 
     it "Removes the blog category from the database" do

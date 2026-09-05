@@ -90,7 +90,8 @@ class BlogPostsController < ApplicationController
     @blog_post = current_user.blog_posts.build(blog_post_params)
     if @blog_post.save
       add_co_authors
-      redirect_to chronicle_path, notice: "Blog post saved as a draft."
+      toast_created(@blog_post)
+      redirect_to chronicle_path
     else
       set_author_lists(submitted_author_ids)
       render :new, status: :unprocessable_entity
@@ -109,9 +110,11 @@ class BlogPostsController < ApplicationController
   end
 
   def update
+    previous_label = @blog_post.to_toast_label
     if @blog_post.update(blog_post_params.merge(published_at: nil))
       sync_co_authors
-      redirect_to @blog_post, notice: "Blog post updated."
+      toast_updated(@blog_post, previous_label: previous_label)
+      redirect_to @blog_post
     else
       set_author_lists(submitted_author_ids)
       render :edit, status: :unprocessable_entity
@@ -121,20 +124,24 @@ class BlogPostsController < ApplicationController
   def publish
     @blog_post.published_at = Time.current
     if @blog_post.save
-      redirect_to @blog_post, notice: "Blog post published."
+      toast_published(@blog_post)
+      redirect_to @blog_post
     else
-      redirect_to @blog_post, alert: "Cannot publish: #{@blog_post.errors.full_messages.to_sentence}"
+      toast_error(@blog_post, prefix: "Cannot publish")
+      redirect_to @blog_post
     end
   end
 
   def unpublish
     @blog_post.update!(published_at: nil)
-    redirect_to @blog_post, notice: "Blog post moved back to draft."
+    toast_unpublished(@blog_post)
+    redirect_to @blog_post
   end
 
   def destroy
     @blog_post.update!(deleted_at: Time.current)
-    redirect_to chronicle_path, notice: "Blog post deleted. An admin can restore it within 30 days."
+    toast_deleted(@blog_post, info: "The post can be restored by Admin for 30 days.")
+    redirect_to chronicle_path
   end
 
   def deleted

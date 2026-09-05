@@ -61,7 +61,7 @@ RSpec.describe "Create blog post", type: :feature do
       click_button "Save Blog Post"
 
       expect(page).to have_current_path(chronicle_path)
-      expect(page).to have_content("Blog post saved as a draft")
+      expect(page).to have_css("[data-testid='flash-success']", text: "My First Post has been successfully created")
 
       post = BlogPost.find_by(title: "My First Post")
       expect(post).to be_present
