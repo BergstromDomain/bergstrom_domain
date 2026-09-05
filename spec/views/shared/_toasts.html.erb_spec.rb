@@ -12,6 +12,7 @@ RSpec.describe "shared/_toasts", type: :view do
     expect(rendered).to have_css("[data-testid='toast-container']")
     expect(rendered).to have_css("[data-testid='flash-notice'].toast--success", text: "Person created")
     expect(rendered).to have_css("[data-testid='flash-alert'].toast--error", text: "Could not delete Person")
+    expect(rendered).to have_css("[data-toast-dismiss-after-value='3000']", count: 2)
   end
 
   # Negative path
@@ -44,5 +45,15 @@ RSpec.describe "shared/_toasts", type: :view do
     success_index = rendered.index("Alexandra Anderson has been successfully updated")
     info_index = rendered.index("Alex Smith has been updated to Alexandra Anderson")
     expect(success_index).to be < info_index
+  end
+
+  it "extends auto-dismiss to 5s for every toast in the render when an Info companion is present" do
+    flash[:notice] = "Alexandra Anderson has been successfully updated"
+    flash[:info] = "Alex Smith has been updated to Alexandra Anderson"
+
+    render partial: "shared/toasts"
+
+    expect(rendered).to have_css("[data-toast-dismiss-after-value='5000']", count: 2)
+    expect(rendered).to have_no_css("[data-toast-dismiss-after-value='3000']")
   end
 end

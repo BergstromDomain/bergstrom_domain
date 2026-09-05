@@ -58,6 +58,13 @@ RSpec.describe "shared/_toast", type: :view do
     expect(rendered).to have_css(".toast--warning[data-testid='draft-mode-warning']")
   end
 
+  it "uses an explicit dismiss_after override instead of the 3s default" do
+    render partial: "shared/toast",
+           locals: { variant: "success", message: "Done", dismiss_after: 5000 }
+
+    expect(rendered).to have_css("[data-toast-dismiss-after-value='5000']")
+  end
+
   it "HTML-escapes the message" do
     render partial: "shared/toast",
            locals: { variant: "success", message: "<script>alert(1)</script>" }

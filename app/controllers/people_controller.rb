@@ -60,7 +60,6 @@ class PeopleController < ApplicationController
       toast_created(@person)
       redirect_to @person
     else
-      toast_validation_error(@person)
       render :new, status: :unprocessable_entity
     end
   end
@@ -82,7 +81,6 @@ class PeopleController < ApplicationController
       toast_updated(@person, previous_label: previous_label)
       redirect_to @person
     else
-      toast_validation_error(@person)
       render :edit, status: :unprocessable_entity
     end
   end

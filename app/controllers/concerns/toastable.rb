@@ -17,8 +17,4 @@ module Toastable
     flash[:success] = "#{record.to_toast_label} has been successfully deleted"
     flash[:info] = info if info
   end
-
-  def toast_validation_error(record)
-    flash.now[:error] = record.errors.full_messages.to_sentence
-  end
 end
