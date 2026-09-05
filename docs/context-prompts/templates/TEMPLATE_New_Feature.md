@@ -15,7 +15,7 @@
 
 # SCOPE
 * Global (usable by any app) or scoped to a single app? [ ]
-* **Existing pattern audit:** is there already an ad hoc or inconsistent version of this in the codebase? List known call sites/pages before designing the new one, so this becomes a consolidation, not just an addition.
+* **Existing pattern audit:** is there already an ad hoc or inconsistent version of this in the codebase? List known call sites/pages before designing the new one, so this becomes a consolidation, not just an addition. If this feature is about user-facing success/error/info/warning notifications specifically, check first whether it's actually a new `Toastable` trigger (see `app/controllers/concerns/toastable.rb`) rather than a new pattern — most of that space is already covered.
 * Which apps/pages/controllers does this touch once built?
 * Any apps deliberately excluded for now?
 
@@ -23,6 +23,7 @@
 
 # DESIGN GUIDELINES
 - Use existing design system tokens/components (colour tokens, `.show-panel` etc. conventions) rather than introducing new ones — flag if this feature genuinely needs a new token/pattern.
+- If this feature needs to notify the user of a success/error/info/warning outcome, use the existing global Toast component (`Toastable` concern + `shared/_toast` partial) rather than building a new notification pattern — see the Toast feature's own planning doc under `docs/context-prompts/` for the two invocation paths (flash-based vs. state-based) and how they were chosen.
 - Reuse existing JS conventions where applicable (e.g. Stimulus controllers like `dropdown_controller.js`) rather than a one-off script.
 - Accessibility: [e.g. screen-reader announcement, keyboard dismissal, focus handling — confirm if relevant to this feature]
 - Consistent with existing Authentication/Authorisation and Data Classification only if the feature is permission- or visibility-sensitive; otherwise N/A.
@@ -52,6 +53,7 @@
 ---
 
 # DEVELOPMENT BLOCKS
+*(If this feature turns out to just be a new `Toastable` trigger — see Scope — most of these blocks collapse to "call `toast_created`/`toast_updated`/`toast_deleted` from the relevant controller action" plus a `to_toast_label` method on the model; skip straight to Retrofit Existing Usages.)*
 
 ## Core Component
 * Partial/component structure
