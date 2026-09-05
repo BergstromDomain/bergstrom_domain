@@ -393,4 +393,11 @@ RSpec.describe BlogPost, type: :model do
       expect(BlogPost.discarded).not_to include(kept_post)
     end
   end
+
+  describe "#to_toast_label" do
+    it "Delegates to title" do
+      blog_post = build(:blog_post, user: owner)
+      expect(blog_post.to_toast_label).to eq(blog_post.title)
+    end
+  end
 end

@@ -39,6 +39,11 @@ class Event < ApplicationRecord
     title_changed? || super
   end
 
+  # Identifying label used by Toastable — see docs/context-prompts/active/New_Feature_Toasts.md
+  def to_toast_label
+    title
+  end
+
   # ── Class methods ─────────────────────────────────────────────────────────
   # Narrows a scope by the user's mute preferences across the three
   # independent, opt-out mute mechanisms (Person, Event, EventType), combined

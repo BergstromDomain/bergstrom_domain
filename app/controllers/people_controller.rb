@@ -57,7 +57,8 @@ class PeopleController < ApplicationController
     @person = Person.new(person_params)
     @person.user = current_user
     if @person.save
-      redirect_to @person, notice: "Person was successfully created."
+      toast_created(@person)
+      redirect_to @person
     else
       render :new, status: :unprocessable_entity
     end
@@ -75,8 +76,10 @@ class PeopleController < ApplicationController
       return
     end
 
+    previous_label = @person.to_toast_label
     if @person.update(person_params)
-      redirect_to @person, notice: "Person was successfully updated."
+      toast_updated(@person, previous_label: previous_label)
+      redirect_to @person
     else
       render :edit, status: :unprocessable_entity
     end
@@ -89,7 +92,8 @@ class PeopleController < ApplicationController
     end
 
     @person.destroy
-    redirect_to people_path, notice: "Person was successfully deleted."
+    toast_deleted(@person)
+    redirect_to people_path
   end
 
   def mute

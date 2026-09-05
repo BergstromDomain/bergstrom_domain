@@ -23,7 +23,7 @@ RSpec.describe "Create Event", type: :feature do
       fill_in "Year",        with: "1983"
       click_button "Create Event"
 
-      expect(page).to have_content("Event was successfully created.")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Kill 'Em All has been successfully created")
       expect(page).to have_content("Kill 'Em All")
       expect(page).to have_content("James Hetfield")
       expect(page).to have_current_path(event_path(Event.last))
@@ -73,7 +73,7 @@ RSpec.describe "Create Event", type: :feature do
       click_button "Create Event"
 
       expect(page).to have_content("Annual Tour")
-      expect(page).to have_content("Event was successfully created.")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Annual Tour has been successfully created")
     end
   end
 
@@ -140,7 +140,7 @@ RSpec.describe "Create Event", type: :feature do
       attach_file "Event image", Rails.root.join("spec/fixtures/files/test_image.jpg")
       click_button "Create Event"
 
-      expect(page).to have_content("Event was successfully created.")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Black Album Release has been successfully created")
       expect(page).to have_selector("img")
     end
   end

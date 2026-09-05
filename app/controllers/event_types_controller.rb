@@ -22,7 +22,8 @@ class EventTypesController < ApplicationController
   def create
     @event_type = EventType.new(event_type_params)
     if @event_type.save
-      redirect_to @event_type, notice: "Event type created."
+      toast_created(@event_type)
+      redirect_to @event_type
     else
       render :new, status: :unprocessable_entity
     end
@@ -36,8 +37,10 @@ class EventTypesController < ApplicationController
     unless @policy.can_update?
       redirect_to event_types_path, alert: "Not authorised." and return
     end
+    previous_label = @event_type.to_toast_label
     if @event_type.update(event_type_params)
-      redirect_to @event_type, notice: "Event type updated."
+      toast_updated(@event_type, previous_label: previous_label)
+      redirect_to @event_type
     else
       render :edit, status: :unprocessable_entity
     end
@@ -49,10 +52,11 @@ class EventTypesController < ApplicationController
     end
     @event_type.destroy
     if @event_type.errors.any?
-      redirect_to event_type_path(@event_type),
-                  alert: @event_type.errors.full_messages.to_sentence
+      toast_error(@event_type)
+      redirect_to event_type_path(@event_type)
     else
-      redirect_to event_types_path, notice: "Event type deleted."
+      toast_deleted(@event_type)
+      redirect_to event_types_path
     end
   end
 

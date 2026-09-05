@@ -28,6 +28,7 @@
 - The app should have its own landing page, consistent with other apps' landing pages.
 - The app should have a left nav bar, consistent with other apps (see Left Navbar block).
 - Follow the established design system (warm off-white palette, terracotta accent, Lucide icons, `.show-panel` / `.resource-form` conventions) — flag if this app needs a deliberate departure.
+- Use the existing global Toast component for Create/Update/Delete/Publish feedback (`Toastable` concern in `app/controllers/concerns/toastable.rb`, `shared/_toast` partial) — don't invent ad hoc flash messages. See the Toasts development block below.
 - [Any app-specific guideline, e.g. mobile/responsive priority, offline support, embed restrictions]
 
 ---
@@ -55,6 +56,7 @@
 * Relationships: e.g. [ITEM] has_many :authors through join table; [ITEM] belongs_to :[taxonomy leaf]
 * Soft-delete / retention rules: [e.g. deleted [ITEM] retained N days, restorable by Admin]
 * Any denormalised/cached counters (comment count, reaction score) and how they're kept in sync
+* Identifying label for [ITEM] (needed for Toasts — implement as `#to_toast_label` on the model, e.g. `title` or `name`)
 
 ---
 
@@ -131,6 +133,15 @@ Data validation for Publish:
 * Breadcrumb path is clickable, each segment returning to that level of the tree
 * Leaf-level table columns: Title (linked) | Author (icon + name) | Created (`dd-MMM-yyyy`) | Comments | Reaction score
 
+## Toasts — *reusable pattern, worth keeping across apps*
+* Implement `#to_toast_label` on [ITEM] (and any other user-facing entity this app introduces, e.g. [Taxonomy]) — see Data Model.
+* Create/Update/Delete: call `toast_created`/`toast_updated`/`toast_deleted` from `Toastable` instead of passing `notice:`/`alert:` directly.
+  * Update fires a companion Info toast automatically when `to_toast_label` changes (old → new) — no extra wiring needed, just pass `previous_label:`.
+  * Delete fires a companion Info toast only if this app has a soft-delete/restore window — pass `info:` with the restore message; omit it otherwise.
+* Publish/Unpublish (if this app has a Draft state): Success/Error via `Toastable` on the transition; if a record can sit in Draft for a while, consider a persistent **state-based** Warning toast on its show page while unpublished (see Chronicle's Draft-mode Warning) — this bypasses flash entirely, rendered directly from record state via `shared/_toast`'s `testid:`/`dismissible:` locals.
+* Failure toasts: only for actions that redirect with no form to fall back on (e.g. a delete blocked by a dependent-record restriction). Create/Update validation failures should rely on the existing inline `.form-errors` block instead — it lists every failing field, which is more descriptive than a one-line toast repeating a subset of the same information.
+* Confirm whether this app needs anything Toasts don't cover yet (a new variant, a different persistence rule) — flag it rather than improvising a parallel notification pattern.
+
 ## Filtering — *reusable pattern, worth keeping across apps*
 * Toggle between 'Basic' and 'SQL' modes
   * Basic: dropdowns per taxonomy level (each defaulting to 'All X') + Author + Created (Today / This Week / This Month / This Year / Anytime)
@@ -160,6 +171,7 @@ Consistent structure with other apps (e.g. Event Tracker):
 * RuboCop and Brakeman clean; bundler-audit clean
 * Commit(s) follow `<App>: <type>: <description>` format
 * Permissions Matrix respected and covered by tests for each role
+* Toasts fire via `Toastable`/`to_toast_label` for Create/Update/Delete/Publish, per the Toasts block — no ad hoc `notice:`/`alert:` left behind
 * Confirmed with me before moving to the next block
 
 ---

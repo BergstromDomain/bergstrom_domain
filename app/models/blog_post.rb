@@ -144,6 +144,11 @@ class BlogPost < ApplicationRecord
     ]
   end
 
+  # Identifying label used by Toastable — see docs/context-prompts/active/New_Feature_Toasts.md
+  def to_toast_label
+    title
+  end
+
   private
 
   def add_primary_author_as_blog_post_author

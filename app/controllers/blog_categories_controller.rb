@@ -21,7 +21,8 @@ class BlogCategoriesController < ApplicationController
   def create
     @blog_category = BlogCategory.new(blog_category_params)
     if @blog_category.save
-      redirect_to @blog_category, notice: "Blog category created."
+      toast_created(@blog_category)
+      redirect_to @blog_category
     else
       render :new, status: :unprocessable_entity
     end
@@ -35,8 +36,10 @@ class BlogCategoriesController < ApplicationController
     unless @policy.can_update?
       redirect_to blog_categories_path, alert: "Not authorised." and return
     end
+    previous_label = @blog_category.to_toast_label
     if @blog_category.update(blog_category_params)
-      redirect_to @blog_category, notice: "Blog category updated."
+      toast_updated(@blog_category, previous_label: previous_label)
+      redirect_to @blog_category
     else
       render :edit, status: :unprocessable_entity
     end
@@ -48,10 +51,11 @@ class BlogCategoriesController < ApplicationController
     end
     @blog_category.destroy
     if @blog_category.errors.any?
-      redirect_to blog_category_path(@blog_category),
-                  alert: @blog_category.errors.full_messages.to_sentence
+      toast_error(@blog_category)
+      redirect_to blog_category_path(@blog_category)
     else
-      redirect_to blog_categories_path, notice: "Blog category deleted."
+      toast_deleted(@blog_category)
+      redirect_to blog_categories_path
     end
   end
 

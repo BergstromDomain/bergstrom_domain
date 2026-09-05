@@ -14,7 +14,8 @@ RSpec.describe "Delete blog post", type: :feature do
       click_button "Delete"
 
       expect(page).to have_current_path(chronicle_path)
-      expect(page).to have_content("Blog post deleted")
+      expect(page).to have_css("[data-testid='flash-success']", text: "My Post has been successfully deleted")
+      expect(page).to have_css("[data-testid='flash-info']", text: "The post can be restored by Admin for 30 days.")
       expect(post.reload.deleted_at).to be_present
     end
 

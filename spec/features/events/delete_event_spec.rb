@@ -19,8 +19,8 @@ RSpec.describe "Delete Event", type: :feature do
     visit event_path(event)
     click_button "Delete Event"
     expect(page).to have_current_path(events_path)
-    expect(page).to have_content("Event was successfully deleted.")
-    expect(page).not_to have_content("Load")
+    expect(page).to have_css("[data-testid='flash-success']", text: "Load has been successfully deleted")
+    expect(page).to have_no_css("[data-testid='events-table']", text: "Load")
   end
 
   it "Reduces the event count by 1" do

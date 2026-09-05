@@ -322,6 +322,13 @@ RSpec.describe Person, type: :model do
     end
   end
 
+  describe "#to_toast_label" do
+    it "Delegates to full_name" do
+      person = build(:person, :james_hetfield)
+      expect(person.to_toast_label).to eq(person.full_name)
+    end
+  end
+
   describe "#slug" do
     it "Generates a slug from full_name" do
       person = create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield")

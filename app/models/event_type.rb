@@ -17,6 +17,11 @@ class EventType < ApplicationRecord
     name_changed? || super
   end
 
+  # Identifying label used by Toastable — see docs/context-prompts/active/New_Feature_Toasts.md
+  def to_toast_label
+    name
+  end
+
   private
 
   def icon_must_exist

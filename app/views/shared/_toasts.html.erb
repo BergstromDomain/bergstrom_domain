@@ -1,0 +1,14 @@
+<%# app/views/shared/_toasts.html.erb %>
+<% if flash.any? %>
+  <% ordered_keys = flash.keys.sort_by { |key| ToastHelper::TOAST_ORDER.index(toast_variant_for(key)) || 99 } %>
+  <% dismiss_after = flash[:info].present? ? 5000 : 3000 %>
+  <div class="toast-container" data-testid="toast-container">
+    <% ordered_keys.each do |flash_key| %>
+      <%= render "shared/toast",
+            variant: toast_variant_for(flash_key),
+            message: flash[flash_key],
+            flash_key: flash_key,
+            dismiss_after: dismiss_after %>
+    <% end %>
+  </div>
+<% end %>

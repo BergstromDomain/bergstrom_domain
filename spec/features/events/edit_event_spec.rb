@@ -42,7 +42,8 @@ RSpec.describe "Edit Event", type: :feature do
       click_button "Update Event"
       event.reload
       expect(page).to have_current_path(event_path(event))
-      expect(page).to have_content("Event was successfully updated.")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Kill 'Em All (Remastered) has been successfully updated")
+      expect(page).to have_css("[data-testid='flash-info']", text: "Kill 'Em All has been updated to Kill 'Em All (Remastered)")
       expect(page).to have_selector("h1.page-title", text: "Kill 'Em All (Remastered)")
     end
 

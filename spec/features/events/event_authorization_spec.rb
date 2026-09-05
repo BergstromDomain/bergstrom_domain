@@ -29,7 +29,7 @@ RSpec.describe "Event write authorization", type: :feature do
       visit event_path(event)
       click_on "Delete Event"
       expect(page).to have_current_path(events_path)
-      expect(page).to have_content("Event was successfully deleted")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Authorization Test Event has been successfully deleted")
     end
 
     it "allows an admin to edit any event" do
@@ -44,7 +44,7 @@ RSpec.describe "Event write authorization", type: :feature do
       visit event_path(event)
       click_on "Delete Event"
       expect(page).to have_current_path(events_path)
-      expect(page).to have_content("Event was successfully deleted")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Authorization Test Event has been successfully deleted")
     end
 
     it "allows a system_admin to edit even with a revoke override in place" do
@@ -65,7 +65,7 @@ RSpec.describe "Event write authorization", type: :feature do
       expect(page).to have_button("Delete Event")
       click_on "Delete Event"
       expect(page).to have_current_path(events_path)
-      expect(page).to have_content("Event was successfully deleted")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Authorization Test Event has been successfully deleted")
     end
   end
 
@@ -158,7 +158,7 @@ RSpec.describe "Event write authorization", type: :feature do
       fill_in "Month", with: "10"
       select "Unrestricted",   from: "Classification"
       click_button "Create Event"
-      expect(page).to have_content("Event was successfully created.")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Orion has been successfully created")
     end
   end
 end

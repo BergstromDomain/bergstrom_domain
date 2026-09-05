@@ -21,6 +21,10 @@ RSpec.describe "Show blog post", type: :feature do
 
     before { visit blog_post_path(post) }
 
+    it "Does not show the Draft-mode warning for a published post" do
+      expect(page).to have_no_css("[data-testid='draft-mode-warning']")
+    end
+
     it "Displays the post title" do
       expect(page).to have_selector("[data-testid='blog-post-title']", text: "My Great Post")
     end
@@ -107,11 +111,13 @@ RSpec.describe "Show blog post", type: :feature do
       expect(page).to have_selector("[data-testid='blog-post-title']", text: "Admin Viewable")
     end
 
-    it "Allows the author to view their own unpublished draft" do
+    it "Allows the author to view their own unpublished draft, with a persistent Draft-mode warning" do
       post = create(:blog_post, :unrestricted, user: owner, title: "My Draft")
       sign_in_as(owner)
       visit blog_post_path(post)
       expect(page).to have_selector("[data-testid='blog-post-title']", text: "My Draft")
+      expect(page).to have_css("[data-testid='draft-mode-warning'].toast--warning", text: "This post is still in Draft mode.")
+      expect(page).to have_no_css("[data-testid='draft-mode-warning'] button")
     end
   end
 

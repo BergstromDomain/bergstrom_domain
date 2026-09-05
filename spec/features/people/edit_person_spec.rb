@@ -28,7 +28,8 @@ RSpec.describe "Edit Person", type: :feature do
       click_button "Update Person"
       person.reload
       expect(page).to have_current_path(person_path(person))
-      expect(page).to have_content("Person was successfully updated.")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Robert Miguel Trujillo has been successfully updated")
+      expect(page).to have_css("[data-testid='flash-info']", text: "Robert Agustin Trujillo has been updated to Robert Miguel Trujillo")
       expect(page).to have_selector("[data-testid='person-name']", text: "Robert Miguel Trujillo")
     end
   end
