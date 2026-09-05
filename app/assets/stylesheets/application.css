@@ -90,7 +90,16 @@ input, button, textarea, select {
   --color-danger-light:        #fbeae8;   /* danger tint                     */
 
   --color-success:             #2e7d52;
+  --color-success-dark:        #235f40;
+  --color-success-light:       #e8f5ee;
+
   --color-warning:             #b07d10;
+  --color-warning-dark:        #8a640c;
+  --color-warning-light:       #fdf3e2;
+
+  --color-info:                var(--color-primary);       /* alias — semantic name for info UI */
+  --color-info-dark:           var(--color-primary-dark);
+  --color-info-light:          #eff6ff;
 
   --color-nav-sidebar-bg:  #2d3a4a;
   --color-nav-muted:       rgba(255, 255, 255, 0.5);
@@ -232,6 +241,72 @@ code, pre {
   padding: var(--space-lg);
   overflow-y: auto;
   height: 100%;          /* fill the site-body row */
+}
+
+/* ── Toasts ────────────────────────────────────────────────────────── */
+.toast-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-lg);
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+}
+
+.toast__icon {
+  flex-shrink: 0;
+  display: flex;
+}
+
+.toast__message {
+  flex: 1;
+}
+
+.toast__close {
+  flex-shrink: 0;
+  display: flex;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.toast__close:hover {
+  opacity: 1;
+}
+
+.toast--success {
+  background-color: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success-dark);
+}
+
+.toast--info {
+  background-color: var(--color-info-light);
+  border-color: var(--color-info);
+  color: var(--color-info-dark);
+}
+
+.toast--warning {
+  background-color: var(--color-warning-light);
+  border-color: var(--color-warning);
+  color: var(--color-warning-dark);
+}
+
+.toast--error {
+  background-color: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger-dark);
 }
 
 

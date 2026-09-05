@@ -1,0 +1,17 @@
+<%# app/views/shared/_toast.html.erb %>
+<% dismissible = local_assigns.fetch(:dismissible, true) %>
+<% flash_key = local_assigns.fetch(:flash_key, variant) %>
+
+<div class="toast toast--<%= variant %>"
+     role="status"
+     aria-live="polite"
+     data-testid="flash-<%= flash_key %>"
+     <% if dismissible %>data-controller="toast" data-toast-dismiss-after-value="3000"<% end %>>
+  <span class="toast__icon"><%= lucide_icon(toast_icon_for(variant), size: 20) %></span>
+  <span class="toast__message"><%= message %></span>
+  <% if dismissible %>
+    <button type="button" class="toast__close" data-action="toast#dismiss" aria-label="Dismiss">
+      <%= lucide_icon("x", size: 16) %>
+    </button>
+  <% end %>
+</div>
