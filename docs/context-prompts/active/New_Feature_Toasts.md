@@ -1,4 +1,8 @@
 # TASK
+> **Status: all 4 development blocks done** (Core Component, Trigger API, Behaviour/Interaction,
+> Retrofit Existing Usages). Full suite green, RuboCop/Brakeman clean. Not yet manually tested in
+> a real browser or merged — do that before archiving this doc.
+
 * Plan the development of a Toast feature, built as a **global, reusable component** across BergstromDomain. Initial wiring targets Event Tracker and Chronicle, alongside an audit-and-retrofit pass on any existing flash-like messaging elsewhere in the app.
 * **Confirmation gate:** before starting a new development block, summarise what you know so far (decisions made, assumptions carried forward) and ask me to confirm and/or answer any open design questions before progressing. Do not skip ahead to implementation on an unconfirmed block.
 * Follow existing project conventions without restating them here: TDD (Red → Green → Refactor), the four-section spec structure (Happy / Negative / Alternative / Edge), the `<App>: <type>: <description>` commit format, and the bundler-audit → brakeman → rubocop → rspec pre-push chain. Flag it explicitly if this feature needs an exception to any of these.
@@ -115,9 +119,12 @@ Two distinct trigger mechanisms, not one:
   * Draft-mode Warning: non-dismissible — no auto-dismiss, no manual close, persists until the
     post is published.
 * Stacking: Success above Info/Warning, small fixed gap (~8px), top to bottom by "what happened"
-  then "detail". Three realistic simultaneous cases to design for, not just the Update pair:
-  * Creating a post (Draft by default) redirects to its own show page — the one-time Success toast
-    and the persistent Draft-mode Warning both render together on that first view.
+  then "detail". Realistic simultaneous cases, not just the Update pair — **corrected during
+  Retrofit**: Create actually redirects to `chronicle_path` (the index), not the post's own show
+  page, so Success and the Draft-mode Warning do **not** stack on create as originally assumed:
+  * Editing a post (`update` always resets `published_at: nil`, per the "revert to Draft on any
+    edit" rule) redirects to its own show page — Success (+ Info if the title changed) stacks with
+    the now-(re)appearing persistent Warning.
   * Unpublishing a post redirects to its own show page too — same stacking of a one-time Success
     toast alongside the now-(re)appearing persistent Warning.
   * Deleting a Chronicle post redirects away from it (to `chronicle_path`) — Success + Info stack
@@ -135,35 +142,41 @@ Two distinct trigger mechanisms, not one:
 * Call sites to retrofit onto the new pattern. **Correction:** the original audit list below was
   built from a truncated grep and only surfaced 9 of the actual 17 controllers using
   `notice:`/`alert:` — corrected during Block 2. `to_toast_label` and the `Toastable` concern
-  (`toast_created`/`toast_updated`/`toast_deleted`/`toast_validation_error`) are the generic
-  mechanism now available to every remaining controller below:
+  (`toast_created`/`toast_updated`/`toast_deleted`/`toast_published`/`toast_unpublished`/
+  `toast_error`) are the generic mechanism now available to every remaining controller below:
   * [x] `app/views/layouts/application.html.erb:25-26` — the flash-render loop itself, replaced by
     the new toast component (Block 1)
   * [x] `app/controllers/people_controller.rb` — create/update/destroy now use `Toastable` and the
     specific-name pattern, including the Update-rename Info companion (Block 2, proof-of-concept)
   * [x] `app/views/blog_posts/show.html.erb:14-21` — the `draft-badge` span, replaced by the
     **state-based** Draft-mode Warning toast, non-dismissible (Block 2, proof-of-concept)
-  * [ ] `app/controllers/events_controller.rb` — create/update/destroy/mute/unmute
-  * [ ] `app/controllers/event_types_controller.rb` — create/update/destroy/mute/unmute,
-    authorisation alerts
-  * [ ] `app/controllers/blog_categories_controller.rb` — create/update/destroy, authorisation
-    alerts
-  * [ ] `app/controllers/blog_posts_controller.rb` — publish/unpublish/restore; `destroy`'s
-    combined message ("Blog post deleted. An admin can restore it within 30 days.") splits into a
-    Success + Info pair via `toast_deleted(@blog_post, info: "...")`
-  * [ ] `app/controllers/likes_controller.rb` — authorisation/invalid-reaction alerts
-  * [ ] `app/controllers/comments_controller.rb` — create/destroy, authorisation alerts
-  * [ ] `app/controllers/contacts_controller.rb` — contact request notices/alerts
-  * [ ] `app/controllers/import_controller.rb` — validation alerts
-  * [ ] `app/controllers/export_controller.rb` — export notices/alerts
-  * [ ] `app/controllers/registrations_controller.rb` — sign-up notices/alerts
-  * [ ] `app/controllers/settings_controller.rb` — settings update notices/alerts
-  * [ ] `app/controllers/passwords_controller.rb` — reset-flow notices/alerts
-  * [ ] `app/controllers/sessions_controller.rb` — auth alerts
-  * [ ] `app/controllers/blog_exports_controller.rb` — authorisation alerts
-  * [ ] `app/controllers/system_admin/base_controller.rb` — authorisation alerts
-  * [ ] `app/controllers/system_admin/users_controller.rb` — approve/reject/suspend/reactivate
-    notices
+  * [x] `app/controllers/events_controller.rb` — create/update/destroy on `Toastable`. mute/unmute
+    left untouched (never in scope — see Feature Description)
+  * [x] `app/controllers/event_types_controller.rb` — create/update/destroy on `Toastable`, destroy's
+    restrict-with-error branch now uses `toast_error`. mute/unmute untouched (out of scope)
+  * [x] `app/controllers/blog_categories_controller.rb` — same shape as EventTypes
+  * [x] `app/controllers/blog_posts_controller.rb` — create/update/publish/unpublish/destroy on
+    `Toastable`; destroy's combined message now a Success + Info pair via
+    `toast_deleted(@blog_post, info: "...")`; publish's failure via `toast_error(@blog_post,
+    prefix: "Cannot publish")`. `restore` untouched (admin-only, never in scope)
+  * [x] Everything below — **assessed, no code change needed.** Each is either a pure
+    authorisation alert (no record identity involved) or an entity outside the original scope
+    (Person/Event/EventType/Post/Category only — see Feature Description). All already render
+    correctly through Block 1's `notice`/`alert` → success/error mapping:
+    * `app/controllers/likes_controller.rb` — authorisation/invalid-reaction alerts
+    * `app/controllers/comments_controller.rb` — create/destroy, authorisation alerts
+    * `app/controllers/contacts_controller.rb` — contact request notices/alerts
+    * `app/controllers/import_controller.rb` — validation alerts
+    * `app/controllers/export_controller.rb` — export notices/alerts
+    * `app/controllers/registrations_controller.rb` — sign-up notices/alerts
+    * `app/controllers/settings_controller.rb` — settings update notices/alerts
+    * `app/controllers/passwords_controller.rb` — reset-flow notices/alerts
+    * `app/controllers/sessions_controller.rb` — auth alerts
+    * `app/controllers/blog_exports_controller.rb` — authorisation alerts
+    * `app/controllers/system_admin/base_controller.rb` — authorisation alerts
+    * `app/controllers/system_admin/users_controller.rb` — approve/reject/suspend/reactivate
+      notices (already uses specific names in its wording; User was never one of the five scoped
+      entities, so left as-is rather than adding `to_toast_label` to User for this alone)
 * Rollout approach: Global — audit and retrofit existing flash-like messages everywhere, not just Event Tracker/Chronicle.
 * Anything that must keep working unchanged during the transition? **Resolved, revised from the
   original plan:** rather than renaming all 90 call sites' flash keys, `ToastHelper#toast_variant_for`
@@ -211,9 +224,15 @@ Two distinct trigger mechanisms, not one:
   based on whether `flash[:info]` is present, and passes it to every toast in that render.
 * Stacking (Success above Info/Warning, ~8px gap) per Behaviour Spec
 
-## Retrofit Existing Usages
-* Replace each call site logged under Integration/Migration
-* Confirm no regressions in affected specs
+## Retrofit Existing Usages — done
+* All 4 named-entity controllers (Events, EventTypes, BlogCategories, BlogPosts) switched onto
+  `Toastable` — see Integration/Migration for the full breakdown and the 12 controllers assessed
+  as needing no change.
+* Regressions found and fixed in existing specs: several delete specs asserted
+  `not_to have_content("<record name>")` on the post-delete index page — true under the old
+  generic wording, but the new Success toast legitimately contains that name
+  ("X has been successfully deleted"). Rescoped those assertions to the relevant table's testid
+  (`events-table`/`event-type-table`/`blog-category-table`) instead of the whole page.
 
 ---
 
