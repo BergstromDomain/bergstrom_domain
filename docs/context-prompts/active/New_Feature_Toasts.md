@@ -32,11 +32,17 @@ The toast should be displayed on Create, Update and Delete for all items in both
         consistent with the rest of this spec. Doesn't apply to Person/Event/Event-Type/Category
         deletes — no restore window exists for those.
     * Warning — Draft-mode indicator only (see above): Icon + "This post is still in Draft mode."
-    * Failure — Create/Update/Delete/Publish: Icon + the specific validation/constraint text
-      (`errors.full_messages.to_sentence`), matching the convention already used at all 90 existing
-      `notice:`/`alert:` call sites — not a generic message.
+    * Failure — **Delete (restrict-with-error) and Publish only**: Icon + the specific
+      validation/constraint text (`errors.full_messages.to_sentence`). **Resolved, revised:**
+      Create/Update failure does **not** get an Error toast — those actions re-render the form,
+      which already shows a well-tested inline `.form-errors` box listing every failing field, and
+      that's more descriptive than a single-line toast would be. The toast would just repeat a
+      subset of the same information. Delete and Publish failures redirect (no form to re-render),
+      so the toast is the only feedback mechanism there and stays.
   * How the user dismisses it / how it resolves on its own
-    * Flash-based toasts (Success/Info/Error above): auto-dismiss after 3 seconds, and manually dismissible.
+    * Flash-based toasts (Success/Info/Error above): auto-dismiss after 3 seconds — **5 seconds
+      when an Info companion is also showing** (Update-rename, Chronicle Delete's restore-window
+      notice), since there's more text to read — and manually dismissible.
     * The Draft-mode Warning toast: **non-dismissible** — no auto-dismiss and no manual close
       control. Stays visible for as long as the post remains unpublished, i.e. until the post is
       published. Resolved: dismissing it would just have it reappear on the next page load of the
@@ -103,7 +109,9 @@ Two distinct trigger mechanisms, not one:
 * Content: Icon + message, single row (see Feature Description for exact wording per variant).
 * Placement: Directly under the top navbar, spanning the **full width of the main content frame** (excludes the left navbar), with small horizontal padding on each side.
 * Timing:
-  * Flash-based toasts: auto-dismiss after 3 seconds, and manually dismissible.
+  * Flash-based toasts: auto-dismiss after 3 seconds, or **5 seconds when an Info companion is
+    also present** in that render (Update-rename, Chronicle Delete's restore-window notice) — both
+    toasts in the pair get the longer time, not just the Info one. Manually dismissible either way.
   * Draft-mode Warning: non-dismissible — no auto-dismiss, no manual close, persists until the
     post is published.
 * Stacking: Success above Info/Warning, small fixed gap (~8px), top to bottom by "what happened"
@@ -183,23 +191,24 @@ Two distinct trigger mechanisms, not one:
 ## Trigger API — done (proof-of-concept on one controller + one view; full sweep is Retrofit)
 * Flash-based: `Toastable` concern (`app/controllers/concerns/toastable.rb`, included in
   `ApplicationController`) — `toast_created(record)`, `toast_updated(record, previous_label:)`,
-  `toast_deleted(record, info: nil)`, `toast_validation_error(record)`. Depends on a
-  `to_toast_label` method on the model (added to Person, Event, EventType, BlogPost,
-  BlogCategory — full_name/title/name respectively). Proven end-to-end on
-  `PeopleController#create/update/destroy`.
+  `toast_deleted(record, info: nil)`. Depends on a `to_toast_label` method on the model (added to
+  Person, Event, EventType, BlogPost, BlogCategory — full_name/title/name respectively). Proven
+  end-to-end on `PeopleController#create/update/destroy`.
 * State-based: the `shared/_toast` partial takes a `testid:` override (added in Block 2, alongside
   the flash-key default) so it can be called directly from a view outside the flash pipeline.
   Proven end-to-end on `blog_posts/show.html.erb`'s Draft-mode Warning, replacing the old
   `draft-badge` span (also removed its now-dead `.draft-badge` CSS).
-* **Note surfaced while wiring Person's create/update failure path:** Person's forms already show
-  a well-tested inline `.form-errors` block on validation failure — `toast_validation_error` adds
-  an Error toast *alongside* that, not instead of it. Both are live now, which is arguably
-  belt-and-suspenders for every remaining controller too. Flag for confirmation before the
-  Retrofit block treats this as the standard pattern everywhere, rather than assuming it.
+* **Resolved:** the note below about Person's create/update failure has been settled — see
+  Feature Description's Failure entry and the Open Questions history. `toast_validation_error`
+  was removed from `Toastable` (no remaining caller): Create/Update failures rely solely on the
+  existing inline `.form-errors` block; only Delete (restrict-with-error) and Publish failures get
+  an Error toast, since those redirect with no form to show inline detail in.
 
-## Behaviour / Interaction
-* Show/dismiss logic per Behaviour Spec: 3s auto-timer + manual close for flash-based toasts;
-  non-dismissible, no timer, for the state-based Draft-mode Warning
+## Behaviour / Interaction — done
+* Show/dismiss logic per Behaviour Spec: 3s (5s with an Info companion) auto-timer + manual close
+  for flash-based toasts; non-dismissible, no timer, for the state-based Draft-mode Warning.
+  Implemented in Block 2's follow-up: `_toasts.html.erb` computes `dismiss_after` once per render
+  based on whether `flash[:info]` is present, and passes it to every toast in that render.
 * Stacking (Success above Info/Warning, ~8px gap) per Behaviour Spec
 
 ## Retrofit Existing Usages
@@ -223,8 +232,15 @@ Two distinct trigger mechanisms, not one:
 *
 
 # OPEN QUESTIONS
-* Person's create/update failure now shows both an Error toast and the pre-existing inline
-  `.form-errors` box, saying the same thing twice. Keep both (toast for attention, inline for
-  per-field detail) as the standard pattern for the Retrofit block, or drop the Error toast for
-  actions that already render inline validation errors and reserve it for failures that don't
-  (e.g. the restrict-with-error Delete case on EventType/BlogCategory)?
+*(Running log of unresolved design questions raised during planning.)*
+*
+
+# RESOLVED (history)
+* Person's create/update failure showed both an Error toast and the pre-existing inline
+  `.form-errors` box, saying the same thing twice. **Resolved:** drop the Error toast for
+  Create/Update — the inline box is more descriptive (lists every failing field, not just a
+  sentence) and is already well-tested. Error toast stays for Delete (restrict-with-error) and
+  Publish, which redirect with no form to show inline detail in.
+* Flash-based auto-dismiss timing: **resolved** — 5 seconds instead of 3 when an Info companion
+  toast is also present in the same render (more text, more time), applied to every toast in that
+  render via `_toasts.html.erb`'s `dismiss_after` calculation.
