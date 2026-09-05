@@ -43,7 +43,7 @@ gem "thruster", require: false
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 1.2"
 
-gem "friendly_id", "~> 5.5"
+gem "friendly_id", "~> 5.7"
 gem "lucide-rails"
 gem "commonmarker"
 gem "reverse_markdown"
