@@ -453,4 +453,11 @@ RSpec.describe Event, type: :model do
       end
     end
   end
+
+  describe "#to_toast_label" do
+    it "Delegates to title" do
+      event = build(:event)
+      expect(event.to_toast_label).to eq(event.title)
+    end
+  end
 end

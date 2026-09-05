@@ -51,6 +51,13 @@ RSpec.describe "shared/_toast", type: :view do
     expect(rendered).to have_css(".toast--success[data-testid='flash-notice']")
   end
 
+  it "uses an explicit testid override for non-flash usage (e.g. a state-based toast)" do
+    render partial: "shared/toast",
+           locals: { variant: "warning", message: "Still a draft", testid: "draft-mode-warning", dismissible: false }
+
+    expect(rendered).to have_css(".toast--warning[data-testid='draft-mode-warning']")
+  end
+
   it "HTML-escapes the message" do
     render partial: "shared/toast",
            locals: { variant: "success", message: "<script>alert(1)</script>" }

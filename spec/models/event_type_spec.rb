@@ -167,4 +167,11 @@ RSpec.describe EventType, type: :model do
       expect { event_type.destroy }.to change(EventType, :count).by(-1)
     end
   end
+
+  describe "#to_toast_label" do
+    it "Delegates to name" do
+      event_type = build(:event_type)
+      expect(event_type.to_toast_label).to eq(event_type.name)
+    end
+  end
 end

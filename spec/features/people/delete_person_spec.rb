@@ -13,8 +13,8 @@ RSpec.describe "Delete Person", type: :feature do
       visit person_path(person)
       find("[data-testid='delete-button']").click
       expect(page).to have_current_path(people_path)
-      expect(page).to have_content("Person was successfully deleted.")
-      expect(page).not_to have_content("James Alan Hetfield")
+      expect(page).to have_css("[data-testid='flash-success']", text: "James Alan Hetfield has been successfully deleted")
+      expect(page).to have_no_css("[data-testid='people-table']", text: "James Alan Hetfield")
     end
 
     it "reduces the person count by 1" do

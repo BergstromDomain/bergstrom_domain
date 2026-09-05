@@ -1,5 +1,13 @@
 <%# app/views/blog_posts/show.html.erb %>
 
+<% unless @blog_post.published? %>
+  <%= render "shared/toast",
+        variant: "warning",
+        message: "This post is still in Draft mode.",
+        testid: "draft-mode-warning",
+        dismissible: false %>
+<% end %>
+
 <div class="page-header">
   <div class="page-header__top page-header__top--centered">
     <% if @blog_post.blog_image.attached? %>
@@ -13,11 +21,6 @@
     <% end %>
     <h1 class="page-title" data-testid="blog-post-title">
       <%= @blog_post.title %>
-      <% unless @blog_post.published? %>
-        <span class="draft-badge" data-testid="draft-badge">
-          <%= lucide_icon("book-dashed", size: 18) %> DRAFT
-        </span>
-      <% end %>
     </h1>
   </div>
 </div>

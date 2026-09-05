@@ -129,4 +129,11 @@ RSpec.describe BlogCategory, type: :model do
       expect { category.destroy }.to change(BlogCategory, :count).by(-1)
     end
   end
+
+  describe "#to_toast_label" do
+    it "Delegates to name" do
+      category = build(:blog_category)
+      expect(category.to_toast_label).to eq(category.name)
+    end
+  end
 end

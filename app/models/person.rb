@@ -50,6 +50,11 @@ class Person < ApplicationRecord
     (last_name.presence || first_name).to_s.first&.upcase
   end
 
+  # Identifying label used by Toastable — see docs/context-prompts/active/New_Feature_Toasts.md
+  def to_toast_label
+    full_name
+  end
+
   # ── Instance methods ──────────────────────────────────────────────────────
   def should_generate_new_friendly_id?
     first_name_changed? || middle_name_changed? || last_name_changed? || super

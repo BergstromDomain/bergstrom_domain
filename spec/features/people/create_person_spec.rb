@@ -17,7 +17,7 @@ RSpec.describe "Create Person", type: :feature do
       fill_in "Last name",   with: "Hetfield"
       fill_in "Description", with: "Vocalist and rhythm guitarist, co-founder of Metallica."
       click_button "Create Person"
-      expect(page).to have_content("Person was successfully created.")
+      expect(page).to have_css("[data-testid='flash-success']", text: "James Alan Hetfield has been successfully created")
       expect(page).to have_current_path(person_path(Person.last))
       expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Hetfield")
     end
@@ -29,7 +29,7 @@ RSpec.describe "Create Person", type: :feature do
       attach_file "Person image", Rails.root.join("spec/fixtures/files/test_image.jpg"),
                   make_visible: true
       click_button "Create Person"
-      expect(page).to have_content("Person was successfully created.")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Lars Ulrich has been successfully created")
       expect(page).to have_selector("[data-testid='show-panel-main'] img")
     end
   end
@@ -66,7 +66,7 @@ RSpec.describe "Create Person", type: :feature do
       visit new_person_path
       fill_in "First name", with: "Cliff"
       click_button "Create Person"
-      expect(page).to have_content("Person was successfully created.")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Cliff has been successfully created")
       expect(page).to have_selector("[data-testid='person-name']", text: "Cliff")
     end
 
