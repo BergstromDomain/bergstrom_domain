@@ -59,6 +59,18 @@ RSpec.describe "Edit Event", type: :feature do
       visit edit_event_path(event)
       expect(page).to have_selector("[data-testid='event-people']", text: "James Hetfield")
     end
+
+    it "Shows the admin panel with creator information" do
+      visit edit_event_path(event)
+      expect(page).to have_selector("[data-testid='edit-panel-admin']", text: user.email_address)
+    end
+
+    it "Records the current user as the updater" do
+      visit edit_event_path(event)
+      fill_in "Title", with: "Kill 'Em All (Remastered)"
+      click_button "Update Event"
+      expect(event.reload.updater).to eq(user)
+    end
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
@@ -103,13 +115,15 @@ RSpec.describe "Edit Event", type: :feature do
       expect(event.classification).to eq("restricted")
     end
 
-    it "Allows an admin to edit any event" do
+    it "Allows an admin to edit any event, and records the admin as the updater rather than the original owner" do
       click_button "Sign Out"
-      sign_in_as create(:user, :admin)
+      admin = create(:user, :admin)
+      sign_in_as admin
       visit edit_event_path(event)
       fill_in "Title", with: "Admin Edit"
       click_button "Update Event"
       expect(page).to have_selector("h1.page-title", text: "Admin Edit")
+      expect(event.reload.updater).to eq(admin)
     end
   end
 

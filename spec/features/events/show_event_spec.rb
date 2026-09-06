@@ -60,6 +60,16 @@ RSpec.describe "Show event", type: :feature do
                                text: user.email_address)
     end
 
+    it "does not show an Updated By line for an event that has never been edited" do
+      expect(page).to have_no_selector("[data-testid='audit-updated']")
+    end
+
+    it "shows an Updated By line once the event has been edited" do
+      event.update!(updater: user)
+      visit event_path(event)
+      expect(page).to have_selector("[data-testid='audit-updated']", text: user.email_address)
+    end
+
     it "shows a Back to Events button" do
       expect(page).to have_link("Back to Events", href: events_path)
     end

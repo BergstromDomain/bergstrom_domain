@@ -35,3 +35,6 @@
 
 coverage/
 config/master.key
+
+# Generated at build time by `bin/rails build_info:generate` — see BuildInfoService.
+config/build_info.yml

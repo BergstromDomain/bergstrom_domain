@@ -520,7 +520,8 @@ CREATE TABLE public.events (
     updated_at timestamp(6) without time zone NOT NULL,
     event_type_id integer NOT NULL,
     user_id bigint NOT NULL,
-    classification character varying DEFAULT 'contacts'::character varying NOT NULL
+    classification character varying DEFAULT 'contacts'::character varying NOT NULL,
+    updater_id bigint
 );
 
 
@@ -623,7 +624,8 @@ CREATE TABLE public.people (
     updated_at timestamp(6) without time zone NOT NULL,
     slug character varying,
     user_id bigint NOT NULL,
-    classification character varying DEFAULT 'contacts'::character varying NOT NULL
+    classification character varying DEFAULT 'contacts'::character varying NOT NULL,
+    updater_id bigint
 );
 
 
@@ -1295,6 +1297,13 @@ CREATE UNIQUE INDEX index_events_on_title ON public.events USING btree (title);
 
 
 --
+-- Name: index_events_on_updater_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_events_on_updater_id ON public.events USING btree (updater_id);
+
+
+--
 -- Name: index_events_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1362,6 +1371,13 @@ CREATE INDEX index_people_on_full_name ON public.people USING btree (first_name,
 --
 
 CREATE UNIQUE INDEX index_people_on_slug ON public.people USING btree (slug);
+
+
+--
+-- Name: index_people_on_updater_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_people_on_updater_id ON public.people USING btree (updater_id);
 
 
 --
@@ -1614,6 +1630,7 @@ ALTER TABLE ONLY public.likes
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260906091422'),
 ('20260831105707'),
 ('20260831105541'),
 ('20260830113004'),

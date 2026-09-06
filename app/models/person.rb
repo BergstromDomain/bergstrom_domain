@@ -1,6 +1,7 @@
 # app/models/person.rb
 class Person < ApplicationRecord
   include Classifiable
+  include Auditable
 
   extend FriendlyId
   friendly_id :full_name, use: [ :slugged, :history ]

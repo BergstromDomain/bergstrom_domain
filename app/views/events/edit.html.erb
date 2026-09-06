@@ -156,4 +156,7 @@
       <%= lucide_icon("save", size: 16) %> Update Event
     </button>
   </div>
+
+  <%# Admin panel %>
+  <%= render "shared/audit_info", record: @event, testid: "edit-panel-admin" %>
 <% end %>
