@@ -140,9 +140,4 @@
 </div>
 
 <%# Admin panel %>
-<div class="show-panel show-panel--admin" data-testid="show-panel-admin">
-  <h4 class="show-admin__item">
-    Created by <%= @person.user.email_address %>
-    at <%= @person.created_at.strftime("%-d %B %Y") %>
-  </h4>
-</div>
+<%= render "shared/audit_info", record: @person, testid: "show-panel-admin" %>

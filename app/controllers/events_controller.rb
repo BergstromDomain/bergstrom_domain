@@ -102,6 +102,7 @@ class EventsController < ApplicationController
     end
 
     previous_label = @event.to_toast_label
+    @event.updater = current_user
     if @event.update(event_params)
       toast_updated(@event, previous_label: previous_label)
       redirect_to @event

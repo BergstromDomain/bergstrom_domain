@@ -1,0 +1,8 @@
+<%# app/views/shared/_audit_info.html.erb %>
+<div class="show-panel show-panel--admin" data-testid="<%= testid %>">
+  <span class="show-admin__item" data-testid="audit-created"><strong class="show-admin__label">Created by:</strong> <%= record.user.email_address %> at <%= record.created_at.strftime("%-d %B %Y") %></span>
+
+  <% if record.updater.present? %>
+    <span class="show-admin__item" data-testid="audit-updated"><strong class="show-admin__label">Updated by:</strong> <%= record.updater.email_address %> at <%= record.updated_at.strftime("%-d %B %Y") %></span>
+  <% end %>
+</div>

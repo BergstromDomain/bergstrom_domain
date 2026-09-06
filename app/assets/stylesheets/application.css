@@ -561,11 +561,25 @@ code, pre {
   background-color: var(--color-footer-bg);
   color: var(--color-footer-text);
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  padding: 0 var(--space-lg);
-  height: var(--footer-height);
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-lg);
+  min-height: var(--footer-height);
   font-size: var(--font-size-sm);
+}
+
+.site-footer--indented {
+  /* Offsets the left nav's width (220px, see .left-nav) plus the main
+     frame's own inner padding, so left-aligned content starts flush with
+     the main frame's content rather than the nav column. */
+  padding-left: calc(220px + var(--space-lg));
+}
+
+.site-footer__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-lg);
 }
 
 
@@ -1460,6 +1474,10 @@ textarea.form-control {
 
 .show-panel--admin {
   background-color: var(--color-surface-raised);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-md);
 }
 
 .show-admin__item {
@@ -1467,6 +1485,11 @@ textarea.form-control {
   font-weight: var(--font-weight-normal);
   color: var(--color-text-secondary);
   margin: 0;
+}
+
+.show-admin__label,
+.site-footer__label {
+  font-weight: var(--font-weight-semibold);
 }
 
 .sr-only {

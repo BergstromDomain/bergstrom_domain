@@ -32,6 +32,13 @@ RSpec.describe "Edit Person", type: :feature do
       expect(page).to have_css("[data-testid='flash-info']", text: "Robert Agustin Trujillo has been updated to Robert Miguel Trujillo")
       expect(page).to have_selector("[data-testid='person-name']", text: "Robert Miguel Trujillo")
     end
+
+    it "records the current user as the updater" do
+      visit edit_person_path(person)
+      fill_in "Description", with: "Bassist of Metallica since 2003."
+      click_button "Update Person"
+      expect(person.reload.updater).to eq(user)
+    end
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
@@ -70,13 +77,15 @@ RSpec.describe "Edit Person", type: :feature do
       expect(page).to have_content("Full name has already been taken")
     end
 
-    it "allows an admin to edit any person" do
+    it "allows an admin to edit any person, and records the admin as the updater rather than the original owner" do
       click_button "Sign Out"
-      sign_in_as(create(:user, :admin))
+      admin = create(:user, :admin)
+      sign_in_as(admin)
       visit edit_person_path(person)
       fill_in "First name", with: "Roberto"
       click_button "Update Person"
       expect(page).to have_selector("[data-testid='person-name']", text: "Roberto Agustin Trujillo")
+      expect(person.reload.updater).to eq(admin)
     end
 
     xit "attaches the image and shows it on the show page", js: true do

@@ -1,4 +1,14 @@
 <%# app/views/layouts/_footer.html.erb %>
-<footer class="site-footer" data-testid="footer">
-  <%# Full implementation in Post #19 %>
+<footer class="<%= footer_class %>" data-testid="footer">
+  <% if show_footer_environment_row? %>
+    <div class="site-footer__row" data-testid="footer-row-environment">
+      <span data-testid="footer-environment"><strong class="site-footer__label">Environment:</strong> <%= footer_environment_label %></span>
+      <span data-testid="footer-git-sha"><strong class="site-footer__label">Git:</strong> <%= footer_git_sha %></span>
+    </div>
+  <% end %>
+
+  <div class="site-footer__row" data-testid="footer-row-build">
+    <span data-testid="footer-version"><strong class="site-footer__label">Version:</strong> <%= footer_version %></span>
+    <span data-testid="footer-date"><strong class="site-footer__label">Deployed Date:</strong> <%= footer_deploy_date %></span>
+  </div>
 </footer>

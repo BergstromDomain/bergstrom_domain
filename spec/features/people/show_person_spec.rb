@@ -78,6 +78,19 @@ RSpec.describe "Show Person", type: :feature do
       expect(page).to have_content(user.email_address)
     end
 
+    it "does not show an Updated By line for a person that has never been edited" do
+      sign_in_as(user)
+      visit person_path(person)
+      expect(page).to have_no_selector("[data-testid='audit-updated']")
+    end
+
+    it "shows an Updated By line once the person has been edited" do
+      person.update!(updater: user)
+      sign_in_as(user)
+      visit person_path(person)
+      expect(page).to have_selector("[data-testid='audit-updated']", text: user.email_address)
+    end
+
     it "shows events panel when person has events" do
       music = create(:event_type, name: "Music", description: "Music events", icon: "music")
       event = create(:event, :unrestricted, title: "Kill 'Em All",

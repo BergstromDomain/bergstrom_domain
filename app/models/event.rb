@@ -1,6 +1,7 @@
 # app/models/event.rb
 class Event < ApplicationRecord
   include Classifiable
+  include Auditable
 
   extend FriendlyId
   friendly_id :title, use: [ :slugged, :history ]

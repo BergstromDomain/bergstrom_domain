@@ -77,6 +77,7 @@ class PeopleController < ApplicationController
     end
 
     previous_label = @person.to_toast_label
+    @person.updater = current_user
     if @person.update(person_params)
       toast_updated(@person, previous_label: previous_label)
       redirect_to @person
