@@ -1,0 +1,15 @@
+<dialog class="confirm-dialog"
+        data-controller="confirm-dialog"
+        data-confirm-dialog-target="dialog"
+        data-testid="confirm-dialog"
+        aria-labelledby="confirm-dialog-message">
+  <div class="confirm-dialog__card" data-confirm-dialog-target="card">
+    <p class="confirm-dialog__message" id="confirm-dialog-message" data-confirm-dialog-target="message"></p>
+    <div class="confirm-dialog__actions">
+      <button type="button" class="btn-secondary" data-confirm-dialog-target="cancelButton"
+              data-action="confirm-dialog#cancel" data-testid="confirm-dialog-cancel">Cancel</button>
+      <button type="button" class="btn-danger" data-confirm-dialog-target="confirmButton"
+              data-action="confirm-dialog#confirm" data-testid="confirm-dialog-confirm">Confirm</button>
+    </div>
+  </div>
+</dialog>
