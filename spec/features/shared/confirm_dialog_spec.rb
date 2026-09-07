@@ -19,6 +19,27 @@ RSpec.describe "Confirm Dialog", type: :feature do
     raise "sign_in_and_settle: could not sign in as #{user.email_address} after #{attempts} attempts"
   end
 
+  # Capybara's native Selenium `.click` was found, via a capture-phase
+  # click/submit listener, to occasionally dispatch *no* DOM event at all —
+  # not "wrong element," not "prevented," literally zero events reaching a
+  # document-level listener. Confirmed as a WebDriver-level click-dispatch
+  # flakiness (not a Turbo/app bug): the page never navigated away and
+  # Turbo.config.forms.confirm was correctly registered on failure, and
+  # switching to a JS-dispatched click eliminated it. Seen on more than
+  # just the very first click after a page load (e.g. also on the dialog's
+  # own Confirm button on a real CI run), so every button click in this
+  # file goes through this helper rather than Capybara's native `.click`.
+  # .focus() first matters: a bare synthetic `.click()` doesn't move focus
+  # the way a real click does, which the focus-return-to-trigger spec below
+  # depends on.
+  def js_click(testid)
+    page.execute_script(<<~JS)
+      const el = document.querySelector('[data-testid="#{testid}"]')
+      el.focus()
+      el.click()
+    JS
+  end
+
   # Selenium's WebElement#displayed? doesn't reliably recognise a native
   # <dialog> shown via showModal() (a ChromeDriver top-layer quirk — the
   # `open` attribute is genuinely set in the DOM well before `displayed?`
@@ -32,21 +53,7 @@ RSpec.describe "Confirm Dialog", type: :feature do
   def open_delete_dialog_for(record)
     visit person_path(record)
     find("[data-testid='confirm-dialog'][data-ready='true']", visible: :all, wait: 10)
-
-    # Selenium's native Capybara `.click` on this button, right after a
-    # fresh `visit`, was found (via a capture-phase click/submit listener)
-    # to occasionally dispatch *no* DOM event at all — a WebDriver-level
-    # click-dispatch flakiness specific to clicking this soon after a full
-    # page load, not an app bug (every other click in this file, once the
-    # page has already settled, has never shown it). Focus + click via JS
-    # dispatches reliably; .focus() first matches what a real click does,
-    # so focus-return-to-trigger still works correctly afterwards.
-    page.execute_script(<<~JS)
-      const btn = document.querySelector('[data-testid="delete-button"]')
-      btn.focus()
-      btn.click()
-    JS
-
+    js_click("delete-button")
     find("[data-testid='confirm-dialog'][open]", visible: :all, wait: 10)
   end
 
@@ -58,7 +65,7 @@ RSpec.describe "Confirm Dialog", type: :feature do
       dialog = open_delete_dialog_for(person)
       expect(dialog).to have_text(:all, "Delete James Alan Hetfield? This cannot be undone.", normalize_ws: true)
 
-      find("[data-testid='confirm-dialog-confirm']").click
+      js_click("confirm-dialog-confirm")
 
       expect(page).to have_current_path(people_path)
       expect(page).to have_css("[data-testid='flash-success']", text: "James Alan Hetfield has been successfully deleted")
@@ -71,7 +78,7 @@ RSpec.describe "Confirm Dialog", type: :feature do
     it "does not perform the action and closes the dialog when Cancel is clicked", js: true do
       open_delete_dialog_for(person)
 
-      find("[data-testid='confirm-dialog-cancel']").click
+      js_click("confirm-dialog-cancel")
 
       expect(page).to have_no_css("[data-testid='confirm-dialog'][open]", visible: :all)
       expect(page).to have_current_path(person_path(person))
@@ -118,7 +125,7 @@ RSpec.describe "Confirm Dialog", type: :feature do
     it "returns focus to the triggering button after Cancel", js: true do
       open_delete_dialog_for(person)
 
-      find("[data-testid='confirm-dialog-cancel']").click
+      js_click("confirm-dialog-cancel")
 
       expect(page).to have_no_css("[data-testid='confirm-dialog'][open]", visible: :all)
       expect(page.evaluate_script("document.activeElement.dataset.testid")).to eq("delete-button")
@@ -157,7 +164,7 @@ RSpec.describe "Confirm Dialog", type: :feature do
 
       expect(page).to have_css("[data-testid='confirm-dialog'][open]", visible: :all, count: 1)
 
-      find("[data-testid='confirm-dialog-confirm']").click
+      js_click("confirm-dialog-confirm")
 
       expect(page).to have_current_path(people_path)
       expect(Person.exists?(person.id)).to be false
@@ -165,12 +172,12 @@ RSpec.describe "Confirm Dialog", type: :feature do
 
     it "opens cleanly again after being cancelled, and Confirm on the retry proceeds", js: true do
       open_delete_dialog_for(person)
-      find("[data-testid='confirm-dialog-cancel']").click
+      js_click("confirm-dialog-cancel")
       expect(page).to have_no_css("[data-testid='confirm-dialog'][open]", visible: :all)
 
-      find("[data-testid='delete-button']").click
+      js_click("delete-button")
       find("[data-testid='confirm-dialog'][open]", visible: :all, wait: 5)
-      find("[data-testid='confirm-dialog-confirm']").click
+      js_click("confirm-dialog-confirm")
 
       expect(page).to have_current_path(people_path)
       expect(Person.exists?(person.id)).to be false
