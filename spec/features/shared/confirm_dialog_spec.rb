@@ -25,17 +25,28 @@ RSpec.describe "Confirm Dialog", type: :feature do
   # agrees). Assert on the `open` attribute itself via `visible: :all`
   # instead of Capybara's default visible-element check.
   #
-  # `visit` is always a genuine full page load (unlike an in-page Turbo
-  # click), so the delete button is visible from server-rendered HTML
-  # immediately — well before Stimulus/Turbo necessarily finish loading and
-  # connect_dialog_controller#connect registers Turbo.config.forms.confirm.
-  # On a slow/cold boot (seen in CI), clicking before that happens falls
-  # through to an unintercepted native form submit instead of ever showing
-  # the dialog. Wait for the controller's own readiness marker first.
+  # `visit` is always a genuine full page load, so the delete button is
+  # visible from server-rendered HTML immediately. The [data-ready] wait
+  # below confirms our Stimulus controller has connected and registered
+  # Turbo.config.forms.confirm before we go anywhere near it.
   def open_delete_dialog_for(record)
     visit person_path(record)
     find("[data-testid='confirm-dialog'][data-ready='true']", visible: :all, wait: 10)
-    find("[data-testid='delete-button']").click
+
+    # Selenium's native Capybara `.click` on this button, right after a
+    # fresh `visit`, was found (via a capture-phase click/submit listener)
+    # to occasionally dispatch *no* DOM event at all — a WebDriver-level
+    # click-dispatch flakiness specific to clicking this soon after a full
+    # page load, not an app bug (every other click in this file, once the
+    # page has already settled, has never shown it). Focus + click via JS
+    # dispatches reliably; .focus() first matches what a real click does,
+    # so focus-return-to-trigger still works correctly afterwards.
+    page.execute_script(<<~JS)
+      const btn = document.querySelector('[data-testid="delete-button"]')
+      btn.focus()
+      btn.click()
+    JS
+
     find("[data-testid='confirm-dialog'][open]", visible: :all, wait: 10)
   end
 
