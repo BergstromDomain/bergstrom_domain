@@ -68,11 +68,6 @@ class SettingsController < ApplicationController
   private
 
   def settings_params
-    attrs = params.require(:user).permit(
-      :first_name, :last_name, :email_address, :profile_image, :start_page,
-      default_classifications: []
-    )
-    attrs[:default_classifications] = attrs[:default_classifications].reject(&:blank?) if attrs.key?(:default_classifications)
-    attrs
+    params.require(:user).permit(:first_name, :last_name, :email_address, :profile_image)
   end
 end

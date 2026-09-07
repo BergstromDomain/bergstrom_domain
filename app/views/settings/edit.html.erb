@@ -89,44 +89,6 @@
     </div>
   </div>
 
-  <%# Preferences panel %>
-  <div class="show-panel" data-testid="settings-preferences-panel">
-    <h2 class="show-panel__heading">Preferences</h2>
-    <div class="show-panel__section">
-      <div class="form-group">
-        <h3 class="show-meta-cell__label">Start Page</h3>
-        <%= f.label :start_page, "Start Page", class: "sr-only" %>
-        <%= f.select :start_page,
-              [
-                ["Home",                             "home"],
-                ["Event Tracker",                    "event_tracker"],
-                ["Event Tracker - Events By Day",    "events_by_day"],
-                ["Event Tracker - Events By Week",   "events_by_week"],
-                ["Event Tracker - Events By Month",  "events_by_month"],
-                ["Event Tracker - People",           "people"]
-              ],
-              { selected: Current.user.start_page.presence || "home" },
-              { class: "form-control", data: { testid: "settings-start-page-field" } } %>
-      </div>
-    </div>
-
-    <div class="show-panel__section">
-      <h3 class="show-meta-cell__label">Default Visibility</h3>
-      <p class="form-hint">Which classifications to show by default on the People and Events pages.</p>
-      <%= hidden_field_tag "user[default_classifications][]", "" %>
-      <% Person.classifications.keys.each do |classification| %>
-        <div class="form-check">
-          <%= check_box_tag "user[default_classifications][]",
-                classification,
-                Current.user.default_classifications.include?(classification),
-                id: "default_classification_#{classification}",
-                data: { testid: "settings-default-classification-#{classification}" } %>
-          <%= label_tag "default_classification_#{classification}", classification.humanize %>
-        </div>
-      <% end %>
-    </div>
-  </div>
-
   <%# Actions panel %>
   <div class="show-panel show-panel--actions" data-testid="settings-actions-panel">
     <%= link_to settings_path,

@@ -69,25 +69,6 @@ RSpec.describe "User Settings", type: :feature do
       expect(page).to have_selector("[data-testid='flash-notice']")
     end
 
-    it "Renders the 'Preferences' panel" do
-      sign_in_as(uno)
-      visit settings_path
-      expect(page).to have_selector("[data-testid='settings-preferences-panel']")
-    end
-
-    it "Renders the 'Start Page' field inside the 'Preferences' panel" do
-      sign_in_as(uno)
-      visit settings_path
-      expect(page).to have_selector("[data-testid='settings-start-page']")
-    end
-
-    it "Renders the 'Default Visibility' field inside the 'Preferences' panel" do
-      sign_in_as(uno)
-      visit settings_path
-      expect(page).to have_selector("[data-testid='settings-default-classifications']",
-                                     text: "Unrestricted, Contacts, Restricted")
-    end
-
     it "Renders the 'Change Password' panel" do
       sign_in_as(uno)
       visit settings_path
