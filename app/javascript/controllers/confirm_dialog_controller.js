@@ -1,5 +1,6 @@
 // app/javascript/controllers/confirm_dialog_controller.js
 import { Controller } from "@hotwired/stimulus"
+import { Turbo } from "@hotwired/turbo-rails"
 
 export default class extends Controller {
   static targets = ["dialog", "message", "confirmButton", "cancelButton"]
@@ -9,6 +10,8 @@ export default class extends Controller {
     this._triggerElement = null
     this.dialogTarget.addEventListener("cancel", this._handleNativeCancel)
     this.dialogTarget.addEventListener("click", this._handleBackdropClick)
+
+    Turbo.config.forms.confirm = (message) => this.open(message)
   }
 
   disconnect() {
