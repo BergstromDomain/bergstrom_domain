@@ -1,0 +1,23 @@
+<dialog class="confirm-dialog"
+        data-controller="confirm-dialog"
+        data-confirm-dialog-target="dialog"
+        data-testid="confirm-dialog"
+        aria-labelledby="confirm-dialog-message"
+        aria-describedby="confirm-dialog-detail">
+  <div class="confirm-dialog__card" data-confirm-dialog-target="card">
+    <div class="confirm-dialog__message-box">
+      <p class="confirm-dialog__question" id="confirm-dialog-message" data-confirm-dialog-target="message"></p>
+      <p class="confirm-dialog__detail" id="confirm-dialog-detail" data-confirm-dialog-target="detail" hidden></p>
+    </div>
+    <div class="confirm-dialog__actions">
+      <button type="button" class="btn btn-secondary" data-confirm-dialog-target="cancelButton"
+              data-action="confirm-dialog#cancel" data-testid="confirm-dialog-cancel">
+        <%= lucide_icon("circle-x", size: 16) %> Cancel
+      </button>
+      <button type="button" class="btn btn-danger" data-confirm-dialog-target="confirmButton"
+              data-action="confirm-dialog#confirm" data-testid="confirm-dialog-confirm">
+        <%= lucide_icon("check", size: 16) %> Confirm
+      </button>
+    </div>
+  </div>
+</dialog>
