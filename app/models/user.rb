@@ -7,6 +7,7 @@ class User < ApplicationRecord
   has_many :contacts, dependent: :destroy
   has_many :contact_users, through: :contacts, source: :contact
   has_many :blog_posts
+  has_many :user_app_settings, dependent: :destroy
 
   has_many :person_mutes, dependent: :destroy
   has_many :muted_people, through: :person_mutes, source: :person
@@ -40,5 +41,9 @@ class User < ApplicationRecord
   # ── Helper methods ───────────────────────────────────────────────────────────
   def can_export?
     content_creator? || admin? || system_admin?
+  end
+
+  def app_settings_for(app_name)
+    user_app_settings.find_or_initialize_by(app_name: app_name)
   end
 end

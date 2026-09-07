@@ -46,6 +46,9 @@ Rails.application.routes.draw do
   patch  "settings/password",            to: "settings#update_password",     as: :settings_password
   delete "settings",                     to: "settings#destroy"
   post   "settings/resend_verification", to: "settings#resend_verification", as: :resend_verification
+  get    "settings/preferences",         to: "settings#preferences",         as: :preferences_settings
+  get    "settings/chronicle",           to: "settings#chronicle_settings",  as: :chronicle_settings
+  get    "settings/occasions",           to: "settings#occasions_settings",  as: :occasions_settings
 
   # Import & Export
   get  "import_export",   to: "pages#import_export", as: :import_export

@@ -53,6 +53,18 @@ class SettingsController < ApplicationController
     redirect_to settings_path, notice: "Verification email sent."
   end
 
+  def preferences
+    @user = Current.user
+  end
+
+  def chronicle_settings
+    @user_app_setting = Current.user.app_settings_for("blog_posts")
+  end
+
+  def occasions_settings
+    @user_app_setting = Current.user.app_settings_for("event_tracker")
+  end
+
   private
 
   def settings_params
