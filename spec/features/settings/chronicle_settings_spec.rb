@@ -10,6 +10,59 @@ RSpec.describe "Chronicle Settings", type: :feature do
       visit chronicle_settings_path
       expect(page).to have_selector("[data-testid='chronicle-settings-page']")
     end
+
+    it "Renders the 'Start Page' field with Chronicle's own views as options" do
+      sign_in_as(uno)
+      visit chronicle_settings_path
+      expect(page).to have_select("Start Page", options: [
+        "Chronicle", "Browse Blog Posts", "Filter Blog Posts",
+        "My Published Posts", "My Unpublished Posts", "Blog Categories"
+      ])
+    end
+
+    it "Renders the 'Default Classification' field defaulting to 'Restricted'" do
+      sign_in_as(uno)
+      visit chronicle_settings_path
+      expect(page).to have_select("Classification", selected: "Restricted — visible only to me")
+    end
+
+    it "Renders the reworded 'Default Classification' info text" do
+      sign_in_as(uno)
+      visit chronicle_settings_path
+      expect(page).to have_text("Which classification to use as default when creating posts?")
+    end
+
+    it "Updates 'Start Page' with a new value" do
+      sign_in_as(uno)
+      visit chronicle_settings_path
+
+      select "Blog Categories", from: "Start Page"
+      click_button "Save Chronicle Settings"
+
+      expect(page).to have_current_path(chronicle_settings_path)
+      expect(uno.app_settings_for("blog_posts").start_page).to eq("blog_categories")
+    end
+
+    it "Updates 'Default Classification' with a new value" do
+      sign_in_as(uno)
+      visit chronicle_settings_path
+
+      select "Unrestricted — visible to everyone", from: "Classification"
+      click_button "Save Chronicle Settings"
+
+      expect(page).to have_current_path(chronicle_settings_path)
+      expect(uno.app_settings_for("blog_posts").default_classification).to eq("unrestricted")
+    end
+
+    it "Persists the setting across visits" do
+      sign_in_as(uno)
+      visit chronicle_settings_path
+      select "Browse Blog Posts", from: "Start Page"
+      click_button "Save Chronicle Settings"
+
+      visit chronicle_settings_path
+      expect(page).to have_select("Start Page", selected: "Browse Blog Posts")
+    end
   end
 
   describe "Negative path" do
@@ -29,8 +82,15 @@ RSpec.describe "Chronicle Settings", type: :feature do
   end
 
   describe "Edge cases" do
-    xit "Prefills the 'Start Page' and 'Default Classification' fields with the user's saved values" do
-      # Fields land in Block 4 — this page is scaffolding-only in Block 1.
+    it "Does not save any changes when the 'Cancel' button is clicked" do
+      sign_in_as(uno)
+      visit chronicle_settings_path
+
+      select "Blog Categories", from: "Start Page"
+      find("[data-testid='chronicle-settings-cancel']").click
+
+      expect(page).to have_current_path(settings_path)
+      expect(uno.app_settings_for("blog_posts").start_page).to be_nil
     end
   end
 end

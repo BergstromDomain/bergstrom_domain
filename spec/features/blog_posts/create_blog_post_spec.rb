@@ -78,6 +78,27 @@ RSpec.describe "Create blog post", type: :feature do
       expect(post.authors).to contain_exactly(charlie)
     end
 
+    it "Defaults the 'Classification' field to Restricted" do
+      visit new_blog_post_path
+      expect(page).to have_select("Classification", selected: "Restricted — visible only to me")
+    end
+
+    it "Defaults the 'Classification' field to the user's Chronicle Settings default" do
+      charlie.app_settings_for("blog_posts").update!(default_classification: "unrestricted")
+      visit new_blog_post_path
+      expect(page).to have_select("Classification", selected: "Unrestricted — visible to everyone")
+    end
+
+    it "Creates a post with the chosen Classification" do
+      visit new_blog_post_path
+      fill_title("Public Post")
+      select "Unrestricted — visible to everyone", from: "Classification"
+      click_button "Save Blog Post"
+
+      post = BlogPost.find_by(title: "Public Post")
+      expect(post.classification).to eq("unrestricted")
+    end
+
     it "Allows the Category to be left blank" do
       visit new_blog_post_path
       fill_title("Uncategorised Post")

@@ -49,6 +49,7 @@ Rails.application.routes.draw do
   get    "settings/preferences",         to: "settings#preferences",         as: :preferences_settings
   patch  "settings/preferences",         to: "settings#update_preferences"
   get    "settings/chronicle",           to: "settings#chronicle_settings",  as: :chronicle_settings
+  patch  "settings/chronicle",           to: "settings#update_chronicle_settings"
   get    "settings/occasions",           to: "settings#occasions_settings",  as: :occasions_settings
 
   # Import & Export

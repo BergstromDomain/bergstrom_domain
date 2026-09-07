@@ -49,7 +49,18 @@ module Authentication
 
     case current_user.start_page
     when "event_tracker" then event_tracker_url
-    when "blog_posts"    then chronicle_url
+    when "blog_posts"    then chronicle_start_page_url(current_user)
+    end
+  end
+
+  def chronicle_start_page_url(user)
+    case user.app_settings_for("blog_posts").start_page
+    when "browse_posts"          then blog_posts_url
+    when "filter_posts"          then filter_blog_posts_url
+    when "my_published_posts"    then filter_blog_posts_url(author_id: user.id, published: "published")
+    when "my_unpublished_posts"  then filter_blog_posts_url(author_id: user.id, published: "draft")
+    when "blog_categories"       then blog_categories_url
+    else                              chronicle_url
     end
   end
 

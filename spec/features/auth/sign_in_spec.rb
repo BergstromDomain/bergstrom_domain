@@ -101,6 +101,16 @@ RSpec.describe "Sign In", type: :feature do
       click_button "Sign In"
       expect(page).to have_current_path(chronicle_path)
     end
+
+    it "Redirects to the Chronicle sub-page set in Chronicle Settings" do
+      user.update!(start_page: "blog_posts")
+      user.app_settings_for("blog_posts").update!(start_page: "blog_categories")
+      visit new_session_path
+      fill_in "Email address", with: "bergstrom@example.com"
+      fill_in "Password",      with: "password123"
+      click_button "Sign In"
+      expect(page).to have_current_path(blog_categories_path)
+    end
   end
 
   describe "Edge cases" do

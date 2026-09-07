@@ -9,3 +9,68 @@
     </div>
   </div>
 </div>
+
+<%= form_with model: @user_app_setting, url: chronicle_settings_path, method: :patch, class: "resource-form", data: { turbo: false } do |f| %>
+
+  <% if @user_app_setting.errors.any? %>
+    <div class="form-errors" data-testid="chronicle-settings-errors">
+      <p><%= pluralize(@user_app_setting.errors.count, "error") %> prevented your settings from being saved:</p>
+      <ul>
+        <% @user_app_setting.errors.each do |error| %>
+          <li data-testid="field-error"><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="show-panel" data-testid="chronicle-settings-panel">
+    <h2 class="show-panel__heading">Chronicle Settings</h2>
+
+    <div class="show-panel__section">
+      <div class="form-group">
+        <h3 class="show-meta-cell__label">Start Page</h3>
+        <%= f.label :start_page, "Start Page", class: "sr-only" %>
+        <%= f.select :start_page,
+              [
+                [ "Chronicle",             "" ],
+                [ "Browse Blog Posts",     "browse_posts" ],
+                [ "Filter Blog Posts",     "filter_posts" ],
+                [ "My Published Posts",    "my_published_posts" ],
+                [ "My Unpublished Posts",  "my_unpublished_posts" ],
+                [ "Blog Categories",       "blog_categories" ]
+              ],
+              { selected: @user_app_setting.start_page },
+              { class: "form-control", data: { testid: "chronicle-settings-start-page-field" } } %>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Default Classification</h3>
+      <p class="form-hint">Which classification to use as default when creating posts?</p>
+      <div class="form-group">
+        <%= f.label :default_classification, "Classification", class: "sr-only" %>
+        <%= f.select :default_classification,
+              [ [ "Unrestricted — visible to everyone", "unrestricted" ],
+                [ "Contacts — visible to my contacts",  "contacts" ],
+                [ "Restricted — visible only to me",    "restricted" ] ],
+              {},
+              { class: "form-control", data: { testid: "chronicle-settings-default-classification-field" } } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="show-panel show-panel--actions" data-testid="chronicle-settings-actions-panel">
+    <%= link_to settings_path,
+          class: "btn btn-secondary",
+          data: { testid: "chronicle-settings-cancel" } do %>
+      <%= lucide_icon "circle-x", size: 16 %>
+      Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary-action" data-testid="chronicle-settings-submit">
+      <%= lucide_icon "save", size: 16 %>
+      Save Chronicle Settings
+    </button>
+  </div>
+
+<% end %>
