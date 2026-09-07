@@ -201,10 +201,31 @@ RSpec.describe "Left Navigation", type: :feature do
         end
       end
 
-      it "Shows the 'User details' and 'Contacts Management' links" do
+      it "Shows the 'User Settings', 'Contact Management' and 'App Settings' group headers" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_link("User details", href: settings_path)
-          expect(page).to have_link("Contacts Management", href: contacts_path)
+          expect(page).to have_selector("[data-testid='left-nav-user-settings-h3']")
+          expect(page).to have_selector("[data-testid='left-nav-contact-management-h3']")
+          expect(page).to have_selector("[data-testid='left-nav-app-settings-h3']")
+        end
+      end
+
+      it "Shows the 'User Details' and 'Preferences' links under 'User Settings'" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_link("User Details", href: settings_path)
+          expect(page).to have_link("Preferences", href: preferences_settings_path)
+        end
+      end
+
+      it "Shows the 'Contacts' link under 'Contact Management'" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_link("Contacts", href: contacts_path)
+        end
+      end
+
+      it "Shows the 'Chronicle Settings' and 'Occasions Settings' links under 'App Settings'" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_link("Chronicle Settings", href: chronicle_settings_path)
+          expect(page).to have_link("Occasions Settings", href: occasions_settings_path)
         end
       end
 
@@ -225,10 +246,10 @@ RSpec.describe "Left Navigation", type: :feature do
       end
     end
 
-    context "When 'Uno User' clicks 'Contacts Management' from Settings" do
+    context "When 'Uno User' clicks 'Contacts' from Settings" do
       it "Navigates to the 'Contacts Management' page" do
         visit settings_path
-        within("[data-testid='left-nav']") { click_link "Contacts Management" }
+        within("[data-testid='left-nav']") { click_link "Contacts" }
         expect(page).to have_selector("h1.page-title", text: "Contacts Management")
       end
     end
