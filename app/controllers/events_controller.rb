@@ -70,7 +70,8 @@ class EventsController < ApplicationController
   end
 
   def new
-    @event = Event.new
+    default_classification = current_user.app_settings_for("event_tracker").default_classification
+    @event = Event.new(classification: default_classification)
   end
 
   def create

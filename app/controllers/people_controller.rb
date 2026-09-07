@@ -45,7 +45,8 @@ class PeopleController < ApplicationController
   end
 
   def new
-    @person = Person.new
+    default_classification = current_user.app_settings_for("event_tracker").default_classification
+    @person = Person.new(classification: default_classification)
   end
 
   def create

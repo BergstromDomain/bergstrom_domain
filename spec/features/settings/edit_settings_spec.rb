@@ -55,18 +55,6 @@ RSpec.describe "Edit User Settings", type: :feature do
       expect(page).to have_text("Changing your email address will require re-verification.")
     end
 
-    it "Renders the 'Preferences' panel" do
-      sign_in_as(uno)
-      visit edit_settings_path
-      expect(page).to have_selector("[data-testid='settings-preferences-panel']")
-    end
-
-    it "Renders the 'Start Page' field inside the 'Preferences' panel" do
-      sign_in_as(uno)
-      visit edit_settings_path
-      expect(page).to have_field("Start Page")
-    end
-
     it "Renders the 'Actions' panel" do
       sign_in_as(uno)
       visit edit_settings_path
@@ -114,44 +102,6 @@ RSpec.describe "Edit User Settings", type: :feature do
 
       expect(page).to have_current_path(settings_path)
       expect(uno.reload.profile_image).to be_attached
-    end
-
-    xit "Updates 'Start Page' with a new value" do
-      sign_in_as(uno)
-      visit edit_settings_path
-      # TODO
-    end
-
-    it "Renders the 'Default Visibility' checkboxes, all checked by default" do
-      sign_in_as(uno)
-      visit edit_settings_path
-      expect(page).to have_checked_field("Restricted")
-      expect(page).to have_checked_field("Contacts")
-      expect(page).to have_checked_field("Unrestricted")
-    end
-
-    it "Updates 'Default Visibility' when a box is unchecked" do
-      sign_in_as(uno)
-      visit edit_settings_path
-
-      uncheck "Restricted"
-      click_button "Update Details"
-
-      expect(page).to have_current_path(settings_path)
-      expect(uno.reload.default_classifications).to contain_exactly("contacts", "unrestricted")
-    end
-
-    it "Saves an empty 'Default Visibility' when every box is unchecked" do
-      sign_in_as(uno)
-      visit edit_settings_path
-
-      uncheck "Restricted"
-      uncheck "Contacts"
-      uncheck "Unrestricted"
-      click_button "Update Details"
-
-      expect(page).to have_current_path(settings_path)
-      expect(uno.reload.default_classifications).to eq([])
     end
 
     it "Updates the 'Email Address' and clears the 'Email Verified' flag" do
@@ -227,7 +177,6 @@ RSpec.describe "Edit User Settings", type: :feature do
       fill_in "First Name", with: "Updated"
       fill_in "Last Name",  with: "Name"
       fill_in "Email Address", with: "Taken@example.com"
-      select "Event Tracker - Events By Day", from: "Start Page"
 
       find("[data-testid='settings-edit-cancel']").click
       expect(page).to have_current_path(settings_path)

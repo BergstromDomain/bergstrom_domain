@@ -41,7 +41,38 @@ module Authentication
   end
 
   def after_authentication_url
-    session.delete(:return_to_after_authenticating) || root_url
+    session.delete(:return_to_after_authenticating) || preferred_start_page_url || root_url
+  end
+
+  def preferred_start_page_url
+    return unless current_user
+
+    case current_user.start_page
+    when "event_tracker" then occasions_start_page_url(current_user)
+    when "blog_posts"    then chronicle_start_page_url(current_user)
+    end
+  end
+
+  def chronicle_start_page_url(user)
+    case user.app_settings_for("blog_posts").start_page
+    when "browse_posts"          then blog_posts_url
+    when "filter_posts"          then filter_blog_posts_url
+    when "my_published_posts"    then filter_blog_posts_url(author_id: user.id, published: "published")
+    when "my_unpublished_posts"  then filter_blog_posts_url(author_id: user.id, published: "draft")
+    when "blog_categories"       then blog_categories_url
+    else                              chronicle_url
+    end
+  end
+
+  def occasions_start_page_url(user)
+    case user.app_settings_for("event_tracker").start_page
+    when "events_by_day"   then events_by_day_url
+    when "events_by_week"  then events_by_week_url
+    when "events_by_month" then events_by_month_url
+    when "people"          then people_url
+    when "event_types"     then event_types_url
+    else                        event_tracker_url
+    end
   end
 
   def start_new_session_for(user)

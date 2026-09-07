@@ -57,23 +57,6 @@
   </div>
 </div>
 
-<%# ── Preferences panel ────────────────────────────────────────────── %>
-<div class="show-panel" data-testid="settings-preferences-panel">
-  <h2 class="show-panel__heading">Preferences</h2>
-  <div class="show-meta-row">
-    <div class="show-meta-cell">
-      <h3 class="show-meta-cell__label">Start Page</h3>
-      <p class="show-meta-cell__value" data-testid="settings-start-page">Home</p>
-    </div>
-    <div class="show-meta-cell">
-      <h3 class="show-meta-cell__label">Default Visibility</h3>
-      <p class="show-meta-cell__value" data-testid="settings-default-classifications">
-        <%= Current.user.default_classifications.any? ? Current.user.default_classifications.map(&:humanize).join(", ") : "None" %>
-      </p>
-    </div>
-  </div>
-</div>
-
 <%# ── Password panel ───────────────────────────────────────────────── %>
 <div class="show-panel" data-testid="settings-password-panel">
   <h2 class="show-panel__heading">Change Password</h2>

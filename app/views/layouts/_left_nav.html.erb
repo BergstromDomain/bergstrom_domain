@@ -120,13 +120,36 @@
         <%= lucide_icon("cog", size: 14) %> Settings
       </h2>
 
+      <h3 class="left-nav-h3" data-testid="left-nav-user-settings-h3">
+        <%= lucide_icon("user-cog", size: 13) %> User Settings
+      </h3>
       <%= link_to settings_path, class: "left-nav-link" do %>
-        <%= lucide_icon("user-cog", size: 15) %>
-        <span>User details</span>
+        <%= lucide_icon("user-round-cog", size: 15) %>
+        <span>User Details</span>
       <% end %>
+      <%= link_to preferences_settings_path, class: "left-nav-link" do %>
+        <%= lucide_icon("settings-2", size: 15) %>
+        <span>Preferences</span>
+      <% end %>
+
+      <h3 class="left-nav-h3" data-testid="left-nav-contact-management-h3">
+        <%= lucide_icon("contact-round", size: 13) %> Contact Management
+      </h3>
       <%= link_to contacts_path, class: "left-nav-link" do %>
         <%= lucide_icon("users", size: 15) %>
-        <span>Contacts Management</span>
+        <span>Contacts</span>
+      <% end %>
+
+      <h3 class="left-nav-h3" data-testid="left-nav-app-settings-h3">
+        <%= lucide_icon("monitor-cog", size: 13) %> App Settings
+      </h3>
+      <%= link_to chronicle_settings_path, class: "left-nav-link" do %>
+        <%= lucide_icon("notepad-text", size: 15) %>
+        <span>Chronicle Settings</span>
+      <% end %>
+      <%= link_to occasions_settings_path, class: "left-nav-link" do %>
+        <%= lucide_icon("calendar-range", size: 15) %>
+        <span>Occasions Settings</span>
       <% end %>
     </div>
 

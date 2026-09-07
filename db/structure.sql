@@ -723,6 +723,40 @@ ALTER SEQUENCE public.sessions_id_seq OWNED BY public.sessions.id;
 
 
 --
+-- Name: user_app_settings; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.user_app_settings (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    app_name character varying NOT NULL,
+    start_page character varying,
+    default_classification character varying DEFAULT 'restricted'::character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: user_app_settings_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.user_app_settings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: user_app_settings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.user_app_settings_id_seq OWNED BY public.user_app_settings.id;
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -900,6 +934,13 @@ ALTER TABLE ONLY public.person_mutes ALTER COLUMN id SET DEFAULT nextval('public
 --
 
 ALTER TABLE ONLY public.sessions ALTER COLUMN id SET DEFAULT nextval('public.sessions_id_seq'::regclass);
+
+
+--
+-- Name: user_app_settings id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_app_settings ALTER COLUMN id SET DEFAULT nextval('public.user_app_settings_id_seq'::regclass);
 
 
 --
@@ -1083,6 +1124,14 @@ ALTER TABLE ONLY public.schema_migrations
 
 ALTER TABLE ONLY public.sessions
     ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_app_settings user_app_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_app_settings
+    ADD CONSTRAINT user_app_settings_pkey PRIMARY KEY (id);
 
 
 --
@@ -1402,6 +1451,20 @@ CREATE INDEX index_sessions_on_user_id ON public.sessions USING btree (user_id);
 
 
 --
+-- Name: index_user_app_settings_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_user_app_settings_on_user_id ON public.user_app_settings USING btree (user_id);
+
+
+--
+-- Name: index_user_app_settings_on_user_id_and_app_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_user_app_settings_on_user_id_and_app_name ON public.user_app_settings USING btree (user_id, app_name);
+
+
+--
 -- Name: index_users_on_email_address; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1528,6 +1591,14 @@ ALTER TABLE ONLY public.event_type_mutes
 
 
 --
+-- Name: user_app_settings fk_rails_8c969b3de5; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_app_settings
+    ADD CONSTRAINT fk_rails_8c969b3de5 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: contacts fk_rails_8d2134e55e; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1630,6 +1701,7 @@ ALTER TABLE ONLY public.likes
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260907060324'),
 ('20260906091422'),
 ('20260831105707'),
 ('20260831105541'),

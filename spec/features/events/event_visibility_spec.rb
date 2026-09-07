@@ -108,10 +108,10 @@ RSpec.describe "Event visibility", type: :feature do
 
   # 4) Edge cases ───────────────────────────────────────────────────────────
   describe "edge cases" do
-    it "defaults to contacts classification when creating a new event" do
+    it "defaults to restricted classification when creating a new event" do
       sign_in_as(creator)
       visit new_event_path
-      expect(page).to have_select("Classification", selected: "Contacts — visible to my contacts")
+      expect(page).to have_select("Classification", selected: "Restricted — visible only to me")
     end
 
     it "redirects a visitor to index not sign-in when accessing a non-public event" do

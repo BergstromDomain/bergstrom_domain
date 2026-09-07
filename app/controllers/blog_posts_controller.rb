@@ -82,7 +82,8 @@ class BlogPostsController < ApplicationController
   end
 
   def new
-    @blog_post = current_user.blog_posts.build
+    default_classification = current_user.app_settings_for("blog_posts").default_classification
+    @blog_post = current_user.blog_posts.build(classification: default_classification)
     set_author_lists([])
   end
 
@@ -282,7 +283,7 @@ class BlogPostsController < ApplicationController
   end
 
   def blog_post_params
-    params.require(:blog_post).permit(:title, :body, :format, :blog_category_id, :subject, :topic, :blog_image)
+    params.require(:blog_post).permit(:title, :body, :format, :blog_category_id, :subject, :topic, :blog_image, :classification)
   end
 
   def add_co_authors

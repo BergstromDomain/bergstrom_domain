@@ -17,6 +17,26 @@ RSpec.describe User, type: :model do
     it { is_expected.to have_many(:contacts).dependent(:destroy) }
     it { is_expected.to have_many(:contact_users).through(:contacts).source(:contact) }
     it { is_expected.to have_many(:blog_posts) }
+    it { is_expected.to have_many(:user_app_settings).dependent(:destroy) }
+  end
+
+  # ── #app_settings_for ────────────────────────────────────────────────────
+  describe "#app_settings_for" do
+    it "returns the existing UserAppSetting for that app" do
+      user = create(:user)
+      setting = create(:user_app_setting, user: user, app_name: "event_tracker")
+
+      expect(user.app_settings_for("event_tracker")).to eq(setting)
+    end
+
+    it "returns a new unsaved UserAppSetting when none exists yet for that app" do
+      user = create(:user)
+
+      result = user.app_settings_for("blog_posts")
+
+      expect(result).to be_a_new(UserAppSetting)
+      expect(result.app_name).to eq("blog_posts")
+    end
   end
 
   # ── Roleable ──────────────────────────────────────────────────────────────

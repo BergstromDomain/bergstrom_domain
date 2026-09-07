@@ -1,0 +1,76 @@
+<div class="page-header" data-testid="occasions-settings-page">
+  <div class="page-header__top">
+    <div class="page-header__title-group">
+      <h1 class="page-title">Occasions Settings</h1>
+      <p class="page-subtitle">
+        <%= lucide_icon "calendar-range", size: 16 %>
+        App Settings
+      </p>
+    </div>
+  </div>
+</div>
+
+<%= form_with model: @user_app_setting, url: occasions_settings_path, method: :patch, class: "resource-form", data: { turbo: false } do |f| %>
+
+  <% if @user_app_setting.errors.any? %>
+    <div class="form-errors" data-testid="occasions-settings-errors">
+      <p><%= pluralize(@user_app_setting.errors.count, "error") %> prevented your settings from being saved:</p>
+      <ul>
+        <% @user_app_setting.errors.each do |error| %>
+          <li data-testid="field-error"><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="show-panel" data-testid="occasions-settings-panel">
+    <h2 class="show-panel__heading">Occasions Settings</h2>
+
+    <div class="show-panel__section">
+      <div class="form-group">
+        <h3 class="show-meta-cell__label">Start Page</h3>
+        <%= f.label :start_page, "Start Page", class: "sr-only" %>
+        <%= f.select :start_page,
+              [
+                [ "Occasions",      "" ],
+                [ "Events By Day",   "events_by_day" ],
+                [ "Events By Week",  "events_by_week" ],
+                [ "Events By Month", "events_by_month" ],
+                [ "People",          "people" ],
+                [ "Event Types",     "event_types" ]
+              ],
+              { selected: @user_app_setting.start_page },
+              { class: "form-control", data: { testid: "occasions-settings-start-page-field" } } %>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Default Classification</h3>
+      <p class="form-hint">Which classification to use as default when creating people and events?</p>
+      <div class="form-group">
+        <%= f.label :default_classification, "Classification", class: "sr-only" %>
+        <%= f.select :default_classification,
+              [ [ "Unrestricted — visible to everyone", "unrestricted" ],
+                [ "Contacts — visible to my contacts",  "contacts" ],
+                [ "Restricted — visible only to me",    "restricted" ] ],
+              {},
+              { class: "form-control", data: { testid: "occasions-settings-default-classification-field" } } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="show-panel show-panel--actions" data-testid="occasions-settings-actions-panel">
+    <%= link_to settings_path,
+          class: "btn btn-secondary",
+          data: { testid: "occasions-settings-cancel" } do %>
+      <%= lucide_icon "circle-x", size: 16 %>
+      Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary-action" data-testid="occasions-settings-submit">
+      <%= lucide_icon "save", size: 16 %>
+      Save Occasions Settings
+    </button>
+  </div>
+
+<% end %>

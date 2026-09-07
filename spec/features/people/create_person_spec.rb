@@ -70,9 +70,15 @@ RSpec.describe "Create Person", type: :feature do
       expect(page).to have_selector("[data-testid='person-name']", text: "Cliff")
     end
 
-    it "defaults visibility to Contacts" do
+    it "defaults visibility to Restricted" do
       visit new_person_path
-      expect(page).to have_select("Classification", selected: "Contacts — visible to my contacts")
+      expect(page).to have_select("Classification", selected: "Restricted — visible only to me")
+    end
+
+    it "defaults visibility to the user's Occasions Settings default" do
+      user.app_settings_for("event_tracker").update!(default_classification: "unrestricted")
+      visit new_person_path
+      expect(page).to have_select("Classification", selected: "Unrestricted — visible to everyone")
     end
   end
 

@@ -496,6 +496,9 @@ code, pre {
 
 /* H3 — group header */
 .left-nav-h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: var(--space-xs) var(--space-md) var(--space-xs) calc(var(--space-md) + 20px);  /* was +12px */
   font-size: 0.6rem;
   font-weight: 600;
@@ -504,6 +507,12 @@ code, pre {
   color: var(--color-nav-muted);
   opacity: 0.7;
   margin: var(--space-xs) 0 0 0;
+}
+
+.left-nav-h3 svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
 }
 
 /* Links */

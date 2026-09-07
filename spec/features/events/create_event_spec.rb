@@ -126,6 +126,19 @@ RSpec.describe "Create Event", type: :feature do
     end
   end
 
+  context "With Default Classification" do
+    it "Defaults visibility to Restricted" do
+      visit new_event_path
+      expect(page).to have_select("Classification", selected: "Restricted — visible only to me")
+    end
+
+    it "Defaults visibility to the user's Occasions Settings default" do
+      user.app_settings_for("event_tracker").update!(default_classification: "unrestricted")
+      visit new_event_path
+      expect(page).to have_select("Classification", selected: "Unrestricted — visible to everyone")
+    end
+  end
+
   context "With an 'Image'", js: true do
     # TODO: JS session isolation issue — revisit when front-end post addresses file upload interactions
     xit "Creates an event with an image and displays it on the show page" do
