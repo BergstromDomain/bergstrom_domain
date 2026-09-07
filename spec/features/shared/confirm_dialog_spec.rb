@@ -24,10 +24,19 @@ RSpec.describe "Confirm Dialog", type: :feature do
   # `open` attribute is genuinely set in the DOM well before `displayed?`
   # agrees). Assert on the `open` attribute itself via `visible: :all`
   # instead of Capybara's default visible-element check.
+  #
+  # `visit` is always a genuine full page load (unlike an in-page Turbo
+  # click), so the delete button is visible from server-rendered HTML
+  # immediately — well before Stimulus/Turbo necessarily finish loading and
+  # connect_dialog_controller#connect registers Turbo.config.forms.confirm.
+  # On a slow/cold boot (seen in CI), clicking before that happens falls
+  # through to an unintercepted native form submit instead of ever showing
+  # the dialog. Wait for the controller's own readiness marker first.
   def open_delete_dialog_for(record)
     visit person_path(record)
+    find("[data-testid='confirm-dialog'][data-ready='true']", visible: :all, wait: 10)
     find("[data-testid='delete-button']").click
-    find("[data-testid='confirm-dialog'][open]", visible: :all, wait: 5)
+    find("[data-testid='confirm-dialog'][open]", visible: :all, wait: 10)
   end
 
   before { sign_in_and_settle(user) }

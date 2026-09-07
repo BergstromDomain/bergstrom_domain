@@ -12,6 +12,14 @@ export default class extends Controller {
     this.dialogTarget.addEventListener("click", this._handleBackdropClick)
 
     Turbo.config.forms.confirm = (message) => this.open(message)
+
+    // Signals, for tests, that the Turbo.config.forms.confirm override above
+    // has actually been registered — the dialog's markup is present in
+    // server-rendered HTML immediately, well before Stimulus/Turbo finish
+    // loading and connecting on a slow/cold boot, so a click that races
+    // ahead of this would fall through to an unintercepted native form
+    // submit instead of triggering the dialog at all.
+    this.element.dataset.ready = "true"
   }
 
   disconnect() {
