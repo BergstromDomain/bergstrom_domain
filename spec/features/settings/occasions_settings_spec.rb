@@ -10,6 +10,58 @@ RSpec.describe "Occasions Settings", type: :feature do
       visit occasions_settings_path
       expect(page).to have_selector("[data-testid='occasions-settings-page']")
     end
+
+    it "Renders the 'Start Page' field with Occasions' own views as options" do
+      sign_in_as(uno)
+      visit occasions_settings_path
+      expect(page).to have_select("Start Page", options: [
+        "Occasions", "Events By Day", "Events By Week", "Events By Month", "People", "Event Types"
+      ])
+    end
+
+    it "Renders the 'Default Classification' field defaulting to 'Restricted'" do
+      sign_in_as(uno)
+      visit occasions_settings_path
+      expect(page).to have_select("Classification", selected: "Restricted — visible only to me")
+    end
+
+    it "Renders the reworded 'Default Classification' info text" do
+      sign_in_as(uno)
+      visit occasions_settings_path
+      expect(page).to have_text("Which classification to use as default when creating people and events?")
+    end
+
+    it "Updates 'Start Page' with a new value" do
+      sign_in_as(uno)
+      visit occasions_settings_path
+
+      select "Event Types", from: "Start Page"
+      click_button "Save Occasions Settings"
+
+      expect(page).to have_current_path(occasions_settings_path)
+      expect(uno.app_settings_for("event_tracker").start_page).to eq("event_types")
+    end
+
+    it "Updates 'Default Classification' with a new value" do
+      sign_in_as(uno)
+      visit occasions_settings_path
+
+      select "Unrestricted — visible to everyone", from: "Classification"
+      click_button "Save Occasions Settings"
+
+      expect(page).to have_current_path(occasions_settings_path)
+      expect(uno.app_settings_for("event_tracker").default_classification).to eq("unrestricted")
+    end
+
+    it "Persists the setting across visits" do
+      sign_in_as(uno)
+      visit occasions_settings_path
+      select "People", from: "Start Page"
+      click_button "Save Occasions Settings"
+
+      visit occasions_settings_path
+      expect(page).to have_select("Start Page", selected: "People")
+    end
   end
 
   describe "Negative path" do
@@ -29,8 +81,15 @@ RSpec.describe "Occasions Settings", type: :feature do
   end
 
   describe "Edge cases" do
-    xit "Prefills the 'Start Page' and 'Default Classification' fields with the user's saved values" do
-      # Fields land in Block 5 — this page is scaffolding-only in Block 1.
+    it "Does not save any changes when the 'Cancel' button is clicked" do
+      sign_in_as(uno)
+      visit occasions_settings_path
+
+      select "People", from: "Start Page"
+      find("[data-testid='occasions-settings-cancel']").click
+
+      expect(page).to have_current_path(settings_path)
+      expect(uno.app_settings_for("event_tracker").start_page).to be_nil
     end
   end
 end

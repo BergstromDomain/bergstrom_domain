@@ -51,6 +51,7 @@ Rails.application.routes.draw do
   get    "settings/chronicle",           to: "settings#chronicle_settings",  as: :chronicle_settings
   patch  "settings/chronicle",           to: "settings#update_chronicle_settings"
   get    "settings/occasions",           to: "settings#occasions_settings",  as: :occasions_settings
+  patch  "settings/occasions",           to: "settings#update_occasions_settings"
 
   # Import & Export
   get  "import_export",   to: "pages#import_export", as: :import_export

@@ -85,6 +85,16 @@ class SettingsController < ApplicationController
     @user_app_setting = Current.user.app_settings_for("event_tracker")
   end
 
+  def update_occasions_settings
+    @user_app_setting = Current.user.app_settings_for("event_tracker")
+
+    if @user_app_setting.update(app_setting_params)
+      redirect_to occasions_settings_path, notice: "Occasions Settings updated."
+    else
+      render :occasions_settings, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def settings_params

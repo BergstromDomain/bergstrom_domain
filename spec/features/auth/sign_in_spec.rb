@@ -111,6 +111,16 @@ RSpec.describe "Sign In", type: :feature do
       click_button "Sign In"
       expect(page).to have_current_path(blog_categories_path)
     end
+
+    it "Redirects to the Occasions sub-page set in Occasions Settings" do
+      user.update!(start_page: "event_tracker")
+      user.app_settings_for("event_tracker").update!(start_page: "people")
+      visit new_session_path
+      fill_in "Email address", with: "bergstrom@example.com"
+      fill_in "Password",      with: "password123"
+      click_button "Sign In"
+      expect(page).to have_current_path(people_path)
+    end
   end
 
   describe "Edge cases" do
