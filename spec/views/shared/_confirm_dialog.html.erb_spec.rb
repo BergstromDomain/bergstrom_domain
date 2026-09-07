@@ -12,24 +12,41 @@ RSpec.describe "shared/_confirm_dialog", type: :view do
     expect(rendered).to have_css("p[data-confirm-dialog-target='message']", visible: :all)
   end
 
-  it "labels the dialog via aria-labelledby pointing at the message paragraph" do
+  it "labels the dialog via aria-labelledby/aria-describedby pointing at the question and detail paragraphs" do
     render partial: "shared/confirm_dialog"
 
     expect(rendered).to have_css("dialog[aria-labelledby='confirm-dialog-message']")
+    expect(rendered).to have_css("dialog[aria-describedby='confirm-dialog-detail']")
     expect(rendered).to have_css("p#confirm-dialog-message", visible: :all)
+    expect(rendered).to have_css("p#confirm-dialog-detail", visible: :all)
   end
 
-  it "renders a danger-styled Confirm button and a secondary Cancel button" do
+  it "wraps the question and detail paragraphs in a bordered, tinted message box" do
     render partial: "shared/confirm_dialog"
 
     expect(rendered).to have_css(
-      "button.btn-danger[data-confirm-dialog-target='confirmButton'][data-action='confirm-dialog#confirm'][data-testid='confirm-dialog-confirm']",
-      text: "Confirm", visible: :all
+      ".confirm-dialog__message-box p.confirm-dialog__question[data-confirm-dialog-target='message']",
+      visible: :all
     )
     expect(rendered).to have_css(
-      "button.btn-secondary[data-confirm-dialog-target='cancelButton'][data-action='confirm-dialog#cancel'][data-testid='confirm-dialog-cancel']",
+      ".confirm-dialog__message-box p.confirm-dialog__detail[data-confirm-dialog-target='detail']",
+      visible: :all
+    )
+  end
+
+  it "renders a danger-styled Confirm button and a secondary Cancel button, both using the base .btn class and an icon" do
+    render partial: "shared/confirm_dialog"
+
+    expect(rendered).to have_css(
+      "button.btn.btn-danger[data-confirm-dialog-target='confirmButton'][data-action='confirm-dialog#confirm'][data-testid='confirm-dialog-confirm']",
+      text: "Confirm", visible: :all
+    )
+    expect(rendered).to have_css("button[data-testid='confirm-dialog-confirm'] svg", visible: :all)
+    expect(rendered).to have_css(
+      "button.btn.btn-secondary[data-confirm-dialog-target='cancelButton'][data-action='confirm-dialog#cancel'][data-testid='confirm-dialog-cancel']",
       text: "Cancel", visible: :all
     )
+    expect(rendered).to have_css("button[data-testid='confirm-dialog-cancel'] svg", visible: :all)
   end
 
   # Negative path
@@ -38,13 +55,15 @@ RSpec.describe "shared/_confirm_dialog", type: :view do
 
     expect(rendered.scan("<dialog").size).to eq(1)
     expect(rendered).to have_css("p[data-confirm-dialog-target='message']", text: "", visible: :all)
+    expect(rendered).to have_css("p[data-confirm-dialog-target='detail']", text: "", visible: :all)
   end
 
   # Alternative path
-  it "does not render the dialog as open by default" do
+  it "does not render the dialog as open by default, and hides the detail row by default" do
     render partial: "shared/confirm_dialog"
 
     expect(rendered).not_to have_css("dialog[open]", visible: :all)
+    expect(rendered).to have_css("p[data-confirm-dialog-target='detail'][hidden]", visible: :all)
   end
 
   # Edge cases
@@ -53,5 +72,6 @@ RSpec.describe "shared/_confirm_dialog", type: :view do
 
     expect(rendered).to have_css("p[data-confirm-dialog-target='message']", visible: :all)
     expect(rendered.scan('data-confirm-dialog-target="message"').size).to eq(1)
+    expect(rendered.scan('data-confirm-dialog-target="detail"').size).to eq(1)
   end
 end

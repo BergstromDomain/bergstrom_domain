@@ -36,7 +36,7 @@ RSpec.describe "Confirm Dialog", type: :feature do
   describe "Happy path" do
     it "shows the styled dialog with the trigger's message and proceeds with the action on Confirm", js: true do
       dialog = open_delete_dialog_for(person)
-      expect(dialog).to have_text("Delete James Alan Hetfield? This cannot be undone.")
+      expect(dialog).to have_text(:all, "Delete James Alan Hetfield? This cannot be undone.", normalize_ws: true)
 
       find("[data-testid='confirm-dialog-confirm']").click
 

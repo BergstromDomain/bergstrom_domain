@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 import { Turbo } from "@hotwired/turbo-rails"
 
 export default class extends Controller {
-  static targets = ["dialog", "message", "confirmButton", "cancelButton"]
+  static targets = ["dialog", "message", "detail", "confirmButton", "cancelButton"]
 
   connect() {
     this._resolve = null
@@ -24,12 +24,28 @@ export default class extends Controller {
   open(message) {
     if (this.dialogTarget.open) return Promise.resolve(false)
 
+    const [question, detail] = this._splitMessage(message)
+
     return new Promise((resolve) => {
       this._resolve = resolve
       this._triggerElement = document.activeElement
-      this.messageTarget.textContent = message
+      this.messageTarget.textContent = question
+      this.detailTarget.textContent = detail
+      this.detailTarget.hidden = detail.length === 0
       this.dialogTarget.showModal()
     })
+  }
+
+  // Splits "Delete Bob? This cannot be undone." into a question row and a
+  // detail row at the first sentence break, so every existing
+  // data-turbo-confirm message renders as two rows without call sites
+  // needing to change. Messages with no second sentence (e.g. "Suspend
+  // Bob?") render as a single row — detail comes back empty.
+  _splitMessage(message) {
+    const match = message.match(/^(.*?[.!?])\s*(.*)$/)
+    if (!match || match[2].length === 0) return [message, ""]
+
+    return [match[1], match[2]]
   }
 
   confirm() {

@@ -2565,9 +2565,26 @@ textarea.form-control {
   box-shadow: var(--shadow-md);
 }
 
-.confirm-dialog__message {
+.confirm-dialog__message-box {
   margin-bottom: var(--space-lg);
-  white-space: pre-line;
+  padding: var(--space-md);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.confirm-dialog__question {
+  font-weight: var(--font-weight-semibold);
+}
+
+.confirm-dialog__detail {
+  margin-top: var(--space-xs);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.confirm-dialog__detail[hidden] {
+  display: none;
 }
 
 .confirm-dialog__actions {
