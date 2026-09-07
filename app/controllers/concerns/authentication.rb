@@ -41,7 +41,16 @@ module Authentication
   end
 
   def after_authentication_url
-    session.delete(:return_to_after_authenticating) || root_url
+    session.delete(:return_to_after_authenticating) || preferred_start_page_url || root_url
+  end
+
+  def preferred_start_page_url
+    return unless current_user
+
+    case current_user.start_page
+    when "event_tracker" then event_tracker_url
+    when "blog_posts"    then chronicle_url
+    end
   end
 
   def start_new_session_for(user)

@@ -83,6 +83,24 @@ RSpec.describe "Sign In", type: :feature do
       click_button "Sign In"
       expect(page).to have_current_path(root_path)
     end
+
+    it "Redirects to the Occasions landing page when the user's Start Page is 'event_tracker'" do
+      user.update!(start_page: "event_tracker")
+      visit new_session_path
+      fill_in "Email address", with: "bergstrom@example.com"
+      fill_in "Password",      with: "password123"
+      click_button "Sign In"
+      expect(page).to have_current_path(event_tracker_path)
+    end
+
+    it "Redirects to the Chronicle landing page when the user's Start Page is 'blog_posts'" do
+      user.update!(start_page: "blog_posts")
+      visit new_session_path
+      fill_in "Email address", with: "bergstrom@example.com"
+      fill_in "Password",      with: "password123"
+      click_button "Sign In"
+      expect(page).to have_current_path(chronicle_path)
+    end
   end
 
   describe "Edge cases" do

@@ -71,7 +71,7 @@
 ---
 
 # BEHAVIOUR SPEC
-* **Login redirect** (new behaviour): on successful sign-in, `after_authentication_url` resolves in priority order: (1) `session[:return_to_after_authenticating]` if present (existing deep-link behaviour, unchanged), else (2) the user's general `start_page` — if `"home"`, go to `root_url`; if an app slug (`event_tracker`/`blog_posts`), look up that app's `UserAppSetting#start_page` and resolve to the corresponding route; else (3) `root_url`.
+* **Login redirect** (new behaviour): on successful sign-in, `after_authentication_url` resolves in priority order: (1) `session[:return_to_after_authenticating]` if present (existing deep-link behaviour, unchanged), else (2) the user's general `start_page` — `"home"` → `root_url`; `"event_tracker"`/`"blog_posts"` → that app's landing page (`event_tracker_url`/`chronicle_url`); else (3) `root_url`. **Built in Block 3** as this two-level (Home vs. app) resolution — consulting `UserAppSetting#start_page` for the finer-grained sub-page is deferred to Blocks 4/5, once those dropdowns (and their specific option-to-route mappings) actually exist to populate it; building that lookup ahead of any UI that could set it would be dead code today.
 * **Preferences → Start Page** dropdown options: `Home` (always first), then each app sorted alphabetically by its display name — currently `Chronicle`, `Occasions`.
 * **Chronicle/Occasions Settings → Start Page** dropdown: the app's own landing page is always the first/default option, followed by that app's other views, per the doc's per-app option lists.
 * **Default Classification** (new, per app): a single-select (not the multi-select "Default Visibility" checkboxes) that pre-fills the `classification` field's `selected:` value on that app's create form. Wires into: Blog Post create form (new field + permitted param, doesn't exist today) for Chronicle; Person/Event create forms (`selected:` added to the existing field) for Occasions.
@@ -109,10 +109,12 @@
 ## Block 4 — Chronicle Settings Page
 * New page: Start Page dropdown (Chronicle landing page default, + Browse/Filter/My Published/My Unpublished/Blog Categories), Default Classification (reworded info text: "Which classification to use as default when creating posts?")
 * Add a `classification` field to the Blog Post create form (doesn't exist today) + permit it in `BlogPostsController`, pre-filled from this setting
+* Extend `after_authentication_url` (Block 3) to consult `UserAppSetting#start_page` for `blog_posts` and resolve to the specific sub-page route, now that this dropdown gives it a real value to read
 
 ## Block 5 — Occasions Settings Page
 * New page: Start Page dropdown (Occasions landing page default, + Events By Day/Week/Month/People/Event Types), Default Classification (reworded info text: "Which classification to use as default when creating people and events?")
 * Pre-fill Person's and Event's create-form `classification` `selected:` from this setting
+* Extend `after_authentication_url` (Block 3/4) to consult `UserAppSetting#start_page` for `event_tracker` and resolve to the specific sub-page route
 
 ## Block 6 — Left Navbar Restructure
 * Restructure the `:settings` section of `_left_nav.html.erb` per the new H1/H2 hierarchy (Settings → User Settings / Contact Management / App Settings), new icons (`user-cog`, `user-round-cog`, `settings-2`, `contact-pen` → `contact-round`, `monitor-cog`, `notepad-text`, `calendar-range`), renamed links ("User Details", "Contacts")

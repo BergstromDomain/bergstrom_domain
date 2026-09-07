@@ -57,6 +57,16 @@ class SettingsController < ApplicationController
     @user = Current.user
   end
 
+  def update_preferences
+    @user = Current.user
+
+    if @user.update(preferences_params)
+      redirect_to preferences_settings_path, notice: "Preferences updated."
+    else
+      render :preferences, status: :unprocessable_entity
+    end
+  end
+
   def chronicle_settings
     @user_app_setting = Current.user.app_settings_for("blog_posts")
   end
@@ -69,5 +79,11 @@ class SettingsController < ApplicationController
 
   def settings_params
     params.require(:user).permit(:first_name, :last_name, :email_address, :profile_image)
+  end
+
+  def preferences_params
+    attrs = params.require(:user).permit(:start_page, default_classifications: [])
+    attrs[:default_classifications] = attrs[:default_classifications].reject(&:blank?) if attrs.key?(:default_classifications)
+    attrs
   end
 end

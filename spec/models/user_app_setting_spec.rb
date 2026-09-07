@@ -35,6 +35,14 @@ RSpec.describe UserAppSetting, type: :model do
     end
   end
 
+  describe ".live_apps_by_display_name" do
+    it "returns [display name, app_name] pairs sorted alphabetically by display name" do
+      expect(UserAppSetting.live_apps_by_display_name).to eq(
+        [ [ "Chronicle", "blog_posts" ], [ "Occasions", "event_tracker" ] ]
+      )
+    end
+  end
+
   # ── Validations ───────────────────────────────────────────────────────────
   describe "validations" do
     # 1) Happy path ──────────────────────────────────────────────────────────
