@@ -106,6 +106,34 @@ RSpec.describe "Show Person", type: :feature do
       visit person_path(person)
       expect(page).not_to have_selector("[data-testid='show-panel-events']")
     end
+
+    it "shows the social media panel when person has social media accounts" do
+      facebook = create(:social_media_platform, name: "Facebook")
+      create(:person_social_media_account, person: person, social_media_platform: facebook, username: "jhetfield")
+      visit person_path(person)
+      expect(page).to have_selector("[data-testid='show-panel-social-media']")
+      expect(page).to have_selector("[data-testid='social-media-account-platform']", text: "Facebook")
+      expect(page).to have_selector("[data-testid='social-media-account-username']", text: "jhetfield")
+    end
+
+    it "hides the social media panel when person has no social media accounts" do
+      visit person_path(person)
+      expect(page).not_to have_selector("[data-testid='show-panel-social-media']")
+    end
+
+    it "links each platform name to its show page" do
+      facebook = create(:social_media_platform, name: "Facebook")
+      create(:person_social_media_account, person: person, social_media_platform: facebook)
+      visit person_path(person)
+      expect(page).to have_link("Facebook", href: social_media_platform_path(facebook))
+    end
+
+    it "shows a fallback icon when the platform has no logo" do
+      facebook = create(:social_media_platform, name: "Facebook")
+      create(:person_social_media_account, person: person, social_media_platform: facebook)
+      visit person_path(person)
+      expect(page).to have_selector("[data-testid='social-media-account-logo'] svg")
+    end
   end
 
   # 4) Edge cases ─────────────────────────────────────────────────────────────

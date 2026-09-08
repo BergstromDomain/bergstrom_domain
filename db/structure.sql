@@ -681,6 +681,39 @@ ALTER SEQUENCE public.person_mutes_id_seq OWNED BY public.person_mutes.id;
 
 
 --
+-- Name: person_social_media_accounts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.person_social_media_accounts (
+    id bigint NOT NULL,
+    person_id bigint NOT NULL,
+    social_media_platform_id bigint NOT NULL,
+    username character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: person_social_media_accounts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.person_social_media_accounts_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: person_social_media_accounts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.person_social_media_accounts_id_seq OWNED BY public.person_social_media_accounts.id;
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -720,6 +753,40 @@ CREATE SEQUENCE public.sessions_id_seq
 --
 
 ALTER SEQUENCE public.sessions_id_seq OWNED BY public.sessions.id;
+
+
+--
+-- Name: social_media_platforms; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.social_media_platforms (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    url character varying NOT NULL,
+    description text,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: social_media_platforms_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.social_media_platforms_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: social_media_platforms_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.social_media_platforms_id_seq OWNED BY public.social_media_platforms.id;
 
 
 --
@@ -930,10 +997,24 @@ ALTER TABLE ONLY public.person_mutes ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
+-- Name: person_social_media_accounts id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.person_social_media_accounts ALTER COLUMN id SET DEFAULT nextval('public.person_social_media_accounts_id_seq'::regclass);
+
+
+--
 -- Name: sessions id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.sessions ALTER COLUMN id SET DEFAULT nextval('public.sessions_id_seq'::regclass);
+
+
+--
+-- Name: social_media_platforms id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.social_media_platforms ALTER COLUMN id SET DEFAULT nextval('public.social_media_platforms_id_seq'::regclass);
 
 
 --
@@ -1111,6 +1192,14 @@ ALTER TABLE ONLY public.person_mutes
 
 
 --
+-- Name: person_social_media_accounts person_social_media_accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.person_social_media_accounts
+    ADD CONSTRAINT person_social_media_accounts_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1124,6 +1213,14 @@ ALTER TABLE ONLY public.schema_migrations
 
 ALTER TABLE ONLY public.sessions
     ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: social_media_platforms social_media_platforms_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.social_media_platforms
+    ADD CONSTRAINT social_media_platforms_pkey PRIMARY KEY (id);
 
 
 --
@@ -1444,10 +1541,45 @@ CREATE UNIQUE INDEX index_person_mutes_on_user_id_and_person_id ON public.person
 
 
 --
+-- Name: index_person_social_media_accounts_on_person_and_platform; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_person_social_media_accounts_on_person_and_platform ON public.person_social_media_accounts USING btree (person_id, social_media_platform_id);
+
+
+--
+-- Name: index_person_social_media_accounts_on_person_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_person_social_media_accounts_on_person_id ON public.person_social_media_accounts USING btree (person_id);
+
+
+--
+-- Name: index_person_social_media_accounts_on_social_media_platform_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_person_social_media_accounts_on_social_media_platform_id ON public.person_social_media_accounts USING btree (social_media_platform_id);
+
+
+--
 -- Name: index_sessions_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_sessions_on_user_id ON public.sessions USING btree (user_id);
+
+
+--
+-- Name: index_social_media_platforms_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_social_media_platforms_on_name ON public.social_media_platforms USING btree (name);
+
+
+--
+-- Name: index_social_media_platforms_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_social_media_platforms_on_slug ON public.social_media_platforms USING btree (slug);
 
 
 --
@@ -1476,6 +1608,14 @@ CREATE UNIQUE INDEX index_users_on_email_address ON public.users USING btree (em
 --
 
 CREATE INDEX index_users_on_status ON public.users USING btree (status);
+
+
+--
+-- Name: person_social_media_accounts fk_rails_0299f07efe; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.person_social_media_accounts
+    ADD CONSTRAINT fk_rails_0299f07efe FOREIGN KEY (person_id) REFERENCES public.people(id);
 
 
 --
@@ -1671,6 +1811,14 @@ ALTER TABLE ONLY public.active_storage_attachments
 
 
 --
+-- Name: person_social_media_accounts fk_rails_d080d7498f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.person_social_media_accounts
+    ADD CONSTRAINT fk_rails_d080d7498f FOREIGN KEY (social_media_platform_id) REFERENCES public.social_media_platforms(id);
+
+
+--
 -- Name: person_mutes fk_rails_d39bef10ba; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1701,6 +1849,8 @@ ALTER TABLE ONLY public.likes
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260908215924'),
+('20260908215923'),
 ('20260907060324'),
 ('20260906091422'),
 ('20260831105707'),

@@ -110,6 +110,82 @@
     </div>
   </div>
 
+  <%# Social Media panel %>
+  <div class="show-panel" data-testid="edit-panel-social-media" data-controller="social-media-accounts">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Social Media</h2>
+
+      <div data-social-media-accounts-target="container">
+        <%= f.fields_for :person_social_media_accounts do |af| %>
+          <div class="form-group form-group--inline" data-testid="social-media-account-row">
+            <div style="flex: 1;">
+              <%= af.label :social_media_platform_id, "Platform", class: "sr-only" %>
+              <%= af.collection_select :social_media_platform_id,
+                    SocialMediaPlatform.order("LOWER(name) ASC"), :id, :name,
+                    { include_blank: "Select a platform" },
+                    { class: "form-control", data: { testid: "social-media-platform-select" } } %>
+              <% if af.object.errors[:social_media_platform_id].any? %>
+                <span class="field-error" data-testid="field-error">
+                  <%= af.object.errors[:social_media_platform_id].first %>
+                </span>
+              <% end %>
+            </div>
+            <div style="flex: 1;">
+              <%= af.label :username, class: "sr-only" %>
+              <%= af.text_field :username,
+                    placeholder: "Username",
+                    class: "form-control",
+                    data: { testid: "social-media-username-field" } %>
+              <% if af.object.errors[:username].any? %>
+                <span class="field-error" data-testid="field-error">
+                  <%= af.object.errors[:username].first %>
+                </span>
+              <% end %>
+            </div>
+            <div class="form-check">
+              <%= af.check_box :_destroy, data: { testid: "remove-social-media-account" } %>
+              <%= af.label :_destroy, "Remove" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <template data-social-media-accounts-target="template">
+        <%= f.fields_for :person_social_media_accounts, PersonSocialMediaAccount.new, child_index: "NEW_RECORD" do |af| %>
+          <div class="form-group form-group--inline"
+                data-social-media-accounts-target="row"
+                data-testid="social-media-account-row">
+            <div style="flex: 1;">
+              <%= af.label :social_media_platform_id, "Platform", class: "sr-only" %>
+              <%= af.collection_select :social_media_platform_id,
+                    SocialMediaPlatform.order("LOWER(name) ASC"), :id, :name,
+                    { include_blank: "Select a platform" },
+                    { class: "form-control", data: { testid: "social-media-platform-select" } } %>
+            </div>
+            <div style="flex: 1;">
+              <%= af.label :username, class: "sr-only" %>
+              <%= af.text_field :username,
+                    placeholder: "Username",
+                    class: "form-control",
+                    data: { testid: "social-media-username-field" } %>
+            </div>
+            <button type="button" class="icon-button icon-button--danger"
+                  data-action="social-media-accounts#removeNewRow"
+                  data-testid="remove-new-social-media-account">
+              <%= lucide_icon("x-circle", size: 18) %>
+            </button>
+          </div>
+        <% end %>
+      </template>
+
+      <button type="button" class="btn btn-secondary"
+            data-action="social-media-accounts#add"
+            data-testid="add-social-media-account">
+        <%= lucide_icon("plus", size: 16) %> Add Another Platform
+      </button>
+    </div>
+  </div>
+
   <%# Actions panel %>
   <div class="show-panel show-panel--actions" data-testid="edit-panel-actions">
     <%= link_to person_path(@person), class: "btn btn-secondary" do %>

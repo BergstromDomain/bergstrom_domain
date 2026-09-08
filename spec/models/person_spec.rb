@@ -20,7 +20,10 @@ RSpec.describe Person, type: :model do
     it { is_expected.to belong_to(:user) }
     it { is_expected.to have_many(:event_people).dependent(:destroy) }
     it { is_expected.to have_many(:events).through(:event_people) }
+    it { is_expected.to have_many(:person_social_media_accounts).dependent(:destroy) }
+    it { is_expected.to have_many(:social_media_platforms).through(:person_social_media_accounts) }
     it { is_expected.to have_one_attached(:image) }
+    it { is_expected.to accept_nested_attributes_for(:person_social_media_accounts).allow_destroy(true) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
@@ -345,6 +348,70 @@ RSpec.describe Person, type: :model do
       person = create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield")
       person.update!(last_name: "Newsted")
       expect(Person.friendly.find("james-hetfield")).to eq(person)
+    end
+  end
+
+  describe "#person_social_media_accounts_attributes=" do
+    # 1) Happy path ───────────────────────────────────────────────────────────
+    describe "Happy path" do
+      it "Creates a new account when a platform and username are given" do
+        person = create(:person, :james_hetfield)
+        platform = create(:social_media_platform)
+        person.update!(person_social_media_accounts_attributes: [
+          { social_media_platform_id: platform.id, username: "jhetfield" }
+        ])
+        expect(person.social_media_platforms).to include(platform)
+      end
+
+      it "Destroys an existing account when _destroy is set" do
+        person = create(:person, :james_hetfield)
+        account = create(:person_social_media_account, person: person)
+        person.reload
+        person.update!(person_social_media_accounts_attributes: [
+          { id: account.id, _destroy: "1" }
+        ])
+        expect(person.person_social_media_accounts.reload).to be_empty
+      end
+    end
+
+    # 2) Negative path ────────────────────────────────────────────────────────
+    describe "Negative path" do
+      it "Is invalid when two accounts for the same person share a platform" do
+        person = create(:person, :james_hetfield)
+        platform = create(:social_media_platform)
+        person.person_social_media_accounts_attributes = [
+          { social_media_platform_id: platform.id, username: "one" },
+          { social_media_platform_id: platform.id, username: "two" }
+        ]
+        expect(person).not_to be_valid
+      end
+    end
+
+    # 3) Alternative path ─────────────────────────────────────────────────────
+    describe "Alternative path" do
+      it "Updates the username on an existing account without creating a new one" do
+        person = create(:person, :james_hetfield)
+        account = create(:person_social_media_account, person: person, username: "old_handle")
+        person.reload
+        expect {
+          person.update!(person_social_media_accounts_attributes: [
+            { id: account.id, username: "new_handle" }
+          ])
+        }.not_to change(PersonSocialMediaAccount, :count)
+        expect(account.reload.username).to eq("new_handle")
+      end
+    end
+
+    # 4) Edge cases ───────────────────────────────────────────────────────────
+    describe "Edge cases" do
+      it "Ignores a blank row instead of raising a validation error" do
+        person = create(:person, :james_hetfield)
+        person.person_social_media_accounts_attributes = [
+          { social_media_platform_id: "", username: "" }
+        ]
+        expect(person).to be_valid
+        expect(person.person_social_media_accounts).to be_empty
+      end
     end
   end
 end
