@@ -1,0 +1,23 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 15,
+      "fingerprint": "cc79cdc97d572c72152939998e69c465cc41a733acad53824d032ec1d20dd62c",
+      "check_name": "LinkToHref",
+      "message": "Potentially unsafe model attribute in link_to href",
+      "file": "app/views/social_media_platforms/show.html.erb",
+      "line": 37,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting/",
+      "code": null,
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [79],
+      "note": "SocialMediaPlatform#url is validated to parse as URI::HTTP with a present host (see url_must_be_http_or_https in app/models/social_media_platform.rb) before it can ever be persisted, so javascript:/data: schemes can't reach this href. Reviewed 2026-09-08."
+    }
+  ],
+  "updated": "2026-09-08 22:05:00 +1000",
+  "brakeman_version": "8.0.6"
+}
