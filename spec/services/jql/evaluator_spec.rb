@@ -18,8 +18,8 @@ RSpec.describe Jql::Evaluator do
     comparison(field: field, operator: operator, value: value, value_type: :number)
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     describe "#validate!" do
       it "Accepts a valid comparison for each declared field" do
         expect { evaluator.validate!(string_comparison(:title, "=", "Hello")) }.not_to raise_error
@@ -90,8 +90,8 @@ RSpec.describe Jql::Evaluator do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Raises on an unknown field" do
       expect { evaluator.validate!(string_comparison(:bogus, "=", "x")) }
         .to raise_error(Jql::ParseError, /Unknown field 'bogus'/)
@@ -138,8 +138,8 @@ RSpec.describe Jql::Evaluator do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Matches != as the negation of =" do
       ast = string_comparison(:title, "!=", "Hello")
       expect(evaluator.matches?(ast, title: "Goodbye")).to be true
@@ -160,8 +160,8 @@ RSpec.describe Jql::Evaluator do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Never matches a string comparison when the record's value is nil" do
       ast = string_comparison(:title, "=", "Ruby")
       expect(evaluator.matches?(ast, title: nil)).to be false

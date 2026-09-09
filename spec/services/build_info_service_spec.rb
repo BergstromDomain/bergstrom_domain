@@ -19,7 +19,8 @@ RSpec.describe BuildInfoService do
     allow(Open3).to receive(:capture2).and_return([ stdout, status ])
   end
 
-  context "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Reads version, git_sha, and build_date from a generated build-info file" do
       @build_info_path.write({ "version" => "1.2.3", "git_sha" => "abc1234", "build_date" => "2026-01-01" }.to_yaml)
 
@@ -29,7 +30,8 @@ RSpec.describe BuildInfoService do
     end
   end
 
-  context "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Falls back to the VERSION file for version when no build-info file exists" do
       @version_path.write("9.9.9\n")
 
@@ -47,7 +49,8 @@ RSpec.describe BuildInfoService do
     end
   end
 
-  context "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Falls back to file-based values when the build-info file is malformed YAML" do
       @build_info_path.write("not: valid: yaml: [")
       @version_path.write("4.5.6\n")
@@ -70,7 +73,8 @@ RSpec.describe BuildInfoService do
     end
   end
 
-  context "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Returns nil for git_sha when git is not installed" do
       allow(Open3).to receive(:capture2).and_raise(Errno::ENOENT)
 
