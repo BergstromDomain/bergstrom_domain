@@ -135,29 +135,33 @@ skeleton, which didn't match this feature's actual scope — see Decisions above
   moderately cropped by `object-fit: cover` at typical desktop widths, since the
   hero container's real aspect ratio (~2.5:1) is wider than 16:9. See DEFERRED below.
 
-## Block 2 — Hero image regeneration + swap-in (Occasions + Chronicle) — DEFERRED, pending user
-* User is regenerating both hero images tomorrow at a wider aspect ratio (~2.5:1–3:1
-  "ultra-wide banner" instead of 16:9) to reduce/eliminate the cover-crop described
-  above. Once ready: swap `occasions-hero.png` for the new version, and move
-  `Chronicle_image.png` → `app/assets/images/chronicle-hero.png` (replacing the
-  current placeholder-text hero, which was never swapped in this session).
-* Decide then whether to also update `Image_Prompt_-_TEMPLATE.md`'s aspect-ratio
-  guidance for future apps' heroes (Docket/Cookbook/Gallery) to match.
+## Block 2 — Hero image regeneration + swap-in (Occasions + Chronicle) — DONE (2026-09-10)
+* User regenerated both heroes at 2.5:1 (1983×793 — `Occasions_Landingpage_Wide.png`,
+  `Chronicle_Landingpage_Wide.png`), matching the container ratio closely enough
+  that `object-fit: cover` now crops very little (confirmed via screenshot).
+* Moved into place as `app/assets/images/occasions-hero.png` (replacing the 16:9
+  version from Block 1) and `app/assets/images/chronicle-hero.png` (replacing the
+  old placeholder-text hero, which had never been swapped before this). The
+  obsolete square `Chronicle_image.png` staging file was deleted (superseded, not
+  used).
+* `Image_Prompt_-_TEMPLATE.md` updated with a concrete 2.5:1 precedent for future
+  app landing-page heroes (Docket/Cookbook/Gallery), so this crop problem isn't
+  rediscovered from scratch next time.
 
 ## Block 3 — Apps dropdown alphabetical order — DONE
 * Reordered `app/views/layouts/_top_nav.html.erb`'s Apps dropdown items to
   Chronicle, Occasions (alphabetical). Added an order-asserting spec to
   `top_nav_spec.rb`.
 
-## Block 4 — Retrofit — PARTIALLY DONE
+## Block 4 — Retrofit — DONE except manual check
 * Added a step to `docs/context-prompts/templates/App_-_TEMPLATE.md`'s Definition
   of Done documenting: for a brand-new app's first block, confirm its name exists
   in `AppPermission`'s `app_name` enum and `.githooks/commit-msg`'s `APPS` list,
   adding whichever is missing. DONE.
-* Full `rspec`/`rubocop`/`brakeman`/`bundler-audit` pass: DONE for Blocks 1 and 3.
-  Re-run once more after Block 2 lands.
-* Manual browser check: still outstanding — ask the user to eyeball `bin/dev`
-  once Block 2's images are in.
+* Full `rspec`/`rubocop`/`brakeman`/`bundler-audit` pass: DONE, all blocks,
+  2026-09-10 (950 feature examples, 0 failures, 9 pre-existing pending; 716
+  non-feature examples, 0 failures).
+* Manual browser check: still outstanding — ask the user to eyeball `bin/dev`.
 ---
 
 # DEFINITION OF DONE (per block)
