@@ -8,61 +8,67 @@ RSpec.describe "layouts/_footer", type: :view do
     allow(view).to receive(:footer_git_sha).and_return("abc1234")
   end
 
-  # Happy path
-  it "renders the version and deploy date row" do
-    allow(view).to receive(:show_footer_environment_row?).and_return(false)
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
+    it "renders the version and deploy date row" do
+      allow(view).to receive(:show_footer_environment_row?).and_return(false)
 
-    render partial: "layouts/footer"
+      render partial: "layouts/footer"
 
-    expect(rendered).to have_css("[data-testid='footer-version']", text: "Version: v1.0.0")
-    expect(rendered).to have_css("[data-testid='footer-date']", text: "Deployed Date: 6-Sep-2026")
+      expect(rendered).to have_css("[data-testid='footer-version']", text: "Version: v1.0.0")
+      expect(rendered).to have_css("[data-testid='footer-date']", text: "Deployed Date: 6-Sep-2026")
+    end
+
+    it "bolds each label" do
+      allow(view).to receive(:show_footer_environment_row?).and_return(false)
+
+      render partial: "layouts/footer"
+
+      expect(rendered).to have_css("[data-testid='footer-version'] strong.site-footer__label", text: "Version:")
+      expect(rendered).to have_css("[data-testid='footer-date'] strong.site-footer__label", text: "Deployed Date:")
+    end
   end
 
-  it "bolds each label" do
-    allow(view).to receive(:show_footer_environment_row?).and_return(false)
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
+    it "renders the environment and git row in a non-production environment" do
+      allow(view).to receive(:show_footer_environment_row?).and_return(true)
+      allow(view).to receive(:footer_environment_label).and_return("DEV")
 
-    render partial: "layouts/footer"
+      render partial: "layouts/footer"
 
-    expect(rendered).to have_css("[data-testid='footer-version'] strong.site-footer__label", text: "Version:")
-    expect(rendered).to have_css("[data-testid='footer-date'] strong.site-footer__label", text: "Deployed Date:")
+      expect(rendered).to have_css("[data-testid='footer-environment']", text: "Environment: DEV")
+      expect(rendered).to have_css("[data-testid='footer-git-sha']", text: "Git: abc1234")
+    end
   end
 
-  # Alternative path
-  it "renders the environment and git row in a non-production environment" do
-    allow(view).to receive(:show_footer_environment_row?).and_return(true)
-    allow(view).to receive(:footer_environment_label).and_return("DEV")
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
+    it "omits the environment/git row entirely in production" do
+      allow(view).to receive(:show_footer_environment_row?).and_return(false)
 
-    render partial: "layouts/footer"
+      render partial: "layouts/footer"
 
-    expect(rendered).to have_css("[data-testid='footer-environment']", text: "Environment: DEV")
-    expect(rendered).to have_css("[data-testid='footer-git-sha']", text: "Git: abc1234")
-  end
+      expect(rendered).to have_no_css("[data-testid='footer-row-environment']")
+    end
 
-  # Edge cases
-  it "omits the environment/git row entirely in production" do
-    allow(view).to receive(:show_footer_environment_row?).and_return(false)
+    it "adds the indented modifier class when a left navbar is shown" do
+      allow(view).to receive(:show_footer_environment_row?).and_return(false)
+      assign(:show_left_nav, true)
 
-    render partial: "layouts/footer"
+      render partial: "layouts/footer"
 
-    expect(rendered).to have_no_css("[data-testid='footer-row-environment']")
-  end
+      expect(rendered).to have_css("footer.site-footer.site-footer--indented")
+    end
 
-  it "adds the indented modifier class when a left navbar is shown" do
-    allow(view).to receive(:show_footer_environment_row?).and_return(false)
-    assign(:show_left_nav, true)
+    it "omits the indented modifier class when there is no left navbar" do
+      allow(view).to receive(:show_footer_environment_row?).and_return(false)
+      assign(:show_left_nav, false)
 
-    render partial: "layouts/footer"
+      render partial: "layouts/footer"
 
-    expect(rendered).to have_css("footer.site-footer.site-footer--indented")
-  end
-
-  it "omits the indented modifier class when there is no left navbar" do
-    allow(view).to receive(:show_footer_environment_row?).and_return(false)
-    assign(:show_left_nav, false)
-
-    render partial: "layouts/footer"
-
-    expect(rendered).to have_css("footer.site-footer")
-    expect(rendered).to have_no_css("footer.site-footer--indented")
+      expect(rendered).to have_css("footer.site-footer")
+      expect(rendered).to have_no_css("footer.site-footer--indented")
+    end
   end
 end
