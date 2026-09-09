@@ -14,6 +14,7 @@ Rails.application.routes.draw do
       delete :unmute
     end
   end
+  resources :social_media_platforms
 
   # Calendar views — declared before resources :events
   get "events/by_day",   to: "events#by_day",   as: :events_by_day

@@ -19,6 +19,12 @@ class Person < ApplicationRecord
   has_many :event_people, dependent: :destroy
   has_many :events, through: :event_people
   has_many :person_mutes, dependent: :destroy
+  has_many :person_social_media_accounts, dependent: :destroy
+  has_many :social_media_platforms, through: :person_social_media_accounts
+
+  accepts_nested_attributes_for :person_social_media_accounts,
+    allow_destroy: true,
+    reject_if: ->(attrs) { attrs["id"].blank? && attrs["social_media_platform_id"].blank? }
 
   has_one_attached :image do |attachable|
     attachable.variant :thumbnail, resize_to_fill: [ 200, 200 ]
@@ -27,6 +33,7 @@ class Person < ApplicationRecord
   # ── Validations ──────────────────────────────────────────────────────────
   validates :first_name, presence: true
   validate  :full_name_must_be_unique
+  validate  :social_media_platforms_must_be_unique
 
   validates :image,
     content_type: { in: %w[image/jpeg image/png image/webp], message: "must be a JPEG, PNG, or WebP" },
@@ -62,6 +69,18 @@ class Person < ApplicationRecord
   end
 
   private
+
+  # PersonSocialMediaAccount's own uniqueness validation only queries the
+  # database, so it can't see two not-yet-saved sibling rows built together
+  # via nested attributes (e.g. two rows added in the same form submission
+  # before either is persisted) — checked here, in memory, instead.
+  def social_media_platforms_must_be_unique
+    platform_ids = person_social_media_accounts.reject(&:marked_for_destruction?)
+                                                 .map(&:social_media_platform_id).compact
+    return if platform_ids.uniq.size == platform_ids.size
+
+    errors.add(:person_social_media_accounts, "can only include one account per platform")
+  end
 
   def full_name_must_be_unique
     return if first_name.blank?

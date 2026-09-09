@@ -112,6 +112,54 @@
   </div>
 <% end %>
 
+<%# Social Media panel — only when person has social media accounts %>
+<% if @person.person_social_media_accounts.any? %>
+  <div class="show-panel" data-testid="show-panel-social-media">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Social Media</h2>
+      <div class="data-table-wrapper">
+        <table class="data-table" data-testid="person-social-media-table">
+          <thead>
+            <tr>
+              <th class="col-thumbnail"></th>
+              <th>Platform</th>
+              <th>Username</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @person.person_social_media_accounts.includes(social_media_platform: { logo_attachment: :blob })
+                      .joins(:social_media_platform).order("LOWER(social_media_platforms.name) ASC").each do |account| %>
+              <% platform = account.social_media_platform %>
+              <tr data-testid="social-media-account-row">
+                <td class="col-thumbnail" data-testid="social-media-account-logo">
+                  <% if platform.logo.attached? %>
+                    <%= link_to social_media_platform_path(platform) do %>
+                      <%= image_tag platform.logo.variant(:thumbnail),
+                            alt: platform.name,
+                            class: "table-thumbnail" %>
+                    <% end %>
+                  <% else %>
+                    <%= link_to social_media_platform_path(platform), class: "table-thumbnail-icon" do %>
+                      <%= lucide_icon("share-2", size: 20) %>
+                    <% end %>
+                  <% end %>
+                </td>
+                <td>
+                  <%= link_to platform.name,
+                        social_media_platform_path(platform),
+                        class: "data-table__name-link",
+                        data: { testid: "social-media-account-platform" } %>
+                </td>
+                <td data-testid="social-media-account-username"><%= account.username %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<% end %>
+
 <%# Actions panel %>
 <div class="show-panel show-panel--actions" data-testid="show-panel-actions">
   <%= link_to people_path, class: "btn btn-secondary", data: { testid: "back-link" } do %>

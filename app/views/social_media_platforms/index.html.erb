@@ -1,0 +1,64 @@
+<%# app/views/social_media_platforms/index.html.erb %>
+
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Social Media Platforms</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Platforms people can be reached on — linked to their usernames from the Person page.
+  </p>
+</div>
+
+<% if @social_media_platforms.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="social-media-platform-table">
+      <colgroup>
+        <col style="width: 3.5rem;">
+        <col style="width: 14rem;">
+        <col style="width: 16rem;">
+        <col>
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Logo</th>
+          <th>Name</th>
+          <th>URL</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @social_media_platforms.each do |platform| %>
+          <tr data-testid="social-media-platform-row">
+            <td class="col-thumbnail" data-testid="social-media-platform-logo">
+              <% if platform.logo.attached? %>
+                <%= image_tag platform.logo.variant(:thumbnail),
+                      alt: platform.name,
+                      class: "table-thumbnail" %>
+              <% else %>
+                <span class="table-thumbnail-icon">
+                  <%= lucide_icon("share-2", size: 20) %>
+                </span>
+              <% end %>
+            </td>
+            <td>
+              <%= link_to platform.name,
+                    social_media_platform_path(platform),
+                    class: "data-table__name-link",
+                    data: { testid: "social-media-platform-name" } %>
+            </td>
+            <td data-testid="social-media-platform-url">
+              <%= link_to platform.url, platform.url, target: "_blank", rel: "noopener noreferrer" %>
+            </td>
+            <td class="data-table__description" data-testid="social-media-platform-description">
+              <%= platform.description %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No social media platforms have been added yet.</p>
+  </div>
+<% end %>

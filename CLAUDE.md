@@ -30,7 +30,7 @@ COVERAGE=1 bundle exec rspec                                  # enforce SimpleCo
 
 bin/rubocop                # lint (rubocop-rails-omakase base + .rubocop_todo.yml)
 bin/rubocop -A              # autocorrect
-bin/brakeman --no-pager     # static security scan
+bin/brakeman --no-pager -i config/brakeman.ignore   # static security scan (config/brakeman.ignore holds reviewed false positives)
 bundle exec bundler-audit check --update   # gem vulnerability scan (.bundler-audit.yml ignores)
 bin/importmap-audit         # JS dependency vulnerability scan (config/importmap-audit.yml ignores —
                             # bin/importmap audit itself has no ignore mechanism, unlike bundler-audit)

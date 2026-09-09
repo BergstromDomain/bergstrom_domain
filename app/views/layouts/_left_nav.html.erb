@@ -40,12 +40,16 @@
         <span>People</span>
       <% end %>
 
-      <h3 class="left-nav-h3" data-testid="left-nav-event-type-h3">
-        Event Type
+      <h3 class="left-nav-h3" data-testid="left-nav-reference-data-h3">
+        Reference Data
       </h3>
       <%= link_to event_types_path, class: "left-nav-link" do %>
         <%= lucide_icon("boxes", size: 15) %>
         <span>Event Types</span>
+      <% end %>
+      <%= link_to social_media_platforms_path, class: "left-nav-link" do %>
+        <%= lucide_icon("share-2", size: 15) %>
+        <span>Social Media Platforms</span>
       <% end %>
     </div>
 
@@ -75,6 +79,10 @@
           <%= link_to new_event_type_path, class: "left-nav-link" do %>
             <%= lucide_icon("box", size: 15) %>
             <span>Create Event Type</span>
+          <% end %>
+          <%= link_to new_social_media_platform_path, class: "left-nav-link" do %>
+            <%= lucide_icon("share-2", size: 15) %>
+            <span>Create Social Media Platform</span>
           <% end %>
         <% end %>
       </div>

@@ -140,7 +140,8 @@ class PeopleController < ApplicationController
       :last_name,
       :description,
       :classification,
-      :image
+      :image,
+      person_social_media_accounts_attributes: %i[id social_media_platform_id username _destroy]
     )
   end
 end
