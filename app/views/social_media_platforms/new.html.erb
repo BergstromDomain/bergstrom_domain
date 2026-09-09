@@ -68,7 +68,7 @@
     <div class="show-panel__section">
       <h3 class="show-meta-cell__label">Logo</h3>
       <div class="form-group">
-        <%= f.label :logo %>
+        <%= f.label :logo, class: "sr-only" %>
         <%= f.file_field :logo,
               accept: "image/jpeg,image/png,image/webp",
               class: "form-control #{'form-control--error' if @social_media_platform.errors[:logo].any?}",

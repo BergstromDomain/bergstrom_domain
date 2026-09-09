@@ -76,7 +76,7 @@
         <p class="form-hint">Upload a new file to replace the current logo.</p>
       <% end %>
       <div class="form-group">
-        <%= f.label :logo %>
+        <%= f.label :logo, class: "sr-only" %>
         <%= f.file_field :logo,
               accept: "image/jpeg,image/png,image/webp",
               class: "form-control #{'form-control--error' if @social_media_platform.errors[:logo].any?}",

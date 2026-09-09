@@ -8,7 +8,7 @@ class SocialMediaPlatformsController < ApplicationController
   before_action :require_admin,             only: %i[new create]
 
   def index
-    @social_media_platforms = SocialMediaPlatform.order("LOWER(name) ASC")
+    @social_media_platforms = SocialMediaPlatform.includes(logo_attachment: :blob).order("LOWER(name) ASC")
   end
 
   def show

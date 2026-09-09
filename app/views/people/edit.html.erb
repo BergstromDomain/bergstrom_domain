@@ -113,11 +113,13 @@
   <%# Social Media panel %>
   <div class="show-panel" data-testid="edit-panel-social-media" data-controller="social-media-accounts">
     <div class="show-panel__section">
-      <h2 class="show-panel__heading">Social Media</h2>
+      <h2 class="show-panel__heading">Social Media Platforms</h2>
 
       <div data-social-media-accounts-target="container">
         <%= f.fields_for :person_social_media_accounts do |af| %>
-          <div class="form-group form-group--inline" data-testid="social-media-account-row">
+          <div class="form-group form-group--inline"
+                data-social-media-accounts-target="row"
+                data-testid="social-media-account-row">
             <div style="flex: 1;">
               <%= af.label :social_media_platform_id, "Platform", class: "sr-only" %>
               <%= af.collection_select :social_media_platform_id,
@@ -142,10 +144,12 @@
                 </span>
               <% end %>
             </div>
-            <div class="form-check">
-              <%= af.check_box :_destroy, data: { testid: "remove-social-media-account" } %>
-              <%= af.label :_destroy, "Remove" %>
-            </div>
+            <%= af.check_box :_destroy, class: "sr-only",
+                  data: { testid: "remove-social-media-account", action: "change->social-media-accounts#toggleRemoved" } %>
+            <%= af.label :_destroy, class: "icon-button icon-button--danger", title: "Remove",
+                  data: { testid: "remove-social-media-account-button" } do %>
+              <%= lucide_icon("x-circle", size: 18) %>
+            <% end %>
           </div>
         <% end %>
       </div>
@@ -181,7 +185,7 @@
       <button type="button" class="btn btn-secondary"
             data-action="social-media-accounts#add"
             data-testid="add-social-media-account">
-        <%= lucide_icon("plus", size: 16) %> Add Another Platform
+        <%= lucide_icon("plus", size: 16) %> Add Social Media Platform
       </button>
     </div>
   </div>

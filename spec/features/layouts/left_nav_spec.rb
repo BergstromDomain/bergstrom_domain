@@ -63,10 +63,11 @@ RSpec.describe "Left Navigation", type: :feature do
         end
       end
 
-      it "Shows the 'Event Type' group and link" do
+      it "Shows the 'Reference Data' group and links" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_selector("[data-testid='left-nav-event-type-h3']")
+          expect(page).to have_selector("[data-testid='left-nav-reference-data-h3']")
           expect(page).to have_link("Event Types", href: event_types_path)
+          expect(page).to have_link("Social Media Platforms", href: social_media_platforms_path)
         end
       end
 

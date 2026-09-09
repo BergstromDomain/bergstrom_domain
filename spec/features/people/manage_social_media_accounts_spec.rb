@@ -43,19 +43,19 @@ RSpec.describe "Manage social media accounts on a Person", type: :feature do
       expect(account.reload.username).to eq("new_handle")
     end
 
-    it "Removes an existing account by checking Remove and submitting" do
+    it "Removes an existing account by clicking Remove and submitting" do
       create(:person_social_media_account, person: person, social_media_platform: facebook)
       visit edit_person_path(person)
-      check "Remove"
+      find("[data-testid='remove-social-media-account-button']").click
       click_button "Update Person"
       expect(person.reload.person_social_media_accounts).to be_empty
     end
 
-    it "Adds a new social media account via 'Add Another Platform'", js: true do
+    it "Adds a new social media account via 'Add Social Media Platform'", js: true do
       sign_in_and_settle(user)
       visit edit_person_path(person)
       expect(page).to have_current_path(edit_person_path(person))
-      click_button "Add Another Platform"
+      click_button "Add Social Media Platform"
       within all("[data-testid='social-media-account-row']").last do
         select "Facebook", from: "Platform"
         fill_in "Username", with: "jhetfield"
@@ -101,7 +101,7 @@ RSpec.describe "Manage social media accounts on a Person", type: :feature do
     it "Leaves a newly added but never-filled-in row out of the saved accounts", js: true do
       sign_in_and_settle(user)
       visit edit_person_path(person)
-      click_button "Add Another Platform"
+      click_button "Add Social Media Platform"
       click_button "Update Person"
 
       expect(page).to have_current_path(person_path(person))
@@ -112,7 +112,7 @@ RSpec.describe "Manage social media accounts on a Person", type: :feature do
       sign_in_and_settle(user)
       visit edit_person_path(person)
       expect(page).to have_current_path(edit_person_path(person))
-      click_button "Add Another Platform"
+      click_button "Add Social Media Platform"
       within all("[data-testid='social-media-account-row']").last do
         select "Facebook", from: "Platform"
         fill_in "Username", with: "jhetfield"
@@ -122,6 +122,18 @@ RSpec.describe "Manage social media accounts on a Person", type: :feature do
 
       expect(page).to have_current_path(person_path(person))
       expect(person.reload.person_social_media_accounts).to be_empty
+    end
+
+    it "Hides an existing row immediately when Remove is clicked, before submitting", js: true do
+      create(:person_social_media_account, person: person, social_media_platform: facebook)
+      sign_in_and_settle(user)
+      visit edit_person_path(person)
+      expect(page).to have_current_path(edit_person_path(person))
+
+      find("[data-testid='remove-social-media-account-button']").click
+
+      expect(page).to have_no_selector("[data-testid='social-media-account-row']", visible: :visible)
+      expect(person.reload.person_social_media_accounts).not_to be_empty
     end
   end
 
@@ -139,13 +151,13 @@ RSpec.describe "Manage social media accounts on a Person", type: :feature do
       visit edit_person_path(person)
       expect(page).to have_current_path(edit_person_path(person))
 
-      check "Remove"
+      find("[data-testid='remove-social-media-account-button']").click
       click_button "Update Person"
       expect(page).to have_current_path(person_path(person))
       expect(person.reload.person_social_media_accounts).to be_empty
 
       visit edit_person_path(person)
-      click_button "Add Another Platform"
+      click_button "Add Social Media Platform"
       within all("[data-testid='social-media-account-row']").last do
         select "Facebook", from: "Platform"
         fill_in "Username", with: "new_handle"
@@ -168,7 +180,7 @@ RSpec.describe "Manage social media accounts on a Person", type: :feature do
     it "Renders no rows and no error when the person has no social media accounts" do
       visit edit_person_path(person)
       expect(page).to have_no_selector("[data-testid='social-media-account-row']")
-      expect(page).to have_button("Add Another Platform")
+      expect(page).to have_button("Add Social Media Platform")
     end
   end
 end
