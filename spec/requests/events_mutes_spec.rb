@@ -1,12 +1,12 @@
 # spec/requests/events_mutes_spec.rb
 require "rails_helper"
 
-RSpec.describe "Events mute/unmute", type: :request do
+RSpec.describe "Events Mutes", type: :request do
   let(:alice)   { create(:user) }
   let(:wedding) { create(:event, user: alice) }
 
-  # 1) Happy path ───────────────────────────────────────────────────────────
-  describe "happy path" do
+  # 1) Happy Path ───────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "creates an EventMute for the current user when muting" do
       sign_in_as(alice)
       expect {
@@ -25,8 +25,8 @@ RSpec.describe "Events mute/unmute", type: :request do
     end
   end
 
-  # 2) Negative path ────────────────────────────────────────────────────────
-  describe "negative path" do
+  # 2) Negative Path ────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "redirects an unauthenticated request to mute" do
       post mute_event_path(wedding)
       expect(response).to redirect_to(new_session_path)
@@ -38,8 +38,8 @@ RSpec.describe "Events mute/unmute", type: :request do
     end
   end
 
-  # 3) Alternative path ─────────────────────────────────────────────────────
-  describe "alternative path" do
+  # 3) Alternative Paths ─────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "does not raise or duplicate a row when muting the same event twice" do
       sign_in_as(alice)
       post mute_event_path(wedding)
@@ -49,8 +49,8 @@ RSpec.describe "Events mute/unmute", type: :request do
     end
   end
 
-  # 4) Edge cases ───────────────────────────────────────────────────────────
-  describe "edge cases" do
+  # 4) Edge Cases ───────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "does not raise when unmuting an event that was never muted" do
       sign_in_as(alice)
       expect {
