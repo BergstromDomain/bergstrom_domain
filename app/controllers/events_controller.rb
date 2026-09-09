@@ -184,8 +184,7 @@ class EventsController < ApplicationController
   end
 
   def set_event
-    @event = Event.includes(:event_type, image_attachment: :blob,
-                             people: { image_attachment: :blob })
+    @event = Event.includes(:event_type, image_attachment: :blob)
                   .friendly.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     render file: "#{Rails.root}/public/404.html", status: :not_found
