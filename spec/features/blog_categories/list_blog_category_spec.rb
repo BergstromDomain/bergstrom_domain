@@ -2,13 +2,13 @@
 
 require "rails_helper"
 
-RSpec.describe "List blog categories", type: :feature do
+RSpec.describe "List Blog Category", type: :feature do
   let!(:technology) { create(:blog_category, name: "Technology", icon: "cpu",   description: "Tech posts.") }
   let!(:cooking)     { create(:blog_category, name: "Cooking",    icon: "chef-hat", description: "Cooking posts.") }
   let!(:travel)      { create(:blog_category, name: "Travel",     icon: "plane", description: "Travel posts.") }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     before { visit blog_categories_path }
 
     it "Displays the page title" do
@@ -40,8 +40,8 @@ RSpec.describe "List blog categories", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Displays an empty state message when no blog categories exist" do
       BlogCategory.delete_all
       visit blog_categories_path
@@ -51,8 +51,8 @@ RSpec.describe "List blog categories", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Renders the same page regardless of authentication status" do
       sign_in_as create(:user, :app_user)
       visit blog_categories_path
@@ -60,8 +60,8 @@ RSpec.describe "List blog categories", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Sorts blog categories case-insensitively" do
       create(:blog_category, name: "acoustic vinyl reviews", icon: "disc", description: "Music reviews.")
       visit blog_categories_path

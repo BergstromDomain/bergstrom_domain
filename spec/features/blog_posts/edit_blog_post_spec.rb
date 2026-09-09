@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Edit blog post", type: :feature do
+RSpec.describe "Edit Blog Post", type: :feature do
   let(:owner)   { create(:user, :content_creator) }
   let(:chris)   { create(:user, :content_creator) }
   let(:curtis)  { create(:user, :content_creator) }
@@ -26,8 +26,8 @@ RSpec.describe "Edit blog post", type: :feature do
     raise "sign_in_and_settle: could not sign in as #{user.email_address} after #{attempts} attempts"
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Updates the title and redirects to the show page" do
       post = create(:blog_post, user: owner, title: "Old Title")
       sign_in_as(owner)
@@ -128,8 +128,8 @@ RSpec.describe "Edit blog post", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Redirects 'Gary Guest' to the 'Sign in' page" do
       post = create(:blog_post, :unrestricted, user: owner)
       visit edit_blog_post_path(post)
@@ -167,8 +167,8 @@ RSpec.describe "Edit blog post", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Allows a co-author (not the primary author) to edit" do
       post = create(:blog_post, user: owner, title: "Old Title")
       post.blog_post_authors.create!(user: chris)
@@ -191,8 +191,8 @@ RSpec.describe "Edit blog post", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Leaves a draft as a draft after editing" do
       post = create(:blog_post, user: owner, title: "Old Title")
       sign_in_as(owner)

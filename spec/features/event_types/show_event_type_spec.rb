@@ -1,8 +1,7 @@
 # spec/features/event_types/show_event_type_spec.rb
-
 require "rails_helper"
 
-RSpec.describe "Show event type", type: :feature do
+RSpec.describe "Show Event Type", type: :feature do
   let(:admin)           { create(:user, :admin) }
   let(:content_creator) { create(:user, :content_creator) }
   let!(:event_type) do
@@ -12,8 +11,8 @@ RSpec.describe "Show event type", type: :feature do
       description: "Musical events and performances.")
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     before { visit event_type_path(event_type) }
 
     it "Displays the event type name in the page title" do
@@ -48,8 +47,8 @@ RSpec.describe "Show event type", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Returns 404 for a non-existent slug" do
       visit event_type_path("non-existent-slug")
       expect(page).to have_http_status(:not_found)
@@ -70,8 +69,8 @@ RSpec.describe "Show event type", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     context "As 'Adam Admin'" do
       before do
         sign_in_as admin
@@ -93,8 +92,8 @@ RSpec.describe "Show event type", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Handles an event type with a long name without breaking layout" do
       long = create(:event_type, name: "A" * 60, description: "Test.", icon: "star")
       visit event_type_path(long)

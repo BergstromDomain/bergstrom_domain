@@ -5,7 +5,8 @@ RSpec.describe "Export", type: :feature do
   let(:charlie) { create(:user, :content_creator) }
   let(:uno)     { create(:user) }
 
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Allows 'Charlie Content Creator' to download a CSV with default scope" do
       event_type = create(:event_type, name: "Birthday")
       james      = create(:person, user: charlie, first_name: "James", last_name: "Hetfield")
@@ -54,7 +55,8 @@ RSpec.describe "Export", type: :feature do
     end
   end
 
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Redirects 'Gary Guest' to the 'Sign in' page" do
       visit import_export_path
       expect(page).to have_current_path(new_session_path)
@@ -80,7 +82,8 @@ RSpec.describe "Export", type: :feature do
     end
   end
 
-  describe "Alternative path" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Exports only public data when only 'Public data' is checked" do
       adam        = create(:user, :admin)
       public_type = create(:event_type, name: "Concert")
@@ -104,7 +107,8 @@ RSpec.describe "Export", type: :feature do
     end
   end
 
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Exports a CSV with only a header row when all scoped data is empty" do
       sign_in_as charlie
       visit import_export_path

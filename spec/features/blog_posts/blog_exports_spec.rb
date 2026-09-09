@@ -2,11 +2,11 @@
 
 require "rails_helper"
 
-RSpec.describe "Download blog posts", type: :feature do
+RSpec.describe "Blog Exports", type: :feature do
   let(:owner) { create(:user, :content_creator, first_name: "Ada", last_name: "Lovelace") }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Shows the Download options page with Print and CSV actions" do
       sign_in_as(owner)
       visit blog_exports_path
@@ -39,8 +39,8 @@ RSpec.describe "Download blog posts", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Redirects 'Gary Guest' to the 'Sign in' page" do
       visit blog_exports_path
       expect(page).to have_current_path(new_session_path)
@@ -55,8 +55,8 @@ RSpec.describe "Download blog posts", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Lets 'Adam Admin' export drafts and restricted posts" do
       create(:blog_post, :restricted, user: owner, title: "Restricted Draft")
 
@@ -68,8 +68,8 @@ RSpec.describe "Download blog posts", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Exports a post missing Category/Subject/Topic with blank cells, not an error" do
       create(:blog_post, :unrestricted, :published, user: owner, title: "Bare Post", subject: nil, topic: nil)
 

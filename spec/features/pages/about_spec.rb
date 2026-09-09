@@ -1,7 +1,8 @@
 # spec/features/pages/about_spec.rb
 require "rails_helper"
 
-RSpec.describe "About page", type: :feature do
+RSpec.describe "About", type: :feature do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     before { visit about_path }
 

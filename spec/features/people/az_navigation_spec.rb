@@ -1,11 +1,11 @@
 # spec/features/people/az_navigation_spec.rb
 require "rails_helper"
 
-RSpec.describe "A-Z Navigation for People", type: :feature do
+RSpec.describe "A-Z Navigation", type: :feature do
   let!(:user) { create(:user) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     let!(:james) { create(:person, :james_hetfield, :unrestricted, user: user) }
     let!(:lars)  { create(:person, :lars_ulrich,    :unrestricted, user: user) }
 
@@ -30,8 +30,8 @@ RSpec.describe "A-Z Navigation for People", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Renders a letter with no matches as disabled, not a dead link or an error" do
       create(:person, :james_hetfield, :unrestricted, user: user)
       visit people_path
@@ -40,8 +40,8 @@ RSpec.describe "A-Z Navigation for People", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Leaves the pagination placeholder gone and the table intact" do
       create(:person, :james_hetfield, :unrestricted, user: user)
       visit people_path
@@ -50,18 +50,15 @@ RSpec.describe "A-Z Navigation for People", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ──────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Buckets a person with no last name under their first name's letter" do
       create(:person, :first_name_only, :unrestricted, first_name: "Cliff", user: user)
       visit people_path
       click_link "C"
       expect(page).to have_selector("[data-testid='person-name']", text: "Cliff")
     end
-  end
 
-  # 5) Swedish sort order ─────────────────────────────────────────────────────
-  describe "Swedish sort order" do
     it "Sorts Å, Ä, Ö in Swedish alphabetical order, not code-point order" do
       create(:person, :orjan_oberg,      :unrestricted, user: user)
       create(:person, :peter_agren,      :unrestricted, user: user)

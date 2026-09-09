@@ -2,13 +2,13 @@
 
 require "rails_helper"
 
-RSpec.describe "Create blog category", type: :feature do
+RSpec.describe "Create Blog Category", type: :feature do
   let(:admin) { create(:user, :admin) }
 
   before { sign_in_as(admin) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Creates a blog category with all required fields" do
       visit new_blog_category_path
       fill_in "Name",        with: "Technology"
@@ -21,8 +21,8 @@ RSpec.describe "Create blog category", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Shows an error when name is missing" do
       visit new_blog_category_path
       fill_in "Description", with: "Something."
@@ -105,8 +105,8 @@ RSpec.describe "Create blog category", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Re-renders the form with entered values when validation fails" do
       visit new_blog_category_path
       fill_in "Name",        with: "Technology"
@@ -131,8 +131,8 @@ RSpec.describe "Create blog category", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Shows an error when icon has surrounding whitespace" do
       visit new_blog_category_path
       fill_in "Name",        with: "Technology"

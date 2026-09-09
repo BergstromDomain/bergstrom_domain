@@ -1,3 +1,4 @@
+# spec/features/events/events_by_day_spec.rb
 require "rails_helper"
 
 RSpec.describe "Events By Day", type: :feature do
@@ -37,8 +38,9 @@ RSpec.describe "Events By Day", type: :feature do
       year:  tomorrow.year)
   end
 
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    context "When 'Gary Guest' visits 'Events by day' with no date param" do
+    context "When 'Gary Guest' visits 'Events By Day' with no date param" do
       before { visit events_by_day_path }
 
       it "Shows today's heading" do
@@ -110,6 +112,7 @@ RSpec.describe "Events By Day", type: :feature do
     end
   end
 
+  # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
     context "When there are no events on the selected day" do
       it "Shows an empty state message" do
@@ -123,7 +126,8 @@ RSpec.describe "Events By Day", type: :feature do
     end
   end
 
-  describe "Alternative Path" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     context "When 'Uno User' is signed in" do
       let(:uno) { create(:user) }
 
@@ -138,6 +142,7 @@ RSpec.describe "Events By Day", type: :feature do
     end
   end
 
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
     context "When an invalid date param is passed" do
       it "Falls back to today without raising an error" do

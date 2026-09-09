@@ -2,12 +2,12 @@
 
 require "rails_helper"
 
-RSpec.describe "Publish blog post", type: :feature do
+RSpec.describe "Publish Blog Post", type: :feature do
   let(:owner)    { create(:user, :content_creator) }
   let(:category) { create(:blog_category, name: "Technology", icon: "cpu", description: "Tech posts.") }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Publishes a complete draft and flips the button to Unpublish" do
       post = create(:blog_post, user: owner, blog_category: category, body: "Content.")
       sign_in_as(owner)
@@ -36,8 +36,8 @@ RSpec.describe "Publish blog post", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Shows an alert and does not publish when Category is missing" do
       post = create(:blog_post, user: owner, blog_category: nil, body: "Content.")
       sign_in_as(owner)
@@ -84,8 +84,8 @@ RSpec.describe "Publish blog post", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Allows a co-author (not the primary author) to publish" do
       post = create(:blog_post, user: owner, blog_category: category, body: "Content.")
       co_author = create(:user, :content_creator)
@@ -109,8 +109,8 @@ RSpec.describe "Publish blog post", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Can be re-published after being unpublished" do
       post = create(:blog_post, :published, user: owner, blog_category: category, body: "Content.")
       sign_in_as(owner)

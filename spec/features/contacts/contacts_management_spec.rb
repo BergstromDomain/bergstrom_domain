@@ -7,6 +7,7 @@ RSpec.describe "Contacts Management", type: :feature do
   let!(:charlie) { create(:user, :content_creator, first_name: "Charlie", last_name: "Creator") }
   let!(:curtis)  { create(:user, :content_creator, first_name: "Curtis",  last_name: "Creator") }
 
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     it "Uno sends a request, Ulrika sees it as incoming and accepts it" do
       contact = create(:contact, user: uno, contact: ulrika, status: "pending")
@@ -57,7 +58,7 @@ RSpec.describe "Contacts Management", type: :feature do
       expect(Contact.confirmed_between?(uno, ulrika)).to be false
     end
 
-    it "keeps the search active after connecting, so the next match can still be added" do
+    it "Keeps the search active after connecting, so the next match can still be added" do
       first_match = create(:user, first_name: "Gerald", last_name: "Findme")
       create(:user, first_name: "Fiona", last_name: "Findme")
 
@@ -85,7 +86,7 @@ RSpec.describe "Contacts Management", type: :feature do
     # under the js:true/Selenium driver anywhere in this app (see the same
     # TODO in create_event_spec.rb/create_person_spec.rb/edit_person_spec.rb).
     # Server-side search behavior is covered by spec/requests/contacts_spec.rb.
-    xit "searches for a user by name and sends them a request", js: true do
+    xit "Searches for a user by name and sends them a request", js: true do
       sign_in_as uno
       visit contacts_path
 
@@ -102,8 +103,9 @@ RSpec.describe "Contacts Management", type: :feature do
     end
   end
 
+  # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
-    it "does not show pending (unverified) users in search results" do
+    it "Does not show pending (unverified) users in search results" do
       create(:user, first_name: "Pat", last_name: "Pending", status: "pending")
 
       sign_in_as uno
@@ -115,7 +117,7 @@ RSpec.describe "Contacts Management", type: :feature do
     end
 
     # TODO: JS session isolation issue — see TODO above.
-    xit "shows no results when searching for a name that doesn't match anyone", js: true do
+    xit "Shows no results when searching for a name that doesn't match anyone", js: true do
       sign_in_as uno
       visit contacts_path
       fill_in "Search by name", with: "Nobody"
@@ -126,7 +128,8 @@ RSpec.describe "Contacts Management", type: :feature do
     end
   end
 
-  describe "Alternative Path" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Allows the requester to cancel their own outgoing request" do
       contact = create(:contact, user: uno, contact: ulrika, status: "pending")
 

@@ -4,15 +4,15 @@ require "rails_helper"
 RSpec.describe "List People", type: :feature do
   let!(:user) { create(:user) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "happy path" do
-    context "when people exist" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
+    context "When people exist" do
       let!(:james)  { create(:person, :james_hetfield,  :unrestricted, user: user) }
       let!(:lars)   { create(:person, :lars_ulrich,     :unrestricted, user: user) }
       let!(:kirk)   { create(:person, :kirk_hammett,    :unrestricted, user: user) }
       let!(:robert) { create(:person, :robert_trujillo, :unrestricted, user: user) }
 
-      it "displays all people" do
+      it "Displays all people" do
         visit people_path
         expect(page).to have_selector("[data-testid='people-table']")
         expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Hetfield")
@@ -21,34 +21,34 @@ RSpec.describe "List People", type: :feature do
         expect(page).to have_selector("[data-testid='person-name']", text: "Robert Agustin Trujillo")
       end
 
-      it "links to each person's profile" do
+      it "Links to each person's profile" do
         visit people_path
         click_link "James Alan Hetfield"
         expect(page).to have_current_path(person_path(james))
       end
 
-      it "shows who created each person" do
+      it "Shows who created each person" do
         visit people_path
         expect(page).to have_selector("[data-testid='person-created-by']", text: user.first_name, minimum: 4)
       end
 
-      it "shows the Mute Person column header when authenticated" do
+      it "Shows the Mute Person column header when authenticated" do
         sign_in_as(user)
         visit people_path
         expect(page).to have_selector("th", text: "Mute Person")
       end
     end
 
-    context "when a person has an image" do
-      it "displays their thumbnail" do
+    context "When a person has an image" do
+      it "Displays their thumbnail" do
         create(:person, :with_image, :james_hetfield, :unrestricted, user: user)
         visit people_path
         expect(page).to have_selector("[data-testid='person-thumbnail'] img")
       end
     end
 
-    context "when the creator has a profile image" do
-      it "shows the creator's thumbnail next to their name" do
+    context "When the creator has a profile image" do
+      it "Shows the creator's thumbnail next to their name" do
         owner = create(:user, :with_profile_image)
         create(:person, :unrestricted, user: owner, first_name: "Foo", middle_name: nil, last_name: "Bar")
         visit people_path
@@ -57,10 +57,10 @@ RSpec.describe "List People", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "negative path" do
-    context "when no people exist" do
-      it "shows an empty state message" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
+    context "When no people exist" do
+      it "Shows an empty state message" do
         visit people_path
         expect(page).to have_selector("[data-testid='empty-state']")
         expect(page).to have_content("No people found.")
@@ -68,10 +68,10 @@ RSpec.describe "List People", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "alternative path" do
-    context "when a person has no image" do
-      it "shows the fallback user icon" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
+    context "When a person has no image" do
+      it "Shows the fallback user icon" do
         create(:person, :james_hetfield, :unrestricted, user: user)
         visit people_path
         expect(page).to have_selector("[data-testid='person-thumbnail'] svg")
@@ -79,9 +79,9 @@ RSpec.describe "List People", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "edge cases" do
-    it "lists people in case-insensitive alphabetical order by last name" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
+    it "Lists people in case-insensitive alphabetical order by last name" do
       create(:person, first_name: "Lars",  last_name: "Ulrich",   classification: "unrestricted", user: user)
       create(:person, first_name: "James", last_name: "Hetfield", classification: "unrestricted", user: user)
       visit people_path
@@ -89,7 +89,7 @@ RSpec.describe "List People", type: :feature do
       expect(names).to eq([ "James Hetfield", "Lars Ulrich" ])
     end
 
-    it "shows a distinct classification icon per person" do
+    it "Shows a distinct classification icon per person" do
       create(:person, :unrestricted, user: user, first_name: "Uni", middle_name: nil, last_name: "Zzz")
       create(:person, :contacts,     user: user, first_name: "Con", middle_name: nil, last_name: "Yyy")
       create(:person, :restricted,   user: user, first_name: "Res", middle_name: nil, last_name: "Aaa")
@@ -107,7 +107,7 @@ RSpec.describe "List People", type: :feature do
       end
     end
 
-    it "left-aligns the Name/Event Types/Created By column group headers, matching their data" do
+    it "Left-aligns the Name/Event Types/Created By column group headers, matching their data" do
       create(:person, :unrestricted, user: user, first_name: "Group", middle_name: nil, last_name: "Test")
       visit people_path
       expect(page).to have_selector("thead th[colspan='2']", text: "Name")
@@ -116,7 +116,7 @@ RSpec.describe "List People", type: :feature do
       expect(page).not_to have_selector("thead th.text-center", text: "Event Types")
     end
 
-    it "centers the Classification column header and icon" do
+    it "Centers the Classification column header and icon" do
       sign_in_as(user)
       create(:person, :unrestricted, user: user, first_name: "Cen", middle_name: nil, last_name: "Tered")
       visit people_path

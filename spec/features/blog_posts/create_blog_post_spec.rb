@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Create blog post", type: :feature do
+RSpec.describe "Create Blog Post", type: :feature do
   let(:charlie) { create(:user, :content_creator) }
   let(:chris)   { create(:user, :content_creator) }
   let(:curtis)  { create(:user, :content_creator) }
@@ -49,8 +49,8 @@ RSpec.describe "Create blog post", type: :feature do
     end
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     before { sign_in_and_settle(charlie) }
 
     it "Creates a blog post as a draft and redirects to Chronicle" do
@@ -155,8 +155,8 @@ RSpec.describe "Create blog post", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Redirects 'Gary Guest' to the 'Sign in' page" do
       visit new_blog_post_path
       expect(page).to have_current_path(new_session_path)
@@ -212,8 +212,8 @@ RSpec.describe "Create blog post", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Allows 'Adam Admin' to create a blog post" do
       sign_in_as(create(:user, :admin))
       visit new_blog_post_path
@@ -234,8 +234,8 @@ RSpec.describe "Create blog post", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     before { sign_in_and_settle(charlie) }
 
     it "Never creates a BlogPostAuthor for a non-confirmed-contact even if their id is submitted directly", js: true do

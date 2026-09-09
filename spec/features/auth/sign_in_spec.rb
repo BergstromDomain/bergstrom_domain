@@ -4,7 +4,8 @@ require "rails_helper"
 RSpec.describe "Sign In", type: :feature do
   let!(:user) { create(:user, email_address: "bergstrom@example.com", password: "password123", password_confirmation: "password123") }
 
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Signs in with valid credentials and redirects to root" do
       visit new_session_path
       expect(page).to have_selector("h1.page-title", text: "Sign In")
@@ -49,7 +50,8 @@ RSpec.describe "Sign In", type: :feature do
     end
   end
 
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Stays on the sign-in page with an incorrect password" do
       visit new_session_path
       fill_in "Email address", with: "bergstrom@example.com"
@@ -75,7 +77,8 @@ RSpec.describe "Sign In", type: :feature do
     end
   end
 
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Signs in with email address in a different case" do
       visit new_session_path
       fill_in "Email address", with: "BERGSTROM@EXAMPLE.COM"
@@ -123,7 +126,8 @@ RSpec.describe "Sign In", type: :feature do
     end
   end
 
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Does not redirect an already-signed-in user visiting sign in" do
       sign_in_as(user)
       visit new_session_path

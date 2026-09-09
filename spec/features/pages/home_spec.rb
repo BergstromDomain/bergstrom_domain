@@ -1,7 +1,8 @@
 # spec/features/pages/home_spec.rb
 require "rails_helper"
 
-RSpec.describe "Home page", type: :feature do
+RSpec.describe "Home", type: :feature do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     before { visit root_path }
 

@@ -7,9 +7,9 @@ RSpec.describe "Delete Person", type: :feature do
 
   before { sign_in_as(user) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "happy path" do
-    it "deletes the person and redirects to the list" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
+    it "Deletes the person and redirects to the list" do
       visit person_path(person)
       find("[data-testid='delete-button']").click
       expect(page).to have_current_path(people_path)
@@ -17,7 +17,7 @@ RSpec.describe "Delete Person", type: :feature do
       expect(page).to have_no_css("[data-testid='people-table']", text: "James Alan Hetfield")
     end
 
-    it "reduces the person count by 1" do
+    it "Reduces the person count by 1" do
       expect {
         visit person_path(person)
         find("[data-testid='delete-button']").click
@@ -25,15 +25,15 @@ RSpec.describe "Delete Person", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "negative path" do
-    it "does not show the delete button to a visitor" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
+    it "Does not show the delete button to a visitor" do
       click_button "Sign Out"
       visit person_path(person)
       expect(page).not_to have_selector("[data-testid='delete-button']")
     end
 
-    it "does not show the delete button to a non-owner" do
+    it "Does not show the delete button to a non-owner" do
       click_button "Sign Out"
       sign_in_as(create(:user))
       visit person_path(person)

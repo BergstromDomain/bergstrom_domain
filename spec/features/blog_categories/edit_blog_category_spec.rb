@@ -2,14 +2,14 @@
 
 require "rails_helper"
 
-RSpec.describe "Edit blog category", type: :feature do
+RSpec.describe "Edit Blog Category", type: :feature do
   let(:admin)           { create(:user, :admin) }
   let!(:blog_category)  { create(:blog_category, name: "Technology", icon: "cpu", description: "Tech posts.") }
 
   before { sign_in_as(admin) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Updates the name and regenerates the slug" do
       bc = create(:blog_category, name: "Fitness", icon: "dumbbell", description: "Fitness posts.")
       visit edit_blog_category_path(bc)
@@ -52,8 +52,8 @@ RSpec.describe "Edit blog category", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Shows an error when updated name is already taken" do
       create(:blog_category, name: "Travel", icon: "plane", description: "Travel posts.")
       bc = create(:blog_category, name: "Sport", icon: "trophy", description: "Sport posts.")
@@ -89,8 +89,8 @@ RSpec.describe "Edit blog category", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Old slug resolves to the record after a name change" do
       bc = create(:blog_category, name: "Fitness", icon: "dumbbell", description: "Fitness posts.")
       old_slug = bc.slug
@@ -119,8 +119,8 @@ RSpec.describe "Edit blog category", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Shows an error when icon has surrounding whitespace" do
       visit edit_blog_category_path(blog_category)
       fill_in "Icon", with: " cpu "

@@ -1,7 +1,7 @@
 # spec/features/settings/show_settings_spec.rb
 require "rails_helper"
 
-RSpec.describe "User Settings", type: :feature do
+RSpec.describe "Show Settings", type: :feature do
   let(:uno) do
     create(:user,
       first_name:    "Uno",
@@ -10,7 +10,7 @@ RSpec.describe "User Settings", type: :feature do
     )
   end
 
-  describe "Happy path" do
+  describe "Happy Path" do
     it "Renders the 'Page Title' with the user's 'Full Name' and 'User Settings' subtitle" do
       sign_in_as(uno)
       visit settings_path
@@ -162,7 +162,7 @@ RSpec.describe "User Settings", type: :feature do
     end
   end
 
-  describe "Negative path" do
+  describe "Negative Path" do
     it "Redirects 'Gary Guest' to the 'Sign-In' page" do
       visit settings_path
       expect(page).to have_current_path(new_session_path)
@@ -197,7 +197,7 @@ RSpec.describe "User Settings", type: :feature do
     end
   end
 
-  describe "Alternative path" do
+  describe "Alternative Paths" do
     it "Renders the 'User Settings' page for 'Sam SysAdmin'" do
       sam = create(:user,
         role:          :system_admin,
@@ -211,7 +211,7 @@ RSpec.describe "User Settings", type: :feature do
     end
   end
 
-  describe "Edge cases" do
+  describe "Edge Cases" do
     xit "Returns to the 'User Settings' page if the user cancels the deletion confirmation" do
       # Requires JS driver — data-turbo-confirm dialog cannot be cancelled in Rack test driver.
       # Revisit when JS driver session isolation issue is resolved (Post #19+).

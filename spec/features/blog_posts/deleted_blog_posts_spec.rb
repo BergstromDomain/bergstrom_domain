@@ -2,12 +2,12 @@
 
 require "rails_helper"
 
-RSpec.describe "Deleted blog posts (admin restore)", type: :feature do
+RSpec.describe "Deleted Blog Posts", type: :feature do
   let(:owner) { create(:user, :content_creator) }
   let(:admin) { create(:user, :admin) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Lists a deleted post with its author and days remaining" do
       post = create(:blog_post, user: owner, title: "Gone Post", deleted_at: 5.days.ago)
       sign_in_as(admin)
@@ -40,8 +40,8 @@ RSpec.describe "Deleted blog posts (admin restore)", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Denies a content_creator access to the listing" do
       create(:blog_post, user: owner, deleted_at: 5.days.ago)
       sign_in_as(create(:user, :content_creator))
@@ -67,8 +67,8 @@ RSpec.describe "Deleted blog posts (admin restore)", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Allows 'Sam SysAdmin' to view and restore" do
       post = create(:blog_post, user: owner, deleted_at: 5.days.ago)
       sign_in_as(create(:user, :system_admin))
@@ -79,8 +79,8 @@ RSpec.describe "Deleted blog posts (admin restore)", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Shows an empty state when nothing is deleted" do
       sign_in_as(admin)
       visit deleted_blog_posts_path

@@ -9,19 +9,19 @@ RSpec.describe "Edit Person", type: :feature do
     sign_in_as(user) unless example.metadata[:js]
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "happy path" do
-    it "displays the original full name in the page heading" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
+    it "Displays the original full name in the page heading" do
       visit edit_person_path(person)
       expect(page).to have_selector("h1.page-title", text: "Robert Agustin Trujillo")
     end
 
-    it "pre-populates the first name field" do
+    it "Pre-populates the first name field" do
       visit edit_person_path(person)
       expect(page).to have_field("First name", with: "Robert")
     end
 
-    it "updates the person's details and redirects to the show page" do
+    it "Updates the person's details and redirects to the show page" do
       visit edit_person_path(person)
       fill_in "Middle name",  with: "Miguel"
       fill_in "Description",  with: "Bassist of Metallica since 2003."
@@ -33,7 +33,7 @@ RSpec.describe "Edit Person", type: :feature do
       expect(page).to have_selector("[data-testid='person-name']", text: "Robert Miguel Trujillo")
     end
 
-    it "records the current user as the updater" do
+    it "Records the current user as the updater" do
       visit edit_person_path(person)
       fill_in "Description", with: "Bassist of Metallica since 2003."
       click_button "Update Person"
@@ -41,9 +41,9 @@ RSpec.describe "Edit Person", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "negative path" do
-    it "shows validation errors when first name is removed" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
+    it "Shows validation errors when first name is removed" do
       visit edit_person_path(person)
       fill_in "First name", with: ""
       click_button "Update Person"
@@ -51,13 +51,13 @@ RSpec.describe "Edit Person", type: :feature do
       expect(page).to have_content("First name can't be blank")
     end
 
-    it "redirects an unauthenticated visitor to sign in" do
+    it "Redirects an unauthenticated visitor to sign in" do
       click_button "Sign Out"
       visit edit_person_path(person)
       expect(page).to have_current_path(new_session_path)
     end
 
-    it "redirects a non-owner to the person show page" do
+    it "Redirects a non-owner to the person show page" do
       click_button "Sign Out"
       sign_in_as(create(:user, :content_creator))
       visit edit_person_path(person)
@@ -65,9 +65,9 @@ RSpec.describe "Edit Person", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "alternative path" do
-    it "shows a uniqueness error when updating to a duplicate full name" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
+    it "Shows a uniqueness error when updating to a duplicate full name" do
       create(:person, first_name: "Cliff", middle_name: nil, last_name: "Burton", user: user)
       visit edit_person_path(person)
       fill_in "First name",  with: "Cliff"
@@ -77,7 +77,7 @@ RSpec.describe "Edit Person", type: :feature do
       expect(page).to have_content("Full name has already been taken")
     end
 
-    it "allows an admin to edit any person, and records the admin as the updater rather than the original owner" do
+    it "Allows an admin to edit any person, and records the admin as the updater rather than the original owner" do
       click_button "Sign Out"
       admin = create(:user, :admin)
       sign_in_as(admin)
@@ -88,7 +88,7 @@ RSpec.describe "Edit Person", type: :feature do
       expect(person.reload.updater).to eq(admin)
     end
 
-    xit "attaches the image and shows it on the show page", js: true do
+    xit "Attaches the image and shows it on the show page", js: true do
       sign_in_as(user)
       visit edit_person_path(person)
       expect(page).to have_current_path(edit_person_path(person))
@@ -100,9 +100,9 @@ RSpec.describe "Edit Person", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "edge cases" do
-    it "preserves slug history when name changes" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
+    it "Preserves slug history when name changes" do
       old_slug = person.slug
       visit edit_person_path(person)
       fill_in "Last name", with: "Newsted"

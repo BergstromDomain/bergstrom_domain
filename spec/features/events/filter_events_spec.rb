@@ -1,7 +1,7 @@
 # spec/features/events/filter_events_spec.rb
 require "rails_helper"
 
-RSpec.describe "Filter events", type: :feature do
+RSpec.describe "Filter Events", type: :feature do
   let!(:uno)   { create(:user, first_name: "Uno", last_name: "User") }
   let!(:music) { create(:event_type, name: "Music", description: "Musical events", icon: "music") }
   let!(:sport) { create(:event_type, name: "Sport", description: "Sport events",   icon: "trophy") }
@@ -43,9 +43,9 @@ RSpec.describe "Filter events", type: :feature do
     e
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "happy path" do
-    it "shows the classification and mute filter navs only when authenticated" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
+    it "Shows the classification and mute filter navs only when authenticated" do
       visit events_path
       expect(page).not_to have_selector("[data-testid='classification-nav']")
       expect(page).not_to have_selector("[data-testid='mute-filter-nav']")
@@ -56,7 +56,7 @@ RSpec.describe "Filter events", type: :feature do
       expect(page).to have_selector("[data-testid='mute-filter-nav']")
     end
 
-    it "filters events by a single checked classification" do
+    it "Filters events by a single checked classification" do
       sign_in_as uno
       visit events_path(classifications: [ "contacts" ])
       expect(page).to have_selector("[data-testid='event-title']", text: "Contacts Note")
@@ -64,7 +64,7 @@ RSpec.describe "Filter events", type: :feature do
       expect(page).not_to have_selector("[data-testid='event-title']", text: "Restricted Note")
     end
 
-    it "combines two checked classifications at once" do
+    it "Combines two checked classifications at once" do
       sign_in_as uno
       visit events_path(classifications: %w[unrestricted restricted])
       expect(page).to have_selector("[data-testid='event-title']", text: "Adam's Birthday")
@@ -72,7 +72,7 @@ RSpec.describe "Filter events", type: :feature do
       expect(page).not_to have_selector("[data-testid='event-title']", text: "Contacts Note")
     end
 
-    it "applies the user's saved default classifications on a fresh visit" do
+    it "Applies the user's saved default classifications on a fresh visit" do
       uno.update!(default_classifications: [ "contacts" ])
       sign_in_as uno
       visit events_path
@@ -80,7 +80,7 @@ RSpec.describe "Filter events", type: :feature do
       expect(page).not_to have_selector("[data-testid='event-title']", text: "Adam's Birthday")
     end
 
-    it "defaults to hiding events whose only person is muted" do
+    it "Defaults to hiding events whose only person is muted" do
       create(:person_mute, user: uno, person: adam)
       sign_in_as uno
       visit events_path
@@ -90,7 +90,7 @@ RSpec.describe "Filter events", type: :feature do
       expect(page).to have_selector("[data-testid='event-title']", text: "Joint Party")
     end
 
-    it "shows everything again when 'Show all' is selected" do
+    it "Shows everything again when 'Show all' is selected" do
       create(:person_mute, user: uno, person: adam)
       sign_in_as uno
       visit events_path(show_all: true)
@@ -100,30 +100,30 @@ RSpec.describe "Filter events", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "negative path" do
-    it "does not show a mute button for unauthenticated visitors" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
+    it "Does not show a mute button for unauthenticated visitors" do
       visit events_path
       expect(page).not_to have_selector("[data-testid='event-mute-cell']")
     end
 
-    it "shows nothing when every classification is unchecked" do
+    it "Shows nothing when every classification is unchecked" do
       sign_in_as uno
       visit events_path(classifications: [ "none" ])
       expect(page).not_to have_selector("[data-testid='event-title']")
     end
   end
 
-  # 3) Alternative path ─────────────────────────────────────────────────────
-  describe "alternative path" do
-    it "hides an event that is muted directly, even with an unmuted person on it" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
+    it "Hides an event that is muted directly, even with an unmuted person on it" do
       create(:event_mute, user: uno, event: joint_party)
       sign_in_as uno
       visit events_path
       expect(page).not_to have_selector("[data-testid='event-title']", text: "Joint Party")
     end
 
-    it "hides every event of a muted event_type" do
+    it "Hides every event of a muted event_type" do
       create(:event_type_mute, user: uno, event_type: sport)
       sign_in_as uno
       visit events_path
@@ -131,7 +131,7 @@ RSpec.describe "Filter events", type: :feature do
       expect(page).to have_selector("[data-testid='event-title']", text: "Adam's Birthday")
     end
 
-    it "mutes an event from the index row and it disappears after reload" do
+    it "Mutes an event from the index row and it disappears after reload" do
       sign_in_as uno
       visit events_path
       find("[data-testid='mute-event-#{birthday.id}']").click
@@ -140,16 +140,16 @@ RSpec.describe "Filter events", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "edge cases" do
-    it "keeps an event visible if only some of its people are muted" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
+    it "Keeps an event visible if only some of its people are muted" do
       create(:person_mute, user: uno, person: adam)
       sign_in_as uno
       visit events_path
       expect(page).to have_selector("[data-testid='event-title']", text: "Joint Party")
     end
 
-    it "unmuting an event via its index button makes it reappear" do
+    it "Unmuting an event via its index button makes it reappear" do
       create(:event_mute, user: uno, event: birthday)
       sign_in_as uno
       visit events_path

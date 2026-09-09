@@ -1,7 +1,7 @@
 # spec/features/events/event_visibility_spec.rb
 require "rails_helper"
 
-RSpec.describe "Event visibility", type: :feature do
+RSpec.describe "Event Visibility", type: :feature do
   let!(:creator)    { create(:user) }
   let!(:other_user) { create(:user) }
   let!(:event_type) { create(:event_type, name: "Music", description: "Musical events", icon: "music") }
@@ -28,16 +28,16 @@ RSpec.describe "Event visibility", type: :feature do
     e
   end
 
-  # 1) Happy path ───────────────────────────────────────────────────────────
-  describe "happy path" do
-    it "shows unrestricted events to unauthenticated visitors on index" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
+    it "Shows unrestricted events to unauthenticated visitors on index" do
       visit events_path
       expect(page).to have_content("Public Gig")
       expect(page).not_to have_content("Contacts Gig")
       expect(page).not_to have_content("Private Gig")
     end
 
-    it "shows unrestricted and contacts events to a confirmed contact on index" do
+    it "Shows unrestricted and contacts events to a confirmed contact on index" do
       create(:contact, user: creator, contact: other_user, status: "confirmed")
       sign_in_as(other_user)
       visit events_path
@@ -46,20 +46,20 @@ RSpec.describe "Event visibility", type: :feature do
       expect(page).not_to have_content("Private Gig")
     end
 
-    it "allows a visitor to view an unrestricted event show page" do
+    it "Allows a visitor to view an unrestricted event show page" do
       visit event_path(unrestricted_event)
       expect(page).to have_current_path(event_path(unrestricted_event))
       expect(page).to have_content("Public Gig")
     end
 
-    it "allows an authenticated user to view a contacts event show page" do
+    it "Allows an authenticated user to view a contacts event show page" do
       sign_in_as(creator)
       visit event_path(contacts_event)
       expect(page).to have_current_path(event_path(contacts_event))
       expect(page).to have_content("Contacts Gig")
     end
 
-    it "allows an authenticated user to view a restricted event show page" do
+    it "Allows an authenticated user to view a restricted event show page" do
       sign_in_as(creator)
       visit event_path(restricted_event)
       expect(page).to have_current_path(event_path(restricted_event))
@@ -67,36 +67,36 @@ RSpec.describe "Event visibility", type: :feature do
     end
   end
 
-  # 2) Negative path ────────────────────────────────────────────────────────
-  describe "negative path" do
-    it "redirects a visitor away from a contacts event show page" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
+    it "Redirects a visitor away from a contacts event show page" do
       visit event_path(contacts_event)
       expect(page).to have_current_path(events_path)
       expect(page).to have_content("You do not have permission to view that event.")
     end
 
-    it "redirects a visitor away from a restricted event show page" do
+    it "Redirects a visitor away from a restricted event show page" do
       visit event_path(restricted_event)
       expect(page).to have_current_path(events_path)
       expect(page).to have_content("You do not have permission to view that event.")
     end
   end
 
-  # 3) Alternative path ─────────────────────────────────────────────────────
-  describe "alternative path" do
-    it "shows the classification on the event show page for authenticated users" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
+    it "Shows the classification on the event show page for authenticated users" do
       sign_in_as(creator)
       visit event_path(contacts_event)
       expect(page).to have_content("Contacts")
     end
 
-    it "shows unrestricted events to visitors even when contacts events also exist" do
+    it "Shows unrestricted events to visitors even when contacts events also exist" do
       visit events_path
       expect(page).to have_content("Public Gig")
       expect(page).not_to have_content("Contacts Gig")
     end
 
-    it "shows an owner's own restricted event on their index, filtered by classification" do
+    it "Shows an owner's own restricted event on their index, filtered by classification" do
       sign_in_as(creator)
       visit events_path
       expect(page).to have_content("Private Gig")
@@ -106,15 +106,15 @@ RSpec.describe "Event visibility", type: :feature do
     end
   end
 
-  # 4) Edge cases ───────────────────────────────────────────────────────────
-  describe "edge cases" do
-    it "defaults to restricted classification when creating a new event" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
+    it "Defaults to restricted classification when creating a new event" do
       sign_in_as(creator)
       visit new_event_path
       expect(page).to have_select("Classification", selected: "Restricted — visible only to me")
     end
 
-    it "redirects a visitor to index not sign-in when accessing a non-public event" do
+    it "Redirects a visitor to index not sign-in when accessing a non-public event" do
       visit event_path(contacts_event)
       expect(page).to have_current_path(events_path)
       expect(page).not_to have_current_path(new_session_path)

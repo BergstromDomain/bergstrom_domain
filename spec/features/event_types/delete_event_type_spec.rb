@@ -1,14 +1,13 @@
 # spec/features/event_types/delete_event_type_spec.rb
-
 require "rails_helper"
 
-RSpec.describe "Delete event type", type: :feature do
+RSpec.describe "Delete Event Type", type: :feature do
   let(:admin) { create(:user, :admin) }
 
   before { sign_in_as(admin) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Deletes an event type with no associated events and redirects to index" do
       et = create(:event_type, name: "Wedding", icon: "heart", description: "Wedding events.")
       visit event_type_path(et)
@@ -27,8 +26,8 @@ RSpec.describe "Delete event type", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Does not delete an event type that has associated events" do
       et = create(:event_type, name: "Music", icon: "music", description: "Music events.")
       create(:event, event_type: et)
@@ -62,8 +61,8 @@ RSpec.describe "Delete event type", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Allows 'Sam SysAdmin' to delete an event type" do
       et = create(:event_type, name: "Wedding", icon: "heart", description: "Wedding events.")
       click_button "Sign Out"
@@ -74,8 +73,8 @@ RSpec.describe "Delete event type", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Shows the 'Delete Event Type' button to an 'Adam Admin'" do
       et = create(:event_type, name: "Wedding", icon: "heart", description: "Wedding events.")
       visit event_type_path(et)

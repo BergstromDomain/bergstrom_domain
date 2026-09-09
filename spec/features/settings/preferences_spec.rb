@@ -4,7 +4,7 @@ require "rails_helper"
 RSpec.describe "Preferences", type: :feature do
   let(:uno) { create(:user, first_name: "Uno", last_name: "User") }
 
-  describe "Happy path" do
+  describe "Happy Path" do
     it "Renders the 'Preferences' page for a signed-in user" do
       sign_in_as(uno)
       visit preferences_settings_path
@@ -67,14 +67,14 @@ RSpec.describe "Preferences", type: :feature do
     end
   end
 
-  describe "Negative path" do
+  describe "Negative Path" do
     it "Redirects 'Gary Guest' to the 'Sign-In' page" do
       visit preferences_settings_path
       expect(page).to have_current_path(new_session_path)
     end
   end
 
-  describe "Alternative path" do
+  describe "Alternative Paths" do
     it "Renders the 'Preferences' page for 'Sam SysAdmin'" do
       sam = create(:user, role: :system_admin, first_name: "Sam", last_name: "SysAdmin")
       sign_in_as(sam)
@@ -83,7 +83,7 @@ RSpec.describe "Preferences", type: :feature do
     end
   end
 
-  describe "Edge cases" do
+  describe "Edge Cases" do
     it "Does not save any changes when the 'Cancel' button is clicked" do
       sign_in_as(uno)
       visit preferences_settings_path

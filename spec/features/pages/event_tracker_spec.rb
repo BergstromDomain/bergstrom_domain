@@ -1,7 +1,8 @@
 # spec/features/pages/event_tracker_spec.rb
 require "rails_helper"
 
-RSpec.describe "Occasions landing page", type: :feature do
+RSpec.describe "Event Tracker", type: :feature do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     before { visit event_tracker_path }
 

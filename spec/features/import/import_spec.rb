@@ -5,7 +5,7 @@ RSpec.describe "Import", type: :feature do
   let(:charlie) { create(:user, :content_creator) }
   let(:uno)     { create(:user) }
 
-  describe "Happy path" do
+  describe "Happy Path" do
     it "Imports all rows from a valid CSV and shows a success summary" do
       create(:event_type, name: "Birthday")
 
@@ -63,7 +63,7 @@ RSpec.describe "Import", type: :feature do
     end
   end
 
-  describe "Negative path" do
+  describe "Negative Path" do
     it "Shows an alert when no file is attached" do
       sign_in_as charlie
       visit import_export_path
@@ -99,7 +99,7 @@ RSpec.describe "Import", type: :feature do
     end
   end
 
-  describe "Alternative path" do
+  describe "Alternative Paths" do
     it "Imports successfully with a blank year (year stored as nil)" do
       create(:event_type, name: "Birthday")
 
@@ -129,7 +129,7 @@ RSpec.describe "Import", type: :feature do
     end
   end
 
-  describe "Edge cases" do
+  describe "Edge Cases" do
     it "Shows 0 imported, 0 failed for a headers-only CSV" do
       sign_in_as charlie
       visit import_export_path

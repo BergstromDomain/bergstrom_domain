@@ -1,8 +1,7 @@
 # spec/features/events/list_events_spec.rb
-
 require "rails_helper"
 
-RSpec.describe "List events", type: :feature do
+RSpec.describe "List Events", type: :feature do
   let!(:user)     { create(:user) }
   let!(:music)    { create(:event_type, name: "Music",  description: "Musical events", icon: "music") }
   let!(:sport)    { create(:event_type, name: "Sport",  description: "Sport events",   icon: "trophy") }
@@ -33,100 +32,100 @@ RSpec.describe "List events", type: :feature do
     e
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     before { visit events_path }
 
-    it "displays the page title" do
+    it "Displays the page title" do
       expect(page).to have_selector("h1.page-title", text: "Events")
     end
 
-    it "displays all events" do
+    it "Displays all events" do
       expect(page).to have_selector("[data-testid='event-title']", count: 3)
     end
 
-    it "displays events in month, day, title order" do
+    it "Displays events in month, day, title order" do
       titles = page.all("[data-testid='event-title']").map(&:text)
       expect(titles).to eq([ "Master of Puppets", "Load", "Metallica (Black Album)" ])
     end
 
-    it "links each title to the event show page" do
+    it "Links each title to the event show page" do
       expect(page).to have_link("Master of Puppets", href: event_path(master))
     end
 
-    it "displays the date for each event" do
+    it "Displays the date for each event" do
       expect(page).to have_selector("[data-testid='event-date']", count: 3)
       expect(page).to have_selector("[data-testid='event-date']", text: "3 Mar 1986")
     end
 
-    it "displays the event type icon for each event" do
+    it "Displays the event type icon for each event" do
       expect(page).to have_selector("[data-testid='event-type-icon']", count: 3)
     end
 
-    it "shows the event type icon as thumbnail fallback when no thumbnail exists" do
+    it "Shows the event type icon as thumbnail fallback when no thumbnail exists" do
       expect(page).to have_selector("[data-testid='event-thumbnail']", count: 3)
     end
 
-    it "displays person icons for each event" do
+    it "Displays person icons for each event" do
       expect(page).to have_selector("[data-testid='event-person']", minimum: 1)
     end
 
-    it "links each person icon to their show page" do
+    it "Links each person icon to their show page" do
       expect(page).to have_selector(
         "a[href='#{person_path(hetfield)}'][data-testid='event-person']"
       )
     end
 
-    it "shows person name as tooltip on hover" do
+    it "Shows person name as tooltip on hover" do
       expect(page).to have_selector(
         "a[title='James Hetfield'][data-testid='event-person']"
       )
     end
 
-    it "shows the month navigation bar" do
+    it "Shows the month navigation bar" do
       expect(page).to have_selector("[data-testid='month-nav']")
       expect(page).to have_selector("[data-testid='month-nav-link']", count: 12)
     end
 
-    it "shows the pagination placeholder" do
+    it "Shows the pagination placeholder" do
       expect(page).to have_selector("[data-testid='pagination-placeholder']")
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "negative path" do
-    it "shows an empty state when no events exist" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
+    it "Shows an empty state when no events exist" do
       Event.destroy_all
       visit events_path
       expect(page).to have_selector("[data-testid='empty-state']")
       expect(page).to have_content("No events found")
     end
 
-    it "shows an empty state when no events match the selected month" do
+    it "Shows an empty state when no events match the selected month" do
       visit events_path(month: 12)
       expect(page).to have_selector("[data-testid='empty-state']")
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "alternative path" do
-    it "filters events by month when month param is present" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
+    it "Filters events by month when month param is present" do
       visit events_path(month: 3)
       expect(page).to have_selector("[data-testid='event-title']", text: "Master of Puppets")
       expect(page).not_to have_selector("[data-testid='event-title']", text: "Load")
     end
 
-    it "highlights the selected month in the navigation" do
+    it "Highlights the selected month in the navigation" do
       visit events_path(month: 3)
       expect(page).to have_selector(".month-nav__link--active", text: "Mar")
     end
 
-    it "highlights All when no month is selected" do
+    it "Highlights All when no month is selected" do
       visit events_path
       expect(page).to have_selector(".month-nav__link--active", text: "All")
     end
 
-    it "filters events by event type when event_type_id param is present" do
+    it "Filters events by event type when event_type_id param is present" do
       sport_event = create(:event, :unrestricted, title: "Sport Event",
                            event_type: sport, day: 1, month: 1, year: 2000, user: user)
       sport_event.people.clear
@@ -136,7 +135,7 @@ RSpec.describe "List events", type: :feature do
       expect(page).not_to have_selector("[data-testid='event-title']", text: "Master of Puppets")
     end
 
-    it "sorts filtered month events by day then title" do
+    it "Sorts filtered month events by day then title" do
       extra = create(:event, :unrestricted, title: "Another March Event",
                      event_type: music, day: 1, month: 3, year: 1990, user: user)
       extra.people.clear
@@ -146,7 +145,7 @@ RSpec.describe "List events", type: :feature do
       expect(titles).to eq([ "Another March Event", "Master of Puppets" ])
     end
 
-    it "shows a thumbnail image when one is attached" do
+    it "Shows a thumbnail image when one is attached" do
       event_with_thumb = create(:event, :unrestricted, :with_image,
                                 title: "Thumbnail Event",
                                 event_type: music, day: 1, month: 1, year: 2000, user: user)
@@ -157,14 +156,14 @@ RSpec.describe "List events", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "edge cases" do
-    it "ignores an invalid month param" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
+    it "Ignores an invalid month param" do
       visit events_path(month: 99)
       expect(page).to have_selector("[data-testid='event-title']", count: 3)
     end
 
-    it "displays an event with no year using short date format" do
+    it "Displays an event with no year using short date format" do
       no_year = create(:event, :unrestricted, title: "Undated Gig",
                        event_type: music, day: 15, month: 6, year: nil, user: user)
       no_year.people.clear
@@ -173,7 +172,7 @@ RSpec.describe "List events", type: :feature do
       expect(page).to have_selector("[data-testid='event-date']", text: "15 Jun")
     end
 
-    it "wraps person icons when an event has multiple people" do
+    it "Wraps person icons when an event has multiple people" do
       master.people << ulrich
       visit events_path
       person_icons = all("[data-testid='event-row']").first
