@@ -40,10 +40,10 @@ RSpec.describe "Left Navigation", type: :feature do
         end
       end
 
-      it "Shows the 'Event Tracker' group and link" do
+      it "Shows the 'Occasions' group and link" do
         within("[data-testid='left-nav']") do
           expect(page).to have_selector("[data-testid='left-nav-event-tracker-h3']")
-          expect(page).to have_link("Event Tracker", href: event_tracker_path)
+          expect(page).to have_link("Occasions", href: event_tracker_path)
         end
       end
 
@@ -230,7 +230,7 @@ RSpec.describe "Left Navigation", type: :feature do
         end
       end
 
-      it "Does not show the Event Tracker 'Views' section" do
+      it "Does not show the Occasions 'Views' section" do
         within("[data-testid='left-nav']") do
           expect(page).not_to have_selector("[data-testid='left-nav-views-h2']")
         end
@@ -273,9 +273,9 @@ RSpec.describe "Left Navigation", type: :feature do
         end
       end
 
-      it "Does not show the Event Tracker 'Event Tracker' link" do
+      it "Does not show the Occasions 'Occasions' link" do
         within("[data-testid='left-nav']") do
-          expect(page).not_to have_link("Event Tracker", href: event_tracker_path)
+          expect(page).not_to have_link("Occasions", href: event_tracker_path)
         end
       end
 
@@ -384,11 +384,11 @@ RSpec.describe "Left Navigation", type: :feature do
   # ── Alternative Path ───────────────────────────────────────────────────────
 
   describe "Alternative Path" do
-    context "When 'Gary Guest' clicks the 'Event Tracker' link" do
-      it "Navigates to the 'Event Tracker' stub page" do
+    context "When 'Gary Guest' clicks the 'Occasions' link" do
+      it "Navigates to the 'Occasions' stub page" do
         visit events_path
-        within("[data-testid='left-nav']") { click_link "Event Tracker" }
-        expect(page).to have_selector("h1.page-title", text: "Event Tracker")
+        within("[data-testid='left-nav']") { click_link "Occasions" }
+        expect(page).to have_selector("h1.page-title", text: "Occasions")
       end
     end
 

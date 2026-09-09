@@ -26,14 +26,20 @@ RSpec.describe "Top navigation bar", type: :feature do
 
     include_examples "Common nav links"
 
-    it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
+    it "Shows 'Occasions' link in the 'Apps' dropdown menu" do
       click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: event_tracker_path)
+      expect(page).to have_link("Occasions", href: event_tracker_path)
     end
 
     it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
       click_button "Apps"
       expect(page).to have_link("Chronicle", href: chronicle_path)
+    end
+
+    it "Lists 'Chronicle' before 'Occasions' in the 'Apps' dropdown menu (alphabetical order)" do
+      click_button "Apps"
+      labels = all(".dropdown__item").map(&:text)
+      expect(labels.index("Chronicle")).to be < labels.index("Occasions")
     end
 
     it "Shows 'About' link in the 'Info' dropdown menu" do
@@ -75,9 +81,9 @@ RSpec.describe "Top navigation bar", type: :feature do
 
     include_examples "Common nav links"
 
-    it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
+    it "Shows 'Occasions' link in the 'Apps' dropdown menu" do
       click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: event_tracker_path)
+      expect(page).to have_link("Occasions", href: event_tracker_path)
     end
 
     it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
@@ -124,9 +130,9 @@ RSpec.describe "Top navigation bar", type: :feature do
 
     include_examples "Common nav links"
 
-    it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
+    it "Shows 'Occasions' link in the 'Apps' dropdown menu" do
       click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: event_tracker_path)
+      expect(page).to have_link("Occasions", href: event_tracker_path)
     end
 
     it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
@@ -173,9 +179,9 @@ RSpec.describe "Top navigation bar", type: :feature do
 
     include_examples "Common nav links"
 
-    it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
+    it "Shows 'Occasions' link in the 'Apps' dropdown menu" do
       click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: event_tracker_path)
+      expect(page).to have_link("Occasions", href: event_tracker_path)
     end
 
     it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
@@ -222,9 +228,9 @@ RSpec.describe "Top navigation bar", type: :feature do
 
     include_examples "Common nav links"
 
-    it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
+    it "Shows 'Occasions' link in the 'Apps' dropdown menu" do
       click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: event_tracker_path)
+      expect(page).to have_link("Occasions", href: event_tracker_path)
     end
 
     it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
