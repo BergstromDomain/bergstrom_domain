@@ -9,14 +9,14 @@ RSpec.describe EventTypeMute, type: :model do
 
   subject { build(:event_type_mute, user: alice, event_type: sport) }
 
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:user_id).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:event_type_id).of_type(:integer).with_options(null: false) }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
+  describe "Associations" do
     it "belongs to user" do
       mute = create(:event_type_mute, user: alice, event_type: sport)
       expect(mute.user).to eq(alice)
@@ -29,14 +29,16 @@ RSpec.describe EventTypeMute, type: :model do
   end
 
   # ── Validations ───────────────────────────────────────────────────────────
-  describe "validations" do
-    describe "happy path" do
+  describe "Validations" do
+    # 1) Happy Path ─────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "is valid with a user and an event_type" do
         expect(subject).to be_valid
       end
     end
 
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it "is invalid without a user" do
         subject.user = nil
         expect(subject).not_to be_valid
@@ -57,7 +59,8 @@ RSpec.describe EventTypeMute, type: :model do
       end
     end
 
-    describe "alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       it "is valid for a different user to mute the same event_type" do
         create(:event_type_mute, user: alice, event_type: sport)
         other = build(:event_type_mute, user: bob, event_type: sport)
@@ -65,7 +68,8 @@ RSpec.describe EventTypeMute, type: :model do
       end
     end
 
-    describe "edge cases" do
+    # 4) Edge Cases ────────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       it "is valid for the same user to mute a different event_type" do
         create(:event_type_mute, user: alice, event_type: sport)
         other = build(:event_type_mute, user: alice, event_type: music)

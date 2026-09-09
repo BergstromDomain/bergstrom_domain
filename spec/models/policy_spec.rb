@@ -49,131 +49,131 @@ RSpec.describe Policy do
 
   # ── can_read? ─────────────────────────────────────────────────────────────
   describe "#can_read?" do
-    context "unrestricted content" do
-      it "returns true for visitors (nil user)" do
+    context "Unrestricted content" do
+      it "Returns true for visitors (nil user)" do
         policy = Policy.new(nil, owned_event)
         expect(policy.can_read?).to be true
       end
 
-      it "returns true for any authenticated user" do
+      it "Returns true for any authenticated user" do
         policy = Policy.new(app_user, owned_event)
         expect(policy.can_read?).to be true
       end
     end
 
-    context "contacts content" do
-      it "returns false for visitors" do
+    context "Contacts content" do
+      it "Returns false for visitors" do
         policy = Policy.new(nil, contacts_event)
         expect(policy.can_read?).to be false
       end
 
-      it "returns false for a user who is not a confirmed contact" do
+      it "Returns false for a user who is not a confirmed contact" do
         policy = Policy.new(other_user, contacts_event)
         expect(policy.can_read?).to be false
       end
 
-      it "returns true for the owner" do
+      it "Returns true for the owner" do
         policy = Policy.new(owner, contacts_event)
         expect(policy.can_read?).to be true
       end
 
-      it "returns true for a confirmed contact of the owner" do
+      it "Returns true for a confirmed contact of the owner" do
         Contact.create!(user: owner, contact: other_user, status: "confirmed")
         policy = Policy.new(other_user, contacts_event)
         expect(policy.can_read?).to be true
       end
 
-      it "returns true for an admin" do
+      it "Returns true for an admin" do
         policy = Policy.new(admin, contacts_event)
         expect(policy.can_read?).to be true
       end
     end
 
-    context "restricted content" do
-      it "returns false for visitors" do
+    context "Restricted content" do
+      it "Returns false for visitors" do
         policy = Policy.new(nil, restricted_event)
         expect(policy.can_read?).to be false
       end
 
-      it "returns false for an app_user who is not the owner" do
+      it "Returns false for an app_user who is not the owner" do
         policy = Policy.new(app_user, restricted_event)
         expect(policy.can_read?).to be false
       end
 
-      it "returns true for the owner" do
+      it "Returns true for the owner" do
         policy = Policy.new(owner, restricted_event)
         expect(policy.can_read?).to be true
       end
 
-      it "returns true for an admin" do
+      it "Returns true for an admin" do
         policy = Policy.new(admin, restricted_event)
         expect(policy.can_read?).to be true
       end
     end
 
-    context "blog post drafts" do
+    context "Blog post drafts" do
       let(:unrestricted_draft) { create(:blog_post, :unrestricted, user: owner) }
 
-      it "returns true for the author, even though the post is unrestricted" do
+      it "Returns true for the author, even though the post is unrestricted" do
         policy = Policy.new(owner, unrestricted_draft)
         expect(policy.can_read?).to be true
       end
 
-      it "returns true for a co-author" do
+      it "Returns true for a co-author" do
         unrestricted_draft.blog_post_authors.create!(user: other_user)
         policy = Policy.new(other_user, unrestricted_draft)
         expect(policy.can_read?).to be true
       end
 
-      it "returns false for anyone else, even though the post is unrestricted" do
+      it "Returns false for anyone else, even though the post is unrestricted" do
         policy = Policy.new(app_user, unrestricted_draft)
         expect(policy.can_read?).to be false
       end
 
-      it "returns false for visitors" do
+      it "Returns false for visitors" do
         policy = Policy.new(nil, unrestricted_draft)
         expect(policy.can_read?).to be false
       end
 
-      it "returns true for an admin" do
+      it "Returns true for an admin" do
         policy = Policy.new(admin, unrestricted_draft)
         expect(policy.can_read?).to be true
       end
 
-      it "falls back to normal classification rules once published" do
+      it "Falls back to normal classification rules once published" do
         unrestricted_draft.update!(published_at: Time.current, blog_category: create(:blog_category))
         policy = Policy.new(app_user, unrestricted_draft)
         expect(policy.can_read?).to be true
       end
     end
 
-    context "a discarded blog post" do
+    context "A discarded blog post" do
       let(:discarded_post) do
         create(:blog_post, :unrestricted, :published, user: owner, deleted_at: Time.current)
       end
 
-      it "returns false for the author, even though it's their own unrestricted published post" do
+      it "Returns false for the author, even though it's their own unrestricted published post" do
         policy = Policy.new(owner, discarded_post)
         expect(policy.can_read?).to be false
       end
 
-      it "returns false for a co-author" do
+      it "Returns false for a co-author" do
         discarded_post.blog_post_authors.create!(user: other_user)
         policy = Policy.new(other_user, discarded_post)
         expect(policy.can_read?).to be false
       end
 
-      it "returns false for a stranger" do
+      it "Returns false for a stranger" do
         policy = Policy.new(app_user, discarded_post)
         expect(policy.can_read?).to be false
       end
 
-      it "returns false for visitors" do
+      it "Returns false for visitors" do
         policy = Policy.new(nil, discarded_post)
         expect(policy.can_read?).to be false
       end
 
-      it "returns true for an admin" do
+      it "Returns true for an admin" do
         policy = Policy.new(admin, discarded_post)
         expect(policy.can_read?).to be true
       end
@@ -182,47 +182,47 @@ RSpec.describe Policy do
 
   # ── can_create? ───────────────────────────────────────────────────────────
   describe "#can_create?" do
-    context "with no record (app symbol passed)" do
-      it "returns false for a nil user" do
+    context "With no record (app symbol passed)" do
+      it "Returns false for a nil user" do
         policy = Policy.new(nil, :event_tracker)
         expect(policy.can_create?).to be false
       end
 
-      it "returns false for an app_user" do
+      it "Returns false for an app_user" do
         policy = Policy.new(app_user, :event_tracker)
         expect(policy.can_create?).to be false
       end
 
-      it "returns true for a content_creator" do
+      it "Returns true for a content_creator" do
         policy = Policy.new(owner, :event_tracker)
         expect(policy.can_create?).to be true
       end
 
-      it "returns true for an admin" do
+      it "Returns true for an admin" do
         policy = Policy.new(admin, :event_tracker)
         expect(policy.can_create?).to be true
       end
 
-      it "returns true for a system_admin" do
+      it "Returns true for a system_admin" do
         policy = Policy.new(system_admin, :event_tracker)
         expect(policy.can_create?).to be true
       end
     end
 
-    context "with an AppPermission override" do
-      it "returns true for an app_user when override grants can_create" do
+    context "With an AppPermission override" do
+      it "Returns true for an app_user when override grants can_create" do
         create(:app_permission, user: app_user, app_name: "event_tracker", can_create: true)
         policy = Policy.new(app_user, :event_tracker)
         expect(policy.can_create?).to be true
       end
 
-      it "returns false for a content_creator when override revokes can_create" do
+      it "Returns false for a content_creator when override revokes can_create" do
         create(:app_permission, user: owner, app_name: "event_tracker", can_create: false)
         policy = Policy.new(owner, :event_tracker)
         expect(policy.can_create?).to be false
       end
 
-      it "ignores overrides for system_admin — always true" do
+      it "Ignores overrides for system_admin — always true" do
         create(:app_permission, user: system_admin, app_name: "event_tracker", can_create: false)
         policy = Policy.new(system_admin, :event_tracker)
         expect(policy.can_create?).to be true
@@ -232,43 +232,43 @@ RSpec.describe Policy do
 
   # ── can_update? ───────────────────────────────────────────────────────────
   describe "#can_update?" do
-    context "role defaults, no override" do
-      it "returns false for a nil user" do
+    context "Role defaults, no override" do
+      it "Returns false for a nil user" do
         policy = Policy.new(nil, owned_event)
         expect(policy.can_update?).to be false
       end
 
-      it "returns false for an app_user" do
+      it "Returns false for an app_user" do
         policy = Policy.new(app_user, owned_event)
         expect(policy.can_update?).to be false
       end
 
-      it "returns true for the content_creator who owns the record" do
+      it "Returns true for the content_creator who owns the record" do
         policy = Policy.new(owner, owned_event)
         expect(policy.can_update?).to be true
       end
 
-      it "returns false for a content_creator who does not own the record" do
+      it "Returns false for a content_creator who does not own the record" do
         policy = Policy.new(other_user, owned_event)
         expect(policy.can_update?).to be false
       end
 
-      it "returns true for an admin regardless of ownership" do
+      it "Returns true for an admin regardless of ownership" do
         policy = Policy.new(admin, owned_event)
         expect(policy.can_update?).to be true
       end
 
-      it "returns true for a system_admin regardless of ownership" do
+      it "Returns true for a system_admin regardless of ownership" do
         policy = Policy.new(system_admin, owned_event)
         expect(policy.can_update?).to be true
       end
 
-      it "returns false for a content_creator when resource is a symbol (no record)" do
+      it "Returns false for a content_creator when resource is a symbol (no record)" do
         policy = Policy.new(owner, :event_tracker)
         expect(policy.can_update?).to be false
       end
 
-      it "returns true for a content_creator co-author who is not the primary author" do
+      it "Returns true for a content_creator co-author who is not the primary author" do
         post = create(:blog_post, user: owner)
         post.blog_post_authors.create!(user: other_user)
         policy = Policy.new(other_user, post)
@@ -276,8 +276,8 @@ RSpec.describe Policy do
       end
     end
 
-    context "with an AppPermission override" do
-      it "returns true for an app_user when override grants can_update on own record" do
+    context "With an AppPermission override" do
+      it "Returns true for an app_user when override grants can_update on own record" do
         create(:app_permission, user: app_user, app_name: "event_tracker", can_update: true)
         event = create(:event,
           title:      "Metallica - Black Album",
@@ -292,13 +292,13 @@ RSpec.describe Policy do
         expect(policy.can_update?).to be true
       end
 
-      it "returns false for an admin when override revokes can_update" do
+      it "Returns false for an admin when override revokes can_update" do
         create(:app_permission, user: admin, app_name: "event_tracker", can_update: false)
         policy = Policy.new(admin, owned_event)
         expect(policy.can_update?).to be false
       end
 
-      it "ignores overrides for system_admin — always true" do
+      it "Ignores overrides for system_admin — always true" do
         create(:app_permission, user: system_admin, app_name: "event_tracker", can_update: false)
         policy = Policy.new(system_admin, owned_event)
         expect(policy.can_update?).to be true
@@ -308,38 +308,38 @@ RSpec.describe Policy do
 
   # ── can_delete? ───────────────────────────────────────────────────────────
   describe "#can_delete?" do
-    context "role defaults, no override" do
-      it "returns false for a nil user" do
+    context "Role defaults, no override" do
+      it "Returns false for a nil user" do
         policy = Policy.new(nil, owned_event)
         expect(policy.can_delete?).to be false
       end
 
-      it "returns false for an app_user" do
+      it "Returns false for an app_user" do
         policy = Policy.new(app_user, owned_event)
         expect(policy.can_delete?).to be false
       end
 
-      it "returns true for the content_creator who owns the record" do
+      it "Returns true for the content_creator who owns the record" do
         policy = Policy.new(owner, owned_event)
         expect(policy.can_delete?).to be true
       end
 
-      it "returns false for a content_creator who does not own the record" do
+      it "Returns false for a content_creator who does not own the record" do
         policy = Policy.new(other_user, owned_event)
         expect(policy.can_delete?).to be false
       end
 
-      it "returns true for an admin regardless of ownership" do
+      it "Returns true for an admin regardless of ownership" do
         policy = Policy.new(admin, owned_event)
         expect(policy.can_delete?).to be true
       end
 
-      it "returns true for a system_admin regardless of ownership" do
+      it "Returns true for a system_admin regardless of ownership" do
         policy = Policy.new(system_admin, owned_event)
         expect(policy.can_delete?).to be true
       end
 
-      it "returns true for a content_creator co-author who is not the primary author" do
+      it "Returns true for a content_creator co-author who is not the primary author" do
         post = create(:blog_post, user: owner)
         post.blog_post_authors.create!(user: other_user)
         policy = Policy.new(other_user, post)
@@ -347,20 +347,20 @@ RSpec.describe Policy do
       end
     end
 
-    context "with an AppPermission override" do
-      it "returns true for a content_creator when override grants can_delete on another's record" do
+    context "With an AppPermission override" do
+      it "Returns true for a content_creator when override grants can_delete on another's record" do
         create(:app_permission, user: other_user, app_name: "event_tracker", can_delete: true)
         policy = Policy.new(other_user, owned_event)
         expect(policy.can_delete?).to be true
       end
 
-      it "returns false for an admin when override revokes can_delete" do
+      it "Returns false for an admin when override revokes can_delete" do
         create(:app_permission, user: admin, app_name: "event_tracker", can_delete: false)
         policy = Policy.new(admin, owned_event)
         expect(policy.can_delete?).to be false
       end
 
-      it "ignores overrides for system_admin — always true" do
+      it "Ignores overrides for system_admin — always true" do
         create(:app_permission, user: system_admin, app_name: "event_tracker", can_delete: false)
         policy = Policy.new(system_admin, owned_event)
         expect(policy.can_delete?).to be true

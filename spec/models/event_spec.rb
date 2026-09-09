@@ -4,8 +4,8 @@ require "rails_helper"
 RSpec.describe Event, type: :model do
   subject { build(:event) }
 
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:title).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:description).of_type(:text) }
     it { is_expected.to have_db_column(:day).of_type(:integer).with_options(null: false) }
@@ -18,7 +18,7 @@ RSpec.describe Event, type: :model do
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
+  describe "Associations" do
     it { is_expected.to belong_to(:event_type) }
     it { is_expected.to belong_to(:user) }
     it { is_expected.to have_many(:event_people).dependent(:destroy) }
@@ -27,9 +27,9 @@ RSpec.describe Event, type: :model do
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
-  describe "validations" do
-    # 1) Happy path ───────────────────────────────────────────────────────────
-    describe "happy path" do
+  describe "Validations" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
       context "title" do
         it "is valid when title is unique" do
           create(:event, title: "Kill 'Em All")
@@ -116,8 +116,8 @@ RSpec.describe Event, type: :model do
       end
     end
 
-    # 2) Negative path ────────────────────────────────────────────────────────
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it { is_expected.to validate_presence_of(:title) }
       it { is_expected.to validate_uniqueness_of(:title).case_insensitive }
       it { is_expected.to validate_presence_of(:day) }
@@ -284,8 +284,8 @@ RSpec.describe Event, type: :model do
       end
     end
 
-    # 3) Alternative path ─────────────────────────────────────────────────────
-    describe "alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       context "description" do
         it "is valid when updating description without changing the title" do
           event = create(:event, title: "Kill 'Em All")
@@ -323,8 +323,8 @@ RSpec.describe Event, type: :model do
       end
     end
 
-    # 4) Edge cases ───────────────────────────────────────────────────────────
-    describe "edge cases" do
+    # 4) Edge Cases ───────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       context "date" do
         it "is not valid when day and month do not form a valid date" do
           event = build(:event, day: 31, month: 2, year: 1983)
@@ -378,7 +378,8 @@ RSpec.describe Event, type: :model do
     end
   end
 
-  describe "#slug" do
+  # ── FriendlyId ────────────────────────────────────────────────────────────
+  describe "FriendlyId" do
     it "generates a slug from the title" do
       event = create(:event, title: "Kill 'Em All")
       expect(event.slug).to eq("kill-em-all")
@@ -404,8 +405,8 @@ RSpec.describe Event, type: :model do
     let(:anna)  { create(:person, user: alice) }
     let(:sport) { create(:event_type) }
 
-    # 1) Happy path ───────────────────────────────────────────────────────────
-    describe "happy path" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "returns every event unchanged when the user has no mutes of any kind" do
         event = create(:event).tap { |e| e.people = [ adam ] }
         expect(Event.not_muted_for(alice)).to match_array(Event.all)
@@ -413,8 +414,8 @@ RSpec.describe Event, type: :model do
       end
     end
 
-    # 2) Negative path ────────────────────────────────────────────────────────
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it "excludes an event the user has muted directly" do
         event = create(:event).tap { |e| e.people = [ adam ] }
         create(:event_mute, user: alice, event: event)
@@ -434,8 +435,8 @@ RSpec.describe Event, type: :model do
       end
     end
 
-    # 3) Alternative path ─────────────────────────────────────────────────────
-    describe "alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       it "keeps an event visible if at least one attached person is unmuted" do
         event = create(:event).tap { |e| e.people = [ adam, anna ] }
         create(:person_mute, user: alice, person: adam)
@@ -443,8 +444,8 @@ RSpec.describe Event, type: :model do
       end
     end
 
-    # 4) Edge cases ───────────────────────────────────────────────────────────
-    describe "edge cases" do
+    # 4) Edge Cases ───────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       it "does not affect another user's visibility" do
         bob   = create(:user)
         event = create(:event).tap { |e| e.people = [ adam ] }

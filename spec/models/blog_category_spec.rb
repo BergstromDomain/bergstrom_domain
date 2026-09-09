@@ -4,8 +4,8 @@ require "rails_helper"
 RSpec.describe BlogCategory, type: :model do
   subject { build(:blog_category) }
 
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:name).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:description).of_type(:text).with_options(null: false) }
     it { is_expected.to have_db_column(:icon).of_type(:string).with_options(null: false) }
@@ -13,22 +13,22 @@ RSpec.describe BlogCategory, type: :model do
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
+  describe "Associations" do
     it { is_expected.to have_many(:blog_posts).dependent(:restrict_with_error) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
-  describe "validations" do
-    # 1) Happy path ───────────────────────────────────────────────────────────
-    describe "happy path" do
+  describe "Validations" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "is valid with all required fields" do
         bc = build(:blog_category, name: "Technology", icon: "cpu")
         expect(bc).to be_valid
       end
     end
 
-    # 2) Negative path ────────────────────────────────────────────────────────
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it "is invalid when name is blank" do
         bc = build(:blog_category, name: "")
         expect(bc).not_to be_valid
@@ -75,8 +75,8 @@ RSpec.describe BlogCategory, type: :model do
       end
     end
 
-    # 3) Alternative path ─────────────────────────────────────────────────────
-    describe "alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       it "is valid when updating description without changing name" do
         bc = create(:blog_category, name: "Travel", icon: "plane")
         bc.description = "Updated description."
@@ -84,8 +84,8 @@ RSpec.describe BlogCategory, type: :model do
       end
     end
 
-    # 4) Edge cases ───────────────────────────────────────────────────────────
-    describe "edge cases" do
+    # 4) Edge Cases ───────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       it "is invalid when icon has surrounding whitespace" do
         bc = build(:blog_category, icon: " cpu ")
         expect(bc).not_to be_valid
@@ -115,8 +115,8 @@ RSpec.describe BlogCategory, type: :model do
     end
   end
 
-  # ── Cascade behaviour ─────────────────────────────────────────────────────
-  describe "restrict_with_error on delete" do
+  # ── Cascade Behaviour ─────────────────────────────────────────────────────
+  describe "Cascade Behaviour" do
     it "prevents deletion when the category has associated blog posts" do
       category = create(:blog_category, name: "Technology", icon: "cpu")
       create(:blog_post, blog_category: category)

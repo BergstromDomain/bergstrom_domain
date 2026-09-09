@@ -2,8 +2,8 @@
 require "rails_helper"
 
 RSpec.describe AppPermission, type: :model do
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:user_id).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:app_name).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:can_create).of_type(:boolean).with_options(null: false, default: false) }
@@ -12,7 +12,7 @@ RSpec.describe AppPermission, type: :model do
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
+  describe "Associations" do
     it "belongs to a user" do
       permission = build(:app_permission)
       expect(permission.user).to be_a(User)
@@ -20,11 +20,11 @@ RSpec.describe AppPermission, type: :model do
   end
 
   # ── Validations ───────────────────────────────────────────────────────────
-  describe "validations" do
+  describe "Validations" do
     subject { build(:app_permission) }
 
-    # 1) Happy path ──────────────────────────────────────────────────────────
-    describe "1) Happy path" do
+    # 1) Happy Path ──────────────────────────────────────────────────────────
+    describe "Happy Path" do
       context "with valid attributes" do
         it "is valid" do
           expect(subject).to be_valid
@@ -41,8 +41,8 @@ RSpec.describe AppPermission, type: :model do
       end
     end
 
-    # 2) Negative path ───────────────────────────────────────────────────────
-    describe "2) Negative path" do
+    # 2) Negative Path ───────────────────────────────────────────────────────
+    describe "Negative Path" do
       context "without app_name" do
         it "is invalid" do
           subject.app_name = nil
@@ -70,8 +70,8 @@ RSpec.describe AppPermission, type: :model do
       end
     end
 
-    # 3) Alternative path ────────────────────────────────────────────────────
-    describe "3) Alternative path" do
+    # 3) Alternative Paths ────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       context "same app_name for different users" do
         it "is valid" do
           user_a = create(:user)
@@ -83,8 +83,8 @@ RSpec.describe AppPermission, type: :model do
       end
     end
 
-    # 4) Edge cases ──────────────────────────────────────────────────────────
-    describe "4) Edge cases" do
+    # 4) Edge Cases ──────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       context "boolean columns default to false" do
         it "can_create defaults to false" do
           permission = create(:app_permission)

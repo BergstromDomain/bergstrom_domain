@@ -4,8 +4,8 @@ require "rails_helper"
 RSpec.describe SocialMediaPlatform, type: :model do
   subject { build(:social_media_platform) }
 
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:name).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:url).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:description).of_type(:text) }
@@ -13,15 +13,15 @@ RSpec.describe SocialMediaPlatform, type: :model do
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
+  describe "Associations" do
     it { is_expected.to have_many(:person_social_media_accounts).dependent(:restrict_with_error) }
     it { is_expected.to have_one_attached(:logo) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
-  describe "validations" do
-    # 1) Happy path ───────────────────────────────────────────────────────────
-    describe "happy path" do
+  describe "Validations" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "is valid with all required fields" do
         smp = build(:social_media_platform, name: "Facebook", url: "https://www.facebook.com/")
         expect(smp).to be_valid
@@ -68,8 +68,8 @@ RSpec.describe SocialMediaPlatform, type: :model do
       end
     end
 
-    # 2) Negative path ────────────────────────────────────────────────────────
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it "is invalid when name is blank" do
         smp = build(:social_media_platform, name: "")
         expect(smp).not_to be_valid
@@ -148,8 +148,8 @@ RSpec.describe SocialMediaPlatform, type: :model do
       end
     end
 
-    # 3) Alternative path ─────────────────────────────────────────────────────
-    describe "alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       it "is valid when updating description without changing name" do
         smp = create(:social_media_platform, name: "Instagram")
         smp.description = "Updated description."
@@ -163,8 +163,8 @@ RSpec.describe SocialMediaPlatform, type: :model do
       end
     end
 
-    # 4) Edge cases ───────────────────────────────────────────────────────────
-    describe "edge cases" do
+    # 4) Edge Cases ───────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       it "is invalid when url has surrounding whitespace and no scheme" do
         smp = build(:social_media_platform, url: " www.facebook.com ")
         expect(smp).not_to be_valid
@@ -199,8 +199,8 @@ RSpec.describe SocialMediaPlatform, type: :model do
     end
   end
 
-  # ── Cascade behaviour ─────────────────────────────────────────────────────
-  describe "restrict_with_error on delete" do
+  # ── Cascade Behaviour ─────────────────────────────────────────────────────
+  describe "Cascade Behaviour" do
     it "prevents deletion when the platform has associated person accounts" do
       platform = create(:social_media_platform)
       create(:person_social_media_account, social_media_platform: platform)

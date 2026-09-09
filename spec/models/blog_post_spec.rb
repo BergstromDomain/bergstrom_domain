@@ -6,8 +6,8 @@ RSpec.describe BlogPost, type: :model do
   let(:other)   { create(:user) }
   let(:contact) { create(:user) }
 
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:title).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:body).of_type(:text) }
     it { is_expected.to have_db_column(:format).of_type(:string).with_options(null: false) }
@@ -19,7 +19,7 @@ RSpec.describe BlogPost, type: :model do
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
+  describe "Associations" do
     it { is_expected.to belong_to(:user) }
     it { is_expected.to belong_to(:blog_category).optional }
     it { is_expected.to have_many(:blog_post_authors).dependent(:destroy) }
@@ -29,8 +29,8 @@ RSpec.describe BlogPost, type: :model do
     it { is_expected.to have_many(:comments).dependent(:destroy) }
   end
 
-  # ── format enum ───────────────────────────────────────────────────────────
-  describe "format" do
+  # ── Format ────────────────────────────────────────────────────────────────
+  describe "Format" do
     it { is_expected.to define_enum_for(:format).with_values(raw: "raw", formatted: "formatted").backed_by_column_of_type(:string) }
 
     it "defaults to formatted" do
@@ -39,9 +39,9 @@ RSpec.describe BlogPost, type: :model do
   end
 
   # ── Validations ───────────────────────────────────────────────────────────
-  describe "validations" do
-    # 1) Happy path ───────────────────────────────────────────────────────────
-    describe "happy path" do
+  describe "Validations" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "is valid with just a title and a user" do
         post = build(:blog_post, user: owner)
         expect(post).to be_valid
@@ -69,8 +69,8 @@ RSpec.describe BlogPost, type: :model do
       end
     end
 
-    # 2) Negative path ────────────────────────────────────────────────────────
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it "is invalid without a title" do
         post = build(:blog_post, title: nil, user: owner)
         expect(post).not_to be_valid
@@ -138,8 +138,8 @@ RSpec.describe BlogPost, type: :model do
       end
     end
 
-    # 3) Alternative path ─────────────────────────────────────────────────────
-    describe "alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       it "allows two different users to share the same title" do
         create(:blog_post, title: "My Post", user: owner)
         post = build(:blog_post, title: "My Post", user: other)
@@ -147,8 +147,8 @@ RSpec.describe BlogPost, type: :model do
       end
     end
 
-    # 4) Edge cases ────────────────────────────────────────────────────────────
-    describe "edge cases" do
+    # 4) Edge Cases ────────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       it "is valid with subject present and topic blank" do
         post = build(:blog_post, user: owner, subject: "Ruby", topic: nil)
         expect(post).to be_valid
@@ -177,7 +177,7 @@ RSpec.describe BlogPost, type: :model do
   end
 
   # ── Authors ───────────────────────────────────────────────────────────────
-  describe "authors" do
+  describe "Authors" do
     it "automatically adds the creating user as an author" do
       post = create(:blog_post, user: owner)
       expect(post.authors).to contain_exactly(owner)
@@ -325,7 +325,7 @@ RSpec.describe BlogPost, type: :model do
   end
 
   # ── Visibility ────────────────────────────────────────────────────────────
-  describe "visibility" do
+  describe "Visibility" do
     let!(:published_unrestricted) { create(:blog_post, :unrestricted, :published, user: owner) }
     let!(:draft_unrestricted)     { create(:blog_post, :unrestricted, user: owner) }
     let!(:published_contacts)     { create(:blog_post, :contacts, :published, user: owner) }
@@ -377,8 +377,8 @@ RSpec.describe BlogPost, type: :model do
     end
   end
 
-  # ── Soft delete scopes ────────────────────────────────────────────────────
-  describe "kept/discarded scopes" do
+  # ── Kept/Discarded Scopes ─────────────────────────────────────────────────
+  describe "Kept/Discarded Scopes" do
     it "kept excludes soft-deleted posts" do
       kept_post      = create(:blog_post, user: owner)
       discarded_post = create(:blog_post, user: owner, deleted_at: Time.current)

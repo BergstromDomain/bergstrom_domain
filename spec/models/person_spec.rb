@@ -4,8 +4,8 @@ require "rails_helper"
 RSpec.describe Person, type: :model do
   subject { build(:person) }
 
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "Database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:first_name).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:middle_name).of_type(:string) }
     it { is_expected.to have_db_column(:last_name).of_type(:string) }
@@ -28,8 +28,8 @@ RSpec.describe Person, type: :model do
 
   # ── Validations ──────────────────────────────────────────────────────────
   describe "Validations" do
-    # 1) Happy path ───────────────────────────────────────────────────────────
-    describe "Happy path" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
       context "Name" do
         it "Is valid when full name is unique" do
           create(:person, :james_hetfield)
@@ -95,8 +95,8 @@ RSpec.describe Person, type: :model do
       end
     end
 
-    # 2) Negative path ────────────────────────────────────────────────────────
-    describe "Negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it { is_expected.to validate_presence_of(:first_name) }
 
       context "Name" do
@@ -187,8 +187,8 @@ RSpec.describe Person, type: :model do
       end
     end
 
-    # 3) Alternative path ─────────────────────────────────────────────────────
-    describe "Alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       context "Name" do
         it "Is valid with only a first name" do
           person = build(:person, first_name: "Cliff", middle_name: nil, last_name: nil)
@@ -264,8 +264,8 @@ RSpec.describe Person, type: :model do
       end
     end
 
-    # 4) Edge cases ───────────────────────────────────────────────────────────
-    describe "Edge cases" do
+    # 4) Edge Cases ───────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       context "Name" do
         it "Is not valid when full name collides despite different middle and last name positions" do
           create(:person, first_name: "Alfa", middle_name: nil,       last_name: "Charlie")
@@ -332,7 +332,8 @@ RSpec.describe Person, type: :model do
     end
   end
 
-  describe "#slug" do
+  # ── FriendlyId ────────────────────────────────────────────────────────────
+  describe "FriendlyId" do
     it "Generates a slug from full_name" do
       person = create(:person, first_name: "James", middle_name: nil, last_name: "Hetfield")
       expect(person.slug).to eq("james-hetfield")
@@ -352,8 +353,8 @@ RSpec.describe Person, type: :model do
   end
 
   describe "#person_social_media_accounts_attributes=" do
-    # 1) Happy path ───────────────────────────────────────────────────────────
-    describe "Happy path" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "Creates a new account when a platform and username are given" do
         person = create(:person, :james_hetfield)
         platform = create(:social_media_platform)
@@ -374,8 +375,8 @@ RSpec.describe Person, type: :model do
       end
     end
 
-    # 2) Negative path ────────────────────────────────────────────────────────
-    describe "Negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it "Is invalid when two accounts for the same person share a platform" do
         person = create(:person, :james_hetfield)
         platform = create(:social_media_platform)
@@ -387,8 +388,8 @@ RSpec.describe Person, type: :model do
       end
     end
 
-    # 3) Alternative path ─────────────────────────────────────────────────────
-    describe "Alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       it "Updates the username on an existing account without creating a new one" do
         person = create(:person, :james_hetfield)
         account = create(:person_social_media_account, person: person, username: "old_handle")
@@ -402,8 +403,8 @@ RSpec.describe Person, type: :model do
       end
     end
 
-    # 4) Edge cases ───────────────────────────────────────────────────────────
-    describe "Edge cases" do
+    # 4) Edge Cases ───────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       it "Ignores a blank row instead of raising a validation error" do
         person = create(:person, :james_hetfield)
         person.person_social_media_accounts_attributes = [
