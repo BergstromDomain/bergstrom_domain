@@ -117,7 +117,20 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432
           # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
           # REDIS_URL: redis://localhost:6379/0
-        run: bundle exec rspec spec/ --exclude-pattern "spec/features/**/*_spec.rb"
+        run: >
+          bundle exec rspec spec/ --exclude-pattern "spec/features/**/*_spec.rb"
+          --format progress --format RspecMetrics::Formatter
+
+      - name: Push test-results metrics to Grafana Cloud
+        if: always()
+        continue-on-error: true
+        env:
+          GRAFANA_CLOUD_PUSH_URL: ${{ secrets.GRAFANA_CLOUD_PUSH_URL }}
+          GRAFANA_CLOUD_INSTANCE_ID: ${{ secrets.GRAFANA_CLOUD_INSTANCE_ID }}
+          GRAFANA_CLOUD_API_TOKEN: ${{ secrets.GRAFANA_CLOUD_API_TOKEN }}
+          RSPEC_METRICS_BRANCH: ${{ github.head_ref || github.ref_name }}
+          RSPEC_METRICS_COMMIT_SHA: ${{ github.sha }}
+        run: bundle exec rake rspec_metrics:push
 
   system-test:
     runs-on: ubuntu-latest
@@ -168,7 +181,20 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432
           # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
           # REDIS_URL: redis://localhost:6379/0
-        run: bundle exec rspec spec/features/
+        run: >
+          bundle exec rspec spec/features/
+          --format progress --format RspecMetrics::Formatter
+
+      - name: Push test-results metrics to Grafana Cloud
+        if: always()
+        continue-on-error: true
+        env:
+          GRAFANA_CLOUD_PUSH_URL: ${{ secrets.GRAFANA_CLOUD_PUSH_URL }}
+          GRAFANA_CLOUD_INSTANCE_ID: ${{ secrets.GRAFANA_CLOUD_INSTANCE_ID }}
+          GRAFANA_CLOUD_API_TOKEN: ${{ secrets.GRAFANA_CLOUD_API_TOKEN }}
+          RSPEC_METRICS_BRANCH: ${{ github.head_ref || github.ref_name }}
+          RSPEC_METRICS_COMMIT_SHA: ${{ github.sha }}
+        run: bundle exec rake rspec_metrics:push
 
       - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@v4
