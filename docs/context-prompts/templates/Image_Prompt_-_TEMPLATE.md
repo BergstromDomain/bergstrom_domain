@@ -6,7 +6,12 @@
 # PLACEMENT
 * Where it's used: [landing page hero | app thumbnail in TopNav >> Apps | item placeholder
   (no user-uploaded image) | avatar placeholder | other]
-* Dimensions / aspect ratio: [e.g. 1200x600, or "square, matches existing app thumbnails"]
+* Dimensions / aspect ratio: [e.g. 1200x600, or "square, matches existing app thumbnails"].
+  For an app landing-page hero specifically: ~2.5:1 (e.g. 1983×793, as used by Occasions
+  and Chronicle) — matches the `app_landing` partial's full-width/`clamp(16rem, 45vh,
+  28rem)`-tall hero container closely enough that `object-fit: cover` crops very little.
+  A 16:9 image crops noticeably more at typical desktop widths — confirmed the hard way
+  once already, don't repeat it.
 * Responsive behaviour: [does it need to crop/scale gracefully, any art-direction concerns]
 
 ---

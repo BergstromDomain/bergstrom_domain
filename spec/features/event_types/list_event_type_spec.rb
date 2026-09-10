@@ -1,14 +1,13 @@
-# spec/features/event_types/list_event_types_spec.rb
-
+# spec/features/event_types/list_event_type_spec.rb
 require "rails_helper"
 
-RSpec.describe "List event types", type: :feature do
+RSpec.describe "List Event Type", type: :feature do
   let!(:work)     { create(:event_type, name: "Work",     icon: "briefcase", description: "Work events.") }
   let!(:birthday) { create(:event_type, name: "Birthday", icon: "cake",      description: "Birthday events.") }
   let!(:sport)    { create(:event_type, name: "Sport",    icon: "trophy",    description: "Sport events.") }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     before { visit event_types_path }
 
     it "Displays the page title" do
@@ -40,8 +39,8 @@ RSpec.describe "List event types", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Displays an empty state message when no event types exist" do
       EventType.delete_all
       visit event_types_path
@@ -51,8 +50,8 @@ RSpec.describe "List event types", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Renders the same page regardless of authentication status" do
       sign_in_as create(:user, :app_user)
       visit event_types_path
@@ -60,8 +59,8 @@ RSpec.describe "List event types", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Sorts event types case-insensitively" do
       create(:event_type, name: "acoustic sessions", icon: "headphones", description: "Informal sessions.")
       visit event_types_path

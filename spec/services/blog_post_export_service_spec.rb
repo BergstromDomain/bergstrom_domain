@@ -5,8 +5,8 @@ require "rails_helper"
 RSpec.describe BlogPostExportService do
   let(:owner) { create(:user, :content_creator, first_name: "Ada", last_name: "Lovelace") }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Returns a CSV string with the header row" do
       result = described_class.new([]).generate_csv
       expect(result).to be_a(String)
@@ -32,16 +32,16 @@ RSpec.describe BlogPostExportService do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Returns just the header row for an empty post list" do
       rows = CSV.parse(described_class.new([]).generate_csv, headers: true)
       expect(rows.length).to eq(0)
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Marks a draft post as not Published" do
       post = create(:blog_post, user: owner, title: "Draft Post")
 
@@ -50,8 +50,8 @@ RSpec.describe BlogPostExportService do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Leaves Category/Subject/Topic blank for a post missing them" do
       post = create(:blog_post, user: owner, title: "Bare Post", blog_category: nil, subject: nil, topic: nil)
 

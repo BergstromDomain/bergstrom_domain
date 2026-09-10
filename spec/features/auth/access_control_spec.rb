@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Access control", type: :feature do
+RSpec.describe "Access Control", type: :feature do
   let!(:charlie)       { create(:user, :content_creator) }
   let!(:sam)      { create(:user, :admin) }
   let!(:event_type) { create(:event_type, name: "Music", description: "Music events", icon: "music") }
@@ -13,8 +13,8 @@ RSpec.describe "Access control", type: :feature do
     e
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path — public read access" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Allows 'Gary Guest' access to event types index" do
       visit event_types_path
       expect(page.current_path).to eq(event_types_path)
@@ -46,41 +46,41 @@ RSpec.describe "Access control", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path — 'Gary Guest' write access is blocked" do
-    it "Redirects to the 'Sign-in' page when 'Gary Guest' visits new event type" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
+    it "Redirects to the 'Sign In' page when 'Gary Guest' visits new event type" do
       visit new_event_type_path
       expect(page.current_path).to eq(new_session_path)
     end
 
-    it "Redirects to the 'Sign-in' page when 'Gary Guest' visits edit event type" do
+    it "Redirects to the 'Sign In' page when 'Gary Guest' visits edit event type" do
       visit edit_event_type_path(event_type)
       expect(page.current_path).to eq(new_session_path)
     end
 
-    it "Redirects to the 'Sign-in' page when 'Gary Guest' visits new event" do
+    it "Redirects to the 'Sign In' page when 'Gary Guest' visits new event" do
       visit new_event_path
       expect(page.current_path).to eq(new_session_path)
     end
 
-    it "Redirects to the 'Sign-in' page when 'Gary Guest' visits edit event" do
+    it "Redirects to the 'Sign In' page when 'Gary Guest' visits edit event" do
       visit edit_event_path(event)
       expect(page.current_path).to eq(new_session_path)
     end
 
-    it "Redirects to the 'Sign-in' page when 'Gary Guest' visits new person" do
+    it "Redirects to the 'Sign In' page when 'Gary Guest' visits new person" do
       visit new_person_path
       expect(page.current_path).to eq(new_session_path)
     end
 
-    it "Redirects to the 'Sign-in' page when 'Gary Guest' visits edit person" do
+    it "Redirects to the 'Sign In' page when 'Gary Guest' visits edit person" do
       visit edit_person_path(person)
       expect(page.current_path).to eq(new_session_path)
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path — Authenticated write access is allowed" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Allows 'Adam Admin' to access new event type" do
       sign_in_as(sam)
       visit new_event_type_path
@@ -130,8 +130,8 @@ RSpec.describe "Access control", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Stores the originally requested URL and redirects 'Charlie Content Creator' after sign-in" do
       visit new_event_path
 

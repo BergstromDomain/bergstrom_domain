@@ -4,8 +4,8 @@ require "rails_helper"
 RSpec.describe EventType, type: :model do
   subject { build(:event_type) }
 
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:name).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:description).of_type(:text).with_options(null: false) }
     it { is_expected.to have_db_column(:icon).of_type(:string).with_options(null: false) }
@@ -13,14 +13,14 @@ RSpec.describe EventType, type: :model do
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
+  describe "Associations" do
     it { is_expected.to have_many(:events).dependent(:restrict_with_error) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
-  describe "validations" do
-    # 1) Happy path ───────────────────────────────────────────────────────────
-    describe "happy path" do
+  describe "Validations" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "is valid with all required fields" do
         et = build(:event_type, name: "Music", icon: "music")
         expect(et).to be_valid
@@ -32,8 +32,8 @@ RSpec.describe EventType, type: :model do
       end
     end
 
-    # 2) Negative path ────────────────────────────────────────────────────────
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it "is invalid when name is blank" do
         et = build(:event_type, name: "")
         expect(et).not_to be_valid
@@ -80,8 +80,8 @@ RSpec.describe EventType, type: :model do
       end
     end
 
-    # 3) Alternative path ─────────────────────────────────────────────────────
-    describe "alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       it "is valid when updating description without changing name" do
         et = create(:event_type, name: "Birthday", icon: "cake")
         et.description = "Updated description."
@@ -95,8 +95,8 @@ RSpec.describe EventType, type: :model do
       end
     end
 
-    # 4) Edge cases ───────────────────────────────────────────────────────────
-    describe "edge cases" do
+    # 4) Edge Cases ───────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       it "is invalid when icon is a partial match of a real icon name" do
         et = build(:event_type, icon: "musi")
         expect(et).not_to be_valid
@@ -153,8 +153,8 @@ RSpec.describe EventType, type: :model do
     end
   end
 
-  # ── Cascade behaviour ─────────────────────────────────────────────────────
-  describe "restrict_with_error on delete" do
+  # ── Cascade Behaviour ─────────────────────────────────────────────────────
+  describe "Cascade Behaviour" do
     it "prevents deletion when the event type has associated events" do
       event_type = create(:event_type, name: "Music", icon: "music")
       create(:event, event_type: event_type)

@@ -167,6 +167,10 @@ Consistent structure with other apps (e.g. Event Tracker):
 ---
 
 # DEFINITION OF DONE (per block)
+* For a brand-new app's first block: confirm the app's name exists in `AppPermission`'s
+  `app_name` enum and in `.githooks/commit-msg`'s `APPS` list/`.gitmessage` (some, like
+  Recipes/Photo_Album, are already reserved — others, like a new app not yet stubbed
+  anywhere, are not). Add whichever is missing before the first commit needs it.
 * Spec covers Happy / Negative / Alternative / Edge cases
 * Red → Green → Refactor followed; full suite green, coverage not regressed
 * RuboCop and Brakeman clean; bundler-audit clean

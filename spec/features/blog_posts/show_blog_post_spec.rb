@@ -2,12 +2,12 @@
 
 require "rails_helper"
 
-RSpec.describe "Show blog post", type: :feature do
+RSpec.describe "Show Blog Post", type: :feature do
   let(:owner)  { create(:user, :content_creator) }
   let(:admin)  { create(:user, :admin) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     let(:category) { create(:blog_category, name: "Technology", icon: "cpu", description: "Tech posts.") }
     let!(:post) do
       create(:blog_post, :unrestricted, :published,
@@ -70,8 +70,8 @@ RSpec.describe "Show blog post", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Returns 404 for a non-existent slug" do
       visit blog_post_path("non-existent-slug")
       expect(page).to have_http_status(:not_found)
@@ -102,8 +102,8 @@ RSpec.describe "Show blog post", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Allows 'Adam Admin' to view a restricted post" do
       post = create(:blog_post, :restricted, :published, user: owner, title: "Admin Viewable")
       sign_in_as(admin)
@@ -121,8 +121,8 @@ RSpec.describe "Show blog post", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Shows Category without Subject or Topic when neither is set" do
       category = create(:blog_category, name: "Cooking", icon: "chef-hat", description: "Cooking posts.")
       post = create(:blog_post, :unrestricted, :published, user: owner, blog_category: category)

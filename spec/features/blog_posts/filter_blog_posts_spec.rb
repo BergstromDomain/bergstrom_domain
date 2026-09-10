@@ -2,11 +2,11 @@
 
 require "rails_helper"
 
-RSpec.describe "Filter blog posts", type: :feature do
+RSpec.describe "Filter Blog Posts", type: :feature do
   let(:owner) { create(:user, :content_creator, first_name: "Ada", last_name: "Lovelace") }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     let!(:food)       { create(:blog_category, name: "Food") }
     let!(:technology) { create(:blog_category, name: "Technology") }
     let!(:food_post) do
@@ -81,8 +81,8 @@ RSpec.describe "Filter blog posts", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Shows a friendly error and no results for a malformed SQL query" do
       visit filter_blog_posts_path(mode: "sql", query: "category = ")
 
@@ -100,8 +100,8 @@ RSpec.describe "Filter blog posts", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Lets 'Adam Admin' filter drafts and restricted posts into view" do
       category = create(:blog_category, name: "Admin Only")
       create(:blog_post, :restricted, user: owner, blog_category: category, title: "Unpublished Draft")
@@ -125,8 +125,8 @@ RSpec.describe "Filter blog posts", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Matches the Author filter only against the main author, not a co-author" do
       co_author = create(:user, :content_creator, first_name: "Grace", last_name: "Hopper")
       post = create(:blog_post, :unrestricted, :published, user: owner, title: "Co-Authored Post")

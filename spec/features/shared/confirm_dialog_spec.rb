@@ -59,9 +59,9 @@ RSpec.describe "Confirm Dialog", type: :feature do
 
   before { sign_in_and_settle(user) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
-    it "shows the styled dialog with the trigger's message and proceeds with the action on Confirm", js: true do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
+    it "Shows the styled dialog with the trigger's message and proceeds with the action on Confirm", js: true do
       dialog = open_delete_dialog_for(person)
       expect(dialog).to have_text(:all, "Delete James Alan Hetfield? This cannot be undone.", normalize_ws: true)
 
@@ -73,9 +73,9 @@ RSpec.describe "Confirm Dialog", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
-    it "does not perform the action and closes the dialog when Cancel is clicked", js: true do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
+    it "Does not perform the action and closes the dialog when Cancel is clicked", js: true do
       open_delete_dialog_for(person)
 
       js_click("confirm-dialog-cancel")
@@ -86,9 +86,9 @@ RSpec.describe "Confirm Dialog", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
-    it "cancels the action when Escape is pressed", js: true do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
+    it "Cancels the action when Escape is pressed", js: true do
       open_delete_dialog_for(person)
 
       page.driver.browser.action.send_keys(:escape).perform
@@ -97,7 +97,7 @@ RSpec.describe "Confirm Dialog", type: :feature do
       expect(Person.exists?(person.id)).to be true
     end
 
-    it "cancels the action when the dimmed backdrop is clicked", js: true do
+    it "Cancels the action when the dimmed backdrop is clicked", js: true do
       open_delete_dialog_for(person)
 
       # Selenium's click(x:, y:) offsets are relative to the element's
@@ -111,9 +111,9 @@ RSpec.describe "Confirm Dialog", type: :feature do
     end
   end
 
-  # 4) Edge cases ──────────────────────────────────────────────────────────────
-  describe "Edge cases" do
-    it "renders an HTML-unsafe message as plain text rather than markup", js: true do
+  # 4) Edge Cases ──────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
+    it "Renders an HTML-unsafe message as plain text rather than markup", js: true do
       unsafe_person = create(:person, first_name: "Rob", last_name: "<b>O'Brien</b> & Sons", user: user)
 
       dialog = open_delete_dialog_for(unsafe_person)
@@ -122,7 +122,7 @@ RSpec.describe "Confirm Dialog", type: :feature do
       expect(dialog.text).to include("<b>O'Brien</b> & Sons")
     end
 
-    it "returns focus to the triggering button after Cancel", js: true do
+    it "Returns focus to the triggering button after Cancel", js: true do
       open_delete_dialog_for(person)
 
       js_click("confirm-dialog-cancel")
@@ -131,7 +131,7 @@ RSpec.describe "Confirm Dialog", type: :feature do
       expect(page.evaluate_script("document.activeElement.dataset.testid")).to eq("delete-button")
     end
 
-    it "keeps Tab focus trapped inside the dialog and lets Enter activate the focused button", js: true do
+    it "Keeps Tab focus trapped inside the dialog and lets Enter activate the focused button", js: true do
       open_delete_dialog_for(person)
 
       # Tab enough times to prove focus cycles within the dialog's two
@@ -147,7 +147,7 @@ RSpec.describe "Confirm Dialog", type: :feature do
       expect(Person.exists?(person.id)).to be false
     end
 
-    it "does not stack a second dialog when the trigger is clicked twice in rapid succession", js: true do
+    it "Does not stack a second dialog when the trigger is clicked twice in rapid succession", js: true do
       open_delete_dialog_for(person)
 
       # A genuine second click can't reach the trigger once showModal()
@@ -170,7 +170,7 @@ RSpec.describe "Confirm Dialog", type: :feature do
       expect(Person.exists?(person.id)).to be false
     end
 
-    it "opens cleanly again after being cancelled, and Confirm on the retry proceeds", js: true do
+    it "Opens cleanly again after being cancelled, and Confirm on the retry proceeds", js: true do
       open_delete_dialog_for(person)
       js_click("confirm-dialog-cancel")
       expect(page).to have_no_css("[data-testid='confirm-dialog'][open]", visible: :all)

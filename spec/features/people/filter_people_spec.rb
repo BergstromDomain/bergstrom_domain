@@ -1,7 +1,7 @@
 # spec/features/people/filter_people_spec.rb
 require "rails_helper"
 
-RSpec.describe "Filter people", type: :feature do
+RSpec.describe "Filter People", type: :feature do
   let!(:uno) { create(:user, first_name: "Uno", last_name: "User") }
 
   let!(:public_person) do
@@ -16,9 +16,9 @@ RSpec.describe "Filter people", type: :feature do
     create(:person, :restricted, user: uno, first_name: "Restricted", middle_name: nil, last_name: "Person")
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "happy path" do
-    it "shows the classification filter only when authenticated" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
+    it "Shows the classification filter only when authenticated" do
       visit people_path
       expect(page).not_to have_selector("[data-testid='classification-nav']")
 
@@ -27,7 +27,7 @@ RSpec.describe "Filter people", type: :feature do
       expect(page).to have_selector("[data-testid='classification-nav']")
     end
 
-    it "filters people by a single checked classification" do
+    it "Filters people by a single checked classification" do
       sign_in_as uno
       visit people_path(classifications: [ "contacts" ])
       expect(page).to have_selector("[data-testid='person-name']", text: "Contacts Person")
@@ -35,7 +35,7 @@ RSpec.describe "Filter people", type: :feature do
       expect(page).not_to have_selector("[data-testid='person-name']", text: "Restricted Person")
     end
 
-    it "combines two checked classifications at once" do
+    it "Combines two checked classifications at once" do
       sign_in_as uno
       visit people_path(classifications: [ "unrestricted", "restricted" ])
       expect(page).to have_selector("[data-testid='person-name']", text: "Public Person")
@@ -43,7 +43,7 @@ RSpec.describe "Filter people", type: :feature do
       expect(page).not_to have_selector("[data-testid='person-name']", text: "Contacts Person")
     end
 
-    it "applies the user's saved default classifications on a fresh visit" do
+    it "Applies the user's saved default classifications on a fresh visit" do
       uno.update!(default_classifications: [ "unrestricted" ])
       sign_in_as uno
       visit people_path
@@ -53,14 +53,14 @@ RSpec.describe "Filter people", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "negative path" do
-    it "does not show a classification filter to unauthenticated visitors" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
+    it "Does not show a classification filter to unauthenticated visitors" do
       visit people_path
       expect(page).not_to have_selector("[data-testid='classification-checkbox-restricted']")
     end
 
-    it "shows nothing when every classification is unchecked" do
+    it "Shows nothing when every classification is unchecked" do
       sign_in_as uno
       visit people_path(classifications: [ "none" ])
       expect(page).not_to have_selector("[data-testid='person-name']")
@@ -68,9 +68,9 @@ RSpec.describe "Filter people", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "alternative path" do
-    it "shows everyone again when all three are checked" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
+    it "Shows everyone again when all three are checked" do
       sign_in_as uno
       visit people_path(classifications: %w[unrestricted contacts restricted])
 
@@ -80,9 +80,9 @@ RSpec.describe "Filter people", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "edge cases" do
-    it "combines the classification filter with the A-Z letter filter" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
+    it "Combines the classification filter with the A-Z letter filter" do
       sign_in_as uno
       visit people_path(classifications: [ "unrestricted" ], letter: "P")
       expect(page).to have_selector("[data-testid='person-name']", text: "Public Person")

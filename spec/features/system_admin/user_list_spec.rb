@@ -1,7 +1,7 @@
 # spec/features/system_admin/user_list_spec.rb
 require "rails_helper"
 
-RSpec.describe "System Admin — User List", type: :feature do
+RSpec.describe "User List", type: :feature do
   let!(:sam)     { create(:user, :system_admin) }
   let!(:uno)     { create(:user) }
   let!(:charlie) { create(:user, :content_creator) }
@@ -13,6 +13,7 @@ RSpec.describe "System Admin — User List", type: :feature do
            status: "pending")
   end
 
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     it "Shows the user list page" do
       sign_in_as sam
@@ -59,8 +60,9 @@ RSpec.describe "System Admin — User List", type: :feature do
     end
   end
 
+  # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
-    it "Redirects 'Gary Guest' to the 'Sign in' page" do
+    it "Redirects 'Gary Guest' to the 'Sign In' page" do
       visit system_admin_users_path
       expect(page).to have_current_path(new_session_path)
     end
@@ -82,7 +84,8 @@ RSpec.describe "System Admin — User List", type: :feature do
     end
   end
 
-  describe "Alternative Path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Filters to show only pending users" do
       sign_in_as sam
       visit system_admin_users_path(status: "pending")
@@ -100,6 +103,7 @@ RSpec.describe "System Admin — User List", type: :feature do
     end
   end
 
+  # 4) Edge Cases ──────────────────────────────────────────────────────────────
   describe "Edge Cases" do
     it "Shows a message when no users match the filter" do
       sign_in_as sam

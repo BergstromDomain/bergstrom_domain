@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Manage social media accounts on a Person", type: :feature do
+RSpec.describe "Manage Social Media Accounts", type: :feature do
   let!(:user)     { create(:user, :content_creator) }
   let!(:person)   { create(:person, :james_hetfield, user: user) }
   let!(:facebook) { create(:social_media_platform, name: "Facebook") }
@@ -24,8 +24,8 @@ RSpec.describe "Manage social media accounts on a Person", type: :feature do
     raise "sign_in_and_settle: could not sign in as #{user.email_address} after #{attempts} attempts"
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Displays an existing account's platform and username pre-filled" do
       create(:person_social_media_account, person: person, social_media_platform: facebook, username: "jhetfield")
       visit edit_person_path(person)
@@ -68,8 +68,8 @@ RSpec.describe "Manage social media accounts on a Person", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Shows an error when two accounts share the same platform" do
       create(:person_social_media_account, person: person, social_media_platform: facebook, username: "one")
       create(:person_social_media_account, person: person, social_media_platform: instagram, username: "two")
@@ -96,8 +96,8 @@ RSpec.describe "Manage social media accounts on a Person", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Leaves a newly added but never-filled-in row out of the saved accounts", js: true do
       sign_in_and_settle(user)
       visit edit_person_path(person)
@@ -137,8 +137,8 @@ RSpec.describe "Manage social media accounts on a Person", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     # Removing and re-adding the same platform is done as two round-trips
     # (not a single simultaneous submission) — the old row is still
     # physically in the DB at validation time within one submission, which

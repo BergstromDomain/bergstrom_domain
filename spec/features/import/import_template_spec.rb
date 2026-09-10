@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "Import Template", type: :feature do
-  describe "Happy path" do
+  describe "Happy Path" do
     it "Downloads a CSV file with the correct headers and one example row per event type" do
       create(:event_type, name: "Anniversary")
       create(:event_type, name: "Birthday")
@@ -33,7 +33,7 @@ RSpec.describe "Import Template", type: :feature do
     end
   end
 
-  describe "Alternative path" do
+  describe "Alternative Paths" do
     it "Downloads a headers-only CSV when no event types exist" do
       page.driver.submit :get, import_template_path, {}
 
@@ -43,7 +43,7 @@ RSpec.describe "Import Template", type: :feature do
     end
   end
 
-  describe "Edge cases" do
+  describe "Edge Cases" do
     it "Is accessible to unauthenticated visitors" do
       page.driver.submit :get, import_template_path, {}
       expect(page.status_code).to eq(200)

@@ -4,8 +4,8 @@ require "rails_helper"
 RSpec.describe UserAppSetting, type: :model do
   subject { build(:user_app_setting) }
 
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:user_id).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:app_name).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:start_page).of_type(:string) }
@@ -13,7 +13,7 @@ RSpec.describe UserAppSetting, type: :model do
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
+  describe "Associations" do
     it "belongs to a user" do
       setting = build(:user_app_setting)
       expect(setting.user).to be_a(User)
@@ -44,9 +44,9 @@ RSpec.describe UserAppSetting, type: :model do
   end
 
   # ── Validations ───────────────────────────────────────────────────────────
-  describe "validations" do
-    # 1) Happy path ──────────────────────────────────────────────────────────
-    describe "1) Happy path" do
+  describe "Validations" do
+    # 1) Happy Path ──────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "is valid with valid attributes" do
         expect(subject).to be_valid
       end
@@ -75,8 +75,8 @@ RSpec.describe UserAppSetting, type: :model do
       end
     end
 
-    # 2) Negative path ─────────────────────────────────────────────────────
-    describe "2) Negative path" do
+    # 2) Negative Path ─────────────────────────────────────────────────────
+    describe "Negative Path" do
       it "is invalid without a user" do
         subject.user = nil
         expect(subject).not_to be_valid
@@ -101,8 +101,8 @@ RSpec.describe UserAppSetting, type: :model do
       end
     end
 
-    # 3) Alternative path ──────────────────────────────────────────────────
-    describe "3) Alternative path" do
+    # 3) Alternative Paths ──────────────────────────────────────────────────
+    describe "Alternative Paths" do
       it "is invalid with a duplicate app_name for the same user" do
         user = create(:user)
         create(:user_app_setting, user: user, app_name: "event_tracker")
@@ -122,8 +122,8 @@ RSpec.describe UserAppSetting, type: :model do
       end
     end
 
-    # 4) Edge cases ─────────────────────────────────────────────────────────
-    describe "4) Edge cases" do
+    # 4) Edge Cases ─────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       it "is valid with the same user having settings for multiple different apps" do
         user = create(:user)
         create(:user_app_setting, user: user, app_name: "event_tracker")

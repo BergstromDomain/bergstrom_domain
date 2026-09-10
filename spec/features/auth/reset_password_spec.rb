@@ -6,7 +6,8 @@ RSpec.describe "Reset Password", type: :feature do
   let!(:user) { create(:user, email_address: "james@example.com", password: "password123") }
   let(:token) { user.password_reset_token }
 
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Renders the page heading" do
       visit edit_password_path(token)
       expect(page).to have_selector("h1.page-title", text: "Reset Password")
@@ -46,7 +47,8 @@ RSpec.describe "Reset Password", type: :feature do
     end
   end
 
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Shows an alert when passwords do not match" do
       visit edit_password_path(token)
       fill_in "New password", with: "newpassword456"
@@ -56,14 +58,16 @@ RSpec.describe "Reset Password", type: :feature do
     end
   end
 
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Shows an error for an invalid token" do
       visit edit_password_path("invalidtoken")
       expect(page).to have_selector("[data-testid='flash-alert']")
     end
   end
 
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     xit "Shows an alert when the new password is blank" do
       visit edit_password_path(token)
       fill_in "Confirm password", with: "newpassword456"

@@ -4,13 +4,13 @@ require "rails_helper"
 RSpec.describe Roleable, type: :model do
   subject { build(:user) }
 
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:role).of_type(:string).with_options(null: false, default: "app_user") }
   end
 
   # ── Enum ──────────────────────────────────────────────────────────────────
-  describe "enum" do
+  describe "Enum" do
     it "defines app_user, content_creator, admin, and system_admin roles" do
       expect(User.roles.keys).to contain_exactly("app_user", "content_creator", "admin", "system_admin")
     end
@@ -28,9 +28,9 @@ RSpec.describe Roleable, type: :model do
   end
 
   # ── Validations ───────────────────────────────────────────────────────────
-  describe "validations" do
-    # 1) Happy path ───────────────────────────────────────────────────────────
-    describe "happy path" do
+  describe "Validations" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
       context "role" do
         it "is valid with role app_user" do
           subject.role = "app_user"
@@ -58,8 +58,8 @@ RSpec.describe Roleable, type: :model do
       end
     end
 
-    # 2) Negative path ────────────────────────────────────────────────────────
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       context "role" do
         it "is not valid with an unrecognised role" do
           subject.role = "superuser"
@@ -75,8 +75,8 @@ RSpec.describe Roleable, type: :model do
       end
     end
 
-    # 3) Alternative path ─────────────────────────────────────────────────────
-    describe "alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       context "role" do
         it "retains the role when other attributes are updated" do
           user = create(:user, role: "content_creator")
@@ -86,8 +86,8 @@ RSpec.describe Roleable, type: :model do
       end
     end
 
-    # 4) Edge cases ───────────────────────────────────────────────────────────
-    describe "edge cases" do
+    # 4) Edge Cases ───────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       context "role" do
         it "does not raise when reassigning the same role value" do
           subject.role = "app_user"
@@ -98,10 +98,10 @@ RSpec.describe Roleable, type: :model do
     end
   end
 
-  # ── Helper methods ────────────────────────────────────────────────────────
+  # ── Helper Methods ────────────────────────────────────────────────────────
   describe "#can_administer?" do
-    # 1) Happy path ───────────────────────────────────────────────────────────
-    describe "happy path" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "returns true for admin" do
         subject.role = "admin"
         expect(subject.can_administer?).to be true
@@ -113,8 +113,8 @@ RSpec.describe Roleable, type: :model do
       end
     end
 
-    # 2) Negative path ────────────────────────────────────────────────────────
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it "returns false for content_creator" do
         subject.role = "content_creator"
         expect(subject.can_administer?).to be false
@@ -128,8 +128,8 @@ RSpec.describe Roleable, type: :model do
   end
 
   describe "#can_create_content?" do
-    # 1) Happy path ───────────────────────────────────────────────────────────
-    describe "happy path" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "returns true for content_creator" do
         subject.role = "content_creator"
         expect(subject.can_create_content?).to be true
@@ -146,8 +146,8 @@ RSpec.describe Roleable, type: :model do
       end
     end
 
-    # 2) Negative path ────────────────────────────────────────────────────────
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it "returns false for app_user" do
         subject.role = "app_user"
         expect(subject.can_create_content?).to be false

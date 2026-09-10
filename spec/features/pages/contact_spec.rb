@@ -1,7 +1,8 @@
 # spec/features/pages/contact_spec.rb
 require "rails_helper"
 
-RSpec.describe "Contact page", type: :feature do
+RSpec.describe "Contact", type: :feature do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     before { visit contact_path }
 

@@ -5,8 +5,8 @@ RSpec.describe "Contacts", type: :request do
   let(:alice) { create(:user, first_name: "Alice", last_name: "Anderson") }
   let(:bob)   { create(:user, first_name: "Bob",   last_name: "Bergstrom") }
 
-  # 1) Happy path ───────────────────────────────────────────────────────────
-  describe "happy path" do
+  # 1) Happy Path ───────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "renders the index for an authenticated user" do
       sign_in_as(alice)
       get contacts_path
@@ -68,8 +68,8 @@ RSpec.describe "Contacts", type: :request do
     end
   end
 
-  # 2) Negative path ────────────────────────────────────────────────────────
-  describe "negative path" do
+  # 2) Negative Path ────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "redirects an unauthenticated request to index" do
       get contacts_path
       expect(response).to redirect_to(new_session_path)
@@ -123,8 +123,8 @@ RSpec.describe "Contacts", type: :request do
     end
   end
 
-  # 3) Alternative path ─────────────────────────────────────────────────────
-  describe "alternative path" do
+  # 3) Alternative Paths ─────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "auto-confirms instead of duplicating a row when a reverse pending request already exists" do
       # Bob already has a pending request out to Alice.
       create(:contact, user: bob, contact: alice, status: "pending")
@@ -153,8 +153,8 @@ RSpec.describe "Contacts", type: :request do
     end
   end
 
-  # 4) Edge cases ───────────────────────────────────────────────────────────
-  describe "edge cases" do
+  # 4) Edge Cases ───────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "surfaces a validation error rather than crashing when adding yourself" do
       sign_in_as(alice)
       expect {

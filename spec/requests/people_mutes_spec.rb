@@ -1,12 +1,12 @@
 # spec/requests/people_mutes_spec.rb
 require "rails_helper"
 
-RSpec.describe "People mute/unmute", type: :request do
+RSpec.describe "People Mutes", type: :request do
   let(:alice) { create(:user) }
   let(:adam)  { create(:person, user: alice) }
 
-  # 1) Happy path ───────────────────────────────────────────────────────────
-  describe "happy path" do
+  # 1) Happy Path ───────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "creates a PersonMute for the current user when muting" do
       sign_in_as(alice)
       expect {
@@ -25,8 +25,8 @@ RSpec.describe "People mute/unmute", type: :request do
     end
   end
 
-  # 2) Negative path ────────────────────────────────────────────────────────
-  describe "negative path" do
+  # 2) Negative Path ────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "redirects an unauthenticated request to mute" do
       post mute_person_path(adam)
       expect(response).to redirect_to(new_session_path)
@@ -38,8 +38,8 @@ RSpec.describe "People mute/unmute", type: :request do
     end
   end
 
-  # 3) Alternative path ─────────────────────────────────────────────────────
-  describe "alternative path" do
+  # 3) Alternative Paths ─────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "does not raise or duplicate a row when muting the same person twice" do
       sign_in_as(alice)
       post mute_person_path(adam)
@@ -49,8 +49,8 @@ RSpec.describe "People mute/unmute", type: :request do
     end
   end
 
-  # 4) Edge cases ───────────────────────────────────────────────────────────
-  describe "edge cases" do
+  # 4) Edge Cases ───────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "does not raise when unmuting a person who was never muted" do
       sign_in_as(alice)
       expect {

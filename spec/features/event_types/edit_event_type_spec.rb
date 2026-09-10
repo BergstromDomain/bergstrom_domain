@@ -1,15 +1,14 @@
 # spec/features/event_types/edit_event_type_spec.rb
-
 require "rails_helper"
 
-RSpec.describe "Edit event type", type: :feature do
+RSpec.describe "Edit Event Type", type: :feature do
   let(:admin)      { create(:user, :admin) }
   let!(:event_type) { create(:event_type, name: "Music", icon: "music", description: "Music events.") }
 
   before { sign_in_as(admin) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Updates the name and regenerates the slug" do
       et = create(:event_type, name: "Fitness", icon: "dumbbell", description: "Fitness events.")
       visit edit_event_type_path(et)
@@ -52,8 +51,8 @@ RSpec.describe "Edit event type", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Shows an error when updated name is already taken" do
       create(:event_type, name: "Work", icon: "briefcase", description: "Work events.")
       et = create(:event_type, name: "Sport", icon: "trophy", description: "Sport events.")
@@ -89,8 +88,8 @@ RSpec.describe "Edit event type", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Old slug resolves to the record after a name change" do
       et = create(:event_type, name: "Fitness", icon: "dumbbell", description: "Fitness events.")
       old_slug = et.slug
@@ -119,8 +118,8 @@ RSpec.describe "Edit event type", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Shows an error when icon has surrounding whitespace" do
       visit edit_event_type_path(event_type)
       fill_in "Icon", with: " music "

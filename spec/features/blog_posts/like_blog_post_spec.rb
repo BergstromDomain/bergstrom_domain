@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Like blog post", type: :feature do
+RSpec.describe "Like Blog Post", type: :feature do
   let(:owner)  { create(:user, :content_creator) }
   let(:reader) { create(:user, :content_creator) }
 
@@ -13,8 +13,8 @@ RSpec.describe "Like blog post", type: :feature do
     create(:blog_post, :unrestricted, :published, user: owner, **attrs)
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Defaults to neutral highlighted for a signed-in user who hasn't reacted" do
       post = published_post
       sign_in_as(reader)
@@ -49,8 +49,8 @@ RSpec.describe "Like blog post", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Redirects 'Gary Guest' to the 'Sign in' page on a direct reaction request" do
       post = create(:blog_post, :unrestricted, user: owner)
       page.driver.submit :post, blog_post_like_path(post), { face: "grinning" }
@@ -76,8 +76,8 @@ RSpec.describe "Like blog post", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Shows the aggregate face highlighted (not neutral) to a guest, non-interactively" do
       post = published_post
       post.likes.create!(user: owner, face: "grinning")
@@ -99,8 +99,8 @@ RSpec.describe "Like blog post", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Computes the score correctly across several different reactors" do
       User.delete_all
       users = create_list(:user, 5, :content_creator)

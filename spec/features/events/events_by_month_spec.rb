@@ -1,3 +1,4 @@
+# spec/features/events/events_by_month_spec.rb
 require "rails_helper"
 
 RSpec.describe "Events By Month", type: :feature do
@@ -33,8 +34,9 @@ RSpec.describe "Events By Month", type: :feature do
       day:   1)
   end
 
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    context "When 'Gary Guest' visits 'Events by month' with no params" do
+    context "When 'Gary Guest' visits 'Events By Month' with no params" do
       before { visit events_by_month_path }
 
       it "Highlights the current month in the tab bar" do
@@ -99,6 +101,7 @@ RSpec.describe "Events By Month", type: :feature do
     end
   end
 
+  # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
     context "When there are no events in the selected month" do
       it "Shows an empty state message" do
@@ -110,7 +113,8 @@ RSpec.describe "Events By Month", type: :feature do
     end
   end
 
-  describe "Alternative Path" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     context "When 'Uno User' is signed in" do
       let(:uno) { create(:user) }
 
@@ -140,6 +144,7 @@ RSpec.describe "Events By Month", type: :feature do
     end
   end
 
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
     context "When an invalid month param is passed" do
       it "Falls back to the current month without raising an error" do

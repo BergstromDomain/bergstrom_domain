@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Show social media platform", type: :feature do
+RSpec.describe "Show Social Media Platform", type: :feature do
   let(:admin)           { create(:user, :admin) }
   let(:content_creator) { create(:user, :content_creator) }
   let!(:platform) do
@@ -12,8 +12,8 @@ RSpec.describe "Show social media platform", type: :feature do
       description: "Social networking and messaging platform.")
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     before { visit social_media_platform_path(platform) }
 
     it "Displays the platform name in the page title" do
@@ -48,8 +48,8 @@ RSpec.describe "Show social media platform", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Returns 404 for a non-existent slug" do
       visit social_media_platform_path("non-existent-slug")
       expect(page).to have_http_status(:not_found)
@@ -70,8 +70,8 @@ RSpec.describe "Show social media platform", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     context "As 'Adam Admin'" do
       before do
         sign_in_as admin
@@ -93,8 +93,8 @@ RSpec.describe "Show social media platform", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Handles a platform with a long name without breaking layout" do
       long = create(:social_media_platform, name: "A" * 60, url: "https://example.com/", description: "Test.")
       visit social_media_platform_path(long)

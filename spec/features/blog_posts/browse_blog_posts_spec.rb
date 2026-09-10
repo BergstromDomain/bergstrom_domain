@@ -2,11 +2,11 @@
 
 require "rails_helper"
 
-RSpec.describe "Browse blog posts", type: :feature do
+RSpec.describe "Browse Blog Posts", type: :feature do
   let(:owner) { create(:user, :content_creator) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     let!(:food)       { create(:blog_category, name: "Food") }
     let!(:technology) { create(:blog_category, name: "Technology") }
     let!(:java_post) do
@@ -91,8 +91,8 @@ RSpec.describe "Browse blog posts", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Never counts a restricted post in a guest's Category totals" do
       category = create(:blog_category, name: "Secrets")
       create(:blog_post, :restricted, :published, user: owner, blog_category: category)
@@ -119,8 +119,8 @@ RSpec.describe "Browse blog posts", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Lets 'Adam Admin' see drafts and restricted posts in the counts" do
       category = create(:blog_category, name: "Admin Only")
       create(:blog_post, :restricted, user: owner, blog_category: category, title: "Unpublished Draft")
@@ -146,8 +146,8 @@ RSpec.describe "Browse blog posts", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Buckets a post with no Category under '(Uncategorized)' and it's reachable through it" do
       post = create(:blog_post, :unrestricted, :published, user: owner, title: "Homeless Post")
       # A published post always needs a Category (Block 4 validation) — force

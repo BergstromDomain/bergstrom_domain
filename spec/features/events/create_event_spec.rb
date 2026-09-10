@@ -10,151 +10,163 @@ RSpec.describe "Create Event", type: :feature do
     sign_in_as(user) unless example.metadata[:js]
   end
 
-  context "With valid attributes" do
-    it "Creates a new event and redirects to its page" do
-      visit new_event_path
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
+    context "With valid attributes" do
+      it "Creates a new event and redirects to its page" do
+        visit new_event_path
 
-      select "Music",          from: "Event Type"
-      select "James Hetfield", from: "People"
-      fill_in "Title",       with: "Kill 'Em All"
-      fill_in "Description", with: "Metallica's debut studio album."
-      fill_in "Day",         with: "25"
-      fill_in "Month",       with: "7"
-      fill_in "Year",        with: "1983"
-      click_button "Create Event"
+        select "Music",          from: "Event Type"
+        select "James Hetfield", from: "People"
+        fill_in "Title",       with: "Kill 'Em All"
+        fill_in "Description", with: "Metallica's debut studio album."
+        fill_in "Day",         with: "25"
+        fill_in "Month",       with: "7"
+        fill_in "Year",        with: "1983"
+        click_button "Create Event"
 
-      expect(page).to have_css("[data-testid='flash-success']", text: "Kill 'Em All has been successfully created")
-      expect(page).to have_content("Kill 'Em All")
-      expect(page).to have_content("James Hetfield")
-      expect(page).to have_current_path(event_path(Event.last))
+        expect(page).to have_css("[data-testid='flash-success']", text: "Kill 'Em All has been successfully created")
+        expect(page).to have_content("Kill 'Em All")
+        expect(page).to have_content("James Hetfield")
+        expect(page).to have_current_path(event_path(Event.last))
+      end
     end
   end
 
-  context "Without an 'Event type'" do
-    it "Shows a validation error" do
-      visit new_event_path
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
+    context "Without an 'Event type'" do
+      it "Shows a validation error" do
+        visit new_event_path
 
-      select "James Hetfield", from: "People"
-      fill_in "Title",       with: "Kill 'Em All"
-      fill_in "Description", with: "Metallica's debut studio album."
-      fill_in "Day",         with: "25"
-      fill_in "Month",       with: "7"
-      fill_in "Year",        with: "1983"
-      click_button "Create Event"
+        select "James Hetfield", from: "People"
+        fill_in "Title",       with: "Kill 'Em All"
+        fill_in "Description", with: "Metallica's debut studio album."
+        fill_in "Day",         with: "25"
+        fill_in "Month",       with: "7"
+        fill_in "Year",        with: "1983"
+        click_button "Create Event"
 
-      expect(page).to have_content("Event type must exist")
+        expect(page).to have_content("Event type must exist")
+      end
+    end
+
+    context "Without 'People'" do
+      it "Shows a validation error" do
+        visit new_event_path
+
+        select "Music", from: "Event Type"
+        fill_in "Title", with: "Orphan Event"
+        fill_in "Day",   with: 1
+        fill_in "Month", with: 1
+        click_button "Create Event"
+
+        expect(page).to have_content("error")
+        expect(page).to have_content("Event must have at least one person")
+      end
+    end
+
+    context "With a missing 'Title'" do
+      it "Shows a validation error" do
+        visit new_event_path
+
+        select "Music",          from: "Event Type"
+        select "James Hetfield", from: "People"
+        fill_in "Day",   with: "1"
+        fill_in "Month", with: "1"
+        click_button "Create Event"
+
+        expect(page).to have_content("Title can't be blank")
+      end
+    end
+
+    context "With a missing 'Day'" do
+      it "Shows a validation error" do
+        visit new_event_path
+
+        select "Music",          from: "Event Type"
+        select "James Hetfield", from: "People"
+        fill_in "Title", with: "Orphaned Event"
+        fill_in "Month", with: "6"
+        click_button "Create Event"
+
+        expect(page).to have_content("Day can't be blank")
+      end
+    end
+
+    context "With a duplicate 'Title'" do
+      before do
+        e = create(:event, :unrestricted, title: "Kill 'Em All", day: 25, month: 7, year: 1983,
+                  event_type: music, user: user)
+        e.people << hetfield
+      end
+
+      it "Shows a uniqueness error" do
+        visit new_event_path
+
+        select "Music",          from: "Event Type"
+        select "James Hetfield", from: "People"
+        fill_in "Title", with: "Kill 'Em All"
+        fill_in "Day",   with: "1"
+        fill_in "Month", with: "1"
+        click_button "Create Event"
+
+        expect(page).to have_content("Title has already been taken")
+      end
     end
   end
 
-  context "Without 'People'" do
-    it "Shows a validation error" do
-      visit new_event_path
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
+    context "Without a 'Year'" do
+      it "Is still valid" do
+        visit new_event_path
 
-      select "Music", from: "Event Type"
-      fill_in "Title", with: "Orphan Event"
-      fill_in "Day",   with: 1
-      fill_in "Month", with: 1
-      click_button "Create Event"
+        select "Music",          from: "Event Type"
+        select "James Hetfield", from: "People"
+        fill_in "Title", with: "Annual Tour"
+        fill_in "Day",   with: "1"
+        fill_in "Month", with: "6"
+        click_button "Create Event"
 
-      expect(page).to have_content("error")
-      expect(page).to have_content("Event must have at least one person")
+        expect(page).to have_content("Annual Tour")
+        expect(page).to have_css("[data-testid='flash-success']", text: "Annual Tour has been successfully created")
+      end
+    end
+
+    context "With Default Classification" do
+      it "Defaults visibility to Restricted" do
+        visit new_event_path
+        expect(page).to have_select("Classification", selected: "Restricted — visible only to me")
+      end
+
+      it "Defaults visibility to the user's Occasions Settings default" do
+        user.app_settings_for("event_tracker").update!(default_classification: "unrestricted")
+        visit new_event_path
+        expect(page).to have_select("Classification", selected: "Unrestricted — visible to everyone")
+      end
     end
   end
 
-  context "Without a 'Year'" do
-    it "Is still valid" do
-      visit new_event_path
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
+    context "With an 'Image'", js: true do
+      # TODO: JS session isolation issue — revisit when front-end post addresses file upload interactions
+      xit "Creates an event with an image and displays it on the show page" do
+        visit new_event_path
 
-      select "Music",          from: "Event Type"
-      select "James Hetfield", from: "People"
-      fill_in "Title", with: "Annual Tour"
-      fill_in "Day",   with: "1"
-      fill_in "Month", with: "6"
-      click_button "Create Event"
+        select "Music",          from: "Event Type"
+        select "James Hetfield", from: "People"
+        fill_in "Title", with: "Black Album Release"
+        fill_in "Day",   with: "12"
+        fill_in "Month", with: "8"
+        fill_in "Year",  with: "1991"
+        attach_file "Event image", Rails.root.join("spec/fixtures/files/test_image.jpg")
+        click_button "Create Event"
 
-      expect(page).to have_content("Annual Tour")
-      expect(page).to have_css("[data-testid='flash-success']", text: "Annual Tour has been successfully created")
-    end
-  end
-
-  context "With a missing 'Title'" do
-    it "Shows a validation error" do
-      visit new_event_path
-
-      select "Music",          from: "Event Type"
-      select "James Hetfield", from: "People"
-      fill_in "Day",   with: "1"
-      fill_in "Month", with: "1"
-      click_button "Create Event"
-
-      expect(page).to have_content("Title can't be blank")
-    end
-  end
-
-  context "With a missing 'Day'" do
-    it "Shows a validation error" do
-      visit new_event_path
-
-      select "Music",          from: "Event Type"
-      select "James Hetfield", from: "People"
-      fill_in "Title", with: "Orphaned Event"
-      fill_in "Month", with: "6"
-      click_button "Create Event"
-
-      expect(page).to have_content("Day can't be blank")
-    end
-  end
-
-  context "With a duplicate 'Title'" do
-    before do
-      e = create(:event, :unrestricted, title: "Kill 'Em All", day: 25, month: 7, year: 1983,
-                event_type: music, user: user)
-      e.people << hetfield
-    end
-
-    it "Shows a uniqueness error" do
-      visit new_event_path
-
-      select "Music",          from: "Event Type"
-      select "James Hetfield", from: "People"
-      fill_in "Title", with: "Kill 'Em All"
-      fill_in "Day",   with: "1"
-      fill_in "Month", with: "1"
-      click_button "Create Event"
-
-      expect(page).to have_content("Title has already been taken")
-    end
-  end
-
-  context "With Default Classification" do
-    it "Defaults visibility to Restricted" do
-      visit new_event_path
-      expect(page).to have_select("Classification", selected: "Restricted — visible only to me")
-    end
-
-    it "Defaults visibility to the user's Occasions Settings default" do
-      user.app_settings_for("event_tracker").update!(default_classification: "unrestricted")
-      visit new_event_path
-      expect(page).to have_select("Classification", selected: "Unrestricted — visible to everyone")
-    end
-  end
-
-  context "With an 'Image'", js: true do
-    # TODO: JS session isolation issue — revisit when front-end post addresses file upload interactions
-    xit "Creates an event with an image and displays it on the show page" do
-      visit new_event_path
-
-      select "Music",          from: "Event Type"
-      select "James Hetfield", from: "People"
-      fill_in "Title", with: "Black Album Release"
-      fill_in "Day",   with: "12"
-      fill_in "Month", with: "8"
-      fill_in "Year",  with: "1991"
-      attach_file "Event image", Rails.root.join("spec/fixtures/files/test_image.jpg")
-      click_button "Create Event"
-
-      expect(page).to have_css("[data-testid='flash-success']", text: "Black Album Release has been successfully created")
-      expect(page).to have_selector("img")
+        expect(page).to have_css("[data-testid='flash-success']", text: "Black Album Release has been successfully created")
+        expect(page).to have_selector("img")
+      end
     end
   end
 end

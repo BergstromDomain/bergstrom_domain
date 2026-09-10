@@ -2,13 +2,13 @@
 
 require "rails_helper"
 
-RSpec.describe "Delete social media platform", type: :feature do
+RSpec.describe "Delete Social Media Platform", type: :feature do
   let(:admin) { create(:user, :admin) }
 
   before { sign_in_as(admin) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Deletes a social media platform with no associated accounts and redirects to index" do
       p = create(:social_media_platform, name: "Strava", url: "https://www.strava.com/")
       visit social_media_platform_path(p)
@@ -27,8 +27,8 @@ RSpec.describe "Delete social media platform", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Does not delete a platform that has associated person accounts" do
       p = create(:social_media_platform, name: "Facebook", url: "https://www.facebook.com/")
       create(:person_social_media_account, social_media_platform: p)
@@ -62,8 +62,8 @@ RSpec.describe "Delete social media platform", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Allows 'Sam SysAdmin' to delete a social media platform" do
       p = create(:social_media_platform, name: "Strava", url: "https://www.strava.com/")
       click_button "Sign Out"
@@ -74,8 +74,8 @@ RSpec.describe "Delete social media platform", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Shows the 'Delete Social Media Platform' button to an 'Adam Admin'" do
       p = create(:social_media_platform, name: "Strava", url: "https://www.strava.com/")
       visit social_media_platform_path(p)

@@ -1,12 +1,13 @@
 # spec/features/system_admin/user_actions_spec.rb
 require "rails_helper"
 
-RSpec.describe "System Admin — User Actions", type: :feature do
+RSpec.describe "User Actions", type: :feature do
   let!(:sam)             { create(:user, :system_admin) }
   let!(:pending_user)    { create(:user, first_name: "Pat",  status: "pending") }
   let!(:active_user)     { create(:user, first_name: "Alex", status: "active") }
   let!(:suspended_user)  { create(:user, first_name: "Sue",  status: "suspended") }
 
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     it "Approves a pending user" do
       sign_in_as sam
@@ -79,6 +80,7 @@ RSpec.describe "System Admin — User Actions", type: :feature do
     end
   end
 
+  # 2) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
     it "Does not show a Suspend button for the signed-in system admin" do
       sign_in_as sam

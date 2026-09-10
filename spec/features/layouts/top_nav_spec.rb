@@ -1,7 +1,7 @@
 # spec/features/layouts/top_nav_spec.rb
 require "rails_helper"
 
-RSpec.describe "Top navigation bar", type: :feature do
+RSpec.describe "Top Nav", type: :feature do
   let(:uno)     { create(:user) }
   let(:charlie) { create(:user, :content_creator) }
   let(:adam)    { create(:user, :admin) }
@@ -21,269 +21,281 @@ RSpec.describe "Top navigation bar", type: :feature do
     end
   end
 
-  context "When viewing as 'Gary Guest'" do
-    before { visit root_path }
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
+    context "When viewing as 'Gary Guest'" do
+      before { visit root_path }
 
-    include_examples "Common nav links"
+      include_examples "Common nav links"
 
-    it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
-      click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: event_tracker_path)
+      it "Shows 'Occasions' link in the 'Apps' dropdown menu" do
+        click_button "Apps"
+        expect(page).to have_link("Occasions", href: event_tracker_path)
+      end
+
+      it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
+        click_button "Apps"
+        expect(page).to have_link("Chronicle", href: chronicle_path)
+      end
+
+      it "Lists 'Chronicle' before 'Occasions' in the 'Apps' dropdown menu (alphabetical order)" do
+        click_button "Apps"
+        labels = all(".dropdown__item").map(&:text)
+        expect(labels.index("Chronicle")).to be < labels.index("Occasions")
+      end
+
+      it "Shows 'About' link in the 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("About", href: about_path)
+      end
+
+      it "Shows 'Contact' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("Contact", href: contact_path)
+      end
+
+      it "Does not show the 'System Admin' dropdown menu" do
+        expect(page).not_to have_button("System Admin")
+      end
+
+      it "Shows the 'Sign In' button" do
+        expect(page).to have_link("Sign In", href: new_session_path)
+      end
+
+      it "Does not show 'User Thumbnail' dropdown menu" do
+        expect(page).not_to have_selector("[data-testid='user-thumbnail-button']")
+      end
+
+      it "Does not show 'Sign Out' link in the 'User Thumbnail' dropdown menu" do
+        expect(page).not_to have_button("Sign Out")
+      end
+
+      it "Does not show 'User Settings' link in the 'User Thumbnail' dropdown menu" do
+        expect(page).not_to have_button("User Settings")
+      end
     end
 
-    it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
-      click_button "Apps"
-      expect(page).to have_link("Chronicle", href: chronicle_path)
+    context "When viewing as 'Uno User'" do
+      before do
+        sign_in_as(uno)
+        visit root_path
+      end
+
+      include_examples "Common nav links"
+
+      it "Shows 'Occasions' link in the 'Apps' dropdown menu" do
+        click_button "Apps"
+        expect(page).to have_link("Occasions", href: event_tracker_path)
+      end
+
+      it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
+        click_button "Apps"
+        expect(page).to have_link("Chronicle", href: chronicle_path)
+      end
+
+      it "Shows 'About' link in the 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("About", href: about_path)
+      end
+
+      it "Shows 'Contact' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("Contact", href: contact_path)
+      end
+
+      it "Does not show the 'System Admin' dropdown menu" do
+        expect(page).not_to have_button("System Admin")
+      end
+
+      it "Does not show the 'Sign In' button" do
+        expect(page).not_to have_link("Sign In", href: new_session_path)
+      end
+
+      it "Shows 'User Thumbnail' dropdown menu" do
+        expect(page).to have_selector("[data-testid='user-thumbnail-button']")
+      end
+
+      it "Shows 'Sign Out' link in the 'User Thumbnail' dropdown menu" do
+        expect(page).to have_button("Sign Out")
+      end
+
+      it "Shows 'User Settings' link in the 'User Thumbnail' dropdown menu" do
+        expect(page).to have_link("User Settings")
+      end
     end
 
-    it "Shows 'About' link in the 'Info' dropdown menu" do
-      click_button "Info"
-      expect(page).to have_link("About", href: about_path)
+    context "When viewing as 'Charlie Content Creator'" do
+      before do
+        sign_in_as(charlie)
+        visit root_path
+      end
+
+      include_examples "Common nav links"
+
+      it "Shows 'Occasions' link in the 'Apps' dropdown menu" do
+        click_button "Apps"
+        expect(page).to have_link("Occasions", href: event_tracker_path)
+      end
+
+      it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
+        click_button "Apps"
+        expect(page).to have_link("Chronicle", href: chronicle_path)
+      end
+
+      it "Shows 'About' link in the 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("About", href: about_path)
+      end
+
+      it "Shows 'Contact' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("Contact", href: contact_path)
+      end
+
+      it "Does not show the 'System Admin' dropdown menu" do
+        expect(page).not_to have_button("System Admin")
+      end
+
+      it "Does not show the 'Sign In' button" do
+        expect(page).not_to have_link("Sign In", href: new_session_path)
+      end
+
+      it "Shows 'User Thumbnail' dropdown menu" do
+        expect(page).to have_selector("[data-testid='user-thumbnail-button']")
+      end
+
+      it "Shows 'Sign Out' link in the 'User Thumbnail' dropdown menu" do
+        expect(page).to have_button("Sign Out")
+      end
+
+      it "Shows 'User Settings' link in the 'User Thumbnail' dropdown menu" do
+        expect(page).to have_link("User Settings")
+      end
     end
 
-    it "Shows 'Contact' link in 'Info' dropdown menu" do
-      click_button "Info"
-      expect(page).to have_link("Contact", href: contact_path)
+    context "When viewing as 'Adam Admin'" do
+      before do
+        sign_in_as(adam)
+        visit root_path
+      end
+
+      include_examples "Common nav links"
+
+      it "Shows 'Occasions' link in the 'Apps' dropdown menu" do
+        click_button "Apps"
+        expect(page).to have_link("Occasions", href: event_tracker_path)
+      end
+
+      it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
+        click_button "Apps"
+        expect(page).to have_link("Chronicle", href: chronicle_path)
+      end
+
+      it "Shows 'About' link in the 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("About", href: about_path)
+      end
+
+      it "Shows 'Contact' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("Contact", href: contact_path)
+      end
+
+      it "Does not show the 'System Admin' dropdown menu" do
+        expect(page).not_to have_button("System Admin")
+      end
+
+      it "Does not show the 'Sign In' button" do
+        expect(page).not_to have_link("Sign In", href: new_session_path)
+      end
+
+      it "Shows 'User Thumbnail' dropdown menu" do
+        expect(page).to have_selector("[data-testid='user-thumbnail-button']")
+      end
+
+      it "Shows 'Sign Out' link in the 'User Thumbnail' dropdown menu" do
+        expect(page).to have_button("Sign Out")
+      end
+
+      it "Shows 'User Settings' link in the 'User Thumbnail' dropdown menu" do
+        expect(page).to have_link("User Settings")
+      end
     end
 
-    it "Does not show the 'System Admin' dropdown menu" do
-      expect(page).not_to have_button("System Admin")
-    end
+    context "When viewing as 'Sam SysAdmin'" do
+      before do
+        sign_in_as(sam)
+        visit root_path
+      end
 
-    it "Shows the 'Sign In' button" do
-      expect(page).to have_link("Sign In", href: new_session_path)
-    end
+      include_examples "Common nav links"
 
-    it "Does not show 'User Thumbnail' dropdown menu" do
-      expect(page).not_to have_selector("[data-testid='user-thumbnail-button']")
-    end
+      it "Shows 'Occasions' link in the 'Apps' dropdown menu" do
+        click_button "Apps"
+        expect(page).to have_link("Occasions", href: event_tracker_path)
+      end
 
-    it "Does not show 'Sign Out' link in the 'User Thumbnail' dropdown menu" do
-      expect(page).not_to have_button("Sign Out")
-    end
+      it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
+        click_button "Apps"
+        expect(page).to have_link("Chronicle", href: chronicle_path)
+      end
 
-    it "Does not show 'User Settings' link in the 'User Thumbnail' dropdown menu" do
-      expect(page).not_to have_button("User Settings")
+      it "Shows 'About' link in the 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("About", href: about_path)
+      end
+
+      it "Shows 'Contact' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("Contact", href: contact_path)
+      end
+
+      it "Shows the 'System Admin' dropdown menu" do
+        expect(page).to have_button("System Admin")
+      end
+
+      it "Shows 'User Management' link in 'System Admin' dropdown menu" do
+        click_button "System Admin"
+        expect(page).to have_link("User Management", href: system_admin_users_path)
+      end
+
+      it "Shows 'App Management' in 'System Admin' dropdown menu" do
+        click_button "System Admin"
+        expect(page).to have_text("App Management")
+      end
+
+      it "Does not show the 'Sign In' button" do
+        expect(page).not_to have_link("Sign In", href: new_session_path)
+      end
+
+      it "Shows 'User Thumbnail' dropdown menu" do
+        expect(page).to have_selector("[data-testid='user-thumbnail-button']")
+      end
+
+      it "Shows 'Sign Out' link in the 'User Thumbnail' dropdown menu" do
+        expect(page).to have_button("Sign Out")
+      end
+
+      it "Shows 'User Settings' link in the 'User Thumbnail' dropdown menu" do
+        expect(page).to have_link("User Settings")
+      end
     end
   end
 
-  context "When viewing as 'Uno User'" do
-    before do
-      sign_in_as(uno)
-      visit root_path
-    end
+  # 2) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
+    context "When 'Charlie Content Creator' signs out" do
+      before do
+        sign_in_as(charlie)
+        visit root_path
+      end
 
-    include_examples "Common nav links"
-
-    it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
-      click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: event_tracker_path)
-    end
-
-    it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
-      click_button "Apps"
-      expect(page).to have_link("Chronicle", href: chronicle_path)
-    end
-
-    it "Shows 'About' link in the 'Info' dropdown menu" do
-      click_button "Info"
-      expect(page).to have_link("About", href: about_path)
-    end
-
-    it "Shows 'Contact' link in 'Info' dropdown menu" do
-      click_button "Info"
-      expect(page).to have_link("Contact", href: contact_path)
-    end
-
-    it "Does not show the 'System Admin' dropdown menu" do
-      expect(page).not_to have_button("System Admin")
-    end
-
-    it "Does not show the 'Sign In' button" do
-      expect(page).not_to have_link("Sign In", href: new_session_path)
-    end
-
-    it "Shows 'User Thumbnail' dropdown menu" do
-      expect(page).to have_selector("[data-testid='user-thumbnail-button']")
-    end
-
-    it "Shows 'Sign Out' link in the 'User Thumbnail' dropdown menu" do
-      expect(page).to have_button("Sign Out")
-    end
-
-    it "Shows 'User Settings' link in the 'User Thumbnail' dropdown menu" do
-      expect(page).to have_link("User Settings")
-    end
-  end
-
-  context "When viewing as 'Charlie Content Creator'" do
-    before do
-      sign_in_as(charlie)
-      visit root_path
-    end
-
-    include_examples "Common nav links"
-
-    it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
-      click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: event_tracker_path)
-    end
-
-    it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
-      click_button "Apps"
-      expect(page).to have_link("Chronicle", href: chronicle_path)
-    end
-
-    it "Shows 'About' link in the 'Info' dropdown menu" do
-      click_button "Info"
-      expect(page).to have_link("About", href: about_path)
-    end
-
-    it "Shows 'Contact' link in 'Info' dropdown menu" do
-      click_button "Info"
-      expect(page).to have_link("Contact", href: contact_path)
-    end
-
-    it "Does not show the 'System Admin' dropdown menu" do
-      expect(page).not_to have_button("System Admin")
-    end
-
-    it "Does not show the 'Sign In' button" do
-      expect(page).not_to have_link("Sign In", href: new_session_path)
-    end
-
-    it "Shows 'User Thumbnail' dropdown menu" do
-      expect(page).to have_selector("[data-testid='user-thumbnail-button']")
-    end
-
-    it "Shows 'Sign Out' link in the 'User Thumbnail' dropdown menu" do
-      expect(page).to have_button("Sign Out")
-    end
-
-    it "Shows 'User Settings' link in the 'User Thumbnail' dropdown menu" do
-      expect(page).to have_link("User Settings")
-    end
-  end
-
-  context "When viewing as 'Adam Admin'" do
-    before do
-      sign_in_as(adam)
-      visit root_path
-    end
-
-    include_examples "Common nav links"
-
-    it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
-      click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: event_tracker_path)
-    end
-
-    it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
-      click_button "Apps"
-      expect(page).to have_link("Chronicle", href: chronicle_path)
-    end
-
-    it "Shows 'About' link in the 'Info' dropdown menu" do
-      click_button "Info"
-      expect(page).to have_link("About", href: about_path)
-    end
-
-    it "Shows 'Contact' link in 'Info' dropdown menu" do
-      click_button "Info"
-      expect(page).to have_link("Contact", href: contact_path)
-    end
-
-    it "Does not show the 'System Admin' dropdown menu" do
-      expect(page).not_to have_button("System Admin")
-    end
-
-    it "Does not show the 'Sign In' button" do
-      expect(page).not_to have_link("Sign In", href: new_session_path)
-    end
-
-    it "Shows 'User Thumbnail' dropdown menu" do
-      expect(page).to have_selector("[data-testid='user-thumbnail-button']")
-    end
-
-    it "Shows 'Sign Out' link in the 'User Thumbnail' dropdown menu" do
-      expect(page).to have_button("Sign Out")
-    end
-
-    it "Shows 'User Settings' link in the 'User Thumbnail' dropdown menu" do
-      expect(page).to have_link("User Settings")
-    end
-  end
-
-  context "When viewing as 'Sam SysAdmin'" do
-    before do
-      sign_in_as(sam)
-      visit root_path
-    end
-
-    include_examples "Common nav links"
-
-    it "Shows 'Event Tracker' link in the 'Apps' dropdown menu" do
-      click_button "Apps"
-      expect(page).to have_link("Event Tracker", href: event_tracker_path)
-    end
-
-    it "Shows 'Chronicle' link in the 'Apps' dropdown menu" do
-      click_button "Apps"
-      expect(page).to have_link("Chronicle", href: chronicle_path)
-    end
-
-    it "Shows 'About' link in the 'Info' dropdown menu" do
-      click_button "Info"
-      expect(page).to have_link("About", href: about_path)
-    end
-
-    it "Shows 'Contact' link in 'Info' dropdown menu" do
-      click_button "Info"
-      expect(page).to have_link("Contact", href: contact_path)
-    end
-
-    it "Shows the 'System Admin' dropdown menu" do
-      expect(page).to have_button("System Admin")
-    end
-
-    it "Shows 'User Management' link in 'System Admin' dropdown menu" do
-      click_button "System Admin"
-      expect(page).to have_link("User Management", href: system_admin_users_path)
-    end
-
-    it "Shows 'App Management' in 'System Admin' dropdown menu" do
-      click_button "System Admin"
-      expect(page).to have_text("App Management")
-    end
-
-    it "Does not show the 'Sign In' button" do
-      expect(page).not_to have_link("Sign In", href: new_session_path)
-    end
-
-    it "Shows 'User Thumbnail' dropdown menu" do
-      expect(page).to have_selector("[data-testid='user-thumbnail-button']")
-    end
-
-    it "Shows 'Sign Out' link in the 'User Thumbnail' dropdown menu" do
-      expect(page).to have_button("Sign Out")
-    end
-
-    it "Shows 'User Settings' link in the 'User Thumbnail' dropdown menu" do
-      expect(page).to have_link("User Settings")
-    end
-  end
-
-  context "Sign out" do
-    before do
-      sign_in_as(charlie)
-      visit root_path
-    end
-
-    it "Signs the user out and redirects to root" do
-      find("[data-testid='user-thumbnail-button']").click
-      click_button "Sign Out"
-      expect(page).to have_current_path(root_path)
-      expect(page).to have_link("Sign In")
+      it "Signs the user out and redirects to root" do
+        find("[data-testid='user-thumbnail-button']").click
+        click_button "Sign Out"
+        expect(page).to have_current_path(root_path)
+        expect(page).to have_link("Sign In")
+      end
     end
   end
 end

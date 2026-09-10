@@ -1,7 +1,7 @@
 # spec/features/settings/edit_settings_spec.rb
 require "rails_helper"
 
-RSpec.describe "Edit User Settings", type: :feature do
+RSpec.describe "Edit Settings", type: :feature do
   let(:uno) do
     create(:user,
       first_name:    "Uno",
@@ -10,7 +10,7 @@ RSpec.describe "Edit User Settings", type: :feature do
     )
   end
 
-  describe "Happy path" do
+  describe "Happy Path" do
     it "Renders the 'Page Title' with the user's 'Full Name' and 'User Settings' subtitle" do
       sign_in_as(uno)
       visit edit_settings_path
@@ -117,7 +117,7 @@ RSpec.describe "Edit User Settings", type: :feature do
     end
   end
 
-  describe "Negative path" do
+  describe "Negative Path" do
     it "Redirects 'Gary Guest' to the 'Sign-In' page" do
       visit edit_settings_path
       expect(page).to have_current_path(new_session_path)
@@ -155,7 +155,7 @@ RSpec.describe "Edit User Settings", type: :feature do
     end
   end
 
-  describe "Alternative path" do
+  describe "Alternative Paths" do
     it "Does not clear the 'Email Verified' flag when the 'Email Address' is unchanged" do
       uno.update!(email_verified_at: Time.current)
       sign_in_as(uno)
@@ -168,7 +168,7 @@ RSpec.describe "Edit User Settings", type: :feature do
     end
   end
 
-  describe "Edge cases" do
+  describe "Edge Cases" do
     it "Does not save any of the changed values if the user clicks on the 'Cancel' button" do
       uno.update!(email_verified_at: Time.current)
       sign_in_as(uno)

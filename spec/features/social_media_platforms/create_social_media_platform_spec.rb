@@ -2,13 +2,13 @@
 
 require "rails_helper"
 
-RSpec.describe "Create social media platform", type: :feature do
+RSpec.describe "Create Social Media Platform", type: :feature do
   let(:admin) { create(:user, :admin) }
 
   before { sign_in_as(admin) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Creates a social media platform with all required fields" do
       visit new_social_media_platform_path
       fill_in "Name",        with: "Facebook"
@@ -31,8 +31,8 @@ RSpec.describe "Create social media platform", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Shows an error when name is missing" do
       visit new_social_media_platform_path
       fill_in "URL", with: "https://www.facebook.com/"
@@ -99,8 +99,8 @@ RSpec.describe "Create social media platform", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Re-renders the form with entered values when validation fails" do
       visit new_social_media_platform_path
       fill_in "Name", with: "Facebook"
@@ -122,8 +122,8 @@ RSpec.describe "Create social media platform", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Shows an error when a non-image file is attached as the logo" do
       visit new_social_media_platform_path
       fill_in "Name", with: "Facebook"

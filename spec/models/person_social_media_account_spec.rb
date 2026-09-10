@@ -2,23 +2,23 @@
 require "rails_helper"
 
 RSpec.describe PersonSocialMediaAccount, type: :model do
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:person_id).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:social_media_platform_id).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:username).of_type(:string).with_options(null: false) }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
+  describe "Associations" do
     it { is_expected.to belong_to(:person) }
     it { is_expected.to belong_to(:social_media_platform) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
-  describe "validations" do
-    # 1) Happy path ───────────────────────────────────────────────────────────
-    describe "happy path" do
+  describe "Validations" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "is valid with a person, platform and username" do
         account = build(:person_social_media_account)
         expect(account).to be_valid
@@ -39,8 +39,8 @@ RSpec.describe PersonSocialMediaAccount, type: :model do
       end
     end
 
-    # 2) Negative path ────────────────────────────────────────────────────────
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it "is invalid when username is blank" do
         account = build(:person_social_media_account, username: "")
         expect(account).not_to be_valid
@@ -57,8 +57,8 @@ RSpec.describe PersonSocialMediaAccount, type: :model do
       end
     end
 
-    # 3) Alternative path ─────────────────────────────────────────────────────
-    describe "alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       it "is valid when updating the username" do
         account = create(:person_social_media_account, username: "old_handle")
         account.username = "new_handle"
@@ -66,8 +66,8 @@ RSpec.describe PersonSocialMediaAccount, type: :model do
       end
     end
 
-    # 4) Edge cases ───────────────────────────────────────────────────────────
-    describe "edge cases" do
+    # 4) Edge Cases ───────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       it "allows re-adding the same platform after the previous account is removed" do
         person = create(:person)
         platform = create(:social_media_platform)

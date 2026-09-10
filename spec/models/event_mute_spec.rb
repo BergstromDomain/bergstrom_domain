@@ -9,14 +9,14 @@ RSpec.describe EventMute, type: :model do
 
   subject { build(:event_mute, user: alice, event: wedding) }
 
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:user_id).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:event_id).of_type(:integer).with_options(null: false) }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
+  describe "Associations" do
     it "belongs to user" do
       mute = create(:event_mute, user: alice, event: wedding)
       expect(mute.user).to eq(alice)
@@ -29,14 +29,16 @@ RSpec.describe EventMute, type: :model do
   end
 
   # ── Validations ───────────────────────────────────────────────────────────
-  describe "validations" do
-    describe "happy path" do
+  describe "Validations" do
+    # 1) Happy Path ─────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "is valid with a user and an event" do
         expect(subject).to be_valid
       end
     end
 
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it "is invalid without a user" do
         subject.user = nil
         expect(subject).not_to be_valid
@@ -57,7 +59,8 @@ RSpec.describe EventMute, type: :model do
       end
     end
 
-    describe "alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       it "is valid for a different user to mute the same event" do
         create(:event_mute, user: alice, event: wedding)
         other = build(:event_mute, user: bob, event: wedding)
@@ -65,7 +68,8 @@ RSpec.describe EventMute, type: :model do
       end
     end
 
-    describe "edge cases" do
+    # 4) Edge Cases ────────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       it "is valid for the same user to mute a different event" do
         create(:event_mute, user: alice, event: wedding)
         other = build(:event_mute, user: alice, event: concert)

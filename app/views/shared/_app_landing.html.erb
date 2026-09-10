@@ -4,21 +4,23 @@
   Locals:
     app_name   - String. Used for hero alt text only; the caller owns its own <h1>.
     hero_image - String. Any filename image_tag can resolve from app/assets/images.
-    about      - Array of Strings. One or more paragraphs answering "what is this app".
+    about      - Array of Hashes with :title and :body String keys, rendered as
+                  cards overlapping the bottom of the hero image.
 
   Deliberately has no teaser/feature links — once the left nav is showing
   for an app (which it always is, per Navigable), those links just
   duplicate what's already one click away in the sidebar.
 %>
-<div class="split-layout" data-testid="app-landing">
-  <div class="split-layout__media">
-    <%= image_tag hero_image, class: "split-layout__media-image", alt: "#{app_name} preview" %>
+<div class="app-landing" data-testid="app-landing">
+  <div class="app-landing__hero">
+    <%= image_tag hero_image, class: "app-landing__hero-image", alt: "#{app_name} preview" %>
   </div>
 
-  <div class="split-layout__cards" data-testid="app-landing-about">
-    <% about.each_with_index do |paragraph, index| %>
+  <div class="app-landing__cards" data-testid="app-landing-about">
+    <% about.each_with_index do |card, index| %>
       <div class="show-panel about-card" data-testid="app-landing-about-<%= index + 1 %>">
-        <p><%= paragraph %></p>
+        <h2 class="about-card__title"><%= card[:title] %></h2>
+        <p><%= card[:body] %></p>
       </div>
     <% end %>
   </div>

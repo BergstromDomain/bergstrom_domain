@@ -2,13 +2,13 @@
 
 require "rails_helper"
 
-RSpec.describe "Delete blog category", type: :feature do
+RSpec.describe "Delete Blog Category", type: :feature do
   let(:admin) { create(:user, :admin) }
 
   before { sign_in_as(admin) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Deletes a blog category with no associated blog posts and redirects to index" do
       bc = create(:blog_category, name: "Travel", icon: "plane", description: "Travel posts.")
       visit blog_category_path(bc)
@@ -27,8 +27,8 @@ RSpec.describe "Delete blog category", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Does not delete a blog category that has associated blog posts" do
       bc = create(:blog_category, name: "Technology", icon: "cpu", description: "Tech posts.")
       create(:blog_post, blog_category: bc)
@@ -62,8 +62,8 @@ RSpec.describe "Delete blog category", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Allows 'Sam SysAdmin' to delete a blog category" do
       bc = create(:blog_category, name: "Travel", icon: "plane", description: "Travel posts.")
       click_button "Sign Out"
@@ -74,8 +74,8 @@ RSpec.describe "Delete blog category", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Shows the 'Delete Blog Category' button to an 'Adam Admin'" do
       bc = create(:blog_category, name: "Travel", icon: "plane", description: "Travel posts.")
       visit blog_category_path(bc)

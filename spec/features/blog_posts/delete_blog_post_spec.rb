@@ -2,11 +2,11 @@
 
 require "rails_helper"
 
-RSpec.describe "Delete blog post", type: :feature do
+RSpec.describe "Delete Blog Post", type: :feature do
   let(:owner) { create(:user, :content_creator) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Deletes a post and redirects to Chronicle" do
       post = create(:blog_post, user: owner, title: "My Post")
       sign_in_as(owner)
@@ -41,8 +41,8 @@ RSpec.describe "Delete blog post", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Does not show the Delete button to a stranger" do
       post = create(:blog_post, :unrestricted, user: owner)
       sign_in_as(create(:user, :content_creator))
@@ -68,8 +68,8 @@ RSpec.describe "Delete blog post", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Allows a co-author (not the primary author) to delete" do
       post = create(:blog_post, user: owner)
       co_author = create(:user, :content_creator)
@@ -93,8 +93,8 @@ RSpec.describe "Delete blog post", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Leaves blog_post_authors and the slug intact after a soft delete" do
       post = create(:blog_post, user: owner)
       co_author = create(:user, :content_creator)

@@ -1,12 +1,13 @@
 # spec/features/event_types/mute_event_type_spec.rb
 require "rails_helper"
 
-RSpec.describe "Mute EventType", type: :feature do
+RSpec.describe "Mute Event Type", type: :feature do
   let!(:uno)   { create(:user, first_name: "Uno", last_name: "User") }
   let!(:sport) { create(:event_type, name: "Sport", description: "Sport events", icon: "trophy") }
 
-  describe "happy path" do
-    it "mutes an event_type from the index row" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
+    it "Mutes an event_type from the index row" do
       sign_in_as uno
       visit event_types_path
 
@@ -18,7 +19,7 @@ RSpec.describe "Mute EventType", type: :feature do
       expect(page).to have_selector("[data-testid='unmute-event-type-#{sport.id}']")
     end
 
-    it "unmutes an event_type from the index row" do
+    it "Unmutes an event_type from the index row" do
       create(:event_type_mute, user: uno, event_type: sport)
       sign_in_as uno
       visit event_types_path
@@ -31,8 +32,9 @@ RSpec.describe "Mute EventType", type: :feature do
     end
   end
 
-  describe "negative path" do
-    it "does not show a mute button for unauthenticated visitors" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
+    it "Does not show a mute button for unauthenticated visitors" do
       visit event_types_path
       expect(page).not_to have_selector("[data-testid='event-type-mute-cell']")
     end

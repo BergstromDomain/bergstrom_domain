@@ -2,8 +2,8 @@
 require "rails_helper"
 
 RSpec.describe User, type: :model do
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:email_address).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:password_digest).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:role).of_type(:string).with_options(null: false, default: "app_user") }
@@ -12,7 +12,7 @@ RSpec.describe User, type: :model do
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
+  describe "Associations" do
     it { is_expected.to have_many(:sessions).dependent(:destroy) }
     it { is_expected.to have_many(:contacts).dependent(:destroy) }
     it { is_expected.to have_many(:contact_users).through(:contacts).source(:contact) }
@@ -53,13 +53,13 @@ RSpec.describe User, type: :model do
   end
 
   # ── Validations ───────────────────────────────────────────────────────────
-  describe "validations" do
+  describe "Validations" do
     subject { build(:user) }
 
-    # 1) Happy path
-    # 2) Negative path
-    # 3) Alternative path
-    # 4) Edge cases
+    # 1) Happy Path
+    # 2) Negative Path
+    # 3) Alternative Paths
+    # 4) Edge Cases
     # ... (existing validation specs unchanged)
   end
 end

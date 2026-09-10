@@ -7,15 +7,15 @@ RSpec.describe Contact, type: :model do
 
   subject { build(:contact, user: alice, contact: bob) }
 
-  # ── Database columns ──────────────────────────────────────────────────────
-  describe "database columns" do
+  # ── Database Columns ──────────────────────────────────────────────────────
+  describe "Database Columns" do
     it { is_expected.to have_db_column(:user_id).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:contact_id).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:status).of_type(:string).with_options(null: false, default: "pending") }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
-  describe "associations" do
+  describe "Associations" do
     it "belongs to user" do
         contact = create(:contact, user: alice, contact: bob)
         expect(contact.user).to eq(alice)
@@ -29,8 +29,9 @@ RSpec.describe Contact, type: :model do
   end
 
   # ── Validations ───────────────────────────────────────────────────────────
-  describe "validations" do
-    describe "happy path" do
+  describe "Validations" do
+    # 1) Happy Path ─────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "is valid with status pending" do
         subject.status = "pending"
         expect(subject).to be_valid
@@ -42,7 +43,8 @@ RSpec.describe Contact, type: :model do
       end
     end
 
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
         it "is not valid without a user" do
             subject.user    = nil
             subject.user_id = nil
@@ -70,7 +72,8 @@ RSpec.describe Contact, type: :model do
       end
     end
 
-    describe "alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       it "is valid when bob adds alice even if alice has already added bob" do
         create(:contact, user: alice, contact: bob)
         reverse = build(:contact, user: bob, contact: alice)
@@ -78,7 +81,8 @@ RSpec.describe Contact, type: :model do
       end
     end
 
-    describe "edge cases" do
+    # 4) Edge Cases ────────────────────────────────────────────────────────────
+    describe "Edge Cases" do
       it "is invalid if a user tries to add themselves" do
         subject.contact = alice
         subject.user    = alice
@@ -89,7 +93,7 @@ RSpec.describe Contact, type: :model do
   end
 
   # ── Scopes ────────────────────────────────────────────────────────────────
-  describe "scopes" do
+  describe "Scopes" do
     describe ".confirmed" do
       it "returns only confirmed contacts" do
         confirmed = create(:contact, user: alice, contact: bob, status: "confirmed")

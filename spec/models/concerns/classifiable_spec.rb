@@ -23,7 +23,8 @@ RSpec.describe Classifiable, type: :model do
 
   # ── visible_to_users ──────────────────────────────────────────────────────
   describe ".visible_to_users" do
-    describe "happy path" do
+    # 1) Happy Path ─────────────────────────────────────────────────────────
+    describe "Happy Path" do
       it "returns unrestricted events to any user" do
         expect(Event.visible_to_users(stranger)).to include(unrestricted_event)
       end
@@ -41,7 +42,8 @@ RSpec.describe Classifiable, type: :model do
       end
     end
 
-    describe "negative path" do
+    # 2) Negative Path ────────────────────────────────────────────────────────
+    describe "Negative Path" do
       it "does not return contacts events to a stranger" do
         expect(Event.visible_to_users(stranger)).not_to include(contacts_event)
       end
@@ -52,7 +54,8 @@ RSpec.describe Classifiable, type: :model do
       end
     end
 
-    describe "alternative path" do
+    # 3) Alternative Paths ─────────────────────────────────────────────────────
+    describe "Alternative Paths" do
       it "can be chained with other scopes" do
         expect { Event.visible_to_users(contact_user).chronological }.not_to raise_error
       end

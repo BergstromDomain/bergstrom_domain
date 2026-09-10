@@ -1,3 +1,4 @@
+# spec/features/events/events_by_week_spec.rb
 require "rails_helper"
 
 RSpec.describe "Events By Week", type: :feature do
@@ -31,8 +32,9 @@ RSpec.describe "Events By Week", type: :feature do
       day:   next_monday.day)
   end
 
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    context "When 'Gary Guest' visits 'Events by week' with no date param" do
+    context "When 'Gary Guest' visits 'Events By Week' with no date param" do
       before { visit events_by_week_path }
 
       it "Shows the current week heading" do
@@ -87,6 +89,7 @@ RSpec.describe "Events By Week", type: :feature do
     end
   end
 
+  # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
     context "When there are no events in the selected week" do
       it "Shows an empty state message" do
@@ -100,7 +103,8 @@ RSpec.describe "Events By Week", type: :feature do
     end
   end
 
-  describe "Alternative Path" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     context "When 'Uno User' is signed in" do
       let(:uno) { create(:user) }
 
@@ -115,6 +119,7 @@ RSpec.describe "Events By Week", type: :feature do
     end
   end
 
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
     context "When an invalid date param is passed" do
       it "Falls back to the current week without raising an error" do
@@ -132,9 +137,9 @@ RSpec.describe "Events By Week", type: :feature do
       let!(:dec_event) do
         create(:event, :unrestricted,
           title: "Metallica New Year Eve Concert",
-        month: 12,
-        day:   29,
-        year:  Date.current.year)
+          month: 12,
+          day:   29,
+          year:  Date.current.year)
       end
 
       let!(:jan_event) do
@@ -143,22 +148,22 @@ RSpec.describe "Events By Week", type: :feature do
           month: 1,
           day:   3,
           year:  Date.current.year + 1)
-        end
+      end
 
-        it "Shows events from both December and January in the same week" do
-            visit events_by_week_path(date: dec_29.iso8601)
+      it "Shows events from both December and January in the same week" do
+        visit events_by_week_path(date: dec_29.iso8601)
 
-            expect(page).to have_link("Metallica New Year Eve Concert")
-            expect(page).to have_link("Metallica New Year Day Show")
-        end
+        expect(page).to have_link("Metallica New Year Eve Concert")
+        expect(page).to have_link("Metallica New Year Day Show")
+      end
 
-        it "Does not show events with a day outside the week's day range" do
+      it "Does not show events with a day outside the week's day range" do
         create(:event, :unrestricted, title: "Outside The Week Event", month: 1, day: 28, year: Date.current.year)
 
         visit events_by_week_path(date: dec_29.iso8601)
 
         expect(page).not_to have_link("Outside The Week Event")
-        end
+      end
     end
 
     context "When an event in range has no year" do

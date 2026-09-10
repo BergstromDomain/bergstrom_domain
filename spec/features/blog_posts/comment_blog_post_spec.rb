@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Comment on blog post", type: :feature do
+RSpec.describe "Comment Blog Post", type: :feature do
   let(:owner)  { create(:user, :content_creator) }
   let(:reader) { create(:user, :content_creator) }
 
@@ -51,8 +51,8 @@ RSpec.describe "Comment on blog post", type: :feature do
     find("#{scope_selector} input[type='submit']", visible: true).click
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Posts a top-level comment and shows the correct count", js: true do
       post = published_post
       sign_in_and_settle(reader)
@@ -93,8 +93,8 @@ RSpec.describe "Comment on blog post", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Redirects 'Gary Guest' to the 'Sign in' page on a direct comment request" do
       post = published_post
       page.driver.submit :post, blog_post_comments_path(post), { comment: { body: "Hi" } }
@@ -141,8 +141,8 @@ RSpec.describe "Comment on blog post", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Allows an admin to delete any comment" do
       post = published_post
       comment = create(:comment, blog_post: post, user: reader, body: "Some comment")
@@ -215,8 +215,8 @@ RSpec.describe "Comment on blog post", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Deletes all replies when the top-level comment is deleted, updating the count" do
       post = published_post
       thread = create(:comment, blog_post: post, user: owner, body: "Original")

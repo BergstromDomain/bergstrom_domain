@@ -2,7 +2,8 @@
 require "rails_helper"
 
 RSpec.describe "Sign Up", type: :feature do
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Renders the info panel" do
       visit sign_up_path
       expect(page).to have_selector("[data-testid='sign-up-info']")
@@ -84,7 +85,8 @@ RSpec.describe "Sign Up", type: :feature do
     end
   end
 
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Shows an error when first name is blank" do
       visit sign_up_path
 
@@ -192,7 +194,8 @@ RSpec.describe "Sign Up", type: :feature do
     end
   end
 
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Creates an account with an email address in mixed case" do
       visit sign_up_path
 
@@ -224,7 +227,8 @@ RSpec.describe "Sign Up", type: :feature do
     end
   end
 
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Is accessible to an unauthenticated visitor" do
       visit sign_up_path
       expect(page).to have_current_path(sign_up_path)

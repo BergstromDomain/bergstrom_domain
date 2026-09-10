@@ -5,8 +5,8 @@ require "rails_helper"
 RSpec.describe BlogPostFilter do
   let(:owner) { create(:user, :content_creator, first_name: "Ada", last_name: "Lovelace") }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     describe ".attributes_for" do
       it "Builds the full attribute hash for a post" do
         category = create(:blog_category, name: "Technology")
@@ -98,8 +98,8 @@ RSpec.describe BlogPostFilter do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     describe ".basic_ast" do
       it "Ignores a blank string filter rather than matching an empty value" do
         ast = described_class.basic_ast(category: "")
@@ -108,8 +108,8 @@ RSpec.describe BlogPostFilter do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     describe ".sort" do
       it "Sorts by Smiles using the computed like_score, not a stored column" do
         low = create(:blog_post, user: owner, title: "Low")
@@ -121,8 +121,8 @@ RSpec.describe BlogPostFilter do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     describe ".sort" do
       it "Sorts posts missing a Subject last, regardless of direction" do
         with_subject = create(:blog_post, user: owner, title: "A", subject: "Ruby")

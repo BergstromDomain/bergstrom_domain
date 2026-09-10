@@ -7,8 +7,8 @@ RSpec.describe Jql::Parser do
     Jql::Parser::Comparison.new(field: field, operator: operator, value: value, value_type: value_type)
   end
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Parses a simple string equality comparison" do
       ast = described_class.parse('title = "Hello"')
       expect(ast).to eq(comparison(field: :title, operator: "=", value: "Hello", value_type: :string))
@@ -67,8 +67,8 @@ RSpec.describe Jql::Parser do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Raises on a blank query" do
       expect { described_class.parse("") }.to raise_error(Jql::ParseError, /cannot be blank/)
     end
@@ -98,8 +98,8 @@ RSpec.describe Jql::Parser do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Binds AND tighter than OR (a AND b OR c reads as (a AND b) OR c)" do
       ast = described_class.parse('category = "Food" AND comments > 1 OR topic = "Ruby"')
 
@@ -118,8 +118,8 @@ RSpec.describe Jql::Parser do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Handles deeply nested parentheses" do
       ast = described_class.parse('((((category = "Food"))))')
       expect(ast).to eq(comparison(field: :category, operator: "=", value: "Food", value_type: :string))

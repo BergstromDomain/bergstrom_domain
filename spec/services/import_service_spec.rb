@@ -11,7 +11,8 @@ RSpec.describe ImportService do
     file
   end
 
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Returns the correct imported_count and failed_count" do
       create(:event_type, name: "Birthday")
       csv = csv_file(<<~CSV)
@@ -83,7 +84,8 @@ RSpec.describe ImportService do
     end
   end
 
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Produces a failed row with a meaningful message for an unknown event type" do
       csv = csv_file(<<~CSV)
         First name,Last name,Event type,Event title,Event date
@@ -125,7 +127,8 @@ RSpec.describe ImportService do
     end
   end
 
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Imports successfully with a blank year, storing year as nil" do
       create(:event_type, name: "Birthday")
       csv = csv_file(<<~CSV)
@@ -143,7 +146,8 @@ RSpec.describe ImportService do
     end
   end
 
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Runs each row in its own transaction so one failure doesn't roll back others" do
       create(:event_type, name: "Birthday")
       csv = csv_file(<<~CSV)

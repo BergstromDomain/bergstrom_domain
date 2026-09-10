@@ -1,5 +1,4 @@
 # spec/features/events/edit_event_spec.rb
-
 require "rails_helper"
 
 RSpec.describe "Edit Event", type: :feature do
@@ -24,8 +23,8 @@ RSpec.describe "Edit Event", type: :feature do
 
   before { sign_in_as(user) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Displays the original title in the page heading" do
       visit edit_event_path(event)
       expect(page).to have_selector("h1.page-title", text: "Kill 'Em All")
@@ -73,8 +72,8 @@ RSpec.describe "Edit Event", type: :feature do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Shows a validation error when title is cleared" do
       visit edit_event_path(event)
       fill_in "Title", with: ""
@@ -97,8 +96,8 @@ RSpec.describe "Edit Event", type: :feature do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ──────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Preserves existing people when updating other fields" do
       visit edit_event_path(event)
       fill_in "Title", with: "Kill 'Em All (Remastered)"
@@ -127,8 +126,8 @@ RSpec.describe "Edit Event", type: :feature do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Preserves the slug history when title changes" do
       old_slug = event.slug
       visit edit_event_path(event)

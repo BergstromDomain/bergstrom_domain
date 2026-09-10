@@ -1,12 +1,13 @@
 # spec/features/system_admin/user_detail_spec.rb
 require "rails_helper"
 
-RSpec.describe "System Admin — User Detail", type: :feature do
+RSpec.describe "User Detail", type: :feature do
   let!(:sam)           { create(:user, :system_admin) }
   let!(:pending_user)  { create(:user, first_name: "Pat",  last_name: "Pending",  status: "pending") }
   let!(:active_user)   { create(:user, first_name: "Alex", last_name: "Active",   status: "active") }
   let!(:suspended_user) { create(:user, first_name: "Sue",  last_name: "Suspended", status: "suspended") }
 
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     it "Shows the user detail page" do
       sign_in_as sam
@@ -37,6 +38,7 @@ RSpec.describe "System Admin — User Detail", type: :feature do
     end
   end
 
+  # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
     it "Redirects an unauthenticated visitor to sign in" do
       visit system_admin_user_path(active_user)
@@ -51,7 +53,8 @@ RSpec.describe "System Admin — User Detail", type: :feature do
     end
   end
 
-  describe "Alternative Path — Action Buttons by Status" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Shows Approve and Reject buttons for a pending user" do
       sign_in_as sam
       visit system_admin_user_path(pending_user)
@@ -81,6 +84,7 @@ RSpec.describe "System Admin — User Detail", type: :feature do
     end
   end
 
+  # 4) Edge Cases ──────────────────────────────────────────────────────────────
   describe "Edge Cases" do
     it "Does not show a Suspend button for the current system admin" do
       sign_in_as sam

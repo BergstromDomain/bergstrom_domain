@@ -4,7 +4,8 @@ require "rails_helper"
 RSpec.describe "Forgot Password", type: :feature do
   let!(:user) { create(:user, email_address: "bergstrom@example.com", password: "password123", password_confirmation: "password123") }
 
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Renders the page heading" do
       visit new_password_path
       expect(page).to have_selector("h1.page-title", text: "Forgot Password")
@@ -38,7 +39,8 @@ RSpec.describe "Forgot Password", type: :feature do
     end
   end
 
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Shows a notice even for an unknown email (no enumeration)" do
       visit new_password_path
       fill_in "Email address", with: "unknown@example.com"
@@ -47,7 +49,8 @@ RSpec.describe "Forgot Password", type: :feature do
     end
   end
 
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Renders the page for an already-signed-in user" do
       sign_in_as(user)
       visit new_password_path
@@ -55,7 +58,8 @@ RSpec.describe "Forgot Password", type: :feature do
     end
   end
 
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Shows the helper text explaining what happens next" do
       visit new_password_path
       expect(page).to have_selector("[data-testid='reset-helper-text']")
