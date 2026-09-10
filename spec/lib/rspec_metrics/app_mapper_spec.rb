@@ -67,6 +67,16 @@ RSpec.describe RspecMetrics::AppMapper do
         expect(described_class.app_for("spec/features/settings/occasions_settings_spec.rb")).to eq("Event_Tracker")
       end
     end
+
+    context "spec_type_for" do
+      it "Maps each spec-type directory to its singular Title Case name" do
+        expect(described_class.spec_type_for("spec/features/events/events_by_week_spec.rb")).to eq("Feature")
+        expect(described_class.spec_type_for("spec/models/person_spec.rb")).to eq("Model")
+        expect(described_class.spec_type_for("spec/requests/contacts_spec.rb")).to eq("Request")
+        expect(described_class.spec_type_for("spec/services/export_service_spec.rb")).to eq("Service")
+        expect(described_class.spec_type_for("spec/views/shared/_toast.html.erb_spec.rb")).to eq("View")
+      end
+    end
   end
 
   # 2) Negative Path ────────────────────────────────────────────────────────
@@ -74,6 +84,11 @@ RSpec.describe RspecMetrics::AppMapper do
     it "Raises a clear error for a path with no known topic mapping" do
       expect { described_class.app_for("spec/models/some_future_model_spec.rb") }
         .to raise_error(RspecMetrics::AppMapper::UnmappedSpecError, /some_future_model/)
+    end
+
+    it "Raises a clear error for spec_type_for given an unrecognised spec-type directory" do
+      expect { described_class.spec_type_for("spec/jobs/some_job_spec.rb") }
+        .to raise_error(RspecMetrics::AppMapper::UnmappedSpecError, /jobs/)
     end
   end
 

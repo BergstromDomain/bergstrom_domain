@@ -36,8 +36,20 @@ module RspecMetrics
       topics.each { |topic| lookup[topic] = app }
     end.freeze
 
+    SPEC_TYPE_BY_DIR = {
+      "features" => "Feature",
+      "models" => "Model",
+      "requests" => "Request",
+      "services" => "Service",
+      "views" => "View"
+    }.freeze
+
     def self.app_for(spec_file_path)
       new(spec_file_path).app
+    end
+
+    def self.spec_type_for(spec_file_path)
+      new(spec_file_path).spec_type
     end
 
     def initialize(spec_file_path)
@@ -48,11 +60,18 @@ module RspecMetrics
       OVERRIDES[@path] || TOPIC_TO_APP[topic] || raise(UnmappedSpecError, "No app mapping for #{@path.inspect}")
     end
 
+    def spec_type
+      SPEC_TYPE_BY_DIR[spec_type_dir] || raise(UnmappedSpecError, "No spec_type mapping for #{@path.inspect}")
+    end
+
     private
 
+    def spec_type_dir
+      @path.split("/")[1]
+    end
+
     def topic
-      parts = @path.split("/")
-      remainder = parts[2..] || []
+      remainder = @path.split("/")[2..] || []
 
       if remainder.size >= 2
         remainder.first
