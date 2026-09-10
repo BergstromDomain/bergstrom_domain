@@ -75,6 +75,13 @@ RSpec.describe RspecMetrics::AppMapper do
         expect(described_class.spec_type_for("spec/requests/contacts_spec.rb")).to eq("Request")
         expect(described_class.spec_type_for("spec/services/export_service_spec.rb")).to eq("Service")
         expect(described_class.spec_type_for("spec/views/shared/_toast.html.erb_spec.rb")).to eq("View")
+        expect(described_class.spec_type_for("spec/lib/rspec_metrics/app_mapper_spec.rb")).to eq("Lib")
+      end
+    end
+
+    context "spec/lib (dogfooding: this metrics pipeline's own specs)" do
+      it "Maps spec/lib/rspec_metrics to Main" do
+        expect(described_class.app_for("spec/lib/rspec_metrics/formatter_spec.rb")).to eq("Main")
       end
     end
   end

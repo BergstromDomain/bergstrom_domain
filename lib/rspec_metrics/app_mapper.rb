@@ -28,7 +28,7 @@ module RspecMetrics
       "Main" => %w[
         auth contacts layouts pages settings shared system_admin
         app_permission contact policy user_app_setting user concerns
-        footer build_info_service
+        footer build_info_service rspec_metrics
       ]
     }.freeze
 
@@ -41,7 +41,8 @@ module RspecMetrics
       "models" => "Model",
       "requests" => "Request",
       "services" => "Service",
-      "views" => "View"
+      "views" => "View",
+      "lib" => "Lib"
     }.freeze
 
     def self.app_for(spec_file_path)
