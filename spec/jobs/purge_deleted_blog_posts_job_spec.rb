@@ -4,8 +4,8 @@ require "rails_helper"
 RSpec.describe PurgeDeletedBlogPostsJob, type: :job do
   let(:owner) { create(:user, :content_creator) }
 
-  # 1) Happy path ─────────────────────────────────────────────────────────────
-  describe "Happy path" do
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
     it "Permanently destroys a post discarded more than 30 days ago" do
       post = create(:blog_post, user: owner, deleted_at: 31.days.ago)
       described_class.perform_now
@@ -20,8 +20,8 @@ RSpec.describe PurgeDeletedBlogPostsJob, type: :job do
     end
   end
 
-  # 2) Negative path ──────────────────────────────────────────────────────────
-  describe "Negative path" do
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
     it "Leaves a post discarded less than 30 days ago untouched" do
       post = create(:blog_post, user: owner, deleted_at: 1.day.ago)
       described_class.perform_now
@@ -35,8 +35,8 @@ RSpec.describe PurgeDeletedBlogPostsJob, type: :job do
     end
   end
 
-  # 3) Alternative path ───────────────────────────────────────────────────────
-  describe "Alternative path" do
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Destroys multiple eligible posts in one run" do
       create(:blog_post, user: owner, deleted_at: 40.days.ago)
       create(:blog_post, user: create(:user, :content_creator), deleted_at: 35.days.ago)
@@ -45,8 +45,8 @@ RSpec.describe PurgeDeletedBlogPostsJob, type: :job do
     end
   end
 
-  # 4) Edge cases ─────────────────────────────────────────────────────────────
-  describe "Edge cases" do
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
     it "Treats a post discarded exactly 30 days ago as not yet eligible" do
       post = create(:blog_post, user: owner, deleted_at: 30.days.ago + 1.minute)
       described_class.perform_now

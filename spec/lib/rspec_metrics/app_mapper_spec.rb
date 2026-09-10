@@ -76,12 +76,25 @@ RSpec.describe RspecMetrics::AppMapper do
         expect(described_class.spec_type_for("spec/services/export_service_spec.rb")).to eq("Service")
         expect(described_class.spec_type_for("spec/views/shared/_toast.html.erb_spec.rb")).to eq("View")
         expect(described_class.spec_type_for("spec/lib/rspec_metrics/app_mapper_spec.rb")).to eq("Lib")
+        expect(described_class.spec_type_for("spec/helpers/toast_helper_spec.rb")).to eq("Helper")
+        expect(described_class.spec_type_for("spec/jobs/purge_deleted_blog_posts_job_spec.rb")).to eq("Job")
       end
     end
 
     context "spec/lib (dogfooding: this metrics pipeline's own specs)" do
       it "Maps spec/lib/rspec_metrics to Main" do
         expect(described_class.app_for("spec/lib/rspec_metrics/formatter_spec.rb")).to eq("Main")
+      end
+    end
+
+    context "spec/helpers and spec/jobs" do
+      it "Maps toast_helper and footer_helper to Main" do
+        expect(described_class.app_for("spec/helpers/toast_helper_spec.rb")).to eq("Main")
+        expect(described_class.app_for("spec/helpers/footer_helper_spec.rb")).to eq("Main")
+      end
+
+      it "Maps purge_deleted_blog_posts_job to Blog_Posts" do
+        expect(described_class.app_for("spec/jobs/purge_deleted_blog_posts_job_spec.rb")).to eq("Blog_Posts")
       end
     end
   end
@@ -94,8 +107,8 @@ RSpec.describe RspecMetrics::AppMapper do
     end
 
     it "Raises a clear error for spec_type_for given an unrecognised spec-type directory" do
-      expect { described_class.spec_type_for("spec/jobs/some_job_spec.rb") }
-        .to raise_error(RspecMetrics::AppMapper::UnmappedSpecError, /jobs/)
+      expect { described_class.spec_type_for("spec/mailers/some_mailer_spec.rb") }
+        .to raise_error(RspecMetrics::AppMapper::UnmappedSpecError, /mailers/)
     end
   end
 
