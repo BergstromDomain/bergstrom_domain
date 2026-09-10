@@ -24,11 +24,12 @@ module RspecMetrics
       "Blog_Posts" => %w[
         blog_categories blog_posts blog_category blog_post_author blog_post
         comment like blog_post_export_service blog_post_filter jql
+        purge_deleted_blog_posts_job
       ],
       "Main" => %w[
         auth contacts layouts pages settings shared system_admin
         app_permission contact policy user_app_setting user concerns
-        footer build_info_service rspec_metrics
+        footer build_info_service rspec_metrics toast_helper footer_helper
       ]
     }.freeze
 
@@ -42,7 +43,9 @@ module RspecMetrics
       "requests" => "Request",
       "services" => "Service",
       "views" => "View",
-      "lib" => "Lib"
+      "lib" => "Lib",
+      "helpers" => "Helper",
+      "jobs" => "Job"
     }.freeze
 
     def self.app_for(spec_file_path)
