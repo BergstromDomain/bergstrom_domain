@@ -40,7 +40,7 @@ RSpec.describe RspecMetrics::Pusher do
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    it "Builds a correctly formatted Line Protocol payload and POSTs it with Basic Auth" do
+    it "Builds a correctly formatted Line Protocol payload (no commit_sha - unbounded label, see decision #4) and POSTs it with Basic Auth" do
       write_summary([
         { spec_type: "Model", app: "Event_Tracker", flow: "Happy Path", passed: 11, failed: 0, pending: 1 }
       ])
@@ -53,14 +53,15 @@ RSpec.describe RspecMetrics::Pusher do
 
       expect(Net::HTTP).to have_received(:start).with("example.grafana.net", 443, hash_including(use_ssl: true))
       expect(http).to have_received(:request) do |request|
-        expect(request.body).to eq(
-          "rspec_examples,app=Event_Tracker,branch=main,commit_sha=abc1234,flow=Happy\\ Path,source=ci,spec_type=Model " \
-          "passed=11i,failed=0i,pending=1i"
+        lines = request.body.lines
+        expect(lines[0]).to eq(
+          "rspec_examples,app=Event_Tracker,branch=main,flow=Happy\\ Path,source=ci,spec_type=Model " \
+          "passed=11i,failed=0i,pending=1i\n"
         )
       end
     end
 
-    it "Joins multiple summary rows as separate lines" do
+    it "Joins multiple summary rows as separate lines, plus one trailing build_info line" do
       write_summary([
         { spec_type: "Model", app: "Main", flow: nil, passed: 5, failed: 0, pending: 0 },
         { spec_type: "Feature", app: "Blog_Posts", flow: "Edge Cases", passed: 2, failed: 1, pending: 0 }
@@ -72,7 +73,24 @@ RSpec.describe RspecMetrics::Pusher do
       end
 
       expect(http).to have_received(:request) do |request|
-        expect(request.body.lines.count).to eq(2)
+        expect(request.body.lines.count).to eq(3)
+      end
+    end
+
+    it "Appends exactly one rspec_metrics_build_info line carrying commit_sha, regardless of row count" do
+      write_summary([
+        { spec_type: "Model", app: "Main", flow: nil, passed: 5, failed: 0, pending: 0 },
+        { spec_type: "Feature", app: "Blog_Posts", flow: "Edge Cases", passed: 2, failed: 1, pending: 0 }
+      ])
+      http = stub_http_success
+
+      with_env(required_env) do
+        described_class.call(summary_path: @summary_path)
+      end
+
+      expect(http).to have_received(:request) do |request|
+        build_info_lines = request.body.lines.select { |line| line.start_with?("rspec_metrics_build_info,") }
+        expect(build_info_lines).to eq([ "rspec_metrics_build_info,branch=main,commit_sha=abc1234,source=ci value=1i" ])
       end
     end
   end

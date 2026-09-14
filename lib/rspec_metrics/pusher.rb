@@ -62,14 +62,19 @@ module RspecMetrics
     end
 
     def payload(rows)
-      rows.map { |row| build_line(row) }.join("\n")
+      (rows.map { |row| build_line(row) } + [ build_info_line ]).join("\n")
     end
 
+    # commit_sha deliberately excluded here — see Feature_-_Test_Result_Dashboard.md
+    # decision #4: it's an unbounded label (Prometheus's own naming-best-practices
+    # guidance flags this as an anti-pattern), so every push created a permanent new
+    # series instead of updating an existing one, making "latest total for branch X"
+    # queries silently sum every historical commit's data together. commit_sha is
+    # still recorded, just on the separate low-volume build_info_line below.
     def build_line(row)
       tags = {
         "app" => row[:app],
         "branch" => branch,
-        "commit_sha" => commit_sha,
         "source" => source,
         "spec_type" => row[:spec_type]
       }
@@ -79,6 +84,16 @@ module RspecMetrics
       fields = "passed=#{row[:passed]}i,failed=#{row[:failed]}i,pending=#{row[:pending]}i"
 
       "rspec_examples,#{tag_string} #{fields}"
+    end
+
+    # One low-volume "info metric" per push (not per row) — the standard Prometheus
+    # pattern for keeping an unbounded identifier queryable without putting it on
+    # anything that gets aggregated. https://prometheus.io/docs/practices/naming/
+    def build_info_line
+      tags = { "branch" => branch, "commit_sha" => commit_sha, "source" => source }
+      tag_string = tags.sort.map { |key, value| "#{key}=#{escape(value)}" }.join(",")
+
+      "rspec_metrics_build_info,#{tag_string} value=1i"
     end
 
     # Influx Line Protocol escaping — a backslash-escaped space/comma/equals is
