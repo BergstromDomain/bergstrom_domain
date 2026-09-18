@@ -34,7 +34,7 @@ RSpec.describe "Show Social Media Platform", type: :feature do
     end
 
     it "Shows a back link to the index" do
-      expect(page).to have_link("Back to Social Media Platforms", href: social_media_platforms_path)
+      expect(page).to have_link("Back", href: social_media_platforms_path, exact: true)
     end
 
     it "Does not show the 'Edit' nor the 'Delete' buttons to 'Gary Guest'" do

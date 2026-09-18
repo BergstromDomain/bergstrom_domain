@@ -32,6 +32,13 @@ RSpec.describe "User List", type: :feature do
       expect(page).to have_text(pending_user.email_address)
     end
 
+    it "Shows a Back button" do
+      sign_in_as sam
+      visit system_admin_users_path
+
+      expect(page).to have_link("Back", href: root_path, exact: true)
+    end
+
     it "Shows a pending badge for 'Pat Pending'" do
       sign_in_as sam
       visit system_admin_users_path

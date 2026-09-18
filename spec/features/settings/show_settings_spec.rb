@@ -120,7 +120,7 @@ RSpec.describe "Show Settings", type: :feature do
       expect(page).to have_selector("[data-testid='settings-actions-panel']")
     end
 
-    it "Renders the 'Back to Home' button inside the 'Actions' panel" do
+    it "Renders the 'Back' button inside the 'Actions' panel" do
       sign_in_as(uno)
       visit settings_path
       expect(page).to have_selector("[data-testid='settings-back-link']")
@@ -138,7 +138,7 @@ RSpec.describe "Show Settings", type: :feature do
       expect(page).to have_selector("[data-testid='settings-delete-button']")
     end
 
-    it "Navigates to the 'Home' page when the button 'Back to Home' is clicked" do
+    it "Navigates to the 'Home' page when the 'Back' button is clicked" do
       sign_in_as(uno)
       visit settings_path
       find("[data-testid='settings-back-link']").click

@@ -69,8 +69,8 @@ RSpec.describe "Show Event", type: :feature do
       expect(page).to have_selector("[data-testid='audit-updated']", text: user.email_address)
     end
 
-    it "Shows a Back to Events button" do
-      expect(page).to have_link("Back to Events", href: events_path)
+    it "Shows a Back button" do
+      expect(page).to have_link("Back", href: events_path, exact: true)
     end
 
     it "Does not show Edit or Delete to an unauthenticated visitor" do

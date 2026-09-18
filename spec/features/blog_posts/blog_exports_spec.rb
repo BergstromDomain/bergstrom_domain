@@ -35,7 +35,7 @@ RSpec.describe "Blog Exports", type: :feature do
       click_link "Print / Save as PDF"
 
       expect(page).to have_selector("[data-testid='print-post-row']", text: "Printable Post")
-      expect(page).to have_selector(".print-hide [data-testid='print-button']")
+      expect(page).to have_selector(".print-hide [data-testid='print-button']", text: "Print This Page")
     end
   end
 

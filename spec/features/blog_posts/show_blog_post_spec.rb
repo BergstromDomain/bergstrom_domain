@@ -61,7 +61,7 @@ RSpec.describe "Show Blog Post", type: :feature do
     end
 
     it "Shows a back link to Chronicle" do
-      expect(page).to have_link("Back to Chronicle", href: chronicle_path)
+      expect(page).to have_link("Back", href: chronicle_path, exact: true)
     end
 
     it "Is accessible by slug" do

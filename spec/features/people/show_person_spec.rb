@@ -46,6 +46,11 @@ RSpec.describe "Show Person", type: :feature do
       visit "/people/james-alan-hetfield"
       expect(page).to have_selector("[data-testid='person-name']", text: "James Alan Hetfield")
     end
+
+    it "Shows a Back button" do
+      visit person_path(person)
+      expect(page).to have_link("Back", href: people_path, exact: true)
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 <%# app/views/events/_form.html.erb %>
 
-<%= form_with model: event, class: "resource-form" do |f| %>
+<%= form_with model: event, class: "resource-form resource-form--wide" do |f| %>
   <% if event.errors.any? %>
     <div class="form-errors" data-testid="form-errors">
       <p><%= pluralize(event.errors.count, "error") %> prevented this event from being saved:</p>

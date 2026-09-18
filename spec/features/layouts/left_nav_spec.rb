@@ -47,9 +47,9 @@ RSpec.describe "Left Nav", type: :feature do
       it "Shows the 'Events' group with calendar links" do
         within("[data-testid='left-nav']") do
           expect(page).to have_selector("[data-testid='left-nav-events-h3']")
-          expect(page).to have_link("Events by day",   href: events_by_day_path)
-          expect(page).to have_link("Events by week",  href: events_by_week_path)
-          expect(page).to have_link("Events by month", href: events_by_month_path)
+          expect(page).to have_link("Events By Day",   href: events_by_day_path)
+          expect(page).to have_link("Events By Week",  href: events_by_week_path)
+          expect(page).to have_link("Events By Month", href: events_by_month_path)
         end
       end
 
@@ -68,9 +68,10 @@ RSpec.describe "Left Nav", type: :feature do
         end
       end
 
-      it "Shows the 'How To' section with 'User Guide' link" do
+      it "Shows the 'Documentation' section with a 'How To' group and 'User Guide' link" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_selector("[data-testid='left-nav-how-to-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-documentation-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-how-to-h3']")
           expect(page).to have_link("User Guide", href: user_guide_path)
         end
       end
@@ -86,7 +87,7 @@ RSpec.describe "Left Nav", type: :feature do
 
       it "Does not show the 'Import & Export' section" do
         within("[data-testid='left-nav']") do
-          expect(page).not_to have_selector("[data-testid='left-nav-import-export-h2']")
+          expect(page).not_to have_selector("[data-testid='left-nav-import-export-h3']")
         end
       end
     end
@@ -117,7 +118,7 @@ RSpec.describe "Left Nav", type: :feature do
 
       it "Does not show the 'Import & Export' section" do
         within("[data-testid='left-nav']") do
-          expect(page).not_to have_selector("[data-testid='left-nav-import-export-h2']")
+          expect(page).not_to have_selector("[data-testid='left-nav-import-export-h3']")
         end
       end
     end
@@ -133,6 +134,12 @@ RSpec.describe "Left Nav", type: :feature do
       it "Shows the 'Actions H2' header" do
         within("[data-testid='left-nav']") do
           expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
+        end
+      end
+
+      it "Shows the 'New' subgroup under Actions" do
+        within("[data-testid='left-nav']") do
+          expect(page).to have_selector("[data-testid='left-nav-new-h3']")
         end
       end
 
@@ -156,9 +163,9 @@ RSpec.describe "Left Nav", type: :feature do
 
       it "Shows the 'Import & Export' section" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_selector("[data-testid='left-nav-import-export-h2']")
-          expect(page).to have_link("Import People and Events",   href: import_export_path)
-          expect(page).to have_link("Download People and Events", href: import_export_path)
+          expect(page).to have_selector("[data-testid='left-nav-import-export-h3']")
+          expect(page).to have_link("Import People And Events",   href: import_export_path)
+          expect(page).to have_link("Download People And Events", href: import_export_path)
         end
       end
     end
@@ -271,11 +278,11 @@ RSpec.describe "Left Nav", type: :feature do
           end
         end
 
-        it "Shows the Chronicle/Posts/Categories subgroups but not 'My Posts'" do
+        it "Shows the Chronicle/Blog Posts/Reference Data subgroups but not 'My Blog Posts'" do
           within("[data-testid='left-nav']") do
             expect(page).to have_selector("[data-testid='left-nav-chronicle-h3']")
-            expect(page).to have_selector("[data-testid='left-nav-posts-h3']")
-            expect(page).to have_selector("[data-testid='left-nav-categories-h3']")
+            expect(page).to have_selector("[data-testid='left-nav-posts-h3']", text: "Blog Posts")
+            expect(page).to have_selector("[data-testid='left-nav-categories-h3']", text: "Reference Data")
             expect(page).not_to have_selector("[data-testid='left-nav-my-posts-h3']")
           end
         end
@@ -287,9 +294,10 @@ RSpec.describe "Left Nav", type: :feature do
           end
         end
 
-        it "Shows the How To section with a User Guide link" do
+        it "Shows the Documentation section with a How To group and User Guide link" do
           within("[data-testid='left-nav']") do
-            expect(page).to have_selector("[data-testid='left-nav-how-to-h2']")
+            expect(page).to have_selector("[data-testid='left-nav-documentation-h2']")
+            expect(page).to have_selector("[data-testid='left-nav-how-to-h3']")
             expect(page).to have_link("User Guide", href: user_guide_path)
           end
         end
@@ -303,12 +311,12 @@ RSpec.describe "Left Nav", type: :feature do
           visit chronicle_path
         end
 
-        it "Shows 'My Posts' with Published/Unpublished links pre-scoped to the current user" do
+        it "Shows 'My Blog Posts' with Published/Draft links pre-scoped to the current user" do
           within("[data-testid='left-nav']") do
-            expect(page).to have_selector("[data-testid='left-nav-my-posts-h3']")
+            expect(page).to have_selector("[data-testid='left-nav-my-posts-h3']", text: "My Blog Posts")
             expect(page).to have_link("My Published Posts",
               href: filter_blog_posts_path(author_id: uno.id, published: "published"))
-            expect(page).to have_link("My Unpublished Posts",
+            expect(page).to have_link("My Draft Posts",
               href: filter_blog_posts_path(author_id: uno.id, published: "draft"))
           end
         end
@@ -330,6 +338,7 @@ RSpec.describe "Left Nav", type: :feature do
         it "Shows the Actions section with Create A Blog Post" do
           within("[data-testid='left-nav']") do
             expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
+            expect(page).to have_selector("[data-testid='left-nav-new-h3']")
             expect(page).to have_link("Create A Blog Post", href: new_blog_post_path)
           end
         end
@@ -392,10 +401,10 @@ RSpec.describe "Left Nav", type: :feature do
       end
     end
 
-    context "When 'Gary Guest' clicks 'Events by day'" do
-      it "Navigates to the 'Events by day' page" do
+    context "When 'Gary Guest' clicks 'Events By Day'" do
+      it "Navigates to the 'Events By Day' page" do
         visit events_path
-        within("[data-testid='left-nav']") { click_link "Events by day" }
+        within("[data-testid='left-nav']") { click_link "Events By Day" }
         expect(page).to have_selector("[data-testid='by-day-heading']")
       end
     end
@@ -420,7 +429,7 @@ RSpec.describe "Left Nav", type: :feature do
 
       it "Shows the 'Import & Export' section" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_selector("[data-testid='left-nav-import-export-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-import-export-h3']")
         end
       end
     end
@@ -441,7 +450,7 @@ RSpec.describe "Left Nav", type: :feature do
 
       it "Shows the 'Import & Export' section" do
         within("[data-testid='left-nav']") do
-          expect(page).to have_selector("[data-testid='left-nav-import-export-h2']")
+          expect(page).to have_selector("[data-testid='left-nav-import-export-h3']")
         end
       end
     end

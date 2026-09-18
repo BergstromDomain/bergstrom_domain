@@ -33,7 +33,7 @@ RSpec.describe "Show Event Type", type: :feature do
     end
 
     it "Shows a back link to the index" do
-      expect(page).to have_link("Back to Event Types", href: event_types_path)
+      expect(page).to have_link("Back", href: event_types_path, exact: true)
     end
 
     it "Does not show the 'Edit' nor the 'Delete' buttons to 'Gary Guest'" do
