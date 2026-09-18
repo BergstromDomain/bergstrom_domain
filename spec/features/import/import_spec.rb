@@ -6,6 +6,13 @@ RSpec.describe "Import", type: :feature do
   let(:uno)     { create(:user) }
 
   describe "Happy Path" do
+    it "Shows a title-cased 'Download Import Template' link" do
+      sign_in_as charlie
+      visit import_export_path
+
+      expect(page).to have_link("Download Import Template", href: import_template_path)
+    end
+
     it "Imports all rows from a valid CSV and shows a success summary" do
       create(:event_type, name: "Birthday")
 

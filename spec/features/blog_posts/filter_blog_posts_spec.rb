@@ -76,8 +76,10 @@ RSpec.describe "Filter Blog Posts", type: :feature do
       select "Published Only", from: "published"
       click_button "Apply Filters"
 
-      expect(page).to have_content("Apple Pie")
-      expect(page).not_to have_content("My Draft")
+      within("[data-testid='filter-results-table']") do
+        expect(page).to have_content("Apple Pie")
+        expect(page).not_to have_content("My Draft")
+      end
     end
   end
 

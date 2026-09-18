@@ -39,7 +39,7 @@
           <%= lucide_icon "circle-user-round", size: 24 %>
           <%= lucide_icon "chevron-down", class: "dropdown__chevron" %>
         </button>
-        <ul class="dropdown__menu" data-dropdown-target="menu">
+        <ul class="dropdown__menu dropdown__menu--end" data-dropdown-target="menu">
           <li>
             <%= link_to "User Settings", settings_path, class: "dropdown__item", data: { testid: "user-settings-link" } %>
           </li>

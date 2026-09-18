@@ -36,6 +36,13 @@ RSpec.describe "User Detail", type: :feature do
 
       expect(page).to have_css(".badge--active")
     end
+
+    it "Shows a Back button" do
+      sign_in_as sam
+      visit system_admin_user_path(active_user)
+
+      expect(page).to have_link("Back", href: system_admin_users_path, exact: true)
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────

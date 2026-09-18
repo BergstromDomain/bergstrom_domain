@@ -97,6 +97,61 @@ comment on their first line — it breaks ERB syntax highlighting in VS Code. Ex
 files that already have this comment don't need to be retrofitted, but don't add it to new
 ones.
 
+**Stylesheets**: `app/assets/stylesheets/application.css` is the *only* stylesheet actually
+served (Propshaft doesn't process `@import`, and `app/views/layouts/application.html.erb`
+links only `application`) — its own header comment says as much. The `base/`, `layouts/`,
+`components/` subdirectories and `people.css` are dead/unused leftovers with their own
+(sometimes divergent) copies of the same rules — e.g. `base/variables.css` defines an unused
+`--color-accent: #4f46e5` that is shadowed by `application.css`'s own `--color-accent:
+#b07d56`. Don't edit those files expecting it to change anything; all layout/nav/button CSS
+work happens directly in `application.css`.
+
+**Buttons**: every `.btn-*` class (`.btn-primary`, `.btn-secondary`, `.btn-danger`,
+`.btn-primary-action`) resolves to the same blue (`--color-primary`/`--color-primary-dark` in
+`application.css`) — there is no more color-coding by intent (e.g. red for destructive
+actions). The class names are kept only as semantic hooks for future per-class styling, not
+because they currently look different. Button label text is always title case (every word
+capitalised, no exceptions for minor words like "and"/"by"). A button that navigates back to
+an index/parent page is labelled plain `Back` (not `Back to X`) — see `.btn-secondary` links
+across `app/views/*/show.html.erb`.
+
+**Left nav structure** (`app/views/layouts/_left_nav.html.erb`): every app section follows the
+same two-level header shape — `.left-nav-h2` (top-level, "H1" in the design doc's own
+shorthand) wraps one or more `.left-nav-h3` groups ("H2" in that shorthand):
+
+```
+VIEWS (h2)
+  [App Name] (h3)         → link to the app's own landing page
+  [App-specific group(s)] (h3)  → e.g. Occasions: "Events", "People"; Chronicle: "Blog Posts"
+  My [Items] (h3)         → "My Published X" / "My Draft X" links, signed-in users only — omit if N/A
+  Reference Data (h3)     → shared header name across apps; link text is app-specific
+ACTIONS (h2, content-creator-and-above only)
+  New (h3)                → the app's Create/Write/Add links — Write for long-form content
+                             (Blog Post, Recipe), Create for entities (Person, Event), Add for
+                             reference data (Event Type)
+  Import & Export (h3)    → nested here, not a standalone top-level section; omit if the app
+                             has nothing to import/export yet (e.g. Chronicle currently)
+DOCUMENTATION (h2)
+  How To (h3)
+    User Guide             → stub link until written
+```
+
+**Page sizing** (New/Show/Edit): every resource is either "normal" data (Person, Event, Blog
+Post) or "reference" data (Event Type, Social Media Platform, Blog Category — the same set
+grouped under a left nav's "Reference Data" header, above). Normal-data pages render full
+width; reference-data pages render at a narrower, centered width, consistently across their
+New, Show, and Edit pages:
+- New/Edit forms: `.resource-form` alone is the narrow (560px, centered) default, used by
+  reference-data resources. Add `.resource-form--wide` for normal-data resources (`class:
+  "resource-form resource-form--wide"` on the `form_with` call) to go full width.
+- Show pages: full width is the default (no wrapper needed) — normal-data Show pages render
+  their `.show-panel`s unwrapped. Reference-data Show pages wrap their `.show-panel`s in a
+  `.page-content--half` div to match the same resource's form width.
+
+A link that doesn't fit any bucket (e.g. Chronicle's admin-only "Deleted Posts") stays loose
+directly under its `.left-nav-h2`, ungrouped, rather than being forced into "New" or another
+ill-fitting `.left-nav-h3`.
+
 **Testing**: RSpec + FactoryBot + Capybara (system specs use real Chrome, see CI's
 `google-chrome-stable` install) + shoulda-matchers + database_cleaner (transactional by
 default, truncation for `js: true` specs). SimpleCov enforces 90% minimum coverage when

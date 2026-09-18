@@ -28,6 +28,9 @@
 - The app should have its own landing page, consistent with other apps' landing pages.
 - The app should have a left nav bar, consistent with other apps (see Left Navbar block).
 - Follow the established design system (warm off-white palette, terracotta accent, Lucide icons, `.show-panel` / `.resource-form` conventions) — flag if this app needs a deliberate departure.
+- Buttons: use the existing `.btn`/`.btn-primary`/`.btn-secondary`/`.btn-danger`/`.btn-primary-action` classes — all resolve to the same blue, there is no color-coding by intent. Button text is always title case (every word capitalised, no exceptions for minor words). A button that navigates back to an index/parent page is labelled plain `Back`, not `Back to X`. See CLAUDE.md's "Buttons" note.
+- All CSS lives in `app/assets/stylesheets/application.css` — it's the only stylesheet actually served (see CLAUDE.md's "Stylesheets" note before touching anything under `base/`/`layouts/`/`components/`).
+- Page sizing: classify each of the app's resources as "normal" data (gets full-width New/Show/Edit pages) or "reference" data (gets narrow, centered New/Show/Edit pages, at the same width as its New/Edit form). New/Edit forms default narrow (`.resource-form` alone) — add `.resource-form--wide` for a normal-data resource. Show pages default full width (no wrapper) — wrap a reference-data resource's `.show-panel`s in `.page-content--half`. See CLAUDE.md's "Page sizing" note.
 - Use the existing global Toast component for Create/Update/Delete/Publish feedback (`Toastable` concern in `app/controllers/concerns/toastable.rb`, `shared/_toast` partial) — don't invent ad hoc flash messages. See the Toasts development block below.
 - Pick one Lucide icon for the app itself (distinct from any per-item/taxonomy icons) — validate it exists in the installed `lucide-rails` set before committing to it. This app icon is what the Left Navbar's landing-page link and any future App Settings entry (see the User Settings feature) use; a mismatched or invalid icon name silently fails to render rather than raising. (Potential future improvement: derive this icon from the app's own landing-page image instead of picking one by hand.)
 - [Any app-specific guideline, e.g. mobile/responsive priority, offline support, embed restrictions]
@@ -150,19 +153,27 @@ Data validation for Publish:
 * Result table: same sortable columns as the Browsing leaf-level table
 
 ## Left Navbar
-Consistent structure with other apps (e.g. Event Tracker):
-* VIEWS (H1)
-  * [App Name] (H2) → landing page, using the app icon chosen in Design Guidelines
-  * [Item plural] (H2) → Browse / Filter links
-  * My [Item plural] (H2) → My Published / My Unpublished (= Filtered view, author = current user)
-  * [Taxonomy] (H2) → management link
-* ACTIONS (H1, signed-in only)
-  * Create [ITEM]
-  * Create [Taxonomy entry]
-* EXPORTS (H1, signed-in only)
-  * Download [Item plural] — [formats, e.g. PDF via print, CSV with raw content]
-* HOW TO (H1)
-  * User Guide (may be a placeholder until written)
+Consistent structure with other apps (e.g. Event Tracker, Chronicle) — see CLAUDE.md's
+"Left nav structure" note for the full `.left-nav-h2`/`.left-nav-h3` shape:
+* VIEWS (`.left-nav-h2`)
+  * [App Name] (`.left-nav-h3`) → landing page, using the app icon chosen in Design Guidelines
+  * [Item plural] (`.left-nav-h3`) → Browse / Filter links
+  * My [Item plural] (`.left-nav-h3`) → My Published [Items] / My Draft [Items] (= filtered
+    view, author = current user); omit this group entirely if the app has no author-owned
+    draft/published state (e.g. Event Tracker)
+  * Reference Data (`.left-nav-h3`) — shared header name across apps; links underneath are
+    app-specific (e.g. `[Taxonomy]` management link)
+* ACTIONS (`.left-nav-h2`, signed-in only)
+  * New (`.left-nav-h3`) → Create [ITEM] / Create [Taxonomy entry] (or Write/Add — see Design
+    Guidelines' Write/Create/Add convention)
+  * Import & Export (`.left-nav-h3`, nested under Actions, not its own top-level section) →
+    Download [Item plural] — [formats, e.g. PDF via print, CSV with raw content]; omit this
+    group entirely until the app actually has something to import/export
+  * A link that doesn't fit "New" or "Import & Export" (e.g. an admin-only "Deleted [Items]"
+    restore link) stays loose directly under ACTIONS, ungrouped
+* DOCUMENTATION (`.left-nav-h2`)
+  * How To (`.left-nav-h3`)
+    * User Guide (may be a placeholder until written)
 
 ---
 

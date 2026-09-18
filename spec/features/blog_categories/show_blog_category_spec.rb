@@ -34,7 +34,7 @@ RSpec.describe "Show Blog Category", type: :feature do
     end
 
     it "Shows a back link to the index" do
-      expect(page).to have_link("Back to Blog Categories", href: blog_categories_path)
+      expect(page).to have_link("Back", href: blog_categories_path, exact: true)
     end
 
     it "Does not show the 'Edit' nor the 'Delete' buttons to 'Gary Guest'" do

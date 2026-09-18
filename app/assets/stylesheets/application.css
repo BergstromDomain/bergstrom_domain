@@ -363,8 +363,7 @@ code, pre {
   display: none;
   position: absolute;
   top: calc(100% + var(--space-xs));
-  right: 0;        /* changed from left: 0 */
-  left: auto;      /* add this */
+  left: 0;
   min-width: 200px;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -374,6 +373,14 @@ code, pre {
   margin: 0;
   padding: var(--space-xs) 0;
   z-index: 200;
+}
+
+/* The user-avatar dropdown sits at the far right of the top nav — left-
+   aligning it like the other dropdowns would run it off the viewport's
+   right edge, so it aligns from its own right edge instead. */
+.dropdown__menu--end {
+  left: auto;
+  right: 0;
 }
 
 .dropdown__menu li:has(.dropdown__item--signout) form {
@@ -698,39 +705,40 @@ code, pre {
 }
 
 .btn-primary {
-  background-color: var(--color-accent);
-  color: var(--color-text-inverse);
-  border-color: var(--color-accent);
+  background-color: var(--color-primary);
+  color: var(--color-primary-text);
+  border-color: var(--color-primary);
 }
 
 .btn-primary:hover {
-  background-color: var(--color-accent-dark);
-  border-color: var(--color-accent-dark);
-  color: var(--color-text-inverse);
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  color: var(--color-primary-text);
 }
 
 .btn-secondary {
-  background-color: var(--color-secondary);
-  color: var(--color-text-primary);
-  border-color: var(--color-border);
+  background-color: var(--color-primary);
+  color: var(--color-primary-text);
+  border-color: var(--color-primary);
   box-shadow: var(--shadow-xs);
 }
 
 .btn-secondary:hover {
-  background-color: var(--color-secondary-hover);
-  color: var(--color-text-primary);
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  color: var(--color-primary-text);
 }
 
 .btn-danger {
-  background-color: var(--color-danger);
-  color: #fff;
-  border-color: var(--color-danger);
+  background-color: var(--color-primary);
+  color: var(--color-primary-text);
+  border-color: var(--color-primary);
 }
 
 .btn-danger:hover {
-  background-color: var(--color-danger-dark);
-  border-color: var(--color-danger-dark);
-  color: #fff;
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  color: var(--color-primary-text);
 }
 
 /* The "|" separator between button groups */
@@ -982,15 +990,17 @@ code, pre {
    11. Forms
    ============================================================ */
 
+/* Default (narrow) width for New/Edit forms — used by reference-data
+   resources (Event Type, Social Media Platform, Blog Category). */
 .resource-form {
   max-width: 560px;
   margin: 0 auto;
 }
 
-/* Blog Post's create/edit form only — it uses the full show-page-style
-   width instead of the narrow centered column every other resource form
-   (People/Events/etc.) uses, since a one-line post shouldn't force a
-   tall, narrow, scroll-heavy layout. */
+/* Full-width New/Edit forms for "normal" resources (Person, Event, Blog
+   Post) — a one-line record shouldn't be forced into a tall, narrow,
+   scroll-heavy layout. See also `.page-content--half`, the equivalent
+   narrow modifier for reference-data Show pages. */
 .resource-form--wide {
   max-width: none;
   margin: 0;
@@ -1427,6 +1437,16 @@ textarea.form-control {
   padding: var(--space-lg);
   margin-bottom: var(--space-md);
   background-color: var(--color-surface);
+}
+
+/* Wraps a Show page's panels for reference-data resources (Event Type,
+   Social Media Platform, Blog Category) — narrows them to match
+   `.resource-form`'s width, matching that same resource's New/Edit
+   forms. "Normal" resources (Person, Event, Blog Post) render their
+   panels unwrapped, at full width — the default. */
+.page-content--half {
+  max-width: 560px;
+  margin: 0 auto;
 }
 
 .show-panel__heading {

@@ -5,7 +5,7 @@
   </div>
 </div>
 
-<%= form_with model: @person, class: "resource-form" do |f| %>
+<%= form_with model: @person, class: "resource-form resource-form--wide" do |f| %>
   <% if @person.errors.any? %>
     <div class="form-errors" data-testid="form-errors">
       <p><%= pluralize(@person.errors.count, "error") %> prevented this person from being saved:</p>
