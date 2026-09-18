@@ -19,26 +19,11 @@ RSpec.describe "Confirm Dialog", type: :feature do
     raise "sign_in_and_settle: could not sign in as #{user.email_address} after #{attempts} attempts"
   end
 
-  # Capybara's native Selenium `.click` was found, via a capture-phase
-  # click/submit listener, to occasionally dispatch *no* DOM event at all —
-  # not "wrong element," not "prevented," literally zero events reaching a
-  # document-level listener. Confirmed as a WebDriver-level click-dispatch
-  # flakiness (not a Turbo/app bug): the page never navigated away and
-  # Turbo.config.forms.confirm was correctly registered on failure, and
-  # switching to a JS-dispatched click eliminated it. Seen on more than
-  # just the very first click after a page load (e.g. also on the dialog's
-  # own Confirm button on a real CI run), so every button click in this
-  # file goes through this helper rather than Capybara's native `.click`.
-  # .focus() first matters: a bare synthetic `.click()` doesn't move focus
-  # the way a real click does, which the focus-return-to-trigger spec below
-  # depends on.
-  def js_click(testid)
-    page.execute_script(<<~JS)
-      const el = document.querySelector('[data-testid="#{testid}"]')
-      el.focus()
-      el.click()
-    JS
-  end
+  # js_click (used below and in open_delete_dialog_for) comes from
+  # spec/support/js_click_helper.rb — every button click in this file goes
+  # through it rather than Capybara's native `.click`, since the dialog's
+  # own Confirm button was one of the places the underlying WebDriver
+  # click-dispatch flakiness was originally seen on a real CI run.
 
   # Selenium's WebElement#displayed? doesn't reliably recognise a native
   # <dialog> shown via showModal() (a ChromeDriver top-layer quirk — the

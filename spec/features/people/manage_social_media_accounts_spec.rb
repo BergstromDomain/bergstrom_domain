@@ -116,8 +116,8 @@ RSpec.describe "Manage Social Media Accounts", type: :feature do
       within all("[data-testid='social-media-account-row']").last do
         select "Facebook", from: "Platform"
         fill_in "Username", with: "jhetfield"
-        find("[data-testid='remove-new-social-media-account']").click
       end
+      js_click("remove-new-social-media-account")
       click_button "Update Person"
 
       expect(page).to have_current_path(person_path(person))
@@ -130,7 +130,7 @@ RSpec.describe "Manage Social Media Accounts", type: :feature do
       visit edit_person_path(person)
       expect(page).to have_current_path(edit_person_path(person))
 
-      find("[data-testid='remove-social-media-account-button']").click
+      js_click("remove-social-media-account-button")
 
       expect(page).to have_no_selector("[data-testid='social-media-account-row']", visible: :visible)
       expect(person.reload.person_social_media_accounts).not_to be_empty
@@ -151,7 +151,7 @@ RSpec.describe "Manage Social Media Accounts", type: :feature do
       visit edit_person_path(person)
       expect(page).to have_current_path(edit_person_path(person))
 
-      find("[data-testid='remove-social-media-account-button']").click
+      js_click("remove-social-media-account-button")
       click_button "Update Person"
       expect(page).to have_current_path(person_path(person))
       expect(person.reload.person_social_media_accounts).to be_empty
