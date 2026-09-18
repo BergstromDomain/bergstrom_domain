@@ -15,12 +15,14 @@ RSpec.describe "Like Blog Post", type: :feature do
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    it "Defaults to neutral highlighted for a signed-in user who hasn't reacted" do
+    it "Starts with no reaction highlighted for a signed-in user who hasn't reacted" do
       post = published_post
       sign_in_as(reader)
       visit blog_post_path(post)
 
-      expect(page).to have_selector("[data-testid='like-neutral'].like-button--active")
+      Like::FACES.each_key do |face|
+        expect(page).not_to have_selector("[data-testid='like-#{face}'].like-button--active")
+      end
     end
 
     it "Highlights the clicked face and updates the score" do
@@ -31,7 +33,6 @@ RSpec.describe "Like Blog Post", type: :feature do
       find("[data-testid='like-grinning']").click
 
       expect(page).to have_selector("[data-testid='like-grinning'].like-button--active")
-      expect(page).not_to have_selector("[data-testid='like-neutral'].like-button--active")
       expect(post.reload.likes.find_by(user: reader).face).to eq("grinning")
     end
 
@@ -47,6 +48,20 @@ RSpec.describe "Like Blog Post", type: :feature do
       expect(post.reload.likes.where(user: reader).count).to eq(1)
       expect(post.likes.find_by(user: reader).face).to eq("slightly_smiling")
     end
+
+    it "Clears the user's reaction via the clear icon, leaving nothing highlighted" do
+      post = published_post
+      sign_in_as(reader)
+      visit blog_post_path(post)
+
+      find("[data-testid='like-grinning']").click
+      find("[data-testid='like-clear']").click
+
+      expect(page).not_to have_selector("[data-testid='like-grinning'].like-button--active")
+      like = post.reload.likes.find_by(user: reader)
+      expect(like).to be_present
+      expect(like.face).to be_nil
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
@@ -57,6 +72,12 @@ RSpec.describe "Like Blog Post", type: :feature do
       expect(page).to have_current_path(new_session_path)
     end
 
+    it "Redirects 'Gary Guest' to the 'Sign in' page on a direct clear request" do
+      post = create(:blog_post, :unrestricted, user: owner)
+      page.driver.submit :delete, blog_post_like_path(post), {}
+      expect(page).to have_current_path(new_session_path)
+    end
+
     it "Denies a reaction to a post the user cannot read" do
       post = create(:blog_post, :restricted, user: owner)
       sign_in_as(reader)
@@ -64,6 +85,14 @@ RSpec.describe "Like Blog Post", type: :feature do
 
       expect(page).to have_content("Not authorised")
       expect(post.reload.likes.where(user: reader)).to be_empty
+    end
+
+    it "Denies clearing a reaction on a post the user cannot read" do
+      post = create(:blog_post, :restricted, user: owner)
+      sign_in_as(reader)
+      page.driver.submit :delete, blog_post_like_path(post), {}
+
+      expect(page).to have_content("Not authorised")
     end
 
     it "Rejects a forged, invalid face value" do
@@ -78,7 +107,7 @@ RSpec.describe "Like Blog Post", type: :feature do
 
   # 3) Alternative Paths ───────────────────────────────────────────────────────
   describe "Alternative Paths" do
-    it "Shows the aggregate face highlighted (not neutral) to a guest, non-interactively" do
+    it "Shows the aggregate face highlighted to a guest, non-interactively" do
       post = published_post
       post.likes.create!(user: owner, face: "grinning")
 
@@ -97,11 +126,19 @@ RSpec.describe "Like Blog Post", type: :feature do
 
       expect(post.reload.likes.find_by(user: owner).face).to eq("slightly_frowning")
     end
+
+    it "Hides the reaction row entirely for a guest when nobody has reacted yet" do
+      post = published_post
+
+      visit blog_post_path(post)
+
+      expect(page).not_to have_selector("[data-testid='likes-panel']")
+    end
   end
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
-    it "Computes the score correctly across several different reactors" do
+    it "Computes the score correctly across several different reactors, ignoring non-voters" do
       User.delete_all
       users = create_list(:user, 5, :content_creator)
       category = create(:blog_category)
@@ -110,13 +147,33 @@ RSpec.describe "Like Blog Post", type: :feature do
       post.likes.create!(user: users[0], face: "grinning")
       post.likes.create!(user: users[1], face: "angry")
       post.likes.create!(user: users[2], face: "slightly_smiling")
-      # users[3] and users[4] never react — implicit neutral (3) each.
+      # users[3] and users[4] never react — they no longer count at all.
 
       sign_in_as(users.last)
       visit blog_post_path(post)
 
-      # (5 + 1 + 4 + 3 + 3) / 5 = 3.2
-      expect(page).to have_selector("[data-testid='blog-post-likes-count']", text: "3.2")
+      # (5 + 1 + 4) / 3 explicit reactors = 3.333...
+      expect(page).to have_selector("[data-testid='blog-post-likes-count']", text: "3.3")
+    end
+
+    it "Shows 'No reactions yet' in the metadata panel when nobody has reacted" do
+      post = published_post
+      sign_in_as(reader)
+      visit blog_post_path(post)
+
+      expect(page).to have_selector("[data-testid='blog-post-likes-count']", text: "No reactions yet")
+    end
+
+    it "Treats clicking your own already-active face again as a no-op" do
+      post = published_post
+      sign_in_as(reader)
+      visit blog_post_path(post)
+
+      find("[data-testid='like-grinning']").click
+      find("[data-testid='like-grinning']").click
+
+      expect(page).to have_selector("[data-testid='like-grinning'].like-button--active")
+      expect(post.reload.likes.where(user: reader).count).to eq(1)
     end
   end
 end

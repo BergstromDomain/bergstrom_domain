@@ -156,9 +156,13 @@
               <% end %>
             </td>
             <td data-testid="filter-post-smiles">
-              <%= lucide_icon(Like::FACES[post.like_score_face][:icon], size: 16,
-                    class: "like-face--#{post.like_score_face}") %>
-              <%= number_with_precision(post.like_score, precision: 1) %>
+              <% if post.like_score %>
+                <%= lucide_icon(Like::FACES[post.like_score_face][:icon], size: 16,
+                      class: "like-face--#{post.like_score_face}") %>
+                <%= number_with_precision(post.like_score, precision: 1) %>
+              <% else %>
+                No reactions yet
+              <% end %>
             </td>
           </tr>
         <% end %>

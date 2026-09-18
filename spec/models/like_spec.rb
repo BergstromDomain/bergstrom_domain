@@ -4,12 +4,12 @@ require "rails_helper"
 RSpec.describe Like, type: :model do
   # ── Database Columns ──────────────────────────────────────────────────────
   describe "Database Columns" do
-    it { is_expected.to have_db_column(:face).of_type(:string).with_options(null: false, default: "neutral") }
+    it { is_expected.to have_db_column(:face).of_type(:string).with_options(null: true, default: nil) }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
   describe "Associations" do
-    it { is_expected.to belong_to(:blog_post) }
+    it { is_expected.to belong_to(:likeable) }
     it { is_expected.to belong_to(:user) }
   end
 
@@ -24,6 +24,11 @@ RSpec.describe Like, type: :model do
         angry: "angry"
       ).backed_by_column_of_type(:string)
     }
+
+    it "allows a nil face (no reaction selected)" do
+      like = build(:like, face: nil)
+      expect(like).to be_valid
+    end
   end
 
   # ── FACES mapping ─────────────────────────────────────────────────────────
@@ -34,23 +39,32 @@ RSpec.describe Like, type: :model do
     end
   end
 
+  # ── #clear! ───────────────────────────────────────────────────────────────
+  describe "#clear!" do
+    it "sets face to nil without destroying the row" do
+      like = create(:like, face: "grinning")
+      like.clear!
+      expect(like.reload.face).to be_nil
+    end
+  end
+
   # ── Validations ───────────────────────────────────────────────────────────
   describe "Validations" do
     # 1) Happy Path ─────────────────────────────────────────────────────────
     describe "Happy Path" do
-      it "is valid with a blog_post, a user, and a face" do
-        like = build(:like)
+      it "is valid with a likeable, a user, and a face" do
+        like = build(:like, face: "grinning")
         expect(like).to be_valid
       end
     end
 
     # 2) Negative Path ──────────────────────────────────────────────────────
     describe "Negative Path" do
-      it "is invalid when the same user reacts to the same post twice" do
+      it "is invalid when the same user reacts to the same likeable twice" do
         post = create(:blog_post)
         user = create(:user)
-        create(:like, blog_post: post, user: user)
-        duplicate = build(:like, blog_post: post, user: user)
+        create(:like, likeable: post, user: user)
+        duplicate = build(:like, likeable: post, user: user)
         expect(duplicate).not_to be_valid
         expect(duplicate.errors[:user_id]).to include("has already been taken")
       end
@@ -58,20 +72,20 @@ RSpec.describe Like, type: :model do
 
     # 3) Alternative Paths ──────────────────────────────────────────────────
     describe "Alternative Paths" do
-      it "allows the same user to react to two different posts" do
+      it "allows the same user to react to two different likeables" do
         user = create(:user)
-        create(:like, blog_post: create(:blog_post), user: user)
-        second = build(:like, blog_post: create(:blog_post), user: user)
+        create(:like, likeable: create(:blog_post), user: user)
+        second = build(:like, likeable: create(:blog_post), user: user)
         expect(second).to be_valid
       end
     end
 
     # 4) Edge Cases ──────────────────────────────────────────────────────────
     describe "Edge Cases" do
-      it "allows the same post to have multiple different reactors" do
+      it "allows the same likeable to have multiple different reactors" do
         post = create(:blog_post)
-        create(:like, blog_post: post, user: create(:user))
-        second = build(:like, blog_post: post, user: create(:user))
+        create(:like, likeable: post, user: create(:user))
+        second = build(:like, likeable: post, user: create(:user))
         expect(second).to be_valid
       end
     end

@@ -583,11 +583,12 @@ ALTER SEQUENCE public.friendly_id_slugs_id_seq OWNED BY public.friendly_id_slugs
 
 CREATE TABLE public.likes (
     id bigint NOT NULL,
-    blog_post_id bigint NOT NULL,
+    likeable_id bigint NOT NULL,
     user_id bigint NOT NULL,
-    face character varying DEFAULT 'neutral'::character varying NOT NULL,
+    face character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    likeable_type character varying NOT NULL
 );
 
 
@@ -1485,17 +1486,17 @@ CREATE INDEX index_friendly_id_slugs_on_sluggable_type_and_sluggable_id ON publi
 
 
 --
--- Name: index_likes_on_blog_post_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_likes_on_likeable_type_and_likeable_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_likes_on_blog_post_id ON public.likes USING btree (blog_post_id);
+CREATE INDEX index_likes_on_likeable_type_and_likeable_id ON public.likes USING btree (likeable_type, likeable_id);
 
 
 --
--- Name: index_likes_on_blog_post_id_and_user_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_likes_on_user_and_likeable; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_likes_on_blog_post_id_and_user_id ON public.likes USING btree (blog_post_id, user_id);
+CREATE UNIQUE INDEX index_likes_on_user_and_likeable ON public.likes USING btree (user_id, likeable_type, likeable_id);
 
 
 --
@@ -1835,20 +1836,13 @@ ALTER TABLE ONLY public.contacts
 
 
 --
--- Name: likes fk_rails_f911311d38; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.likes
-    ADD CONSTRAINT fk_rails_f911311d38 FOREIGN KEY (blog_post_id) REFERENCES public.blog_posts(id);
-
-
---
 -- PostgreSQL database dump complete
 --
 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260918231600'),
 ('20260908215924'),
 ('20260908215923'),
 ('20260907060324'),

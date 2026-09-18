@@ -54,10 +54,9 @@ RSpec.describe "Show Blog Post", type: :feature do
                                text: "#{owner.first_name} #{owner.last_name}")
     end
 
-    it "Displays the comment count and the default like score" do
+    it "Displays the comment count and 'No reactions yet' when nobody has reacted" do
       expect(page).to have_selector("[data-testid='blog-post-comments-count']", text: "0")
-      # No one has explicitly reacted yet, so the score is the neutral baseline.
-      expect(page).to have_selector("[data-testid='blog-post-likes-count']", text: "3.0")
+      expect(page).to have_selector("[data-testid='blog-post-likes-count']", text: "No reactions yet")
     end
 
     it "Shows a back link to Chronicle" do

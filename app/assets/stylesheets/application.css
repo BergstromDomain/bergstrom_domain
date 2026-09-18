@@ -2448,6 +2448,8 @@ textarea.form-control {
 .like-face--slightly_frowning { color: #ea580c; }
 .like-face--angry             { color: #dc2626; }
 
+.like-clear-icon { color: #dc2626; }
+
 /* ============================================================
    Chronicle Comments (threaded, 2-level: thread + flat replies)
    ============================================================ */

@@ -1,6 +1,6 @@
 # app/models/like.rb
 class Like < ApplicationRecord
-  belongs_to :blog_post
+  belongs_to :likeable, polymorphic: true
   belongs_to :user
 
   # Spec's literal icon names ("face-grinning" etc.) don't exist in this
@@ -15,7 +15,15 @@ class Like < ApplicationRecord
     "angry"             => { icon: "angry", points: 1, color: "#dc2626" }
   }.freeze
 
-  enum :face, FACES.keys.index_with(&:itself), validate: true
+  # nil means "no reaction selected" (the default, and what a cleared Like
+  # reverts to) — every real reaction is one of the FACES keys.
+  enum :face, FACES.keys.index_with(&:itself), validate: { allow_nil: true }
 
-  validates :user_id, uniqueness: { scope: :blog_post_id }
+  validates :user_id, uniqueness: { scope: %i[likeable_type likeable_id] }
+
+  # Clears the user's reaction without destroying the row — a cleared Like
+  # is distinguishable from a user who never reacted at all (no row exists).
+  def clear!
+    update!(face: nil)
+  end
 end
