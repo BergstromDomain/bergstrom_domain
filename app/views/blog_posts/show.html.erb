@@ -65,12 +65,23 @@
     </div>
 
     <div class="show-meta-cell">
-      <h3 class="show-meta-cell__label">Likes</h3>
-      <p class="show-meta-cell__value" data-testid="blog-post-likes-count">
-        <%= number_with_precision(@blog_post.like_score, precision: 1) %>
-        <%= lucide_icon(Like::FACES[@blog_post.like_score_face][:icon], size: 16,
-              class: "like-face--#{@blog_post.like_score_face}") %>
-      </p>
+      <h3 class="show-meta-cell__label">Reactions</h3>
+      <% if @blog_post.like_score %>
+        <div data-controller="popup">
+          <button type="button" class="show-meta-cell__value show-meta-cell__value--clickable"
+                  data-action="popup#open" data-testid="blog-post-likes-count">
+            <%= number_with_precision(@blog_post.like_score, precision: 1) %>
+            <%= lucide_icon(Like::FACES[@blog_post.like_score_face][:icon], size: 16,
+                  class: "like-face--#{@blog_post.like_score_face}") %>
+          </button>
+
+          <%= render layout: "shared/popup", locals: { testid: "likes-breakdown-popup" } do %>
+            <%= render "blog_posts/likes_breakdown", blog_post: @blog_post %>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="show-meta-cell__value" data-testid="blog-post-likes-count">No reactions yet</p>
+      <% end %>
     </div>
   </div>
 </div>
@@ -84,33 +95,45 @@
   </div>
 </div>
 
-<%# Likes div — guests see the same row, highlighted to the post's aggregate
-    face, but not clickable; signed-in users see their own status (neutral
-    by default) and can change it. %>
+<%# Reactions div — guests see the same row, highlighted to the post's
+    aggregate face, but not clickable, and only when there's an aggregate to
+    show at all; signed-in users start unhighlighted (no reaction is the
+    default) and can pick or clear a reaction. %>
 <% highlighted_face = authenticated? ? @blog_post.current_user_face(current_user) : @blog_post.like_score_face %>
-<div class="show-panel" data-testid="likes-panel">
-  <h2 class="show-panel__heading">React to this post</h2>
-  <div class="likes-row">
-    <% Like::FACES.each_key do |face| %>
-      <% icon = Like::FACES[face][:icon] %>
-      <% active = face == highlighted_face %>
-      <% if authenticated? %>
-        <%= button_to blog_post_like_path(@blog_post),
-              method: :post,
-              params: { face: face },
-              class: "like-button like-face--#{face} #{'like-button--active' if active}",
-              data: { testid: "like-#{face}", turbo: false } do %>
-          <%= lucide_icon(icon, size: 28) %>
+<% if authenticated? || highlighted_face.present? %>
+  <div class="show-panel" data-testid="likes-panel">
+    <h2 class="show-panel__heading">React to this post</h2>
+    <div class="likes-row">
+      <% Like::FACES.each_key do |face| %>
+        <% icon = Like::FACES[face][:icon] %>
+        <% active = face == highlighted_face %>
+        <% if authenticated? %>
+          <%= button_to blog_post_like_path(@blog_post),
+                method: :post,
+                params: { face: face },
+                class: "like-button like-face--#{face} #{'like-button--active' if active}",
+                data: { testid: "like-#{face}", turbo: false } do %>
+            <%= lucide_icon(icon, size: 28) %>
+          <% end %>
+        <% else %>
+          <span class="like-button like-face--<%= face %> like-button--disabled<%= ' like-button--active' if active %>"
+                data-testid="like-<%= face %>">
+            <%= lucide_icon(icon, size: 28) %>
+          </span>
         <% end %>
-      <% else %>
-        <span class="like-button like-face--<%= face %> like-button--disabled<%= ' like-button--active' if active %>"
-              data-testid="like-<%= face %>">
-          <%= lucide_icon(icon, size: 28) %>
-        </span>
       <% end %>
-    <% end %>
+      <% if authenticated? && highlighted_face.present? %>
+        <span class="btn-divider like-clear-divider">|</span>
+        <%= button_to blog_post_like_path(@blog_post),
+              method: :delete,
+              class: "like-button like-button--clear",
+              data: { testid: "like-clear", turbo: false } do %>
+          <%= lucide_icon("circle-x", size: 28, class: "like-clear-icon") %>
+        <% end %>
+      <% end %>
+    </div>
   </div>
-</div>
+<% end %>
 
 <%# Comments div %>
 <div class="show-panel" data-testid="comments-panel">

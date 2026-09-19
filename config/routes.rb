@@ -73,7 +73,7 @@ Rails.application.routes.draw do
 
   # Chronicle (Blog Posts)
   resources :blog_posts, path: "blog-posts" do
-    resource :like, only: %i[create], controller: "likes"
+    resource :like, only: %i[create destroy], controller: "likes"
     resources :comments, only: %i[create update destroy], shallow: true
     member do
       post :publish

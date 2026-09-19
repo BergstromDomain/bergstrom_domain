@@ -1,0 +1,11 @@
+<dialog class="popup" data-popup-target="dialog" data-testid="<%= testid %>">
+  <div class="popup__card" data-popup-target="card">
+    <button type="button" class="popup__close" data-action="popup#close"
+            data-testid="<%= testid %>-close" aria-label="Close">
+      <%= lucide_icon("x", size: 20) %>
+    </button>
+    <div class="popup__content">
+      <%= yield %>
+    </div>
+  </div>
+</dialog>

@@ -48,9 +48,13 @@
             <span class="btn-divider">|</span>
             <span>
               <strong>Likes:</strong>
-              <%= lucide_icon(Like::FACES[post.like_score_face][:icon], size: 16,
-                    class: "like-face--#{post.like_score_face}") %>
-              <span data-testid="browse-post-smiles"><%= number_with_precision(post.like_score, precision: 1) %></span>
+              <% if post.like_score %>
+                <%= lucide_icon(Like::FACES[post.like_score_face][:icon], size: 16,
+                      class: "like-face--#{post.like_score_face}") %>
+                <span data-testid="browse-post-smiles"><%= number_with_precision(post.like_score, precision: 1) %></span>
+              <% else %>
+                <span data-testid="browse-post-smiles">No reactions yet</span>
+              <% end %>
             </span>
           </div>
 

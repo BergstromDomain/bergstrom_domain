@@ -1,8 +1,8 @@
 # spec/factories/likes.rb
 FactoryBot.define do
   factory :like do
-    association :blog_post
+    association :likeable, factory: :blog_post
     association :user
-    face { "neutral" }
+    face { nil }
   end
 end

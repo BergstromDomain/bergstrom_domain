@@ -114,7 +114,7 @@ RSpec.describe BlogPostFilter do
       it "Sorts by Smiles using the computed like_score, not a stored column" do
         low = create(:blog_post, user: owner, title: "Low")
         high = create(:blog_post, user: owner, title: "High")
-        create(:like, blog_post: high, user: owner, face: "grinning")
+        create(:like, likeable: high, user: owner, face: "grinning")
 
         expect(described_class.sort([ low, high ], :smiles, "desc").first).to eq(high)
       end

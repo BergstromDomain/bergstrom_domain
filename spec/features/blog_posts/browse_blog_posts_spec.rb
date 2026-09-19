@@ -77,6 +77,7 @@ RSpec.describe "Browse Blog Posts", type: :feature do
     end
 
     it "Displays the correct fields on each post card" do
+      java_post.likes.create!(user: create(:user), face: "neutral")
       visit blog_posts_path(category_id: technology.slug, subject: "Software Development", topic: "Java")
 
       card = find("[data-testid='browse-post-card']")
