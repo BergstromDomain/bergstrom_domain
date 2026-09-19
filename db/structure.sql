@@ -733,7 +733,10 @@ CREATE TABLE public.sessions (
     ip_address character varying,
     user_agent character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    left_nav_visible boolean DEFAULT true NOT NULL,
+    left_nav_section character varying,
+    collapsed_nav_sections character varying[] DEFAULT '{}'::character varying[] NOT NULL
 );
 
 
@@ -1842,6 +1845,7 @@ ALTER TABLE ONLY public.contacts
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260919211958'),
 ('20260918231600'),
 ('20260908215924'),
 ('20260908215923'),
