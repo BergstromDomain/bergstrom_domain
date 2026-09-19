@@ -177,12 +177,28 @@ Brakeman, bundler-audit all clean. Not yet manually browser-verified — flagged
   * Reaction row is hidden entirely for a guest when there's no aggregate face to highlight
     (`authenticated? || highlighted_face.present?`).
 
-## Block 3 — Generic Popup component
-* New reusable Popup/Modal component (partial + Stimulus controller), independent of Likes'
-  content — establishes open/close/dismissal conventions (close button, Esc, backdrop click) as a
-  general-purpose pattern other features can reuse later.
-* No Likes-specific content yet — this block is provable on its own with a minimal
-  trigger-and-content smoke test.
+## Block 3 — Generic Popup component ✅ Done 2026-09-19
+* Built: `app/javascript/controllers/popup_controller.js` (open/close, Esc via the native
+  `cancel` event, backdrop-click dismissal, returns focus to the trigger — same conventions as
+  `confirm_dialog_controller.js`, but a plain open/close API with no Promise/confirm-cancel
+  semantics, since a Popup is informational, not a yes/no gate); `app/views/shared/_popup.html.erb`
+  (dialog chrome + close button, rendered **as a layout** via `render layout: "shared/popup",
+  locals: { testid: ... } do ... end` so a caller supplies arbitrary content through the block);
+  `.popup`/`.popup__card`/`.popup__close` CSS mirroring `.confirm-dialog`'s existing conventions.
+* The partial only renders the `<dialog>` itself — a caller wraps its own trigger element *and*
+  this partial's output in one `data-controller="popup"` container (same composition style as
+  `dropdown_controller.js`, cited as the JS-convention precedent). No Likes-specific content.
+* Test coverage: `spec/views/shared/_popup.html.erb_spec.rb` (Happy/Negative/Alternative/Edge,
+  markup-level — dialog/close-button wiring, per-caller testid, yielded content, closed by
+  default).
+* **Plan correction:** the doc originally called for "a minimal trigger-and-content smoke test"
+  in this block. A real `js: true` interaction test (open on click, close button, Esc, backdrop
+  click — mirroring `spec/features/shared/confirm_dialog_spec.rb`) needs an actual page to
+  `visit`; this component has no consumer until Block 4 wires it into Likes. Rather than mount it
+  on an unrelated real page just to test it in isolation, the markup-level view spec above is
+  this block's smoke test, and the full JS interaction spec is written in Block 4 against the
+  real Likes breakdown popup (its first and only consumer) — same order Confirm Dialog's own JS
+  spec was written against a real page (Person delete), not a synthetic one.
 
 ## Block 4 — Likes breakdown popup content
 * Wire the Likes meta panel value (when non-empty) to open the new Popup component.
