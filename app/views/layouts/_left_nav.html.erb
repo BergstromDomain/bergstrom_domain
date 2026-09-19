@@ -1,5 +1,21 @@
 <%# app/views/layouts/_left_nav.html.erb %>
 <nav class="left-nav" data-testid="left-nav">
+  <% if Current.session %>
+    <button type="button" class="left-nav__restore" data-action="left-nav#showNav"
+            data-testid="left-nav-restore" aria-label="Show navigation">
+      <%= lucide_icon("chevrons-right", size: 20) %>
+    </button>
+  <% end %>
+
+  <div class="left-nav__content" data-left-nav-target="content"
+       <%= 'aria-hidden="true"'.html_safe if Current.session && !Current.session.left_nav_visible? %>>
+  <% if Current.session %>
+    <button type="button" class="left-nav__collapse" data-action="left-nav#hideNav"
+            data-testid="left-nav-collapse" aria-label="Hide navigation">
+      <%= lucide_icon("chevrons-left", size: 20) %>
+    </button>
+  <% end %>
+
   <% if @left_nav_section == :event_tracker %>
 
     <%# ── Views ─────────────────────────────────────────────────────────── %>
@@ -267,4 +283,5 @@
     </div>
 
   <% end %>
+  </div>
 </nav>

@@ -132,7 +132,7 @@
   behavior), `spec/requests/left_navs_spec.rb` (the two endpoints) all green; full suite still
   green (801 non-feature + 968 feature examples); RuboCop/Brakeman/bundler-audit clean.
 
-## Block 2 — Whole-nav show/hide UI
+## Block 2 — Whole-nav show/hide UI ✅ Done 2026-09-20
 * `left_nav_controller.js` (Stimulus): instant CSS toggle + background `fetch` PATCH to persist,
   same pattern as `blog_post_editor_controller.js`'s fetch+CSRF-header call.
 * `chevrons-left` button in the expanded nav; `.left-nav` CSS gets a collapsed/thin-strip state
@@ -140,6 +140,31 @@
 * Server-rendered initial state from `Current.session.left_nav_visible?`.
 * Feature specs: toggle hides/restores the nav; state survives a second page load in the same
   app/section; navigating to a different app/section auto-restores it.
+* **Plan correction found while building this:** Block 1 wired `@show_left_nav` (whether
+  `_left_nav.html.erb` renders at all — also drives the footer's fixed indent, see
+  `FooterHelper#footer_class`) directly from `Current.session.left_nav_visible?`. That's wrong for
+  the now-confirmed "thin strip, always reachable" design — a fully-not-rendered nav would remove
+  the restore button entirely. Fixed: `@show_left_nav` is unconditionally `true` again (its
+  original, structural meaning — "does this page have a nav section at all"); the collapsed vs.
+  expanded state is a separate CSS class (`.site-shell--nav-collapsed`) driven by
+  `Current.session.left_nav_visible?` directly in the view, toggled instantly by
+  `left_nav_controller.js` and kept in sync with the footer's indent via CSS in one place.
+* **Also found:** the toggle buttons don't navigate anywhere themselves, so a user could click a
+  nav link immediately after toggling, aborting the in-flight persistence `fetch` on page unload.
+  Fixed with `keepalive: true` on the fetch (survives navigation) plus a
+  `data-left-nav-syncing` flag tests can wait on before triggering a reload — same purpose as
+  `confirm_dialog_controller.js`'s `data-ready` flag.
+* **Guests get no toggle controls at all** — they have no `Session` to persist to, and the
+  buttons would otherwise redirect them to sign in unexpectedly. Not explicitly speced, but a
+  necessary consequence of "per user and session" persistence.
+* Verified: `spec/features/layouts/left_nav_visibility_spec.rb` (new), `spec/features/layouts/left_nav_spec.rb`
+  (existing, unaffected by the new wrapper markup), full suite green (801 non-feature + 972
+  feature examples); RuboCop/Brakeman/bundler-audit/importmap-audit clean.
+* **Note on flakiness observed while testing:** intermittent `sign_in_and_settle` failures showed
+  up in this spec during development. Stress-testing the pre-existing, already-shipped
+  `confirm_dialog_spec.rb` the same way reproduced the *same* class of failures (Escape/backdrop
+  click tests failing 5/5 in one run) — this is pre-existing Selenium/headless-Chrome flakiness in
+  this environment, not something this feature introduced. A single full-suite run stayed green.
 
 ## Block 3 — Per-section collapse/expand UI
 * Same Stimulus controller (or a second action on it) wires `chevron-up`/`chevron-down` on every

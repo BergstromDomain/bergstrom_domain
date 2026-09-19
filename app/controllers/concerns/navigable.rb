@@ -9,6 +9,12 @@ module Navigable
   private
 
   def set_left_nav
+    # @show_left_nav means "does this page have a left nav section at all"
+    # (also drives the footer's indent, see FooterHelper#footer_class) —
+    # always true here, distinct from whether the nav is currently
+    # collapsed to its thin restore-only strip, which _left_nav.html.erb
+    # reads directly off Current.session.
+    @show_left_nav = true
     @left_nav_section = left_nav_section_for(controller_name, action_name)
 
     # Deliberately re-resumes the session here (same as Authentication#resume_session)
@@ -17,13 +23,7 @@ module Navigable
     # separate before_action, and its registration order relative to this one
     # (set by include Navigable) isn't guaranteed to run first.
     Current.session ||= find_session_by_cookie
-
-    if Current.session
-      Current.session.sync_left_nav_section!(@left_nav_section)
-      @show_left_nav = Current.session.left_nav_visible?
-    else
-      @show_left_nav = true
-    end
+    Current.session&.sync_left_nav_section!(@left_nav_section)
   end
 
   def left_nav_section_for(controller, action)

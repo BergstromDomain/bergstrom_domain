@@ -477,6 +477,55 @@ code, pre {
   overflow-y: auto;
 }
 
+.left-nav__restore,
+.left-nav__collapse {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--color-nav-text);
+  cursor: pointer;
+}
+
+.left-nav__restore {
+  display: none;
+  width: 100%;
+  justify-content: center;
+  padding: var(--space-md) 0;
+}
+
+.left-nav__collapse {
+  width: 100%;
+  justify-content: flex-end;
+  padding: 0 var(--space-md);
+  margin-bottom: -12px;
+}
+
+.left-nav__restore:hover,
+.left-nav__collapse:hover {
+  color: var(--color-nav-text-active);
+}
+
+/* .site-shell--nav-collapsed (see application.html.erb/left_nav_controller.js)
+   shrinks the nav to a thin strip holding only the restore button, and
+   shrinks the footer's matching indent (see .site-footer--indented) — kept
+   in one place so the two never drift out of sync. */
+.site-shell--nav-collapsed .left-nav {
+  width: 44px;
+}
+
+.site-shell--nav-collapsed .left-nav__content {
+  display: none;
+}
+
+.site-shell--nav-collapsed .left-nav__restore {
+  display: flex;
+}
+
+.site-shell--nav-collapsed .site-footer--indented {
+  padding-left: calc(44px + var(--space-lg));
+}
+
 .left-nav-section {
   margin-bottom: var(--space-lg);
 }
