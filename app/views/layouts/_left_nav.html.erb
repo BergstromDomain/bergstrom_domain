@@ -19,11 +19,13 @@
   <% if @left_nav_section == :event_tracker %>
 
     <%# ── Views ─────────────────────────────────────────────────────────── %>
-    <div class="left-nav-section">
+    <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('views') %>">
       <h2 class="left-nav-h2" data-testid="left-nav-views-h2">
         <%= lucide_icon("eye", size: 14) %> Views
+        <%= left_nav_section_toggle("views", "left-nav-views-h2") %>
       </h2>
 
+      <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('views') %>>
       <h3 class="left-nav-h3" data-testid="left-nav-event-tracker-h3">
         Occasions
       </h3>
@@ -67,6 +69,7 @@
         <%= lucide_icon("share-2", size: 15) %>
         <span>Social Media Platforms</span>
       <% end %>
+      </div>
     </div>
 
     <hr class="left-nav-divider">
@@ -75,11 +78,13 @@
     <% if can_see_left_nav_actions? %>
       <% event_policy = Policy.new(current_user, :event_tracker) %>
 
-      <div class="left-nav-section">
+      <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('actions') %>">
         <h2 class="left-nav-h2" data-testid="left-nav-actions-h2">
           <%= lucide_icon("cog", size: 14) %> Actions
+          <%= left_nav_section_toggle("actions", "left-nav-actions-h2") %>
         </h2>
 
+        <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('actions') %>>
         <% if event_policy.can_create? || current_user&.can_administer? %>
           <h3 class="left-nav-h3" data-testid="left-nav-new-h3">
             New
@@ -121,17 +126,20 @@
           <%= lucide_icon("download", size: 15) %>
           <span>Download People And Events</span>
         <% end %>
+        </div>
       </div>
 
       <hr class="left-nav-divider">
     <% end %>
 
     <%# ── Documentation ──────────────────────────────────────────────────── %>
-    <div class="left-nav-section">
+    <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('documentation') %>">
       <h2 class="left-nav-h2" data-testid="left-nav-documentation-h2">
         <%= lucide_icon("book-open", size: 14) %> Documentation
+        <%= left_nav_section_toggle("documentation", "left-nav-documentation-h2") %>
       </h2>
 
+      <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('documentation') %>>
       <h3 class="left-nav-h3" data-testid="left-nav-how-to-h3">
         How To
       </h3>
@@ -140,16 +148,19 @@
         <%= lucide_icon("book-open-check", size: 15) %>
         <span>User Guide</span>
       <% end %>
+      </div>
     </div>
 
   <% elsif @left_nav_section == :settings %>
 
     <%# ── Settings ──────────────────────────────────────────────────────── %>
-    <div class="left-nav-section">
+    <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('settings') %>">
       <h2 class="left-nav-h2" data-testid="left-nav-settings-h2">
         <%= lucide_icon("cog", size: 14) %> Settings
+        <%= left_nav_section_toggle("settings", "left-nav-settings-h2") %>
       </h2>
 
+      <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('settings') %>>
       <h3 class="left-nav-h3" data-testid="left-nav-user-settings-h3">
         <%= lucide_icon("user-cog", size: 13) %> User Settings
       </h3>
@@ -181,16 +192,19 @@
         <%= lucide_icon("calendar-range", size: 15) %>
         <span>Occasions Settings</span>
       <% end %>
+      </div>
     </div>
 
   <% elsif @left_nav_section == :blog_posts %>
 
     <%# ── Views ─────────────────────────────────────────────────────────── %>
-    <div class="left-nav-section">
+    <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('views') %>">
       <h2 class="left-nav-h2" data-testid="left-nav-views-h2">
         <%= lucide_icon("eye", size: 14) %> Views
+        <%= left_nav_section_toggle("views", "left-nav-views-h2") %>
       </h2>
 
+      <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('views') %>>
       <h3 class="left-nav-h3" data-testid="left-nav-chronicle-h3">Chronicle</h3>
       <%= link_to chronicle_path, class: "left-nav-link" do %>
         <%= lucide_icon("newspaper", size: 15) %>
@@ -226,6 +240,7 @@
         <%= lucide_icon("boxes", size: 15) %>
         <span>Blog Categories</span>
       <% end %>
+      </div>
     </div>
 
     <% if can_see_left_nav_actions? %>
@@ -233,11 +248,13 @@
       <hr class="left-nav-divider">
 
       <%# ── Actions (Content Creator and above) ────────────────────────────── %>
-      <div class="left-nav-section">
+      <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('actions') %>">
         <h2 class="left-nav-h2" data-testid="left-nav-actions-h2">
           <%= lucide_icon("cog", size: 14) %> Actions
+          <%= left_nav_section_toggle("actions", "left-nav-actions-h2") %>
         </h2>
 
+        <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('actions') %>>
         <% if blog_post_policy.can_create? || current_user&.can_administer? %>
           <h3 class="left-nav-h3" data-testid="left-nav-new-h3">
             New
@@ -261,17 +278,20 @@
             <span>Deleted Posts</span>
           <% end %>
         <% end %>
+        </div>
       </div>
     <% end %>
 
     <hr class="left-nav-divider">
 
     <%# ── Documentation ──────────────────────────────────────────────────── %>
-    <div class="left-nav-section">
+    <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('documentation') %>">
       <h2 class="left-nav-h2" data-testid="left-nav-documentation-h2">
         <%= lucide_icon("book-open", size: 14) %> Documentation
+        <%= left_nav_section_toggle("documentation", "left-nav-documentation-h2") %>
       </h2>
 
+      <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('documentation') %>>
       <h3 class="left-nav-h3" data-testid="left-nav-how-to-h3">
         How To
       </h3>
@@ -280,6 +300,7 @@
         <%= lucide_icon("book-open-check", size: 15) %>
         <span>User Guide</span>
       <% end %>
+      </div>
     </div>
 
   <% end %>

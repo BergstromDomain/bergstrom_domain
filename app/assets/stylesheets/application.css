@@ -550,6 +550,40 @@ code, pre {
   flex-shrink: 0;
 }
 
+.left-nav-h2__toggle {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.75;
+}
+
+.left-nav-h2__toggle:hover {
+  opacity: 1;
+}
+
+/* Both chevrons render server-side; only one shows at a time, flipped by
+   .left-nav-section--collapsed — no client-side icon swap needed. */
+.left-nav-h2__chevron-down {
+  display: none;
+}
+
+.left-nav-section--collapsed .left-nav-h2__chevron-up {
+  display: none;
+}
+
+.left-nav-section--collapsed .left-nav-h2__chevron-down {
+  display: block;
+}
+
+.left-nav-section--collapsed .left-nav-section__body {
+  display: none;
+}
+
 /* H3 — group header */
 .left-nav-h3 {
   display: flex;

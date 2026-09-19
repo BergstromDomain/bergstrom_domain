@@ -166,7 +166,7 @@
   click tests failing 5/5 in one run) — this is pre-existing Selenium/headless-Chrome flakiness in
   this environment, not something this feature introduced. A single full-suite run stayed green.
 
-## Block 3 — Per-section collapse/expand UI
+## Block 3 — Per-section collapse/expand UI ✅ Done 2026-09-20
 * Same Stimulus controller (or a second action on it) wires `chevron-up`/`chevron-down` on every
   `left-nav-h2` across all three `_left_nav.html.erb` branches.
 * Collapsing one H2 only affects its own `h3`/link children — verified independent of sibling
@@ -176,6 +176,24 @@
 * Feature specs: independent toggling; state survives navigation within the session; resets to
   all-expanded on next login (covered by a model-level Session spec, not a full login-cycle
   feature spec).
+* Built: `LeftNavHelper` (`left_nav_section_key`/`left_nav_section_collapsed?`/
+  `left_nav_section_toggle` — the last renders both chevron icons server-side, CSS shows only the
+  one matching `.left-nav-section--collapsed`, no client-side icon swap needed); `left-nav`
+  Stimulus controller's `toggleSection` action (one instance on `.site-shell` handles every
+  section via `event.currentTarget.closest(".left-nav-section")`, keyed by a Stimulus param
+  carrying `"#{app}:#{subkey}"`, e.g. `"blog_posts:views"`); all 7 `left-nav-h2` occurrences across
+  the three `_left_nav.html.erb` branches wrapped their `h3`/link siblings in a new
+  `.left-nav-section__body` div per the doc's own out-of-scope-dedup note (each site edited
+  independently, no shared partial/loop introduced).
+* Verified: `spec/features/layouts/left_nav_sections_spec.rb` (new — independent toggling
+  including across apps, persistence within a session, reset-on-next-login at the model level),
+  existing `left_nav_spec.rb` unaffected; full suite green aside from the pre-existing
+  environmental Selenium flakiness already logged in Block 2 (~1-2% of js:true runs, unrelated to
+  this code — confirmed via the `confirm_dialog_spec.rb` control test); RuboCop/Brakeman/
+  bundler-audit clean.
+
+**All three Development Blocks are now done.** Not yet manually browser-verified beyond the
+spacing tweaks already applied live during Block 2's review.
 
 ---
 
