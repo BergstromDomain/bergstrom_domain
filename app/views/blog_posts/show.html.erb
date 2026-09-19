@@ -122,7 +122,8 @@
           </span>
         <% end %>
       <% end %>
-      <% if authenticated? %>
+      <% if authenticated? && highlighted_face.present? %>
+        <span class="btn-divider like-clear-divider">|</span>
         <%= button_to blog_post_like_path(@blog_post),
               method: :delete,
               class: "like-button like-button--clear",

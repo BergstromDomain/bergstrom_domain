@@ -25,14 +25,16 @@ RSpec.describe "Like Blog Post", type: :feature do
       end
     end
 
-    it "Highlights the clicked face and updates the score" do
+    it "Highlights the clicked face, updates the score, and reveals the clear icon" do
       post = published_post
       sign_in_as(reader)
       visit blog_post_path(post)
+      expect(page).not_to have_selector("[data-testid='like-clear']")
 
       find("[data-testid='like-grinning']").click
 
       expect(page).to have_selector("[data-testid='like-grinning'].like-button--active")
+      expect(page).to have_selector("[data-testid='like-clear']")
       expect(post.reload.likes.find_by(user: reader).face).to eq("grinning")
     end
 
@@ -49,7 +51,7 @@ RSpec.describe "Like Blog Post", type: :feature do
       expect(post.likes.find_by(user: reader).face).to eq("slightly_smiling")
     end
 
-    it "Clears the user's reaction via the clear icon, leaving nothing highlighted" do
+    it "Clears the user's reaction via the clear icon, leaving nothing highlighted and hiding the clear icon again" do
       post = published_post
       sign_in_as(reader)
       visit blog_post_path(post)
@@ -58,6 +60,7 @@ RSpec.describe "Like Blog Post", type: :feature do
       find("[data-testid='like-clear']").click
 
       expect(page).not_to have_selector("[data-testid='like-grinning'].like-button--active")
+      expect(page).not_to have_selector("[data-testid='like-clear']")
       like = post.reload.likes.find_by(user: reader)
       expect(like).to be_present
       expect(like.face).to be_nil

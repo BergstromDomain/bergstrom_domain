@@ -202,16 +202,19 @@ No text, no letters, no numbers, no logos and no readable recipes. Avoid excessi
   button uses that param (validated as a relative path only, to avoid open-redirect). Also logged
   as a retrofit TODO for Chronicle/Occasions in `Feature_-_Style.md`, so all three apps end up
   consistent.
-* **Likes**: Cookbook does **not** build interactive Likes. The current `Like` model is hard-wired
-  to `BlogPost` (not reusable as-is), and the user wants to rewrite Likes' behaviour anyway before
-  it spreads to more apps — spun out into
-  `docs/context-prompts/active/Update_Feature_-_Likes.md`. Cookbook's Read-a-Recipe page ships
-  with a static, non-interactive placeholder where Likes would go, revisited once that feature
-  lands.
-  * **Confirmed 2026-09-19:** that rewrite's scope is the shared/polymorphic Like engine +
-    Chronicle's retrofit only — it does not wire anything into Cookbook, since `Recipe` doesn't
-    exist yet. Once it ships, a note gets added here confirming the dependency is resolved and
-    the static placeholder can be replaced with the real control.
+* **Likes**: Cookbook does **not** build interactive Likes yet. The `Like` model was hard-wired to
+  `BlogPost` (not reusable as-is), so its rewrite was spun out into
+  `docs/context-prompts/archive/Update_Feature_-_Likes.md`. Cookbook's Read-a-Recipe page ships
+  with a static, non-interactive placeholder where Likes would go, until Cookbook itself picks
+  this up.
+  * **Confirmed 2026-09-19:** that rewrite's scope was the shared/polymorphic Like engine +
+    Chronicle's retrofit only — it did not wire anything into Cookbook, since `Recipe` didn't
+    exist yet.
+  * **Ready to use as of 2026-09-19** (branch `feature/generalize-likes`, pending PR/merge): `Like`
+    is now polymorphic (`belongs_to :likeable`) via the shared `Likeable` concern, so when
+    Cookbook's Recipe Read block is built, it can `include Likeable` and swap the static
+    placeholder for the real reaction row + breakdown popup — no further Likes-side work needed.
+    Verify the branch has actually merged to `main` before relying on this.
 * **Comments**: generalized to polymorphic (`belongs_to :commentable, polymorphic: true`,
   replacing `Comment`'s current `belongs_to :blog_post`) — shared by Chronicle and Cookbook now,
   and by future apps going forward, rather than duplicating a `RecipeComment` model. This is its

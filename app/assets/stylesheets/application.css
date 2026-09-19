@@ -2432,7 +2432,12 @@ textarea.form-control {
 
 .likes-row {
   display: flex;
+  align-items: center;
   gap: var(--space-sm);
+}
+
+.like-clear-divider {
+  margin-left: auto;
 }
 
 .like-button {
