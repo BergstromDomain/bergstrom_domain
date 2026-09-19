@@ -1,6 +1,10 @@
 # config/routes.rb
 Rails.application.routes.draw do
   resource  :session
+  resource  :left_nav, only: [] do
+    patch :toggle_visibility
+    patch :toggle_section
+  end
   resources :passwords, param: :token
   resources :people do
     member do

@@ -13,7 +13,10 @@
   </head>
 
   <body>
-    <div class="site-shell">
+    <div class="site-shell<%= ' site-shell--nav-collapsed' if Current.session && !Current.session.left_nav_visible? %>"
+         data-controller="left-nav"
+         data-left-nav-toggle-visibility-url-value="<%= toggle_visibility_left_nav_path %>"
+         data-left-nav-toggle-section-url-value="<%= toggle_section_left_nav_path %>">
       <%= render "layouts/top_nav" %>
 
       <div class="site-body">
