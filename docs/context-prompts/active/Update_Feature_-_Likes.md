@@ -200,11 +200,28 @@ Brakeman, bundler-audit all clean. Not yet manually browser-verified — flagged
   real Likes breakdown popup (its first and only consumer) — same order Confirm Dialog's own JS
   spec was written against a real page (Person delete), not a synthetic one.
 
-## Block 4 — Likes breakdown popup content
-* Wire the Likes meta panel value (when non-empty) to open the new Popup component.
-* Popup content per `Review.png`: total score / total likes / combined face on one side, each of
-  the 5 `Like::FACES` with count + proportional bar on the other.
-* Feature specs covering the popup's Likes-specific content and the click-to-open trigger.
+## Block 4 — Likes breakdown popup content ✅ Done 2026-09-19
+* `Likeable#total_reactions` and `Likeable#reaction_breakdown` (one row per `Like::FACES` entry,
+  grinning-to-angry, each with `count` and `percentage` — a bar width as % of total_reactions,
+  0 when there are no reactions rather than dividing by zero).
+* `app/views/blog_posts/_likes_breakdown.html.erb` renders the popup content per `Review.png`:
+  score / combined face / total on the left, one row per face (icon + count + bar) on the right.
+* Chronicle's Show page meta panel value (`app/views/blog_posts/show.html.erb`) is now a `<button
+  data-action="popup#open">` wrapped in `data-controller="popup"`, rendering `shared/_popup` as a
+  layout around the breakdown partial — only when `like_score` is present (the "No reactions yet"
+  state stays a plain, non-clickable `<p>`, per the resolved zero-reactions decision).
+* `.show-meta-cell__value--clickable` and `.likes-breakdown*`/`.like-face-bg--*` CSS added.
+* The real `js: true` interaction spec deferred from Block 3 is now written here, against this
+  first real consumer: `spec/features/blog_posts/likes_breakdown_popup_spec.rb` (open on click,
+  no trigger when empty, guest access, close button, Esc, backdrop click, focus-return — same
+  conventions as `spec/features/shared/confirm_dialog_spec.rb`). Plus
+  `spec/views/blog_posts/_likes_breakdown.html.erb_spec.rb` and additions to
+  `spec/models/concerns/likeable_spec.rb`.
+* Verified: full suite green (1745 examples, 0 failures, 9 pre-existing unrelated `xit` pending),
+  95.92% coverage; RuboCop, Brakeman, bundler-audit all clean.
+
+**All four Development Blocks are now done.** Not yet manually browser-verified (see Block 1's
+note — same sandbox limitation applies here).
 
 ---
 

@@ -114,4 +114,68 @@ RSpec.describe Likeable, type: :model do
       end
     end
   end
+
+  # ── #total_reactions / #reaction_breakdown ────────────────────────────────
+  describe "#total_reactions" do
+    # 3) Alternative Paths ────────────────────────────────────────────────────
+    describe "Alternative Paths" do
+      it "counts only rows with an actual reaction" do
+        post = create(:blog_post, user: owner)
+        post.likes.create!(user: other, face: "grinning")
+        post.likes.create!(user: create(:user), face: nil)
+        expect(post.total_reactions).to eq(1)
+      end
+    end
+
+    # 4) Edge Cases ────────────────────────────────────────────────────────────
+    describe "Edge Cases" do
+      it "is zero when nobody has reacted" do
+        post = create(:blog_post, user: owner)
+        expect(post.total_reactions).to eq(0)
+      end
+    end
+  end
+
+  describe "#reaction_breakdown" do
+    # 3) Alternative Paths ────────────────────────────────────────────────────
+    describe "Alternative Paths" do
+      it "returns one row per face, grinning-to-angry, with the count and percentage of each" do
+        users = create_list(:user, 4)
+        post = create(:blog_post, user: owner)
+        post.likes.create!(user: users[0], face: "grinning")
+        post.likes.create!(user: users[1], face: "grinning")
+        post.likes.create!(user: users[2], face: "angry")
+        post.likes.create!(user: users[3], face: nil) # cleared — excluded
+
+        breakdown = post.reaction_breakdown
+
+        expect(breakdown.map { |row| row[:face] }).to eq(
+          %w[grinning slightly_smiling neutral slightly_frowning angry]
+        )
+        grinning = breakdown.find { |row| row[:face] == "grinning" }
+        expect(grinning[:count]).to eq(2)
+        expect(grinning[:percentage]).to eq(66.7)
+
+        angry = breakdown.find { |row| row[:face] == "angry" }
+        expect(angry[:count]).to eq(1)
+        expect(angry[:percentage]).to eq(33.3)
+
+        neutral = breakdown.find { |row| row[:face] == "neutral" }
+        expect(neutral[:count]).to eq(0)
+        expect(neutral[:percentage]).to eq(0.0)
+      end
+    end
+
+    # 4) Edge Cases ────────────────────────────────────────────────────────────
+    describe "Edge Cases" do
+      it "returns all-zero counts and percentages when nobody has reacted" do
+        post = create(:blog_post, user: owner)
+
+        breakdown = post.reaction_breakdown
+
+        expect(breakdown.map { |row| row[:count] }).to all(eq(0))
+        expect(breakdown.map { |row| row[:percentage] }).to all(eq(0.0))
+      end
+    end
+  end
 end

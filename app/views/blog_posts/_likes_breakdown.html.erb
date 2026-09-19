@@ -1,0 +1,28 @@
+<%# app/views/blog_posts/_likes_breakdown.html.erb %>
+<h2 class="likes-breakdown__heading" data-testid="likes-breakdown-heading">Reactions Breakdown</h2>
+
+<div class="likes-breakdown">
+  <div class="likes-breakdown__summary">
+    <p class="likes-breakdown__score" data-testid="likes-breakdown-score">
+      <%= number_with_precision(blog_post.like_score, precision: 1) %>
+    </p>
+    <%= lucide_icon(Like::FACES[blog_post.like_score_face][:icon], size: 32,
+          class: "likes-breakdown__combined-face like-face--#{blog_post.like_score_face}") %>
+    <p class="likes-breakdown__total" data-testid="likes-breakdown-total">
+      <%= pluralize(blog_post.total_reactions, "reaction") %>
+    </p>
+  </div>
+
+  <div class="likes-breakdown__rows">
+    <% blog_post.reaction_breakdown.each do |row| %>
+      <div class="likes-breakdown__row" data-testid="likes-breakdown-row-<%= row[:face] %>">
+        <%= lucide_icon(row[:icon], size: 16, class: "like-face--#{row[:face]}") %>
+        <span class="likes-breakdown__count"><%= row[:count] %></span>
+        <span class="likes-breakdown__bar-track">
+          <span class="likes-breakdown__bar-fill like-face-bg--<%= row[:face] %>"
+                style="width: <%= row[:percentage] %>%"></span>
+        </span>
+      </div>
+    <% end %>
+  </div>
+</div>

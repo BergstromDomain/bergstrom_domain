@@ -18,7 +18,6 @@ module Likeable
   # (or who cleared their vote) contributes nothing, unlike the old
   # implicit-neutral-vote formula. nil means "nobody has reacted yet".
   def like_score
-    reactions = likes.reject { |like| like.face.nil? }
     return nil if reactions.empty?
 
     reactions.sum { |like| Like::FACES[like.face][:points] }.to_f / reactions.count
@@ -30,5 +29,29 @@ module Likeable
 
     target_points = score.round.clamp(1, 5)
     Like::FACES.find { |_, data| data[:points] == target_points }.first
+  end
+
+  def total_reactions
+    reactions.count
+  end
+
+  # One row per Like::FACES entry, grinning-to-angry, each with a count and
+  # a bar width as a percentage of total_reactions — feeds the breakdown
+  # popup (see Review.png in the planning doc). Percentages are all 0 when
+  # there are no reactions, rather than dividing by zero.
+  def reaction_breakdown
+    total = total_reactions
+
+    Like::FACES.map do |face, data|
+      count = reactions.count { |like| like.face == face }
+      percentage = total.zero? ? 0.0 : (count.to_f / total * 100).round(1)
+      { face: face, icon: data[:icon], count: count, percentage: percentage }
+    end
+  end
+
+  private
+
+  def reactions
+    likes.reject { |like| like.face.nil? }
   end
 end

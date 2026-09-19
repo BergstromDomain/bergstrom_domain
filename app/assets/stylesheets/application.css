@@ -1494,6 +1494,20 @@ textarea.form-control {
   flex-wrap: wrap;
 }
 
+.show-meta-cell__value--clickable {
+  font: inherit;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+}
+
+.show-meta-cell__value--clickable:hover {
+  text-decoration-color: currentColor;
+}
+
 .show-panel--actions {
   display: flex;
   align-items: center;
@@ -2449,6 +2463,87 @@ textarea.form-control {
 .like-face--angry             { color: #dc2626; }
 
 .like-clear-icon { color: #dc2626; }
+
+.like-face-bg--grinning          { background: #166534; }
+.like-face-bg--slightly_smiling  { background: #16a34a; }
+.like-face-bg--neutral           { background: #ca8a04; }
+.like-face-bg--slightly_frowning { background: #ea580c; }
+.like-face-bg--angry             { background: #dc2626; }
+
+/* ============================================================
+   Likes Breakdown popup content (see Popup, above)
+   ============================================================ */
+
+.likes-breakdown__heading {
+  margin-bottom: var(--space-md);
+}
+
+.likes-breakdown {
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.likes-breakdown__summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding-right: var(--space-lg);
+  border-right: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.likes-breakdown__score {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+.likes-breakdown__combined-face {
+  margin: var(--space-2xs) 0;
+}
+
+.likes-breakdown__total {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.likes-breakdown__rows {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-xs);
+  flex: 1;
+  min-width: 0;
+}
+
+.likes-breakdown__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.likes-breakdown__count {
+  width: 1.5rem;
+  text-align: right;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.likes-breakdown__bar-track {
+  flex: 1;
+  height: 0.5rem;
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.likes-breakdown__bar-fill {
+  display: block;
+  height: 100%;
+}
 
 /* ============================================================
    Chronicle Comments (threaded, 2-level: thread + flat replies)
