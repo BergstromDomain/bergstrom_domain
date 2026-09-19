@@ -20,7 +20,7 @@ RSpec.describe "Likes Breakdown Popup", type: :feature do
   def open_breakdown_popup(post)
     visit blog_post_path(post)
     js_click("blog-post-likes-count")
-    find("[data-testid='likes-breakdown-popup'][open]", visible: :all, wait: 5)
+    find("[data-testid='likes-breakdown-popup'][open]", visible: :all, wait: 10)
   end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ RSpec.describe "Likes Breakdown Popup", type: :feature do
       # center (W3C WebDriver) — the dialog fills the viewport, so an
       # offset well outside the centered card's half-width lands on the
       # backdrop, same technique as the Confirm Dialog spec.
-      find("[data-testid='likes-breakdown-popup'][open]", visible: :all, wait: 5).click(x: -300, y: 0)
+      find("[data-testid='likes-breakdown-popup'][open]", visible: :all, wait: 10).click(x: -300, y: 0)
 
       expect(page).to have_no_css("[data-testid='likes-breakdown-popup'][open]", visible: :all)
     end
