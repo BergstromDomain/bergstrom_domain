@@ -12,6 +12,27 @@
 * When drilling down further there will not be any Subjects nor Topics with empty values since they are mapped to existing posts
 * Deleted posts including the ones still availabe for admin to restore, should not be availble when browsing
 
+## ✅ Done 2026-09-20 (Chronicle only — see Deferred for the cross-app part)
+* **Resolved:** all four bullets above audited against the actual implementation:
+  1. `BlogPostsController#category_counts` was dropping any category with zero visible posts
+     (`if count.positive?`) — removed. Every `BlogCategory` now always shows.
+  2. "(Uncategorized)" was the same — now always shows, including "(Uncategorized) (0)", per
+     confirmation that it should behave the same as a real category for this purpose.
+  3. Subjects/Topics already couldn't have empty entries — they're plain string columns on
+     `BlogPost`, not their own records, so an "empty" one can't exist. No code change needed;
+     confirmed via the existing `grouped_counts` implementation.
+  4. **Found a real pre-existing bug, not just a restatement:** `BlogPost.visible_to_visitors`
+     and the main branch of `.visible_to_users` had no `deleted_at` filter at all — only
+     `.visible_to_admins` (`kept`) excluded soft-deleted posts. A published-then-soft-deleted
+     post (within its 30-day admin-restorable window) was still visible to guests and regular
+     signed-in users via Browse/Filter. Fixed by adding `.kept` to both scopes.
+* Verified: new specs in `spec/models/blog_post_spec.rb` (soft-deleted-post exclusion for both
+  scopes) and `spec/features/blog_posts/browse_blog_posts_spec.rb` (zero-count category and
+  Uncategorized shown; soft-deleted post excluded from counts/listing); two existing specs that
+  asserted the old "hide empty buckets" behavior were inverted rather than just deleted. Full
+  suite green (803 non-feature + 980 feature examples, aside from pre-existing unrelated
+  environmental flakiness); RuboCop/Brakeman/bundler-audit clean.
+
 
 ---
 
@@ -69,8 +90,14 @@
 
 # DEFERRED / PHASE 2
 *(Log things explicitly instead of burying "add later" notes in prose.)*
-*
+* The TASK's "same functionality to be used for Cookbook and likely other apps" ambition —
+  deliberately not generalized now (2026-09-20 fix touched Chronicle's `BlogPostsController`
+  directly, no shared concern/service extracted). Revisit and extract a shared abstraction
+  when Cookbook's own Browse actually gets built, same approach as `Likeable` was extracted
+  concretely when needed rather than speculatively — see [[likes_rewrite_feature_shipped]].
 
 # OPEN QUESTIONS
-*(Running log of unresolved design questions raised during planning.)*
-*
+*(Running log of unresolved design questions raised during planning — resolved as of
+2026-09-20.)*
+* ~~Should "(Uncategorized)" also always show, including (0)~~ — resolved: yes, same as a real
+  category.

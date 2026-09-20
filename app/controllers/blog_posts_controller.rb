@@ -193,13 +193,16 @@ class BlogPostsController < ApplicationController
     scope.pluck(column).map { |v| v.presence || "none" }.tally.sort.to_h
   end
 
+  # Every Blog Category always shows, including ones with zero (visible)
+  # posts — there are few enough of them (admin-created, expected to stay
+  # under ~30) that a full list fits on one page without needing to hide
+  # empty buckets the way Subjects/Topics do (those aren't real records, so
+  # an "empty" one can't exist in the first place).
   def category_counts(scope)
-    counts = BlogCategory.order("LOWER(name) ASC").filter_map do |category|
-      count = scope.where(blog_category: category).count
-      [ category, count ] if count.positive?
-    end.to_h
-    uncategorized = scope.where(blog_category_id: nil).count
-    counts[:uncategorized] = uncategorized if uncategorized.positive?
+    counts = BlogCategory.order("LOWER(name) ASC").to_h do |category|
+      [ category, scope.where(blog_category: category).count ]
+    end
+    counts[:uncategorized] = scope.where(blog_category_id: nil).count
     counts
   end
 

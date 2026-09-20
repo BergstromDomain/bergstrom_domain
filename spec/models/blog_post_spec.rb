@@ -266,6 +266,11 @@ RSpec.describe BlogPost, type: :model do
       it "returns only published, unrestricted posts" do
         expect(BlogPost.visible_to_visitors).to contain_exactly(published_unrestricted)
       end
+
+      it "excludes a soft-deleted post even though it's published and unrestricted" do
+        published_unrestricted.update!(deleted_at: Time.current)
+        expect(BlogPost.visible_to_visitors).not_to include(published_unrestricted)
+      end
     end
 
     describe ".visible_to_users" do
@@ -287,6 +292,11 @@ RSpec.describe BlogPost, type: :model do
       it "includes a co-author's own draft" do
         draft_unrestricted.blog_post_authors.create!(user: other)
         expect(BlogPost.visible_to_users(other)).to include(draft_unrestricted)
+      end
+
+      it "excludes a soft-deleted post even though it would otherwise be visible" do
+        published_unrestricted.update!(deleted_at: Time.current)
+        expect(BlogPost.visible_to_users(other)).not_to include(published_unrestricted)
       end
     end
 

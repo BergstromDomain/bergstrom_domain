@@ -102,20 +102,20 @@ RSpec.describe "Browse Blog Posts", type: :feature do
 
       within("[data-testid='browse-tree']") do
         expect(page).to have_link("Chronicle (0)", href: blog_posts_path)
-        expect(page).not_to have_link(text: /Secrets/)
+        expect(page).to have_link("Secrets (0)")
       end
     end
 
-    it "Never shows an empty bucket in the tree at all" do
-      create(:blog_category, name: "Empty Category")
-      has_posts = create(:blog_category, name: "Has Posts")
-      create(:blog_post, :unrestricted, :published, user: owner, blog_category: has_posts)
+    it "Never counts or lists a soft-deleted post, even one still in its admin-restorable window" do
+      category = create(:blog_category, name: "Has A Deleted Post")
+      post = create(:blog_post, :unrestricted, :published, user: owner, blog_category: category)
+      post.update!(deleted_at: Time.current)
 
       visit blog_posts_path
 
       within("[data-testid='browse-tree']") do
-        expect(page).to have_link("Has Posts (1)")
-        expect(page).not_to have_link(text: /Empty Category/)
+        expect(page).to have_link("Chronicle (0)", href: blog_posts_path)
+        expect(page).to have_link("Has A Deleted Post (0)")
       end
     end
   end
@@ -201,6 +201,30 @@ RSpec.describe "Browse Blog Posts", type: :feature do
 
       within("[data-testid='browse-post-card']") do
         expect(page).to have_selector(".event-type-icon-large svg")
+      end
+    end
+
+    it "Shows every Blog Category, including one with zero (visible) posts, alongside a populated one" do
+      create(:blog_category, name: "Empty Category")
+      has_posts = create(:blog_category, name: "Has Posts")
+      create(:blog_post, :unrestricted, :published, user: owner, blog_category: has_posts)
+
+      visit blog_posts_path
+
+      within("[data-testid='browse-tree']") do
+        expect(page).to have_link("Has Posts (1)")
+        expect(page).to have_link("Empty Category (0)")
+      end
+    end
+
+    it "Shows '(Uncategorized) (0)' even when every existing post already has a Category" do
+      category = create(:blog_category, name: "Has A Post")
+      create(:blog_post, :unrestricted, :published, user: owner, blog_category: category)
+
+      visit blog_posts_path
+
+      within("[data-testid='browse-tree']") do
+        expect(page).to have_link("(Uncategorized) (0)", href: blog_posts_path(category_id: "none"))
       end
     end
   end
