@@ -65,14 +65,17 @@ class BlogPost < ApplicationRecord
   scope :discarded,  -> { where.not(deleted_at: nil) }
 
   # Drafts are visible only to their authors, regardless of classification —
-  # Classifiable's normal rules only govern published posts.
-  scope :visible_to_visitors, -> { published.where(classification: "unrestricted") }
+  # Classifiable's normal rules only govern published posts. A soft-deleted
+  # post (still in its 30-day admin-restorable window) must never surface
+  # outside the admin-only Deleted Posts page, however else it would
+  # otherwise qualify — every branch here is explicitly .kept.
+  scope :visible_to_visitors, -> { published.kept.where(classification: "unrestricted") }
   scope :visible_to_admins,   -> { kept }
 
   def self.visible_to_users(user)
     own_draft_ids = BlogPostAuthor.where(user_id: user.id).select(:blog_post_id)
 
-    super.published
+    super.published.kept
       .or(kept.draft.where(id: own_draft_ids))
   end
 
