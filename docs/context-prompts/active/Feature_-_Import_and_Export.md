@@ -146,6 +146,26 @@ There are several different downloads and imports required
   authors/comments, whether a separate admin block is still needed) once this format exists —
   likely resolves to "reuse this same format," not a bespoke one.
 
+## Block 2 — SHIPPED (2026-09-20)
+* Rebuilt `BlogExportsController#index` to look like Filter Blog Posts (same Basic/SQL filter UI,
+  reusing a new shared `BlogPostFilterable` concern so the filtering logic isn't duplicated
+  between `BlogPostsController#filter` and this page — behaviour is byte-for-byte identical to
+  Filter Blog Posts for the same params).
+* Existing "Print / Save as PDF" / "Download CSV" panel kept exactly as it was (unfiltered, all
+  visible posts) — deliberately NOT folded into the new filtered flow, to avoid silently changing
+  established behaviour beyond what was asked.
+* New `pdfs` action (`GET /blog-posts/export/pdfs`) + a `show-panel--actions` Action Panel with
+  "Download PDFs" — a plain link carrying the current `request.query_parameters` (same trick
+  `filter_sort_link` already uses), so the zip always matches what's on screen. Confirmation
+  reuses the global Confirm Dialog for free via `data-turbo-confirm` — the same mechanism the
+  existing Delete button uses, zero new JS.
+* New app-agnostic `ZipBundlingService` (rubyzip, added as a real dependency — previously only a
+  transitive `selenium-webdriver` test-group dependency). Zip filename:
+  `BergstromDomain_Chronicle_<ISO date>.zip`. Per-post PDF filenames reuse Block 1's
+  title-with-underscores convention, de-duplicated with a numeric suffix on a title collision.
+  New `PdfDownloadable` concern (`render_pdf(template:, assigns:)`) factors out the
+  render-to-string-then-PDF step shared by Block 1's single-post download and this bulk one.
+
 ## Block 5 — Deferred decision point
 * Only needed if Block 4's format doesn't already cover the admin PROD-migration use case: a
   thin admin-only (`can_administer?`) wrapper to bulk-produce/consume Block 4's zip format.

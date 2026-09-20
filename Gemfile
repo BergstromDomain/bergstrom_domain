@@ -86,3 +86,5 @@ end
 gem "grover", "~> 1.2"
 
 gem "ferrum", "~> 0.18.0"
+
+gem "rubyzip", "~> 3.6"

@@ -20,3 +20,135 @@
     <% end %>
   </div>
 </div>
+
+<%= form_with url: blog_exports_path, method: :get, data: { controller: "filter-mode" } do %>
+  <%= hidden_field_tag :mode, @mode, data: { "filter-mode-target": "mode" } %>
+
+  <div class="editor-tabs" role="tablist">
+    <button type="button" class="editor-tab<%= " tab--active" if @mode == "basic" %>" role="tab"
+            data-filter-mode-target="basicTab" data-action="filter-mode#switchToBasic"
+            data-testid="basic-tab">Basic</button>
+    <button type="button" class="editor-tab<%= " tab--active" if @mode == "sql" %>" role="tab"
+            data-filter-mode-target="sqlTab" data-action="filter-mode#switchToSql"
+            data-testid="sql-tab">SQL</button>
+  </div>
+
+  <div class="show-panel" data-filter-mode-target="basicPanel" data-testid="basic-panel"
+       <%= "hidden" if @mode == "sql" %>>
+    <div class="filter-grid">
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Category</h3>
+        <%= select_tag :category_id,
+              options_for_select([ [ "All Categories", "" ] ] + @category_options.map { |c| [ c.name, c.slug ] },
+                params[:category_id]),
+              class: "form-control", data: { testid: "category-filter" } %>
+      </div>
+
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Subject</h3>
+        <%= select_tag :subject,
+              options_for_select([ [ "All Subjects", "" ] ] + @subject_options.map { |s| [ s, s ] }, params[:subject]),
+              class: "form-control", data: { testid: "subject-filter" } %>
+      </div>
+
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Topic</h3>
+        <%= select_tag :topic,
+              options_for_select([ [ "All Topics", "" ] ] + @topic_options.map { |t| [ t, t ] }, params[:topic]),
+              class: "form-control", data: { testid: "topic-filter" } %>
+      </div>
+
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Author</h3>
+        <%= select_tag :author_id,
+              options_for_select([ [ "All Authors", "" ] ] +
+                @author_options.map { |u| [ "#{u.first_name} #{u.last_name}", u.id ] }, params[:author_id]),
+              class: "form-control", data: { testid: "author-filter" } %>
+      </div>
+
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Created</h3>
+        <%= select_tag :created,
+              options_for_select([ [ "Anytime", "" ], [ "Today", "today" ], [ "This Week", "this_week" ],
+                [ "This Month", "this_month" ], [ "This Year", "this_year" ] ], params[:created]),
+              class: "form-control", data: { testid: "created-filter" } %>
+      </div>
+
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Published</h3>
+        <%= select_tag :published,
+              options_for_select([ [ "All", "" ], [ "Published Only", "published" ], [ "Drafts Only", "draft" ] ],
+                params[:published]),
+              class: "form-control", data: { testid: "published-filter" } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="show-panel" data-filter-mode-target="sqlPanel" data-testid="sql-panel"
+       <%= "hidden" if @mode == "basic" %>>
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Query</h3>
+      <%= text_area_tag :query, @query, rows: 4, class: "form-control",
+            placeholder: 'category = "Technology" AND (topic = "Ruby On Rails" OR comments > 5)',
+            data: { testid: "jql-query-field" } %>
+      <% if @filter_error %>
+        <span class="field-error" data-testid="filter-error"><%= @filter_error %></span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="show-panel show-panel--actions" data-testid="download-action-panel">
+    <button type="submit" class="btn btn-primary" data-testid="apply-filters-button">
+      <%= lucide_icon("filter", size: 16) %> Apply Filters
+    </button>
+    <%= link_to blog_exports_path, class: "btn btn-secondary", data: { testid: "clear-filters-link" } do %>
+      <%= lucide_icon("x", size: 16) %> Clear Filters
+    <% end %>
+    <span class="btn-divider">|</span>
+    <%= link_to pdfs_blog_exports_path(request.query_parameters), class: "btn btn-primary",
+          data: { testid: "download-pdfs-link", turbo_confirm: "Download these #{@posts.size} #{'post'.pluralize(@posts.size)}?" } do %>
+      <%= lucide_icon("download", size: 16) %> Download PDFs
+    <% end %>
+  </div>
+<% end %>
+
+<% if @posts.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="export-filter-results-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Subject</th>
+          <th>Topic</th>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Created</th>
+          <th>Published</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @posts.each do |post| %>
+          <tr data-testid="export-filter-post-row">
+            <td><%= post.blog_category&.name || "(Uncategorized)" %></td>
+            <td><%= post.subject.presence || "—" %></td>
+            <td><%= post.topic.presence || "—" %></td>
+            <td data-testid="export-filter-post-title"><%= post.title %></td>
+            <td><%= post.user.first_name %> <%= post.user.last_name %></td>
+            <td><%= post.created_at.strftime("%d-%b-%Y") %></td>
+            <td>
+              <% if post.published? %>
+                <%= lucide_icon("book-check", size: 16) %>
+              <% else %>
+                <%= lucide_icon("book-dashed", size: 16) %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% elsif @filter_error.blank? %>
+  <div class="empty-state" data-testid="export-empty-state">
+    <p>No blog posts match this filter.</p>
+  </div>
+<% end %>

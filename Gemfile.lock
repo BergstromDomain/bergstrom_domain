@@ -539,6 +539,7 @@ DEPENDENCIES
   rspec-rails
   rubocop
   rubocop-rails-omakase
+  rubyzip (~> 3.6)
   selenium-webdriver
   shoulda-matchers
   simplecov
