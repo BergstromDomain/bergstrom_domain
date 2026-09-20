@@ -1,6 +1,6 @@
 # app/models/comment.rb
 class Comment < ApplicationRecord
-  belongs_to :blog_post, counter_cache: true
+  belongs_to :commentable, polymorphic: true, counter_cache: true
   belongs_to :user
   belongs_to :parent, class_name: "Comment", optional: true, inverse_of: :replies
 

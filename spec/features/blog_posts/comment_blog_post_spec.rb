@@ -68,8 +68,8 @@ RSpec.describe "Comment Blog Post", type: :feature do
 
     it "Shows the newest top-level comment on top, oldest at the bottom" do
       post = published_post
-      create(:comment, blog_post: post, user: owner, body: "First comment", created_at: 2.days.ago)
-      create(:comment, blog_post: post, user: owner, body: "Second comment", created_at: 1.day.ago)
+      create(:comment, commentable: post, user: owner, body: "First comment", created_at: 2.days.ago)
+      create(:comment, commentable: post, user: owner, body: "Second comment", created_at: 1.day.ago)
 
       sign_in_as(reader)
       visit blog_post_path(post)
@@ -79,7 +79,7 @@ RSpec.describe "Comment Blog Post", type: :feature do
 
     it "Replies to a comment, indenting it under that thread", js: true do
       post = published_post
-      thread = create(:comment, blog_post: post, user: owner, body: "Original comment")
+      thread = create(:comment, commentable: post, user: owner, body: "Original comment")
       sign_in_and_settle(reader)
       visit blog_post_path(post)
 
@@ -112,7 +112,7 @@ RSpec.describe "Comment Blog Post", type: :feature do
 
     it "Does not show Reply/Edit/Delete actions to a guest" do
       post = published_post
-      create(:comment, blog_post: post, user: owner, body: "A comment")
+      create(:comment, commentable: post, user: owner, body: "A comment")
       visit blog_post_path(post)
 
       expect(page).not_to have_button("Reply")
@@ -122,7 +122,7 @@ RSpec.describe "Comment Blog Post", type: :feature do
 
     it "Denies editing someone else's comment" do
       post = published_post
-      comment = create(:comment, blog_post: post, user: owner, body: "Original")
+      comment = create(:comment, commentable: post, user: owner, body: "Original")
       sign_in_as(reader)
       page.driver.submit :patch, comment_path(comment), { comment: { body: "Hacked" } }
 
@@ -132,7 +132,7 @@ RSpec.describe "Comment Blog Post", type: :feature do
 
     it "Denies deleting someone else's comment" do
       post = published_post
-      comment = create(:comment, blog_post: post, user: owner, body: "Original")
+      comment = create(:comment, commentable: post, user: owner, body: "Original")
       sign_in_as(reader)
       page.driver.submit :delete, comment_path(comment), {}
 
@@ -145,7 +145,7 @@ RSpec.describe "Comment Blog Post", type: :feature do
   describe "Alternative Paths" do
     it "Allows an admin to delete any comment" do
       post = published_post
-      comment = create(:comment, blog_post: post, user: reader, body: "Some comment")
+      comment = create(:comment, commentable: post, user: reader, body: "Some comment")
       sign_in_as(create(:user, :admin))
       visit blog_post_path(post)
 
@@ -167,7 +167,7 @@ RSpec.describe "Comment Blog Post", type: :feature do
     # again — see chronicle_app_planning.md's CI-stabilization-pass notes.
     xit "Lets the author edit their own comment in place", js: true do
       post = published_post
-      comment = create(:comment, blog_post: post, user: reader, body: "Original text")
+      comment = create(:comment, commentable: post, user: reader, body: "Original text")
       sign_in_and_settle(reader)
       visit blog_post_path(post)
 
@@ -205,7 +205,7 @@ RSpec.describe "Comment Blog Post", type: :feature do
         content_type: "image/jpeg"
       )
       body = ActionText::Content.new.append_attachables(blob)
-      create(:comment, blog_post: post, user: owner, body: body)
+      create(:comment, commentable: post, user: owner, body: body)
 
       visit blog_post_path(post)
 
@@ -219,8 +219,8 @@ RSpec.describe "Comment Blog Post", type: :feature do
   describe "Edge Cases" do
     it "Deletes all replies when the top-level comment is deleted, updating the count" do
       post = published_post
-      thread = create(:comment, blog_post: post, user: owner, body: "Original")
-      create(:comment, blog_post: post, user: owner, parent: thread, body: "A reply")
+      thread = create(:comment, commentable: post, user: owner, body: "Original")
+      create(:comment, commentable: post, user: owner, parent: thread, body: "A reply")
       sign_in_as(owner)
       visit blog_post_path(post)
 
@@ -233,8 +233,8 @@ RSpec.describe "Comment Blog Post", type: :feature do
 
     it "Flattens a reply-to-a-reply onto the same thread instead of nesting further" do
       post = published_post
-      thread = create(:comment, blog_post: post, user: owner, body: "Original")
-      reply = create(:comment, blog_post: post, user: owner, parent: thread, body: "A reply")
+      thread = create(:comment, commentable: post, user: owner, body: "Original")
+      reply = create(:comment, commentable: post, user: owner, parent: thread, body: "A reply")
       sign_in_as(reader)
 
       page.driver.submit :post, blog_post_comments_path(post),
