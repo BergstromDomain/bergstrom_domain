@@ -106,10 +106,11 @@
         <% else %>
           <% @categories.each do |category, count| %>
             <li data-testid="browse-category-node">
+              <% link_class = "browse-tree__link--has-posts" if count.positive? %>
               <% if category == :uncategorized %>
-                <%= link_to "(Uncategorized) (#{count})", blog_posts_path(category_id: "none") %>
+                <%= link_to "(Uncategorized) (#{count})", blog_posts_path(category_id: "none"), class: link_class %>
               <% else %>
-                <%= link_to "#{category.name} (#{count})", blog_posts_path(category_id: category.slug) %>
+                <%= link_to "#{category.name} (#{count})", blog_posts_path(category_id: category.slug), class: link_class %>
               <% end %>
             </li>
           <% end %>

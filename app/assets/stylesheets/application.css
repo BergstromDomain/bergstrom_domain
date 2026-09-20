@@ -1012,6 +1012,10 @@ code, pre {
   font-weight: var(--font-weight-semibold);
 }
 
+.browse-tree__link--has-posts {
+  font-weight: var(--font-weight-bold);
+}
+
 .blog-cards {
   display: flex;
   flex-direction: column;

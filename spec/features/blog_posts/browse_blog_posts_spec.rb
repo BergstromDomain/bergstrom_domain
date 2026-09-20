@@ -158,7 +158,7 @@ RSpec.describe "Browse Blog Posts", type: :feature do
 
       visit blog_posts_path
       within("[data-testid='browse-tree']") do
-        expect(page).to have_link("(Uncategorized) (1)")
+        expect(page).to have_css("a.browse-tree__link--has-posts", text: "(Uncategorized) (1)")
         click_link "(Uncategorized) (1)"
       end
 
@@ -217,6 +217,20 @@ RSpec.describe "Browse Blog Posts", type: :feature do
       end
     end
 
+    it "Bolds a Category's link when it has posts, but not an empty one" do
+      create(:blog_category, name: "Empty Category")
+      has_posts = create(:blog_category, name: "Has Posts")
+      create(:blog_post, :unrestricted, :published, user: owner, blog_category: has_posts)
+
+      visit blog_posts_path
+
+      within("[data-testid='browse-tree']") do
+        expect(page).to have_link("Has Posts (1)", href: blog_posts_path(category_id: has_posts.slug))
+        expect(page).to have_css("a.browse-tree__link--has-posts", text: "Has Posts (1)")
+        expect(page).to have_no_css("a.browse-tree__link--has-posts", text: "Empty Category (0)")
+      end
+    end
+
     it "Shows '(Uncategorized) (0)' even when every existing post already has a Category" do
       category = create(:blog_category, name: "Has A Post")
       create(:blog_post, :unrestricted, :published, user: owner, blog_category: category)
@@ -225,6 +239,7 @@ RSpec.describe "Browse Blog Posts", type: :feature do
 
       within("[data-testid='browse-tree']") do
         expect(page).to have_link("(Uncategorized) (0)", href: blog_posts_path(category_id: "none"))
+        expect(page).to have_no_css("a.browse-tree__link--has-posts", text: "(Uncategorized) (0)")
       end
     end
   end
