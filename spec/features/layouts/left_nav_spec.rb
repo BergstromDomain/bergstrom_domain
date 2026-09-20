@@ -343,10 +343,10 @@ RSpec.describe "Left Nav", type: :feature do
           end
         end
 
-        it "Does not show the Exports section (hidden pending redesign)" do
+        it "Shows the Import & Export section with a Download Blog Posts link" do
           within("[data-testid='left-nav']") do
-            expect(page).not_to have_selector("[data-testid='left-nav-exports-h2']")
-            expect(page).not_to have_link("Download Blog Posts")
+            expect(page).to have_selector("[data-testid='left-nav-import-export-h3']")
+            expect(page).to have_link("Download Blog Posts", href: blog_exports_path)
           end
         end
 

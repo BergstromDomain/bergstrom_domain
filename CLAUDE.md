@@ -130,7 +130,8 @@ ACTIONS (h2, content-creator-and-above only)
                              (Blog Post, Recipe), Create for entities (Person, Event), Add for
                              reference data (Event Type)
   Import & Export (h3)    → nested here, not a standalone top-level section; omit if the app
-                             has nothing to import/export yet (e.g. Chronicle currently)
+                             has nothing to import/export yet (e.g. Cookbook currently); Chronicle
+                             has this today (Download Blog Posts — export only, import pending)
 DOCUMENTATION (h2)
   How To (h3)
     User Guide             → stub link until written
