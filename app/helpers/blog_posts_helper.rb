@@ -28,4 +28,15 @@ module BlogPostsHelper
   def blog_post_teaser(post)
     strip_tags(post.rendered_body).squish.truncate(200)
   end
+
+  # The PDF template renders in an isolated headless-Chrome page with no
+  # browsing context/origin (see PdfRenderingService) — a relative or signed
+  # ActiveStorage URL wouldn't resolve, so the header image is inlined as a
+  # self-contained base64 data URI instead.
+  def blog_image_data_uri(post)
+    return nil unless post.blog_image.attached?
+
+    blob = post.blog_image.blob
+    "data:#{blob.content_type};base64,#{Base64.strict_encode64(blob.download)}"
+  end
 end

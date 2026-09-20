@@ -83,6 +83,7 @@ Rails.application.routes.draw do
       post :publish
       post :unpublish
       post :restore
+      get  :pdf
     end
     collection do
       post :convert_format

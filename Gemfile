@@ -82,3 +82,7 @@ group :test do
   gem "shoulda-matchers"
   gem "database_cleaner-active_record"
 end
+
+gem "grover", "~> 1.2"
+
+gem "ferrum", "~> 0.18.0"

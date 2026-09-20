@@ -2,9 +2,9 @@
 class BlogPostsController < ApplicationController
   include Navigable
 
-  allow_unauthenticated_access only: %i[index show filter]
-  before_action :resume_session_if_present, only: %i[index show filter]
-  before_action :set_blog_post,             only: %i[show edit update publish unpublish destroy restore]
+  allow_unauthenticated_access only: %i[index show filter pdf]
+  before_action :resume_session_if_present, only: %i[index show filter pdf]
+  before_action :set_blog_post,             only: %i[show pdf edit update publish unpublish destroy restore]
   before_action :require_create_access,     only: %i[new create convert_format]
   before_action :require_write_access,      only: %i[edit update publish unpublish]
   before_action :require_delete_access,     only: %i[destroy]
@@ -104,6 +104,17 @@ class BlogPostsController < ApplicationController
     unless @policy.can_read?
       redirect_to chronicle_path, alert: "You do not have permission to view that blog post."
     end
+  end
+
+  def pdf
+    @policy = Policy.new(current_user, @blog_post)
+    return redirect_to chronicle_path, alert: "You do not have permission to view that blog post." unless @policy.can_read?
+
+    html = render_to_string(template: "blog_posts/pdf", layout: false)
+    send_data PdfRenderingService.new(html).render,
+      type:        "application/pdf",
+      filename:    "#{@blog_post.title.gsub(' ', '_')}.pdf",
+      disposition: "attachment"
   end
 
   def edit
