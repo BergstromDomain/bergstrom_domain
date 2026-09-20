@@ -7,18 +7,12 @@
 </div>
 
 <div class="show-panel" data-testid="export-panel">
-  <p>Download every blog post you can currently see, either as a printable page
-    (use your browser's Print dialog to save it as a PDF) or as a CSV file with
-    each post's body included in Markdown format.</p>
-
-  <div class="show-panel show-panel--actions">
-    <%= link_to print_blog_exports_path, class: "btn btn-primary", data: { testid: "print-export-link" } do %>
-      <%= lucide_icon("printer", size: 16) %> Print / Save as PDF
-    <% end %>
-    <%= link_to csv_blog_exports_path, class: "btn btn-secondary", data: { testid: "csv-export-link" } do %>
-      <%= lucide_icon("file-down", size: 16) %> Download CSV
-    <% end %>
-  </div>
+  <p>Use the filters below to select the blog posts you're interested in and download them.
+    There are two supported formats:</p>
+  <ul>
+    <li>A CSV-file with each post's body included in Markdown format</li>
+    <li>A ZIP-file with each post included as a PDF</li>
+  </ul>
 </div>
 
 <%= form_with url: blog_exports_path, method: :get, data: { controller: "filter-mode" } do %>
@@ -108,6 +102,10 @@
     <%= link_to pdfs_blog_exports_path(request.query_parameters), class: "btn btn-primary",
           data: { testid: "download-pdfs-link", turbo_confirm: "Download these #{@posts.size} #{'post'.pluralize(@posts.size)}?" } do %>
       <%= lucide_icon("download", size: 16) %> Download PDFs
+    <% end %>
+    <%= link_to csv_blog_exports_path(request.query_parameters), class: "btn btn-secondary",
+          data: { testid: "csv-export-link" } do %>
+      <%= lucide_icon("file-down", size: 16) %> Download CSV
     <% end %>
   </div>
 <% end %>

@@ -146,7 +146,22 @@ There are several different downloads and imports required
   authors/comments, whether a separate admin block is still needed) once this format exists —
   likely resolves to "reuse this same format," not a bespoke one.
 
-## Block 2 — SHIPPED (2026-09-20)
+## Block 2 — SHIPPED (2026-09-20), then revised after manual testing (2026-09-21)
+* Manual-testing findings on `/blog-posts/export`: the info panel text was rewritten (explains the
+  two download formats plainly, matches actual behaviour), its buttons moved down into the same
+  Action Panel as "Download PDFs" (info panel is now text-only).
+* **Real bug fixed**: "Download CSV" ignored the filter form entirely (always exported everything
+  visible, regardless of what was selected) — `BlogExportsController#csv` now calls
+  `compute_filtered_blog_posts` like `#pdfs` already did, and the link carries
+  `request.query_parameters` the same way.
+* **"Print / Save as PDF" removed entirely**, per the user's explicit choice ("not working as
+  expected, happy to remove completely") now that both Block 1 (per-post PDF) and this block's
+  zip-of-PDFs make the old browser-print workaround redundant. Removed: the `print` action/route,
+  `app/views/blog_exports/print.html.erb`, `print_controller.js` (confirmed unused elsewhere first
+  via grep). The global `@media print` CSS rule (hides `.top-nav`/`.left-nav`/`.site-footer`/
+  `.print-hide` on any page print) was NOT removed — confirmed it's genuine site-wide print
+  styling, not specific to the removed feature.
+* Original Block 2 summary below, still accurate for what shipped initially:
 * Rebuilt `BlogExportsController#index` to look like Filter Blog Posts (same Basic/SQL filter UI,
   reusing a new shared `BlogPostFilterable` concern so the filtering logic isn't duplicated
   between `BlogPostsController#filter` and this page — behaviour is byte-for-byte identical to

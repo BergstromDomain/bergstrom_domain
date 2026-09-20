@@ -10,12 +10,9 @@ class BlogExportsController < ApplicationController
     compute_filtered_blog_posts
   end
 
-  def print
-    @posts = visible_posts
-  end
-
   def csv
-    csv_data = BlogPostExportService.new(visible_posts).generate_csv
+    compute_filtered_blog_posts
+    csv_data = BlogPostExportService.new(@posts).generate_csv
     filename = "blog_posts_export_#{Date.current.iso8601}.csv"
 
     send_data csv_data,
@@ -39,11 +36,6 @@ class BlogExportsController < ApplicationController
 
   def require_can_export
     redirect_to chronicle_path, alert: "Not authorised." unless current_user&.can_export?
-  end
-
-  def visible_posts
-    scope = current_user.can_administer? ? BlogPost.visible_to_admins : BlogPost.visible_to_users(current_user)
-    scope.includes(:user, :blog_category).order(created_at: :desc)
   end
 
   # Post titles aren't unique app-wide (only per-author), so two filtered
