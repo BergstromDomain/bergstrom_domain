@@ -314,11 +314,12 @@ ALTER SEQUENCE public.blog_posts_id_seq OWNED BY public.blog_posts.id;
 
 CREATE TABLE public.comments (
     id bigint NOT NULL,
-    blog_post_id bigint NOT NULL,
+    commentable_id bigint NOT NULL,
     user_id bigint NOT NULL,
     parent_id bigint,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    commentable_type character varying NOT NULL
 );
 
 
@@ -1349,10 +1350,10 @@ CREATE UNIQUE INDEX index_blog_posts_on_user_id_and_title ON public.blog_posts U
 
 
 --
--- Name: index_comments_on_blog_post_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_comments_on_commentable_type_and_commentable_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_comments_on_blog_post_id ON public.comments USING btree (blog_post_id);
+CREATE INDEX index_comments_on_commentable_type_and_commentable_id ON public.comments USING btree (commentable_type, commentable_id);
 
 
 --
@@ -1663,14 +1664,6 @@ ALTER TABLE ONLY public.likes
 
 
 --
--- Name: comments fk_rails_29c545254e; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.comments
-    ADD CONSTRAINT fk_rails_29c545254e FOREIGN KEY (blog_post_id) REFERENCES public.blog_posts(id);
-
-
---
 -- Name: comments fk_rails_31554e7034; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1845,6 +1838,7 @@ ALTER TABLE ONLY public.contacts
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260920102813'),
 ('20260919211958'),
 ('20260918231600'),
 ('20260908215924'),

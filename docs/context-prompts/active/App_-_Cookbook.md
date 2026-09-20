@@ -216,22 +216,31 @@ No text, no letters, no numbers, no logos and no readable recipes. Avoid excessi
     placeholder for the real reaction row + breakdown popup — no further Likes-side work needed.
     Verify the branch has actually merged to `main` before relying on this.
 * **Comments**: generalized to polymorphic (`belongs_to :commentable, polymorphic: true`,
-  replacing `Comment`'s current `belongs_to :blog_post`) — shared by Chronicle and Cookbook now,
-  and by future apps going forward, rather than duplicating a `RecipeComment` model. This is its
-  own development block (touches Chronicle's existing model/specs), sequenced before Recipe's own
-  Comments block below. Planning spun out into
-  `docs/context-prompts/active/Update_Feature_-_Comments.md` (2026-09-19) — not paired with the
-  Likes rewrite above, addressed as its own feature.
+  replacing `Comment`'s former `belongs_to :blog_post`) — shared by Chronicle and Cookbook now,
+  and by future apps going forward, rather than duplicating a `RecipeComment` model. Planning
+  spun out into `docs/context-prompts/active/Update_Feature_-_Comments.md` (2026-09-19), not
+  paired with the Likes rewrite above, addressed as its own feature — **shipped independently,
+  2026-09-20**, ahead of Cookbook's own timeline; doc moved to
+  `docs/context-prompts/archive/Update_Feature_-_Comments.md`. See Development Blocks below for
+  what's still needed on Cookbook's side (the `comments_count` column, `include Commentable` on
+  `Recipe`).
 * **Ownership**: Recipe is single-owner only — no co-author shuttle like Chronicle's `BlogPost`
   (the app overview only ever says "his/hers recipe").
 
 ## DEVELOPMENT BLOCKS (confirmed order)
 0. Foundation — `Recipe`/`Cuisine`/`FoodType`/`Language` models + migrations, routes, landing
-   page, left-nav skeleton
+   page, left-nav skeleton. `Recipe`'s migration must include its own `comments_count` integer
+   column (`null: false, default: 0`), same as `BlogPost#comments_count` — `Comment`'s
+   `counter_cache: true` is on a polymorphic association now (see
+   `docs/context-prompts/archive/Update_Feature_-_Comments.md`), so it needs a matching column on
+   every commentable host, not just Chronicle's.
 1. Reference Data CRUD (Cuisine, Food Type, Language) — mirrors `EventTypesController`, plus the
    flag-emoji/icon-badge fields from Design Question-3
-2. Generalize Comments to polymorphic (touches Chronicle's existing `Comment` model/specs) — see
-   `Update_Feature_-_Comments.md`
+2. ~~Generalize Comments to polymorphic~~ — **done independently, 2026-09-20** (touched Chronicle's
+   existing `Comment` model/specs, ahead of Cookbook's own timeline). See
+   `docs/context-prompts/archive/Update_Feature_-_Comments.md`. `Comment.commentable` is ready for
+   `Recipe` to `include Commentable` once Block 4 (Read a Recipe) is reached — no further
+   Comments-side work needed beyond the `comments_count` column noted in Block 0 above.
 3. Create a Recipe (Title/Description/Image frame, Metadata frame, Ingredients frame — new
    two-level dynamic add/remove rows, Description/body Raw-Formatted frame reusing
    Quill/`convert_format`, Action frame: Cancel | Save only)

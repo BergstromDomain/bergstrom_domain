@@ -5,7 +5,7 @@
 <% end %>
 
 <%= form_with model: comment,
-      url: comment.persisted? ? comment_path(comment) : blog_post_comments_path(blog_post),
+      url: comment.persisted? ? comment_path(comment) : blog_post_comments_path(commentable),
       class: "comment-form" do |f| %>
   <% if comment.errors.any? %>
     <div class="form-errors" data-testid="form-errors">

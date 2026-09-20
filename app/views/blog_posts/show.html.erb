@@ -143,14 +143,14 @@
   </h2>
 
   <% if authenticated? %>
-    <%= render "comments/form", blog_post: @blog_post, comment: Comment.new %>
+    <%= render "comments/form", commentable: @blog_post, comment: Comment.new %>
   <% end %>
 
   <div class="comments-list">
     <% @blog_post.comments.threads_ordered.includes(:user, replies: :user).each do |thread| %>
-      <%= render "comments/comment", comment: thread, blog_post: @blog_post %>
+      <%= render "comments/comment", comment: thread, commentable: @blog_post %>
       <% thread.replies.each do |reply| %>
-        <%= render "comments/comment", comment: reply, blog_post: @blog_post, reply: true %>
+        <%= render "comments/comment", comment: reply, commentable: @blog_post, reply: true %>
       <% end %>
     <% end %>
   </div>

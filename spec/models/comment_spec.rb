@@ -7,7 +7,7 @@ RSpec.describe Comment, type: :model do
 
   # ── Associations ──────────────────────────────────────────────────────────
   describe "Associations" do
-    it { is_expected.to belong_to(:blog_post).counter_cache(true) }
+    it { is_expected.to belong_to(:commentable).counter_cache(true) }
     it { is_expected.to belong_to(:user) }
     it { is_expected.to belong_to(:parent).class_name("Comment").optional }
     it { is_expected.to have_many(:replies).class_name("Comment").dependent(:destroy) }
@@ -16,7 +16,7 @@ RSpec.describe Comment, type: :model do
   # ── Rich Text ─────────────────────────────────────────────────────────────
   describe "Rich Text" do
     it "Stores body as Action Text rich text, not a plain column" do
-      comment = create(:comment, blog_post: post, user: user, body: "<strong>Hi</strong>")
+      comment = create(:comment, commentable: post, user: user, body: "<strong>Hi</strong>")
       expect(comment.body).to be_a(ActionText::RichText)
       expect(comment.body.to_s).to include("<strong>Hi</strong>")
     end
@@ -27,38 +27,38 @@ RSpec.describe Comment, type: :model do
     # 1) Happy Path ─────────────────────────────────────────────────────────────
     describe "Happy Path" do
       it "is valid as a top-level comment" do
-        comment = build(:comment, blog_post: post, user: user, parent: nil)
+        comment = build(:comment, commentable: post, user: user, parent: nil)
         expect(comment).to be_valid
       end
 
       it "is valid as a reply to a top-level comment" do
-        thread = create(:comment, blog_post: post, user: user)
-        reply = build(:comment, blog_post: post, user: user, parent: thread)
+        thread = create(:comment, commentable: post, user: user)
+        reply = build(:comment, commentable: post, user: user, parent: thread)
         expect(reply).to be_valid
       end
 
       it "increments the blog post's comments_count" do
-        expect { create(:comment, blog_post: post, user: user) }.to change { post.reload.comments_count }.by(1)
+        expect { create(:comment, commentable: post, user: user) }.to change { post.reload.comments_count }.by(1)
       end
     end
 
     # 2) Negative Path ────────────────────────────────────────────────────────
     describe "Negative Path" do
       it "is invalid without a body" do
-        comment = build(:comment, blog_post: post, user: user, body: nil)
+        comment = build(:comment, commentable: post, user: user, body: nil)
         expect(comment).not_to be_valid
         expect(comment.errors[:body]).to include("can't be blank")
       end
 
       it "is invalid without a user" do
-        comment = build(:comment, blog_post: post, user: nil)
+        comment = build(:comment, commentable: post, user: nil)
         expect(comment).not_to be_valid
       end
 
       it "is invalid when its parent is itself a reply (more than 2 levels deep)" do
-        thread = create(:comment, blog_post: post, user: user)
-        reply = create(:comment, blog_post: post, user: user, parent: thread)
-        grandchild = build(:comment, blog_post: post, user: user, parent: reply)
+        thread = create(:comment, commentable: post, user: user)
+        reply = create(:comment, commentable: post, user: user, parent: thread)
+        grandchild = build(:comment, commentable: post, user: user, parent: reply)
 
         expect(grandchild).not_to be_valid
         expect(grandchild.errors[:parent]).to include("must be a top-level comment")
@@ -68,9 +68,9 @@ RSpec.describe Comment, type: :model do
     # 3) Alternative Paths ─────────────────────────────────────────────────────
     describe "Alternative Paths" do
       it "allows a different user to reply to someone else's comment" do
-        thread = create(:comment, blog_post: post, user: user)
+        thread = create(:comment, commentable: post, user: user)
         other = create(:user)
-        reply = build(:comment, blog_post: post, user: other, parent: thread)
+        reply = build(:comment, commentable: post, user: other, parent: thread)
         expect(reply).to be_valid
       end
     end
@@ -78,9 +78,9 @@ RSpec.describe Comment, type: :model do
     # 4) Edge Cases ────────────────────────────────────────────────────────────
     describe "Edge Cases" do
       it "destroys all replies when the top-level comment is destroyed" do
-        thread = create(:comment, blog_post: post, user: user)
-        reply_one = create(:comment, blog_post: post, user: user, parent: thread)
-        reply_two = create(:comment, blog_post: post, user: user, parent: thread)
+        thread = create(:comment, commentable: post, user: user)
+        reply_one = create(:comment, commentable: post, user: user, parent: thread)
+        reply_two = create(:comment, commentable: post, user: user, parent: thread)
 
         thread.destroy
 
@@ -89,9 +89,9 @@ RSpec.describe Comment, type: :model do
       end
 
       it "decrements comments_count for the thread and each destroyed reply" do
-        thread = create(:comment, blog_post: post, user: user)
-        create(:comment, blog_post: post, user: user, parent: thread)
-        create(:comment, blog_post: post, user: user, parent: thread)
+        thread = create(:comment, commentable: post, user: user)
+        create(:comment, commentable: post, user: user, parent: thread)
+        create(:comment, commentable: post, user: user, parent: thread)
         expect(post.reload.comments_count).to eq(3)
 
         thread.destroy
@@ -100,9 +100,9 @@ RSpec.describe Comment, type: :model do
       end
 
       it "orders replies oldest-first" do
-        thread = create(:comment, blog_post: post, user: user)
-        older = create(:comment, blog_post: post, user: user, parent: thread, created_at: 2.days.ago)
-        newer = create(:comment, blog_post: post, user: user, parent: thread, created_at: 1.day.ago)
+        thread = create(:comment, commentable: post, user: user)
+        older = create(:comment, commentable: post, user: user, parent: thread, created_at: 2.days.ago)
+        newer = create(:comment, commentable: post, user: user, parent: thread, created_at: 1.day.ago)
 
         expect(thread.reload.replies).to eq([ older, newer ])
       end

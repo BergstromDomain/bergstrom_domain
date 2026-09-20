@@ -2,6 +2,7 @@
 class BlogPost < ApplicationRecord
   include Classifiable
   include Likeable
+  include Commentable
 
   # Everything Quill's stock toolbar (Block 2's editor scope) can produce.
   # Rails' default sanitizer allowlist drops <u>/<s> and any table, so a
@@ -36,7 +37,6 @@ class BlogPost < ApplicationRecord
   belongs_to :blog_category, optional: true
   has_many :blog_post_authors, dependent: :destroy
   has_many :authors, through: :blog_post_authors, source: :user
-  has_many :comments, dependent: :destroy
 
   has_one_attached :blog_image do |attachable|
     attachable.variant :thumbnail, resize_to_fill: [ 200, 200 ]

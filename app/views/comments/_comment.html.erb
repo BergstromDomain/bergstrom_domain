@@ -36,7 +36,7 @@
             <%= lucide_icon("message-circle-reply", size: 14) %> Reply
           </button>
           <div class="comment-form-wrapper" hidden data-comment-toggle-target="form">
-            <%= render "comments/form", blog_post: blog_post, comment: Comment.new, parent_id: comment.id %>
+            <%= render "comments/form", commentable: commentable, comment: Comment.new, parent_id: comment.id %>
           </div>
         </div>
       <% end %>
@@ -48,7 +48,7 @@
             <%= lucide_icon("pencil", size: 14) %> Edit
           </button>
           <div class="comment-form-wrapper" hidden data-comment-toggle-target="form">
-            <%= render "comments/form", blog_post: blog_post, comment: comment %>
+            <%= render "comments/form", commentable: commentable, comment: comment %>
           </div>
         </div>
       <% end %>

@@ -12,7 +12,7 @@ RSpec.describe BlogPostFilter do
         category = create(:blog_category, name: "Technology")
         post = create(:blog_post, :unrestricted, :published, user: owner, blog_category: category,
           subject: "Ruby", topic: "Rails", title: "My Post")
-        create(:comment, blog_post: post, user: owner)
+        create(:comment, commentable: post, user: owner)
 
         attrs = described_class.attributes_for(post)
 
@@ -90,8 +90,8 @@ RSpec.describe BlogPostFilter do
       it "Sorts posts by Comments (an integer column)" do
         few = create(:blog_post, user: owner, title: "Few")
         many = create(:blog_post, user: owner, title: "Many")
-        create(:comment, blog_post: many, user: owner)
-        create(:comment, blog_post: many, user: owner)
+        create(:comment, commentable: many, user: owner)
+        create(:comment, commentable: many, user: owner)
 
         expect(described_class.sort([ few, many ], :comments, "asc")).to eq([ few, many ])
       end
