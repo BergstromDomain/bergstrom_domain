@@ -1,5 +1,6 @@
 # app/controllers/guide_pages_controller.rb
 class GuidePagesController < ApplicationController
+  include Navigable
   allow_unauthenticated_access only: %i[index show]
   before_action :resume_session_if_present
   before_action :set_guide_page, only: %i[show edit update destroy]

@@ -110,19 +110,44 @@
   if some future block needs one (e.g. a "Guide updated" notification), not
   expected for the initial build.
 
-## Behaviour / Interaction
-* Fix the `Navigable#left_nav_section_for` bug found in Scope: a `GuidePage`'s
-  own `app_section` needs to drive which left-nav section renders around it,
-  not the current `"pages"` controller → `:event_tracker` fallback.
-* Per-app left nav links (already present under Documentation > How To in both
-  `:event_tracker` and `:blog_posts`) get re-pointed from the single shared
-  `user_guide_path` to that section's own `GuidePage`.
-* Core/landing guide page lists links to each app's section.
+## Behaviour / Interaction — DONE (2026-09-21)
+* **Nav-context open question resolved**: rather than trying to preserve
+  "whichever app you came from" (fragile, needs referrer/session state), a
+  dedicated generic `:guide_pages` left-nav section was added — visiting any
+  `/guide-pages/*` page (or `/user_guide`, once it redirects there/into a
+  page) always shows this same Documentation-flavoured nav (Views > User
+  Guide > All Guide Pages; Actions > New > Create Guide Page, admin-only, no
+  Documentation h2 since that would self-reference). `Navigable#left_nav_section_for`
+  gained a `"guide_pages"` controller → `:guide_pages` case; `GuidePagesController`
+  now `include Navigable`.
+* **`/user_guide` retrofitted from a static stub into a redirect chain**:
+  `PagesController#user_guide` looks up the `core` `GuidePage` and redirects
+  to its show page; if no `core` page has been written yet, falls back to
+  `guide_pages_path` (the full directory) rather than a dead-end static
+  page. The old `app/views/pages/user_guide.html.erb` stub view was deleted
+  — the action never renders now, only redirects.
+* **Per-app links re-pointed**: the existing `Documentation > How To > User
+  Guide` link in both the `:event_tracker` and `:blog_posts` left-nav
+  branches now calls a new `GuidePagesHelper#guide_page_link_for(app_section)`
+  — points at that app's own `GuidePage` once one exists, falls back to
+  `user_guide_path` (which itself falls further back to the directory)
+  while it's still unwritten. This graceful-degradation chain (app page →
+  core page → directory) means every existing test that ran before any
+  `GuidePage` records existed kept passing unchanged.
+* Full spec coverage added: a new `spec/features/pages/user_guide_spec.rb`
+  (redirect behaviour, four-section structure) plus new cases folded into
+  the existing `spec/features/layouts/left_nav_spec.rb` (the new
+  `:guide_pages` nav branch, admin-only Actions gating, and the two
+  re-pointed per-app links). Full suite green (1867 examples, 0 failures),
+  coverage 96.04% (COVERAGE=1), rubocop/brakeman both clean.
 
-## Retrofit Existing Usages
-* Replace each call site logged under Integration/Migration
-* Confirm no regressions in affected specs
-* Remove the static stub view/action once `GuidePage`-backed pages replace it.
+## Retrofit Existing Usages — DONE (folded into Behaviour/Interaction, 2026-09-21)
+* Both known call sites (Event_Tracker's and Chronicle's left-nav "User
+  Guide" link) replaced — see Behaviour/Interaction above.
+* No regressions: full suite green, existing left-nav/pages specs unchanged
+  and still passing.
+* Static stub view (`app/views/pages/user_guide.html.erb`) removed —
+  `pages#user_guide` is redirect-only now, no dual implementation left.
 
 ---
 
@@ -153,11 +178,11 @@
   extracted into a shared concern for `GuidePage` to reuse, or duplicated?~~
   **Resolved in Core Component: extracted into `MarkdownRenderable`.**
 * ~~Does `GuidePage` need `Classifiable`?~~ **Resolved in Core Component: no.**
-* Exact left-nav-context-preservation mechanism for the "core" landing page
-  (not tied to any one app_section) — does visiting the core Guide page from
-  a Chronicle page keep the Chronicle nav, or fall back to something generic?
-  Needs a concrete answer before Behaviour/Interaction block starts.
+* ~~Exact left-nav-context-preservation mechanism for the "core" landing
+  page?~~ **Resolved in Behaviour/Interaction: doesn't preserve the
+  originating app's nav at all — a dedicated generic `:guide_pages` left-nav
+  section renders on every Guide Pages page instead.** See that block above.
 * Should content-creators (not just admins) be able to edit Guide pages?
-  Core Component shipped admin-only (matching `BlogCategory`/`EventType`'s
-  Reference-Data bar) as a judgment call, not an explicit decision — revisit
-  if that turns out to be too restrictive.
+  Both Core Component and Behaviour/Interaction shipped admin-only (matching
+  `BlogCategory`/`EventType`'s Reference-Data bar) as a judgment call, not an
+  explicit decision — revisit if that turns out to be too restrictive.

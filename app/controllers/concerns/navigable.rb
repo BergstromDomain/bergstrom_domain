@@ -36,6 +36,8 @@ module Navigable
       :settings
     when "blog_posts", "blog_categories", "blog_exports"
       :blog_posts
+    when "guide_pages"
+      :guide_pages
     end
   end
 end

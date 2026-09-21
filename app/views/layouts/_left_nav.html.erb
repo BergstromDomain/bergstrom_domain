@@ -144,7 +144,7 @@
         How To
       </h3>
 
-      <%= link_to user_guide_path, class: "left-nav-link" do %>
+      <%= link_to guide_page_link_for(:event_tracker), class: "left-nav-link" do %>
         <%= lucide_icon("book-open-check", size: 15) %>
         <span>User Guide</span>
       <% end %>
@@ -296,12 +296,54 @@
         How To
       </h3>
 
-      <%= link_to user_guide_path, class: "left-nav-link" do %>
+      <%= link_to guide_page_link_for(:blog_posts), class: "left-nav-link" do %>
         <%= lucide_icon("book-open-check", size: 15) %>
         <span>User Guide</span>
       <% end %>
       </div>
     </div>
+
+  <% elsif @left_nav_section == :guide_pages %>
+
+    <%# ── Views ─────────────────────────────────────────────────────────── %>
+    <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('views') %>">
+      <h2 class="left-nav-h2" data-testid="left-nav-views-h2">
+        <%= lucide_icon("eye", size: 14) %> Views
+        <%= left_nav_section_toggle("views", "left-nav-views-h2") %>
+      </h2>
+
+      <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('views') %>>
+      <h3 class="left-nav-h3" data-testid="left-nav-user-guide-h3">
+        User Guide
+      </h3>
+      <%= link_to guide_pages_path, class: "left-nav-link" do %>
+        <%= lucide_icon("book-open-check", size: 15) %>
+        <span>All Guide Pages</span>
+      <% end %>
+      </div>
+    </div>
+
+    <% if current_user&.can_administer? %>
+      <hr class="left-nav-divider">
+
+      <%# ── Actions (Admin only — Guide Pages have no content-creator tier) ── %>
+      <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('actions') %>">
+        <h2 class="left-nav-h2" data-testid="left-nav-actions-h2">
+          <%= lucide_icon("cog", size: 14) %> Actions
+          <%= left_nav_section_toggle("actions", "left-nav-actions-h2") %>
+        </h2>
+
+        <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('actions') %>>
+        <h3 class="left-nav-h3" data-testid="left-nav-new-h3">
+          New
+        </h3>
+        <%= link_to new_guide_page_path, class: "left-nav-link" do %>
+          <%= lucide_icon("file-plus-2", size: 15) %>
+          <span>Create Guide Page</span>
+        <% end %>
+        </div>
+      </div>
+    <% end %>
 
   <% end %>
   </div>
