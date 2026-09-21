@@ -195,7 +195,7 @@ started without the user picking a direction first.**
   page?~~ **Resolved in Behaviour/Interaction: doesn't preserve the
   originating app's nav at all — a dedicated generic `:guide_pages` left-nav
   section renders on every Guide Pages page instead.** See that block above.
-* Should content-creators (not just admins) be able to edit Guide pages?
-  Both Core Component and Behaviour/Interaction shipped admin-only (matching
-  `BlogCategory`/`EventType`'s Reference-Data bar) as a judgment call, not an
-  explicit decision — revisit if that turns out to be too restrictive.
+* ~~Should content-creators (not just admins) be able to edit Guide pages?~~
+  **Confirmed by the user 2026-09-21: admin-only, as shipped.** No code
+  change needed — this matches what Core Component/Behaviour/Interaction
+  already built.
