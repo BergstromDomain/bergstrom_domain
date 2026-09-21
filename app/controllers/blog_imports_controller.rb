@@ -11,16 +11,17 @@ class BlogImportsController < ApplicationController
     file = params[:file]
 
     if file.blank?
-      redirect_to new_blog_import_path, alert: "Please choose a CSV file to import."
+      redirect_to new_blog_import_path, alert: "Please choose a file to import."
       return
     end
 
-    unless file.original_filename.to_s.downcase.end_with?(".csv")
-      redirect_to new_blog_import_path, alert: "The uploaded file must be a CSV file."
+    service = import_service_for(file)
+    if service.nil?
+      redirect_to new_blog_import_path, alert: "The uploaded file must be a CSV or ZIP file."
       return
     end
 
-    @import_result = BlogPostImportService.new(current_user, file).import
+    @import_result = service.import
     render :new
   end
 
@@ -34,6 +35,13 @@ class BlogImportsController < ApplicationController
   end
 
   private
+
+  def import_service_for(file)
+    case File.extname(file.original_filename.to_s).downcase
+    when ".csv" then BlogPostImportService.new(current_user, file)
+    when ".zip" then BlogPostZipImportService.new(current_user, file)
+    end
+  end
 
   def require_can_export
     redirect_to chronicle_path, alert: "Not authorised." unless current_user&.can_export?

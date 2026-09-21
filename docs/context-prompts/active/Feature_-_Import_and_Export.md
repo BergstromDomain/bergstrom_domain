@@ -175,12 +175,30 @@ There are several different downloads and imports required
 * Deliberately minimal page copy — no Word/Excel guidance or external-tool links yet, since those
   only make sense once Block 4's zip-with-images path exists to receive that content.
 
-## Block 4 — Import Blog Posts: Zip package path (not started)
-* Manifest + image files zip format (Markdown per post), a linked external Word→Markdown+images
-  converter tool referenced from the page, import creates posts + re-attaches images.
-* Revisit former Open Questions #2–#4 (admin PROD-migration export, whether it needs
-  authors/comments, whether a separate admin block is still needed) once this format exists —
-  likely resolves to "reuse this same format," not a bespoke one.
+## Block 4 — SHIPPED (2026-09-21): Import Blog Posts — Zip package path
+* **Redesigned from the original plan after re-reading the spec closely**: the original wording
+  said the zip path's "All Metadata (except for author) [is] added manually," unlike the CSV
+  path's "All (populated) Metadata are populated" — a deliberate difference. Also, a bespoke
+  JSON manifest schema was never realistic, since a real external Word→Markdown converter tool
+  produces plain Markdown + images, not app-specific metadata. So Block 4 does NOT use a custom
+  manifest: it requires exactly one `.md`/`.markdown` file in the zip (errors clearly if zero or
+  more than one), Title is derived from that file's name, Category/Subject/Topic are always left
+  blank for the user to fill in after import.
+* New `BlogPostZipImportService`, same `Result`-struct shape as the CSV service (reused the exact
+  same results-table UI — a zip import is "a CSV import with one virtual row"). Same safety
+  defaults: Draft, Restricted, current user as author, same `can_export?` gate — added to the
+  SAME `/blog-posts/import` page as a second explained option, not a separate page.
+* Images referenced by a relative path in the Markdown (`![alt](images/photo.png)`) are rewritten
+  into inline base64 data URIs at import time, matched against the zip's actual file bytes —
+  self-contained, and as a side benefit sidesteps the known Block 1 PDF-rendering limitation
+  (relative image URLs don't resolve in the isolated PDF render) for all newly-imported content.
+* Page copy mentions searching online for a "Word to Markdown" converter tool, deliberately
+  without linking a specific one — no real tool was verified, and pointing users at an unvetted
+  external site wasn't appropriate.
+* **Does NOT cover the admin PROD-migration bulk round-trip** (multiple posts, preserved
+  authors/categories/dates) — that remains a separate, still-open Block 5 decision; see Open
+  Questions. Given how exploratory the original ask was about that format ("Tar file? XML?
+  Other?"), Block 5 is a "revisit if still needed" item, not committed work.
 
 ## Block 5 — Deferred decision point
 * Only needed if Block 4's format doesn't already cover the admin PROD-migration use case: a
@@ -246,7 +264,8 @@ these blocks.)*
   cell-paste) for the reasoning.
 * **Still open, revisit at Block 2:** does the "Download Blog Posts" rebuild replace the hidden
   `BlogExportsController` in place, or stay a second page alongside a simpler kept version?
-* **Still open, revisit at Block 4:** does the admin PROD-migration export/import (originally a
-  separate "[XXX] format, Admins only" ask) end up fully covered by Block 4's zip-package
-  format, or does it still need its own thin wrapper (Block 5) — and if so, does the round-trip
-  need to carry authors/co-authors/likes/comments, or just post content + category + images?
+* **Resolved at Block 4's start (2026-09-21):** Block 4's zip-package format does NOT cover the
+  admin PROD-migration export/import — it's scoped to the casual single-post "convert my Word doc"
+  case (no metadata, current-user-authored). The admin bulk round-trip (multiple posts, preserved
+  authors/categories/dates) remains a genuinely open Block 5 decision — not committed work, revisit
+  only if the need is still real once Blocks 3/4 have seen real use.

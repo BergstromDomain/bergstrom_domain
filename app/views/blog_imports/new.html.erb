@@ -7,21 +7,36 @@
 </div>
 
 <div class="show-panel" data-testid="import-panel">
-  <p>Upload a CSV file to create new blog posts. Each row becomes one post, created as a
-    Draft under your name so you can review, format, and publish it afterward. Download the
-    template below for the exact column layout — one placeholder row per existing Blog
-    Category. Most spreadsheet apps limit how much text a single cell can hold, so very long
-    posts may need trimming to fit the Body column.</p>
+  <p>Upload either of the following to create a new blog post — created as a Draft under your
+    name so you can review, format, and publish it afterward. Choose whichever fits what you're
+    starting from:</p>
+  <ul>
+    <li>
+      <strong>A CSV file</strong> — one row per post, with Title/Category/Subject/Topic/Body all
+      filled in from the spreadsheet. Download the template below for the exact column layout,
+      including one placeholder row per existing Blog Category. Most spreadsheet apps limit how
+      much text a single cell can hold, so a very long post may need trimming to fit the Body
+      column.
+    </li>
+    <li>
+      <strong>A ZIP file</strong> containing exactly one Markdown (<code>.md</code>) file, plus
+      any images it references by a relative path — formatting and images come through as
+      written, but Category/Subject/Topic aren't part of this format and need to be added
+      manually afterward (the post's title is taken from the Markdown file's name). If you're
+      starting from a Word document, search online for a "Word to Markdown" converter that can
+      also export the document's images alongside the Markdown file, then zip the two together.
+    </li>
+  </ul>
 
   <%= form_with url: blog_imports_path, method: :post, html: { multipart: true } do |f| %>
     <div class="form-group">
-      <%= f.label :file, "CSV file", class: "sr-only" %>
-      <%= f.file_field :file, accept: ".csv", class: "form-control", data: { testid: "import-file-input" } %>
+      <%= f.label :file, "CSV or ZIP file", class: "sr-only" %>
+      <%= f.file_field :file, accept: ".csv,.zip", class: "form-control", data: { testid: "import-file-input" } %>
     </div>
 
     <div class="show-panel show-panel--actions">
       <%= link_to template_blog_imports_path, class: "btn btn-secondary", data: { testid: "import-template-link" } do %>
-        <%= lucide_icon("file-down", size: 16) %> Download Import Template
+        <%= lucide_icon("file-down", size: 16) %> Download CSV Template
       <% end %>
       <button type="submit" class="btn btn-primary" data-testid="import-button">
         <%= lucide_icon("upload", size: 16) %> Import

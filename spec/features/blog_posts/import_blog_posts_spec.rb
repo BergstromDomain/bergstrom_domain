@@ -17,6 +17,20 @@ RSpec.describe "Import Blog Posts", type: :feature do
     file
   end
 
+  def zip_file_for(entries)
+    buffer = Zip::OutputStream.write_buffer do |zip|
+      entries.each do |name, content|
+        zip.put_next_entry(name)
+        zip.write(content)
+      end
+    end
+
+    file = Tempfile.new([ "import", ".zip" ], binmode: true)
+    file.write(buffer.string)
+    file.rewind
+    file
+  end
+
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     it "Shows the import form with a template download link" do
@@ -24,13 +38,13 @@ RSpec.describe "Import Blog Posts", type: :feature do
       visit new_blog_import_path
 
       expect(page).to have_selector("[data-testid='import-file-input']")
-      expect(page).to have_selector("[data-testid='import-template-link']", text: "Download Import Template")
+      expect(page).to have_selector("[data-testid='import-template-link']", text: "Download CSV Template")
     end
 
     it "Downloads a CSV template with the correct header row" do
       sign_in_as(owner)
       visit new_blog_import_path
-      click_link "Download Import Template"
+      click_link "Download CSV Template"
 
       expect(page.response_headers["Content-Type"]).to include("text/csv")
       expect(page.body.lines.first).to include(*BlogPostImportService::HEADERS)
@@ -52,6 +66,27 @@ RSpec.describe "Import Blog Posts", type: :feature do
       expect(post.blog_category).to eq(category)
       expect(post.published?).to be false
       expect(post.classification).to eq("restricted")
+    end
+
+    it "Imports a ZIP file (Markdown + image) and shows the results, creating a post as a Draft" do
+      file = zip_file_for(
+        "My_Zip_Post.md"    => "Text\n\n![Photo](images/photo.png)",
+        "images/photo.png" => "fake-png-bytes"
+      )
+
+      sign_in_as(owner)
+      visit new_blog_import_path
+      attach_file("file", file.path)
+      click_button "Import"
+
+      expect(page).to have_selector("[data-testid='import-summary']", text: "1 row imported, 0 rows failed.")
+
+      post = BlogPost.find_by!(title: "My Zip Post")
+      expect(post.user).to eq(owner)
+      expect(post.body).to include("data:image/png;base64,")
+      expect(post.published?).to be false
+      expect(post.classification).to eq("restricted")
+      expect(post.blog_category).to be_nil
     end
   end
 
@@ -75,16 +110,28 @@ RSpec.describe "Import Blog Posts", type: :feature do
       visit new_blog_import_path
       click_button "Import"
 
-      expect(page).to have_content("Please choose a CSV file to import.")
+      expect(page).to have_content("Please choose a file to import.")
     end
 
-    it "Shows an alert when the uploaded file isn't a CSV" do
+    it "Shows an alert when the uploaded file is neither CSV nor ZIP" do
       sign_in_as(owner)
       visit new_blog_import_path
       attach_file("file", Rails.root.join("spec/fixtures/files/test_image.jpg"))
       click_button "Import"
 
-      expect(page).to have_content("The uploaded file must be a CSV file.")
+      expect(page).to have_content("The uploaded file must be a CSV or ZIP file.")
+    end
+
+    it "Shows a failed import when the ZIP has no Markdown file" do
+      file = zip_file_for("readme.txt" => "hello")
+
+      sign_in_as(owner)
+      visit new_blog_import_path
+      attach_file("file", file.path)
+      click_button "Import"
+
+      expect(page).to have_selector("[data-testid='import-summary']", text: "0 rows imported, 1 row failed.")
+      expect(page).to have_selector("[data-testid='import-error-row']", text: /exactly one Markdown/)
     end
   end
 
