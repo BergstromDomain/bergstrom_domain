@@ -1,0 +1,62 @@
+<%# app/views/blog_imports/new.html.erb %>
+
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Import Blog Posts</h1>
+  </div>
+</div>
+
+<div class="show-panel" data-testid="import-panel">
+  <p>Upload a CSV file to create new blog posts. Each row becomes one post, created as a
+    Draft under your name so you can review, format, and publish it afterward. Download the
+    template below for the exact column layout — one placeholder row per existing Blog
+    Category. Most spreadsheet apps limit how much text a single cell can hold, so very long
+    posts may need trimming to fit the Body column.</p>
+
+  <%= form_with url: blog_imports_path, method: :post, html: { multipart: true } do |f| %>
+    <div class="form-group">
+      <%= f.label :file, "CSV file", class: "sr-only" %>
+      <%= f.file_field :file, accept: ".csv", class: "form-control", data: { testid: "import-file-input" } %>
+    </div>
+
+    <div class="show-panel show-panel--actions">
+      <%= link_to template_blog_imports_path, class: "btn btn-secondary", data: { testid: "import-template-link" } do %>
+        <%= lucide_icon("file-down", size: 16) %> Download Import Template
+      <% end %>
+      <button type="submit" class="btn btn-primary" data-testid="import-button">
+        <%= lucide_icon("upload", size: 16) %> Import
+      </button>
+    </div>
+  <% end %>
+
+  <% if @import_result %>
+    <div class="show-panel" data-testid="import-results">
+      <h2 class="show-panel__heading">Import Results</h2>
+      <p data-testid="import-summary">
+        <%= pluralize(@import_result.imported_count, "row") %> imported,
+        <%= pluralize(@import_result.failed_count, "row") %> failed.
+      </p>
+
+      <% if @import_result.errors.any? %>
+        <div class="data-table-wrapper">
+          <table class="data-table" data-testid="import-errors-table">
+            <thead>
+              <tr>
+                <th>Row</th>
+                <th>Error</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @import_result.errors.each do |error| %>
+                <tr data-testid="import-error-row">
+                  <td><%= error[:row] %></td>
+                  <td><%= error[:message] %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

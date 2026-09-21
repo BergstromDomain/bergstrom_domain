@@ -284,6 +284,10 @@
           Import &amp; Export
         </h3>
 
+        <%= link_to new_blog_import_path, class: "left-nav-link" do %>
+          <%= lucide_icon("upload", size: 15) %>
+          <span>Import Blog Posts</span>
+        <% end %>
         <%= link_to blog_exports_path, class: "left-nav-link" do %>
           <%= lucide_icon("download", size: 15) %>
           <span>Download Blog Posts</span>

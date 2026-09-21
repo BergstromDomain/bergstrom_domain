@@ -124,51 +124,17 @@ There are several different downloads and imports required
 
 # DEVELOPMENT BLOCKS
 
-## Block 1 — Core PDF rendering service + Show page "Download PDF"
-* App-agnostic PDF-from-HTML rendering service (Grover), A4 page size.
+## Block 1 — SHIPPED (2026-09-20): Core PDF rendering service + Show page "Download PDF"
+* App-agnostic `PdfRenderingService` (Ferrum, not Grover — see Open Questions), A4 page size.
 * Show page wires it up: no new permission check, filename = title with spaces → underscores.
-* Settles the PDF-gem choice and Gemfile/Chrome-binary footprint for every later block that
-  needs a PDF.
-
-## Block 2 — "Download Blog Posts" page rebuild
-* Filter UI reusing `BlogPostFilter`, an Action Panel (`show-panel--actions`) with "Download
-  PDFs", Confirm Dialog gate showing the filtered count, zip-of-PDFs response (new zip gem,
-  built as the app-agnostic zip-bundling service from the cross-cutting behaviour above).
-
-## Block 3 — Import Blog Posts: CSV path
-* Chronicle equivalents of `ImportService`/`ImportTemplateService`/`Result`, per-row transaction
-  import, CSV template download, results summary rendered to the importing user.
-
-## Block 4 — Import Blog Posts: Zip package path
-* Manifest + image files zip format (Markdown per post), a linked external Word→Markdown+images
-  converter tool referenced from the page, import creates posts + re-attaches images.
-* Revisit former Open Questions #2–#4 (admin PROD-migration export, whether it needs
-  authors/comments, whether a separate admin block is still needed) once this format exists —
-  likely resolves to "reuse this same format," not a bespoke one.
+* Known deferred issues found in manual testing — see Deferred/Phase 2: a relative-URL body image
+  doesn't print, and an unresolved "linebreaks" report.
 
 ## Block 2 — SHIPPED (2026-09-20), then revised after manual testing (2026-09-21)
-* Manual-testing findings on `/blog-posts/export`: the info panel text was rewritten (explains the
-  two download formats plainly, matches actual behaviour), its buttons moved down into the same
-  Action Panel as "Download PDFs" (info panel is now text-only).
-* **Real bug fixed**: "Download CSV" ignored the filter form entirely (always exported everything
-  visible, regardless of what was selected) — `BlogExportsController#csv` now calls
-  `compute_filtered_blog_posts` like `#pdfs` already did, and the link carries
-  `request.query_parameters` the same way.
-* **"Print / Save as PDF" removed entirely**, per the user's explicit choice ("not working as
-  expected, happy to remove completely") now that both Block 1 (per-post PDF) and this block's
-  zip-of-PDFs make the old browser-print workaround redundant. Removed: the `print` action/route,
-  `app/views/blog_exports/print.html.erb`, `print_controller.js` (confirmed unused elsewhere first
-  via grep). The global `@media print` CSS rule (hides `.top-nav`/`.left-nav`/`.site-footer`/
-  `.print-hide` on any page print) was NOT removed — confirmed it's genuine site-wide print
-  styling, not specific to the removed feature.
-* Original Block 2 summary below, still accurate for what shipped initially:
 * Rebuilt `BlogExportsController#index` to look like Filter Blog Posts (same Basic/SQL filter UI,
   reusing a new shared `BlogPostFilterable` concern so the filtering logic isn't duplicated
   between `BlogPostsController#filter` and this page — behaviour is byte-for-byte identical to
   Filter Blog Posts for the same params).
-* Existing "Print / Save as PDF" / "Download CSV" panel kept exactly as it was (unfiltered, all
-  visible posts) — deliberately NOT folded into the new filtered flow, to avoid silently changing
-  established behaviour beyond what was asked.
 * New `pdfs` action (`GET /blog-posts/export/pdfs`) + a `show-panel--actions` Action Panel with
   "Download PDFs" — a plain link carrying the current `request.query_parameters` (same trick
   `filter_sort_link` already uses), so the zip always matches what's on screen. Confirmation
@@ -180,6 +146,41 @@ There are several different downloads and imports required
   title-with-underscores convention, de-duplicated with a numeric suffix on a title collision.
   New `PdfDownloadable` concern (`render_pdf(template:, assigns:)`) factors out the
   render-to-string-then-PDF step shared by Block 1's single-post download and this bulk one.
+* **Revision after manual testing (2026-09-21)**: info panel text rewritten to plainly describe
+  the two download formats, its buttons (Print/CSV) moved down into the same Action Panel as
+  "Download PDFs". **Real bug fixed**: "Download CSV" had been ignoring the filter form entirely
+  — `#csv` now calls `compute_filtered_blog_posts` like `#pdfs` does. **"Print / Save as PDF"
+  removed entirely** per the user's choice ("not working as expected, happy to remove
+  completely") — redundant now that real PDF downloads exist; removed the action/route/view/JS
+  controller, kept the global `@media print` CSS rule (confirmed genuinely site-wide, not
+  feature-specific).
+
+## Block 3 — SHIPPED (2026-09-21): Import Blog Posts — CSV path
+* New `BlogImportsController` (`/blog-posts/import`) mirrors Event_Tracker's `ImportController`
+  pattern: upload form + "Download Import Template" link + a results summary (row/error table,
+  pluralized "N rows imported, N rows failed" line) rendered back on the same page.
+* New `BlogPostImportService`/`BlogPostImportTemplateService`, mirroring `ImportService`'s
+  per-row-transaction `Result`-struct pattern. CSV columns: **Title, Category, Subject, Topic,
+  Body (Markdown)** — no Author/Created/Published/Classification columns; those are always
+  system-controlled (current user, now, Draft, Restricted).
+* Imported posts always land as **Draft + Restricted**, the most conservative state — matches
+  `ImportService`'s own "always import as the most restricted state" precedent.
+* Category matching is case-insensitive against **existing** categories only (unlike
+  Event_Tracker's EventType, creating a Blog Category is admin-only) — an unmatched/blank name
+  leaves the post uncategorized rather than failing the row, since Category is optional on a
+  draft. Template CSV includes one placeholder row per existing category as a reference.
+* Left nav gets a new "Import Blog Posts" link alongside "Download Blog Posts". Found and fixed a
+  real bug along the way: `Navigable#left_nav_section_for` didn't know about the new
+  `blog_imports` controller, which would have rendered a blank left nav on the Import page.
+* Deliberately minimal page copy — no Word/Excel guidance or external-tool links yet, since those
+  only make sense once Block 4's zip-with-images path exists to receive that content.
+
+## Block 4 — Import Blog Posts: Zip package path (not started)
+* Manifest + image files zip format (Markdown per post), a linked external Word→Markdown+images
+  converter tool referenced from the page, import creates posts + re-attaches images.
+* Revisit former Open Questions #2–#4 (admin PROD-migration export, whether it needs
+  authors/comments, whether a separate admin block is still needed) once this format exists —
+  likely resolves to "reuse this same format," not a bespoke one.
 
 ## Block 5 — Deferred decision point
 * Only needed if Block 4's format doesn't already cover the admin PROD-migration use case: a
@@ -230,8 +231,12 @@ these blocks.)*
 
 # OPEN QUESTIONS
 *(Running log of unresolved design questions raised during planning.)*
-* **Resolved:** PDF generation uses a headless-Chrome gem (Grover), not Prawn — confirmed
-  2026-09-20. Deploy implication logged under Integration/Migration.
+* **Resolved:** PDF generation uses headless Chrome, not Prawn — confirmed 2026-09-20. Initially
+  agreed as Grover, but investigating it before writing code found it shells out to Node/npm/
+  Puppeteer (a real new toolchain this app deliberately has none of) — switched to **Ferrum**
+  instead, a pure-Ruby CDP driver using the same Chrome binary already installed for Capybara,
+  with the same fidelity benefit and none of the Node dependency. Deploy implication (a Chrome
+  binary in PROD) still applies either way, logged under Integration/Migration.
 * **Resolved:** the core PDF-rendering/zip-bundling service layer is built app-agnostic from
   Block 1 (not Chronicle-specific), for reuse by Cookbook and likely Occasions — confirmed
   2026-09-20.

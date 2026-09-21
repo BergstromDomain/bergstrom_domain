@@ -75,6 +75,10 @@ Rails.application.routes.draw do
   get "blog-posts/export/csv",  to: "blog_exports#csv",    as: :csv_blog_exports
   get "blog-posts/export/pdfs", to: "blog_exports#pdfs",   as: :pdfs_blog_exports
 
+  get  "blog-posts/import",          to: "blog_imports#new",      as: :new_blog_import
+  post "blog-posts/import",          to: "blog_imports#create",   as: :blog_imports
+  get  "blog-posts/import/template", to: "blog_imports#template", as: :template_blog_imports
+
   # Chronicle (Blog Posts)
   resources :blog_posts, path: "blog-posts" do
     resource :like, only: %i[create destroy], controller: "likes"

@@ -343,9 +343,10 @@ RSpec.describe "Left Nav", type: :feature do
           end
         end
 
-        it "Shows the Import & Export section with a Download Blog Posts link" do
+        it "Shows the Import & Export section with Import and Download Blog Posts links" do
           within("[data-testid='left-nav']") do
             expect(page).to have_selector("[data-testid='left-nav-import-export-h3']")
+            expect(page).to have_link("Import Blog Posts", href: new_blog_import_path)
             expect(page).to have_link("Download Blog Posts", href: blog_exports_path)
           end
         end
