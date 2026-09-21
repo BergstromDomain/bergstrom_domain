@@ -1,0 +1,83 @@
+<%# app/views/guide_pages/new.html.erb %>
+
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">New User Guide Page</h1>
+  </div>
+</div>
+
+<%= form_with model: @guide_page, class: "resource-form resource-form--wide" do |f| %>
+  <% if @guide_page.errors.any? %>
+    <div class="form-errors" data-testid="form-errors">
+      <p><%= pluralize(@guide_page.errors.count, "error") %> prevented this guide page from being saved:</p>
+      <ul>
+        <% @guide_page.errors.each do |error| %>
+          <li data-testid="field-error"><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# Main div — app section + title + body %>
+  <div class="show-panel" data-testid="new-panel-main">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">App Section</h2>
+      <div class="form-group">
+        <%= f.label :app_section, "App Section", class: "sr-only" %>
+        <%= f.select :app_section,
+              GuidePage.app_sections.keys.map { |key| [ key.titleize, key ] },
+              { include_blank: "Select an app section" },
+              class: "form-control #{'form-control--error' if @guide_page.errors[:app_section].any?}",
+              data: { testid: "app-section-field" } %>
+        <% if @guide_page.errors[:app_section].any? %>
+          <span class="field-error" data-testid="field-error">
+            <%= @guide_page.errors[:app_section].first %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Title</h2>
+      <div class="form-group">
+        <%= f.label :title, class: "sr-only" %>
+        <%= f.text_field :title,
+              class: "form-control #{'form-control--error' if @guide_page.errors[:title].any?}",
+              data: { testid: "title-field" } %>
+        <% if @guide_page.errors[:title].any? %>
+          <span class="field-error" data-testid="field-error">
+            <%= @guide_page.errors[:title].first %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Body</h2>
+      <div class="form-group">
+        <%= f.label :body, class: "sr-only" %>
+        <%= f.text_area :body,
+              class: "form-control #{'form-control--error' if @guide_page.errors[:body].any?}",
+              rows: 16,
+              data: { testid: "body-field" } %>
+        <% if @guide_page.errors[:body].any? %>
+          <span class="field-error" data-testid="field-error">
+            <%= @guide_page.errors[:body].first %>
+          </span>
+        <% end %>
+        <p class="form-hint">Markdown is supported.</p>
+      </div>
+    </div>
+  </div>
+
+  <%# Actions div %>
+  <div class="show-panel show-panel--actions" data-testid="new-panel-actions">
+    <%= link_to guide_pages_path, class: "btn btn-secondary" do %>
+      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary">
+      <%= lucide_icon("save", size: 16) %> Create Guide Page
+    </button>
+  </div>
+<% end %>

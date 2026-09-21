@@ -579,6 +579,40 @@ ALTER SEQUENCE public.friendly_id_slugs_id_seq OWNED BY public.friendly_id_slugs
 
 
 --
+-- Name: guide_pages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.guide_pages (
+    id bigint NOT NULL,
+    title character varying NOT NULL,
+    app_section character varying NOT NULL,
+    body text NOT NULL,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: guide_pages_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.guide_pages_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: guide_pages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.guide_pages_id_seq OWNED BY public.guide_pages.id;
+
+
+--
 -- Name: likes; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -981,6 +1015,13 @@ ALTER TABLE ONLY public.friendly_id_slugs ALTER COLUMN id SET DEFAULT nextval('p
 
 
 --
+-- Name: guide_pages id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.guide_pages ALTER COLUMN id SET DEFAULT nextval('public.guide_pages_id_seq'::regclass);
+
+
+--
 -- Name: likes id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1170,6 +1211,14 @@ ALTER TABLE ONLY public.events
 
 ALTER TABLE ONLY public.friendly_id_slugs
     ADD CONSTRAINT friendly_id_slugs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: guide_pages guide_pages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.guide_pages
+    ADD CONSTRAINT guide_pages_pkey PRIMARY KEY (id);
 
 
 --
@@ -1487,6 +1536,27 @@ CREATE UNIQUE INDEX index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope
 --
 
 CREATE INDEX index_friendly_id_slugs_on_sluggable_type_and_sluggable_id ON public.friendly_id_slugs USING btree (sluggable_type, sluggable_id);
+
+
+--
+-- Name: index_guide_pages_on_app_section; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_guide_pages_on_app_section ON public.guide_pages USING btree (app_section);
+
+
+--
+-- Name: index_guide_pages_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_guide_pages_on_slug ON public.guide_pages USING btree (slug);
+
+
+--
+-- Name: index_guide_pages_on_title; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_guide_pages_on_title ON public.guide_pages USING btree (title);
 
 
 --
@@ -1838,6 +1908,7 @@ ALTER TABLE ONLY public.contacts
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260921073200'),
 ('20260920102813'),
 ('20260919211958'),
 ('20260918231600'),

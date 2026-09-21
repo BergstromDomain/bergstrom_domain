@@ -64,6 +64,7 @@ Rails.application.routes.draw do
   post "import",          to: "import#create",       as: :import
   get  "import/template", to: "import#template",     as: :import_template
   get  "user_guide",      to: "pages#user_guide",    as: :user_guide
+  resources :guide_pages, path: "guide-pages"
 
   # Stub pages
   get "event_tracker", to: "pages#event_tracker", as: :event_tracker

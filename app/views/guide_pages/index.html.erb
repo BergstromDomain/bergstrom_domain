@@ -1,0 +1,46 @@
+<%# app/views/guide_pages/index.html.erb %>
+
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">User Guide Pages</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    One page per app section, shown under Documentation in each app's left nav.
+  </p>
+</div>
+
+<% if @guide_pages.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="guide-page-table">
+      <colgroup>
+        <col style="width: 12rem;">
+        <col>
+      </colgroup>
+      <thead>
+        <tr>
+          <th>App Section</th>
+          <th>Title</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @guide_pages.each do |guide_page| %>
+          <tr data-testid="guide-page-row">
+            <td data-testid="guide-page-app-section">
+              <%= guide_page.app_section.titleize %>
+            </td>
+            <td>
+              <%= link_to guide_page.title,
+                    guide_page_path(guide_page),
+                    class: "data-table__name-link",
+                    data: { testid: "guide-page-title" } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No user guide pages have been added yet.</p>
+  </div>
+<% end %>
