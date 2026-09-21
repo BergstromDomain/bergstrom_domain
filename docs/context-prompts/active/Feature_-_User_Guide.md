@@ -159,6 +159,19 @@
 * All retrofitted call sites verified, old pattern fully removed (no dual implementations left behind)
 * Confirmed with me before moving to the next block
 
+**Status as of 2026-09-21: all three planned blocks (Core Component,
+Behaviour/Interaction, Retrofit Existing Usages — folded into
+Behaviour/Interaction) are done, each meeting every item above, two commits
+on `feature/user-guide` (branched from `main`): `7ed07d2`, `9ab0881`. Full
+chain re-verified after both commits: rubocop clean, brakeman clean (0
+warnings), bundler-audit clean, `bin/importmap-audit` clean (only
+pre-existing reviewed ignores), full suite 1867 examples / 0 failures / 9
+pre-existing unrelated pending, coverage 96.04% (`COVERAGE=1`). Branch not
+yet pushed. Nothing in the "Development Blocks" section remains — what's
+left is everything already logged under Deferred/Phase 2 below, plus the
+one open judgment call (content-creator vs. admin-only editing) — neither
+started without the user picking a direction first.**
+
 ---
 
 # DEFERRED / PHASE 2
