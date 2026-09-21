@@ -17,8 +17,7 @@ RSpec.describe GuidePage, type: :model do
     it {
       is_expected.to define_enum_for(:app_section)
         .with_values(
-          core: "core", event_tracker: "event_tracker", blog_posts: "blog_posts",
-          recipes: "recipes", photo_albums: "photo_albums", admin: "admin"
+          core: "core", event_tracker: "event_tracker", blog_posts: "blog_posts", admin: "admin"
         ).backed_by_column_of_type(:string)
     }
   end
@@ -61,13 +60,6 @@ RSpec.describe GuidePage, type: :model do
         expect(gp.errors[:app_section]).to include("can't be blank")
       end
 
-      it "is invalid when app_section is already taken by another record" do
-        create(:guide_page, title: "Core Guide", app_section: "core")
-        gp = build(:guide_page, title: "Another Core Guide", app_section: "core")
-        expect(gp).not_to be_valid
-        expect(gp.errors[:app_section]).to include("has already been taken")
-      end
-
       it "is invalid when body is blank" do
         gp = build(:guide_page, body: "")
         expect(gp).not_to be_valid
@@ -80,6 +72,12 @@ RSpec.describe GuidePage, type: :model do
       it "is valid when updating body without changing title or app_section" do
         gp = create(:guide_page, title: "Travel Guide", app_section: "core")
         gp.body = "Updated body."
+        expect(gp).to be_valid
+      end
+
+      it "is valid for multiple guide pages to share the same app_section" do
+        create(:guide_page, title: "Classification", app_section: "core")
+        gp = build(:guide_page, title: "Sign Up", app_section: "core")
         expect(gp).to be_valid
       end
     end
@@ -127,6 +125,68 @@ RSpec.describe GuidePage, type: :model do
     it "delegates to title" do
       gp = build(:guide_page)
       expect(gp.to_toast_label).to eq(gp.title)
+    end
+  end
+
+  # ── #app_section_label ───────────────────────────────────────────────────
+  describe "#app_section_label" do
+    it "returns the brand-facing label for the app_section" do
+      expect(build(:guide_page, app_section: "event_tracker").app_section_label).to eq("Occasions")
+      expect(build(:guide_page, app_section: "blog_posts").app_section_label).to eq("Chronicle")
+      expect(build(:guide_page, app_section: "core").app_section_label).to eq("Core")
+      expect(build(:guide_page, app_section: "admin").app_section_label).to eq("Admin")
+    end
+  end
+
+  # ── .search ───────────────────────────────────────────────────────────────
+  describe ".search" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
+      it "matches guide pages by title" do
+        matching = create(:guide_page, title: "Getting Started", body: "Unrelated content.")
+        create(:guide_page, title: "Sign Up", body: "Unrelated content.")
+        expect(GuidePage.search("getting")).to contain_exactly(matching)
+      end
+
+      it "matches guide pages by body content" do
+        matching = create(:guide_page, title: "Sign Up", body: "How to create an account.")
+        create(:guide_page, title: "Getting Started", body: "Welcome to the app.")
+        expect(GuidePage.search("account")).to contain_exactly(matching)
+      end
+    end
+
+    # 2) Negative Path ──────────────────────────────────────────────────────────
+    describe "Negative Path" do
+      it "returns no results when nothing matches" do
+        create(:guide_page, title: "Getting Started", body: "Welcome.")
+        expect(GuidePage.search("nonexistent term")).to be_empty
+      end
+    end
+
+    # 3) Alternative Paths ───────────────────────────────────────────────────────
+    describe "Alternative Paths" do
+      it "returns all guide pages when the query is blank" do
+        create_list(:guide_page, 2)
+        expect(GuidePage.search("").count).to eq(2)
+        expect(GuidePage.search(nil).count).to eq(2)
+      end
+    end
+
+    # 4) Edge Cases ─────────────────────────────────────────────────────────────
+    describe "Edge Cases" do
+      it "is case-insensitive" do
+        matching = create(:guide_page, title: "Getting Started", body: "Welcome.")
+        expect(GuidePage.search("GETTING")).to contain_exactly(matching)
+      end
+
+      it "escapes SQL LIKE wildcard characters in the query" do
+        # Without escaping, "%" in the query would act as a SQL wildcard and
+        # incorrectly match "50 apples" (since %50%% collapses to %50%).
+        # With escaping it's treated as a literal character the body doesn't
+        # contain, so no match.
+        create(:guide_page, title: "Sign Up", body: "50 apples were purchased.")
+        expect(GuidePage.search("50%")).to be_empty
+      end
     end
   end
 end

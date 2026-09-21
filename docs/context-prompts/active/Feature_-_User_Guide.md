@@ -199,3 +199,76 @@ started without the user picking a direction first.**
   **Confirmed by the user 2026-09-21: admin-only, as shipped.** No code
   change needed — this matches what Core Component/Behaviour/Interaction
   already built.
+
+---
+
+# MANUAL-TESTING FINDINGS, ROUND 1 (2026-09-21)
+
+First hands-on pass, delivered as one batch per
+`[[feedback_batch_manual_testing]]`. All four items were real design
+problems, not polish — the "one page per app_section" decision from Core
+Component's DQ-2 turned out to be wrong once actually used. Shipped as a
+single commit (schema + label + nav + search all touch the same small
+surface, no natural split point). Key points:
+
+* **App Section labels rebranded, Recipes/Photo Albums removed from the
+  enum entirely.** `GuidePage::APP_SECTION_LABELS` (`app/models/guide_page.rb`)
+  maps the enum's technical values (kept aligned with
+  `AppPermission#app_name`/`Policy#app_name_for`) to brand-facing display
+  text — "Occasions" for `event_tracker`, "Chronicle" for `blog_posts` —
+  mirroring this codebase's existing brand-vs-technical split (CLAUDE.md).
+  `recipes`/`photo_albums` are gone from the enum, not just hidden — no
+  `GuidePage` could reference them (no data existed yet), and they can be
+  re-added once those apps actually exist (see Deferred/Phase 2 above,
+  already anticipated this).
+* **Removed the app_section uniqueness constraint — this was the real bug.**
+  `app_section` is a *category* a page belongs to (like `BlogCategory`
+  groups `BlogPost`s), not a 1-page-per-app slot — many pages can now share
+  a section (e.g. "Classification" and "Sign Up" both under `:core`), each
+  distinguished by its own (still-globally-unique) title. Dropped the
+  unique validation, the unique DB index (migration
+  `20260921104820_remove_unique_index_from_guide_pages_app_section.rb`,
+  replaced with a plain non-unique index for the grouping queries this
+  enables), and every spec/factory assumption built on "only one page per
+  section."
+* **`/user_guide` simplified further**: with no more "the" core page (many
+  can now exist), `PagesController#user_guide` just redirects to
+  `guide_pages_path` unconditionally — the `GuidePage.find_by(app_section:
+  "core")` lookup from Behaviour/Interaction is gone.
+* **Table of contents added to the left nav**, resolving "how does a user
+  browse what's available":
+  - Event_Tracker's and Chronicle's existing "Documentation > How To" group
+    now lists every guide page in that app's section individually
+    (`GuidePagesHelper#guide_pages_for_section`), replacing the old
+    single-link-per-app `guide_page_link_for` helper (removed — no dual
+    implementation left). Falls back to the old single "User Guide" link
+    (→ `user_guide_path`) only when that section has zero pages yet, which
+    is why every pre-existing nav spec (written before any `GuidePage`
+    existed) kept passing unchanged.
+  - The dedicated `:guide_pages` nav section (Behaviour/Interaction) now
+    renders a full contents tree grouped by section, iterating
+    `GuidePage.app_sections.keys` and skipping any section with zero pages
+    — same "don't show empty buckets" pattern as Chronicle's Browse Blog
+    Posts.
+* **New Search feature**: `GuidePage.search(query)` — plain `title ILIKE
+  OR body ILIKE`, using `sanitize_sql_like` to escape user-typed `%`/`_` as
+  literal characters rather than SQL wildcards (verified with a dedicated
+  spec). Deliberately **not** a JQL-style query language like
+  `BlogPostFilter`'s — that was built as a reusable engine on purpose;
+  documentation search doesn't need that complexity. Lives as a plain GET
+  form (`q` param) on `GuidePagesController#index`, no live/debounced
+  search — simpler than Contacts Management's `debounced-search`
+  Stimulus-driven pattern, a deliberate scope call since nothing asked for
+  live results.
+* **Testing gotcha found**: once the left-nav TOC lists real guide-page
+  titles, feature specs asserting `page.text.index(...)` ordering or
+  unscoped `have_content`/`not_to have_content` presence can pick up the
+  nav's own occurrence of a title instead of (or in addition to) the main
+  table's — the nav renders before the main content in the DOM. Fixed by
+  scoping those assertions to `[data-testid='main-content']` or
+  `[data-testid='guide-page-table']` rather than the whole page. Worth
+  remembering for any future spec touching a page whose left nav also
+  echoes dynamic per-record content.
+* Full suite green (1882 examples, 0 failures, 9 pre-existing unrelated
+  pending), coverage 96.05% (`COVERAGE=1`), rubocop/brakeman/bundler-audit
+  all clean.

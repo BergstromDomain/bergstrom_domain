@@ -1542,7 +1542,7 @@ CREATE INDEX index_friendly_id_slugs_on_sluggable_type_and_sluggable_id ON publi
 -- Name: index_guide_pages_on_app_section; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_guide_pages_on_app_section ON public.guide_pages USING btree (app_section);
+CREATE INDEX index_guide_pages_on_app_section ON public.guide_pages USING btree (app_section);
 
 
 --
@@ -1908,6 +1908,7 @@ ALTER TABLE ONLY public.contacts
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260921104820'),
 ('20260921073200'),
 ('20260920102813'),
 ('20260919211958'),

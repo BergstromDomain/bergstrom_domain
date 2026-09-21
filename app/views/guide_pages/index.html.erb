@@ -5,9 +5,25 @@
     <h1 class="page-title">User Guide Pages</h1>
   </div>
   <p class="page-header__subtitle page-header__subtitle--centered">
-    One page per app section, shown under Documentation in each app's left nav.
+    Browse or search every guide page, grouped by app.
   </p>
 </div>
+
+<%= form_with url: guide_pages_path, method: :get, class: "guide-page-search" do %>
+  <div class="form-field">
+    <label for="q" class="sr-only">Search the User Guide</label>
+    <%= text_field_tag :q, @query,
+          placeholder: "Search titles and body text…",
+          class: "form-control",
+          data: { testid: "guide-page-search-field" } %>
+  </div>
+  <button type="submit" class="btn btn-secondary">
+    <%= lucide_icon("search", size: 16) %> Search
+  </button>
+  <% if @query.present? %>
+    <%= link_to "Clear", guide_pages_path, class: "btn btn-secondary", data: { testid: "guide-page-search-clear" } %>
+  <% end %>
+<% end %>
 
 <% if @guide_pages.any? %>
   <div class="data-table-wrapper">
@@ -26,7 +42,7 @@
         <% @guide_pages.each do |guide_page| %>
           <tr data-testid="guide-page-row">
             <td data-testid="guide-page-app-section">
-              <%= guide_page.app_section.titleize %>
+              <%= guide_page.app_section_label %>
             </td>
             <td>
               <%= link_to guide_page.title,
@@ -38,6 +54,10 @@
         <% end %>
       </tbody>
     </table>
+  </div>
+<% elsif @query.present? %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No guide pages match "<%= @query %>".</p>
   </div>
 <% else %>
   <div class="empty-state" data-testid="empty-state">

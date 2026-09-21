@@ -2861,3 +2861,19 @@ textarea.form-control {
   opacity: 1;
 }
 
+/* ============================================================
+   Guide Pages search
+   ============================================================ */
+
+.guide-page-search {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.guide-page-search .form-field {
+  flex: 1;
+  margin-bottom: 0;
+}
+

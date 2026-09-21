@@ -37,7 +37,7 @@ RSpec.describe "Create Guide Page", type: :feature do
     it "Shows an error when title is a duplicate (same case)" do
       create(:guide_page, title: "Getting Started", app_section: "core")
       visit new_guide_page_path
-      select "Blog Posts", from: "App Section"
+      select "Chronicle", from: "App Section"
       fill_in "Title", with: "Getting Started"
       fill_in "Body",  with: "Another guide."
       click_button "Create Guide Page"
@@ -55,18 +55,6 @@ RSpec.describe "Create Guide Page", type: :feature do
       expect(page).to have_selector("[data-testid='field-error']")
       expect(page).to have_content("can't be blank")
       expect(GuidePage.count).to eq(0)
-    end
-
-    it "Shows an error when app section is already taken by another guide page" do
-      create(:guide_page, title: "Core Guide", app_section: "core")
-      visit new_guide_page_path
-      select "Core", from: "App Section"
-      fill_in "Title", with: "Another Core Guide"
-      fill_in "Body",  with: "Another guide."
-      click_button "Create Guide Page"
-
-      expect(page).to have_content("has already been taken")
-      expect(GuidePage.count).to eq(1)
     end
 
     it "Shows an error when body is missing" do
@@ -104,6 +92,18 @@ RSpec.describe "Create Guide Page", type: :feature do
 
       expect(page).to have_field("Title", with: "Getting Started")
       expect(page).to have_field("Body", with: "Welcome.")
+    end
+
+    it "Allows creating a second guide page under the same App Section" do
+      create(:guide_page, title: "Classification", app_section: "core")
+      visit new_guide_page_path
+      select "Core", from: "App Section"
+      fill_in "Title", with: "Sign Up"
+      fill_in "Body",  with: "How to create an account."
+      click_button "Create Guide Page"
+
+      expect(page).to have_selector("h1.page-title", text: "Sign Up")
+      expect(GuidePage.where(app_section: "core").count).to eq(2)
     end
 
     it "Allows 'Sam SysAdmin' to create a guide page" do

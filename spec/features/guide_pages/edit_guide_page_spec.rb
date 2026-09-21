@@ -63,16 +63,6 @@ RSpec.describe "Edit Guide Page", type: :feature do
       expect(gp.title).to eq("Sport Guide")
     end
 
-    it "Shows an error when updated app section is already taken" do
-      gp = create(:guide_page, title: "Sport Guide", app_section: "admin", body: "Body.")
-      visit edit_guide_page_path(gp)
-      select "Core", from: "App Section"
-      click_button "Update Guide Page"
-      expect(page).to have_content("has already been taken")
-      gp.reload
-      expect(gp.app_section).to eq("admin")
-    end
-
     it "Redirects 'Charlie Content Creator' to the guide pages index" do
       click_button "Sign Out"
       sign_in_as create(:user, :content_creator)
@@ -105,6 +95,16 @@ RSpec.describe "Edit Guide Page", type: :feature do
       fill_in "Title", with: ""
       click_button "Update Guide Page"
       expect(page).to have_field("Body", with: "Body.")
+    end
+
+    it "Allows changing the App Section to one already used by another guide page" do
+      create(:guide_page, title: "Classification", app_section: "admin")
+      gp = create(:guide_page, title: "Sport Guide", app_section: "core", body: "Body.")
+      visit edit_guide_page_path(gp)
+      select "Admin", from: "App Section"
+      click_button "Update Guide Page"
+      expect(page).to have_selector("[data-testid='guide-page-app-section']", text: "Admin")
+      expect(GuidePage.where(app_section: "admin").count).to eq(2)
     end
 
     it "Allows 'Sam SysAdmin' to edit a guide page" do

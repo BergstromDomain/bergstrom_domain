@@ -22,14 +22,15 @@ RSpec.describe "List Guide Page", type: :feature do
     end
 
     it "Displays guide pages in alphabetical order by title" do
-      expect(page.text.index("Chronicle Guide")).to be < page.text.index("Getting Started")
-      expect(page.text.index("Getting Started")).to be < page.text.index("Occasions Guide")
+      main_text = find("[data-testid='main-content']").text
+      expect(main_text.index("Chronicle Guide")).to be < main_text.index("Getting Started")
+      expect(main_text.index("Getting Started")).to be < main_text.index("Occasions Guide")
     end
 
     it "Displays the app section for each guide page" do
       expect(page).to have_selector("td[data-testid='guide-page-app-section']", text: "Core")
-      expect(page).to have_selector("td[data-testid='guide-page-app-section']", text: "Blog Posts")
-      expect(page).to have_selector("td[data-testid='guide-page-app-section']", text: "Event Tracker")
+      expect(page).to have_selector("td[data-testid='guide-page-app-section']", text: "Chronicle")
+      expect(page).to have_selector("td[data-testid='guide-page-app-section']", text: "Occasions")
     end
 
     it "Links each guide page title to its show page" do
@@ -63,7 +64,8 @@ RSpec.describe "List Guide Page", type: :feature do
     it "Sorts guide pages case-insensitively" do
       create(:guide_page, title: "admin overview", app_section: "admin")
       visit guide_pages_path
-      expect(page.text.index("admin overview")).to be < page.text.index("Chronicle Guide")
+      main_text = find("[data-testid='main-content']").text
+      expect(main_text.index("admin overview")).to be < main_text.index("Chronicle Guide")
     end
   end
 end

@@ -8,7 +8,8 @@ class GuidePagesController < ApplicationController
   before_action :require_admin,  only: %i[new create]
 
   def index
-    @guide_pages = GuidePage.order("LOWER(title) ASC")
+    @query = params[:q].to_s.strip
+    @guide_pages = GuidePage.search(@query).order("LOWER(title) ASC")
   end
 
   def show

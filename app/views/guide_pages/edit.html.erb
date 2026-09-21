@@ -25,7 +25,7 @@
       <div class="form-group">
         <%= f.label :app_section, "App Section", class: "sr-only" %>
         <%= f.select :app_section,
-              GuidePage.app_sections.keys.map { |key| [ key.titleize, key ] },
+              GuidePage.app_sections.keys.map { |key| [ GuidePage::APP_SECTION_LABELS.fetch(key), key ] },
               {},
               class: "form-control #{'form-control--error' if @guide_page.errors[:app_section].any?}",
               data: { testid: "app-section-field" } %>

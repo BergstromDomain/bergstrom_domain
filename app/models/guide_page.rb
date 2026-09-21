@@ -13,20 +13,47 @@ class GuidePage < ApplicationRecord
   extend FriendlyId
   friendly_id :title, use: [ :slugged, :history ]
 
-  # One page per app section — mirrors this feature's DQ-2 decision (a core
-  # landing page plus one page per app, not a single combined document).
+  # A category a guide page belongs to, not a 1-page-per-app slot — many
+  # pages can share a section (e.g. "Classification" and "Sign Up" both
+  # under :core), each distinguished by its own title. Recipes/Photo Album
+  # are left out for now since neither app exists yet; add them back once
+  # they do.
   enum :app_section, {
     core:          "core",
     event_tracker: "event_tracker",
     blog_posts:    "blog_posts",
-    recipes:       "recipes",
-    photo_albums:  "photo_albums",
     admin:         "admin"
   }, validate: true
 
+  # Brand-facing labels for app_section — the enum's own values stay
+  # technical/aligned with AppPermission#app_name and Policy#app_name_for;
+  # only the display differs. Mirrors this codebase's existing brand-vs-
+  # technical split (CLAUDE.md: "Chronicle" is BlogPost's brand, "Occasions"
+  # is Event_Tracker's).
+  APP_SECTION_LABELS = {
+    "core"          => "Core",
+    "event_tracker" => "Occasions",
+    "blog_posts"    => "Chronicle",
+    "admin"         => "Admin"
+  }.freeze
+
   validates :title,       presence: true, uniqueness: { case_sensitive: false }
-  validates :app_section, presence: true, uniqueness: true
+  validates :app_section, presence: true
   validates :body,        presence: true
+
+  # Plain title/body substring search — deliberately not a JQL-style query
+  # language like BlogPostFilter's (that was built as a reusable engine on
+  # purpose); a documentation search box doesn't need that complexity.
+  def self.search(query)
+    return all if query.blank?
+
+    term = "%#{sanitize_sql_like(query)}%"
+    where("title ILIKE :term OR body ILIKE :term", term: term)
+  end
+
+  def app_section_label
+    APP_SECTION_LABELS.fetch(app_section)
+  end
 
   def should_generate_new_friendly_id?
     title_changed? || super
