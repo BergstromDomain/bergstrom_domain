@@ -31,11 +31,17 @@
       <colgroup>
         <col style="width: 12rem;">
         <col>
+        <% GuidePage::SUPPORT_COLUMNS.each_key do %>
+          <col style="width: 5rem;">
+        <% end %>
       </colgroup>
       <thead>
         <tr>
           <th>App Section</th>
           <th>Title</th>
+          <% GuidePage::SUPPORT_COLUMNS.each_value do |label| %>
+            <th><%= label %></th>
+          <% end %>
         </tr>
       </thead>
       <tbody>
@@ -50,6 +56,15 @@
                     class: "data-table__name-link",
                     data: { testid: "guide-page-title" } %>
             </td>
+            <% GuidePage::SUPPORT_COLUMNS.each_key do |column| %>
+              <td class="data-table__icon-cell" data-testid="guide-page-<%= column %>">
+                <% if guide_page.public_send(column) %>
+                  <%= lucide_icon("check", size: 18, class: "classification-icon--success") %>
+                <% else %>
+                  <%= lucide_icon("x", size: 18, class: "support-icon--muted") %>
+                <% end %>
+              </td>
+            <% end %>
           </tr>
         <% end %>
       </tbody>

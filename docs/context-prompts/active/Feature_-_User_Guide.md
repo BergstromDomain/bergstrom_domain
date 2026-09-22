@@ -272,3 +272,41 @@ surface, no natural split point). Key points:
 * Full suite green (1882 examples, 0 failures, 9 pre-existing unrelated
   pending), coverage 96.05% (`COVERAGE=1`), rubocop/brakeman/bundler-audit
   all clean.
+
+---
+
+# MANUAL-TESTING FINDINGS, ROUND 2 (2026-09-22)
+
+A single follow-up item: a per-page "which personas can use this feature"
+indicator, raised as an exploratory question first (see chat), then
+directed at the `/guide-pages` index specifically. Key points:
+
+* **3 columns, not 5**: Guest / User / Content Creator — the user's own
+  reasoning (confirmed, not just assumed) was that Admin/SysAdmin get their
+  own dedicated Admin-section guide pages instead of needing a column here.
+* **Structured booleans, not a Markdown table in the body** — this was a
+  reversal of my own initial recommendation (I'd suggested letting admins
+  type a plain Markdown table into the body instead of adding schema). The
+  user's follow-up ("add 3 columns on /guide-pages") made clear they wanted
+  it on the index table itself, which only a real column can drive — a
+  body-text table can't be queried/rendered into a table cell. Added
+  `supports_guest`/`supports_user`/`supports_content_creator` booleans
+  (migration `20260922045836_add_support_flags_to_guide_pages.rb`), each
+  `default: false, null: false` — matching `AppPermission`'s existing
+  boolean-column convention (explicit opt-in, not opt-out).
+* `GuidePage::SUPPORT_COLUMNS` (`{column_symbol => display_label}`) is the
+  single source of truth driving the index table's 3 columns, the New/Edit
+  forms' 3 checkboxes, and the Show page's "Supported For" list — one place
+  to add a 4th persona later if that's ever asked for.
+* **New UI pattern**: read-only check/✕ icon-per-boolean table cells didn't
+  exist anywhere in this app before. Reused the existing
+  `.classification-icon--success` (green check, from `Classifiable`'s own
+  icon helper) for `true`, and added one new small class
+  (`.support-icon--muted`, `--color-text-secondary` at 50% opacity) for
+  `false` — deliberately not a 3rd new color, just dimming the existing
+  muted text token.
+* Checkboxes reuse the existing `.form-check` markup/CSS pattern already
+  established by `pages/import_export.html.erb`'s scope checkboxes, not a
+  new checkbox style.
+* Full suite green (1892 examples), coverage 96.05% (`COVERAGE=1`),
+  rubocop/brakeman/bundler-audit all clean.

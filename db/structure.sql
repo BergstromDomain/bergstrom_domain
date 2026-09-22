@@ -589,7 +589,10 @@ CREATE TABLE public.guide_pages (
     body text NOT NULL,
     slug character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    supports_guest boolean DEFAULT false NOT NULL,
+    supports_user boolean DEFAULT false NOT NULL,
+    supports_content_creator boolean DEFAULT false NOT NULL
 );
 
 
@@ -1908,6 +1911,7 @@ ALTER TABLE ONLY public.contacts
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260922045836'),
 ('20260921104820'),
 ('20260921073200'),
 ('20260920102813'),

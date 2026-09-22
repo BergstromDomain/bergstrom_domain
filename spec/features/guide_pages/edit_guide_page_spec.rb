@@ -48,6 +48,21 @@ RSpec.describe "Edit Guide Page", type: :feature do
       visit edit_guide_page_path(guide_page)
       expect(page).to have_field("Body", with: "Welcome.")
     end
+
+    it "Pre-populates the Supported For checkboxes" do
+      gp = create(:guide_page, title: "Sign Up", app_section: "core", supports_guest: true, supports_user: false)
+      visit edit_guide_page_path(gp)
+      expect(page).to have_checked_field("Guest")
+      expect(page).to have_unchecked_field("User")
+    end
+
+    it "Updates the Supported For checkboxes" do
+      visit edit_guide_page_path(guide_page)
+      check "User"
+      click_button "Update Guide Page"
+      guide_page.reload
+      expect(guide_page.supports_user).to eq(true)
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────

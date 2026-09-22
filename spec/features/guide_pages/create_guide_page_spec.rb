@@ -19,6 +19,21 @@ RSpec.describe "Create Guide Page", type: :feature do
       expect(page).to have_selector("h1.page-title", text: "Getting Started")
       expect(page).to have_selector("[data-testid='guide-page-app-section']", text: "Core")
     end
+
+    it "Creates a guide page with Supported For checkboxes checked" do
+      visit new_guide_page_path
+      select "Core", from: "App Section"
+      fill_in "Title", with: "Getting Started"
+      fill_in "Body",  with: "Welcome."
+      check "Guest"
+      check "Content Creator"
+      click_button "Create Guide Page"
+
+      gp = GuidePage.find_by(title: "Getting Started")
+      expect(gp.supports_guest).to eq(true)
+      expect(gp.supports_user).to eq(false)
+      expect(gp.supports_content_creator).to eq(true)
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────

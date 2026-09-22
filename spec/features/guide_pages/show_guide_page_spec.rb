@@ -7,9 +7,12 @@ RSpec.describe "Show Guide Page", type: :feature do
   let(:content_creator) { create(:user, :content_creator) }
   let!(:guide_page) do
     create(:guide_page,
-      title:       "Getting Started",
-      app_section: "core",
-      body:        "Welcome to **BergstromDomain**.")
+      title:           "Getting Started",
+      app_section:     "core",
+      body:            "Welcome to **BergstromDomain**.",
+      supports_guest:  true,
+      supports_user:   true,
+      supports_content_creator: false)
   end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
@@ -26,6 +29,14 @@ RSpec.describe "Show Guide Page", type: :feature do
 
     it "Renders the body as sanitized HTML" do
       expect(page).to have_selector("[data-testid='guide-page-body'] strong", text: "BergstromDomain")
+    end
+
+    it "Shows the Supported For list with the right checks/x marks" do
+      within("[data-testid='guide-page-support-list']") do
+        expect(page).to have_selector("[data-testid='guide-page-supports_guest'] svg.classification-icon--success")
+        expect(page).to have_selector("[data-testid='guide-page-supports_user'] svg.classification-icon--success")
+        expect(page).to have_selector("[data-testid='guide-page-supports_content_creator'] svg.support-icon--muted")
+      end
     end
 
     it "Shows a back link to the index" do

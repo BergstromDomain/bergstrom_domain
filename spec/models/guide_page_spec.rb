@@ -10,6 +10,9 @@ RSpec.describe GuidePage, type: :model do
     it { is_expected.to have_db_column(:app_section).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:body).of_type(:text).with_options(null: false) }
     it { is_expected.to have_db_column(:slug).of_type(:string) }
+    it { is_expected.to have_db_column(:supports_guest).of_type(:boolean).with_options(null: false, default: false) }
+    it { is_expected.to have_db_column(:supports_user).of_type(:boolean).with_options(null: false, default: false) }
+    it { is_expected.to have_db_column(:supports_content_creator).of_type(:boolean).with_options(null: false, default: false) }
   end
 
   # ── Enums ─────────────────────────────────────────────────────────────────
@@ -187,6 +190,23 @@ RSpec.describe GuidePage, type: :model do
         create(:guide_page, title: "Sign Up", body: "50 apples were purchased.")
         expect(GuidePage.search("50%")).to be_empty
       end
+    end
+  end
+
+  # ── Support flags ─────────────────────────────────────────────────────────
+  describe "support flags" do
+    it "default to false for a new guide page" do
+      gp = create(:guide_page)
+      expect(gp.supports_guest).to eq(false)
+      expect(gp.supports_user).to eq(false)
+      expect(gp.supports_content_creator).to eq(false)
+    end
+
+    it "can be set independently" do
+      gp = create(:guide_page, supports_guest: true, supports_user: false, supports_content_creator: true)
+      expect(gp.supports_guest?).to eq(true)
+      expect(gp.supports_user?).to eq(false)
+      expect(gp.supports_content_creator?).to eq(true)
     end
   end
 end

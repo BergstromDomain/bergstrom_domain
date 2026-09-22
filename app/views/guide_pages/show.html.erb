@@ -16,6 +16,22 @@
           tags:       GuidePage::RENDERED_BODY_ALLOWED_TAGS,
           attributes: GuidePage::RENDERED_BODY_ALLOWED_ATTRIBUTES %>
   </div>
+
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">Supported For</h2>
+    <ul class="guide-page-support-list" data-testid="guide-page-support-list">
+      <% GuidePage::SUPPORT_COLUMNS.each do |column, label| %>
+        <li data-testid="guide-page-<%= column %>">
+          <% if @guide_page.public_send(column) %>
+            <%= lucide_icon("check", size: 16, class: "classification-icon--success") %>
+          <% else %>
+            <%= lucide_icon("x", size: 16, class: "support-icon--muted") %>
+          <% end %>
+          <%= label %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
 </div>
 
 <%# Actions div %>

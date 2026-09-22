@@ -37,6 +37,15 @@ class GuidePage < ApplicationRecord
     "admin"         => "Admin"
   }.freeze
 
+  # Which personas the feature a guide page documents is available to.
+  # Admin/SysAdmin are deliberately excluded — those personas get their own
+  # dedicated Admin-section guide pages instead of a per-page flag.
+  SUPPORT_COLUMNS = {
+    supports_guest:           "Guest",
+    supports_user:            "User",
+    supports_content_creator: "Content Creator"
+  }.freeze
+
   validates :title,       presence: true, uniqueness: { case_sensitive: false }
   validates :app_section, presence: true
   validates :body,        presence: true

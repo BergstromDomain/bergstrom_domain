@@ -68,6 +68,18 @@
         <p class="form-hint">Markdown is supported.</p>
       </div>
     </div>
+
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Supported For</h2>
+      <div class="form-group">
+        <% GuidePage::SUPPORT_COLUMNS.each do |column, label| %>
+          <div class="form-check">
+            <%= f.check_box column, id: column, data: { testid: "#{column}-field" } %>
+            <%= f.label column, label, for: column %>
+          </div>
+        <% end %>
+      </div>
+    </div>
   </div>
 
   <%# Actions div %>

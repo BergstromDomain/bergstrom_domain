@@ -3,9 +3,9 @@
 require "rails_helper"
 
 RSpec.describe "List Guide Page", type: :feature do
-  let!(:core)          { create(:guide_page, title: "Getting Started", app_section: "core") }
-  let!(:chronicle)     { create(:guide_page, title: "Chronicle Guide", app_section: "blog_posts") }
-  let!(:occasions)     { create(:guide_page, title: "Occasions Guide", app_section: "event_tracker") }
+  let!(:core)      { create(:guide_page, title: "Getting Started", app_section: "core", supports_guest: true) }
+  let!(:chronicle) { create(:guide_page, title: "Chronicle Guide", app_section: "blog_posts") }
+  let!(:occasions) { create(:guide_page, title: "Occasions Guide", app_section: "event_tracker") }
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
@@ -36,6 +36,13 @@ RSpec.describe "List Guide Page", type: :feature do
     it "Links each guide page title to its show page" do
       expect(page).to have_link("Getting Started", href: guide_page_path(core))
       expect(page).to have_link("Chronicle Guide",  href: guide_page_path(chronicle))
+    end
+
+    it "Shows Guest/User/Content Creator support columns with check/x marks" do
+      within("[data-testid='guide-page-row']", text: "Getting Started") do
+        expect(page).to have_selector("[data-testid='guide-page-supports_guest'] svg.classification-icon--success")
+        expect(page).to have_selector("[data-testid='guide-page-supports_user'] svg.support-icon--muted")
+      end
     end
   end
 

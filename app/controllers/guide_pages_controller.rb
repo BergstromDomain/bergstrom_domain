@@ -76,6 +76,7 @@ class GuidePagesController < ApplicationController
   end
 
   def guide_page_params
-    params.require(:guide_page).permit(:title, :app_section, :body)
+    params.require(:guide_page).permit(:title, :app_section, :body,
+      :supports_guest, :supports_user, :supports_content_creator)
   end
 end
