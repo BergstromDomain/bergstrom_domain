@@ -1,0 +1,81 @@
+<%# app/views/guide_pages/index.html.erb %>
+
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">User Guide Pages</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Browse or search every guide page, grouped by app.
+  </p>
+</div>
+
+<%= form_with url: guide_pages_path, method: :get, class: "guide-page-search" do %>
+  <div class="form-field">
+    <label for="q" class="sr-only">Search the User Guide</label>
+    <%= text_field_tag :q, @query,
+          placeholder: "Search titles and body text…",
+          class: "form-control",
+          data: { testid: "guide-page-search-field" } %>
+  </div>
+  <button type="submit" class="btn btn-secondary">
+    <%= lucide_icon("search", size: 16) %> Search
+  </button>
+  <% if @query.present? %>
+    <%= link_to "Clear", guide_pages_path, class: "btn btn-secondary", data: { testid: "guide-page-search-clear" } %>
+  <% end %>
+<% end %>
+
+<% if @guide_pages.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="guide-page-table">
+      <colgroup>
+        <col style="width: 12rem;">
+        <col>
+        <% GuidePage::SUPPORT_COLUMNS.each_key do %>
+          <col style="width: 5rem;">
+        <% end %>
+      </colgroup>
+      <thead>
+        <tr>
+          <th>App Section</th>
+          <th>Title</th>
+          <% GuidePage::SUPPORT_COLUMNS.each_value do |label| %>
+            <th><%= label %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @guide_pages.each do |guide_page| %>
+          <tr data-testid="guide-page-row">
+            <td data-testid="guide-page-app-section">
+              <%= guide_page.app_section_label %>
+            </td>
+            <td>
+              <%= link_to guide_page.title,
+                    guide_page_path(guide_page),
+                    class: "data-table__name-link",
+                    data: { testid: "guide-page-title" } %>
+            </td>
+            <% GuidePage::SUPPORT_COLUMNS.each_key do |column| %>
+              <td class="data-table__icon-cell" data-testid="guide-page-<%= column %>">
+                <% if guide_page.public_send(column) %>
+                  <%= lucide_icon("check", size: 18, class: "classification-icon--success") %>
+                <% else %>
+                  <%= lucide_icon("x", size: 18, class: "classification-icon--danger") %>
+                <% end %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% elsif @query.present? %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No guide pages match "<%= @query %>".</p>
+  </div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No user guide pages have been added yet.</p>
+  </div>
+<% end %>

@@ -76,6 +76,17 @@ RSpec.describe "Left Nav", type: :feature do
         end
       end
 
+      it "Lists each of the app's own guide pages once they exist, instead of the single fallback link" do
+        first_guide  = create(:guide_page, title: "Occasions Guide", app_section: "event_tracker")
+        second_guide = create(:guide_page, title: "Events By Day Guide", app_section: "event_tracker")
+        visit events_path
+        within("[data-testid='left-nav']") do
+          expect(page).to have_link("Occasions Guide", href: guide_page_path(first_guide))
+          expect(page).to have_link("Events By Day Guide", href: guide_page_path(second_guide))
+          expect(page).not_to have_link("User Guide", href: user_guide_path)
+        end
+      end
+
       it "Does not show the 'Actions' section" do
         within("[data-testid='left-nav']") do
           expect(page).not_to have_selector("[data-testid='left-nav-actions-h2']")
@@ -301,6 +312,15 @@ RSpec.describe "Left Nav", type: :feature do
             expect(page).to have_link("User Guide", href: user_guide_path)
           end
         end
+
+        it "Lists Chronicle's own guide pages once they exist, instead of the single fallback link" do
+          chronicle_guide = create(:guide_page, title: "Chronicle Guide", app_section: "blog_posts")
+          visit chronicle_path
+          within("[data-testid='left-nav']") do
+            expect(page).to have_link("Chronicle Guide", href: guide_page_path(chronicle_guide))
+            expect(page).not_to have_link("User Guide", href: user_guide_path)
+          end
+        end
       end
 
       context "When 'Uno User' (app_user role) is signed in and visits Chronicle" do
@@ -377,6 +397,67 @@ RSpec.describe "Left Nav", type: :feature do
           visit chronicle_path
           within("[data-testid='left-nav']") do
             expect(page).not_to have_link("My Published Posts")
+          end
+        end
+      end
+    end
+
+    describe "Guide Pages" do
+      context "When 'Gary Guest' visits the guide pages index" do
+        before { visit guide_pages_path }
+
+        it "Shows the left nav" do
+          expect(page).to have_selector("[data-testid='left-nav']")
+        end
+
+        it "Shows the 'Views' section with an 'All Guide Pages' link" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-user-guide-h3']")
+            expect(page).to have_link("All Guide Pages", href: guide_pages_path)
+          end
+        end
+
+        it "Does not show the 'Actions' section" do
+          within("[data-testid='left-nav']") do
+            expect(page).not_to have_selector("[data-testid='left-nav-actions-h2']")
+          end
+        end
+      end
+
+      context "When guide pages exist across multiple sections" do
+        it "Shows a table of contents grouped by App Section, omitting empty sections" do
+          core_page  = create(:guide_page, title: "Classification", app_section: "core")
+          admin_page = create(:guide_page, title: "Admin Overview",  app_section: "admin")
+          visit guide_pages_path
+
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-guide-section-core-h3']", text: "Core")
+            expect(page).to have_link("Classification", href: guide_page_path(core_page))
+            expect(page).to have_selector("[data-testid='left-nav-guide-section-admin-h3']", text: "Admin")
+            expect(page).to have_link("Admin Overview", href: guide_page_path(admin_page))
+            expect(page).not_to have_selector("[data-testid='left-nav-guide-section-event-tracker-h3']")
+            expect(page).not_to have_selector("[data-testid='left-nav-guide-section-blog-posts-h3']")
+          end
+        end
+      end
+
+      context "When 'Charlie Content Creator' visits the guide pages index" do
+        it "Does not show the 'Actions' section — Guide Pages are admin-only" do
+          sign_in_as create(:user, :content_creator)
+          visit guide_pages_path
+          within("[data-testid='left-nav']") do
+            expect(page).not_to have_selector("[data-testid='left-nav-actions-h2']")
+          end
+        end
+      end
+
+      context "When 'Adam Admin' visits the guide pages index" do
+        it "Shows the 'Actions' section with a 'Create Guide Page' link" do
+          sign_in_as create(:user, :admin)
+          visit guide_pages_path
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
+            expect(page).to have_link("Create Guide Page", href: new_guide_page_path)
           end
         end
       end

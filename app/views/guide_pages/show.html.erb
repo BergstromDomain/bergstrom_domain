@@ -1,0 +1,59 @@
+<%# app/views/guide_pages/show.html.erb %>
+
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title" data-testid="guide-page-title"><%= @guide_page.title %></h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered" data-testid="guide-page-app-section">
+    <%= @guide_page.app_section_label %>
+  </p>
+</div>
+
+<%# Main div — body %>
+<div class="show-panel" data-testid="show-panel-main">
+  <div class="show-panel__section" data-testid="guide-page-body">
+    <%= sanitize @guide_page.rendered_body,
+          tags:       GuidePage::RENDERED_BODY_ALLOWED_TAGS,
+          attributes: GuidePage::RENDERED_BODY_ALLOWED_ATTRIBUTES %>
+  </div>
+
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">Supported For</h2>
+    <ul class="guide-page-support-list" data-testid="guide-page-support-list">
+      <% GuidePage::SUPPORT_COLUMNS.each do |column, label| %>
+        <li data-testid="guide-page-<%= column %>">
+          <% if @guide_page.public_send(column) %>
+            <%= lucide_icon("check", size: 16, class: "classification-icon--success") %>
+          <% else %>
+            <%= lucide_icon("x", size: 16, class: "classification-icon--danger") %>
+          <% end %>
+          <%= label %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<%# Actions div %>
+<div class="show-panel show-panel--actions" data-testid="show-panel-actions">
+  <%= link_to guide_pages_path, class: "btn btn-secondary" do %>
+    <%= lucide_icon("arrow-left", size: 16) %> Back
+  <% end %>
+
+  <% if @policy.can_update? %>
+    <span class="btn-divider">|</span>
+    <%= link_to edit_guide_page_path(@guide_page), class: "btn btn-secondary" do %>
+      <%= lucide_icon("pencil", size: 16) %> Edit Guide Page
+    <% end %>
+  <% end %>
+
+  <% if @policy.can_delete? %>
+    <span class="btn-divider">|</span>
+    <%= button_to guide_page_path(@guide_page),
+          method: :delete,
+          class: "btn btn-danger",
+          data: { turbo_confirm: "Delete #{@guide_page.title}? This cannot be undone." } do %>
+      <%= lucide_icon("trash-2", size: 16) %> Delete Guide Page
+    <% end %>
+  <% end %>
+</div>

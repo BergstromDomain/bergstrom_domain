@@ -3,6 +3,7 @@ class BlogPost < ApplicationRecord
   include Classifiable
   include Likeable
   include Commentable
+  include MarkdownRenderable
 
   # Everything Quill's stock toolbar (Block 2's editor scope) can produce.
   # Rails' default sanitizer allowlist drops <u>/<s> and any table, so a
@@ -91,26 +92,6 @@ class BlogPost < ApplicationRecord
     deleted_at + DELETION_RETENTION_PERIOD if deleted_at
   end
 
-
-  def rendered_body
-    self.class.render_markdown(body)
-  end
-
-  # header_ids: nil turns off Commonmarker's default heading-anchor-link
-  # generation (it's on by default, even with header_ids left unset) — Quill
-  # has no use for those anchors and they'd just clutter the editor/reader.
-  # syntax_highlighter theme: InspiredGitHub is a light theme matching this
-  # site's light background — the built-in default (base16-ocean.dark) reads
-  # fine on its own but looks out of place embedded in a light page.
-  def self.render_markdown(markdown)
-    # nil.to_s is a US-ASCII "", not UTF-8 — Commonmarker rejects anything
-    # that isn't explicitly UTF-8, even an empty string (e.g. rendering an
-    # unpublished draft with no body yet).
-    text = markdown.to_s.dup.force_encoding(Encoding::UTF_8)
-    Commonmarker.to_html(text,
-      options: { render: { unsafe: true }, extension: { header_ids: nil } },
-      plugins: { syntax_highlighter: { theme: "InspiredGitHub" } })
-  end
 
   def should_generate_new_friendly_id?
     title_changed? || super

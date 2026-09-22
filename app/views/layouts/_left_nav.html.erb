@@ -144,9 +144,19 @@
         How To
       </h3>
 
-      <%= link_to user_guide_path, class: "left-nav-link" do %>
-        <%= lucide_icon("book-open-check", size: 15) %>
-        <span>User Guide</span>
+      <% event_tracker_guide_pages = guide_pages_for_section(:event_tracker) %>
+      <% if event_tracker_guide_pages.any? %>
+        <% event_tracker_guide_pages.each do |guide_page| %>
+          <%= link_to guide_page_path(guide_page), class: "left-nav-link", data: { testid: "left-nav-guide-page-link" } do %>
+            <%= lucide_icon("file-text", size: 15) %>
+            <span><%= guide_page.title %></span>
+          <% end %>
+        <% end %>
+      <% else %>
+        <%= link_to user_guide_path, class: "left-nav-link" do %>
+          <%= lucide_icon("book-open-check", size: 15) %>
+          <span>User Guide</span>
+        <% end %>
       <% end %>
       </div>
     </div>
@@ -296,12 +306,79 @@
         How To
       </h3>
 
-      <%= link_to user_guide_path, class: "left-nav-link" do %>
-        <%= lucide_icon("book-open-check", size: 15) %>
-        <span>User Guide</span>
+      <% blog_posts_guide_pages = guide_pages_for_section(:blog_posts) %>
+      <% if blog_posts_guide_pages.any? %>
+        <% blog_posts_guide_pages.each do |guide_page| %>
+          <%= link_to guide_page_path(guide_page), class: "left-nav-link", data: { testid: "left-nav-guide-page-link" } do %>
+            <%= lucide_icon("file-text", size: 15) %>
+            <span><%= guide_page.title %></span>
+          <% end %>
+        <% end %>
+      <% else %>
+        <%= link_to user_guide_path, class: "left-nav-link" do %>
+          <%= lucide_icon("book-open-check", size: 15) %>
+          <span>User Guide</span>
+        <% end %>
       <% end %>
       </div>
     </div>
+
+  <% elsif @left_nav_section == :guide_pages %>
+
+    <%# ── Views ─────────────────────────────────────────────────────────── %>
+    <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('views') %>">
+      <h2 class="left-nav-h2" data-testid="left-nav-views-h2">
+        <%= lucide_icon("eye", size: 14) %> Views
+        <%= left_nav_section_toggle("views", "left-nav-views-h2") %>
+      </h2>
+
+      <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('views') %>>
+      <h3 class="left-nav-h3" data-testid="left-nav-user-guide-h3">
+        User Guide
+      </h3>
+      <%= link_to guide_pages_path, class: "left-nav-link" do %>
+        <%= lucide_icon("book-open-check", size: 15) %>
+        <span>All Guide Pages</span>
+      <% end %>
+
+      <%# ── Table of contents, grouped by section — empty sections omitted %>
+      <% GuidePage.app_sections.keys.each do |section| %>
+        <% section_pages = guide_pages_for_section(section) %>
+        <% next if section_pages.empty? %>
+        <h3 class="left-nav-h3" data-testid="left-nav-guide-section-<%= section.dasherize %>-h3">
+          <%= GuidePage::APP_SECTION_LABELS.fetch(section) %>
+        </h3>
+        <% section_pages.each do |guide_page| %>
+          <%= link_to guide_page_path(guide_page), class: "left-nav-link", data: { testid: "left-nav-guide-page-link" } do %>
+            <%= lucide_icon("file-text", size: 15) %>
+            <span><%= guide_page.title %></span>
+          <% end %>
+        <% end %>
+      <% end %>
+      </div>
+    </div>
+
+    <% if current_user&.can_administer? %>
+      <hr class="left-nav-divider">
+
+      <%# ── Actions (Admin only — Guide Pages have no content-creator tier) ── %>
+      <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('actions') %>">
+        <h2 class="left-nav-h2" data-testid="left-nav-actions-h2">
+          <%= lucide_icon("cog", size: 14) %> Actions
+          <%= left_nav_section_toggle("actions", "left-nav-actions-h2") %>
+        </h2>
+
+        <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('actions') %>>
+        <h3 class="left-nav-h3" data-testid="left-nav-new-h3">
+          New
+        </h3>
+        <%= link_to new_guide_page_path, class: "left-nav-link" do %>
+          <%= lucide_icon("file-plus-2", size: 15) %>
+          <span>Create Guide Page</span>
+        <% end %>
+        </div>
+      </div>
+    <% end %>
 
   <% end %>
   </div>
