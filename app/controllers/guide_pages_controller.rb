@@ -9,7 +9,12 @@ class GuidePagesController < ApplicationController
 
   def index
     @query = params[:q].to_s.strip
-    @guide_pages = GuidePage.search(@query).order("LOWER(title) ASC")
+    # Sorted by App Section label, then Title — app_section_label isn't a
+    # DB column (it's a Ruby-side lookup off the enum), so this sorts in
+    # Ruby rather than SQL, same "fine at this app's scale" reasoning as
+    # BlogPostFilter's own sort.
+    @guide_pages = GuidePage.search(@query).to_a
+      .sort_by { |guide_page| [ guide_page.app_section_label, guide_page.title.downcase ] }
   end
 
   def show

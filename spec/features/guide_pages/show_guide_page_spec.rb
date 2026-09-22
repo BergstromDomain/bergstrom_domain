@@ -35,7 +35,7 @@ RSpec.describe "Show Guide Page", type: :feature do
       within("[data-testid='guide-page-support-list']") do
         expect(page).to have_selector("[data-testid='guide-page-supports_guest'] svg.classification-icon--success")
         expect(page).to have_selector("[data-testid='guide-page-supports_user'] svg.classification-icon--success")
-        expect(page).to have_selector("[data-testid='guide-page-supports_content_creator'] svg.support-icon--muted")
+        expect(page).to have_selector("[data-testid='guide-page-supports_content_creator'] svg.classification-icon--danger")
       end
     end
 

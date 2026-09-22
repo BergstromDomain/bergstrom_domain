@@ -310,3 +310,42 @@ directed at the `/guide-pages` index specifically. Key points:
   new checkbox style.
 * Full suite green (1892 examples), coverage 96.05% (`COVERAGE=1`),
   rubocop/brakeman/bundler-audit all clean.
+
+---
+
+# MANUAL-TESTING FINDINGS, ROUND 3 (2026-09-22)
+
+Three small pre-PR polish items. Key points:
+
+* **Index sorted by App Section label, then Title** — `GuidePagesController#index`
+  now does `GuidePage.search(@query).to_a.sort_by { |gp| [gp.app_section_label,
+  gp.title.downcase] }` instead of a plain SQL `ORDER BY title`.
+  `app_section_label` isn't a DB column (it's the `APP_SECTION_LABELS` Ruby
+  lookup), so this sorts in Ruby, not SQL — fine at this app's scale, same
+  reasoning as `BlogPostFilter`'s own sort. Added a spec proving App Section
+  genuinely takes priority over Title (a case where title-only order would
+  disagree with the actual displayed order), not just a coincidental-looking
+  existing-fixture pass.
+* **The ✕ is red now** — swapped `support-icon--muted` for the existing
+  `.classification-icon--danger` class (same red already used for
+  "restricted" classification) on both the index and Show page. The old
+  muted class is deleted, not left dangling.
+* **Real bug found and fixed: Supported For checkbox labels were rendering
+  in ALL CAPS**, not the "Guest"/"User"/"Content Creator" Title Case the
+  underlying HTML actually contained. Root cause: `.form-group label { ...
+  text-transform: uppercase; ... }` is an existing app-wide rule meant for
+  this app's sr-only field labels (Name/Title/etc., which are visually
+  hidden so the transform never mattered) — the checkboxes were wrongly
+  nested inside a `.form-group` wrapper, so their *visible* labels inherited
+  the same uppercase transform by accident. Fixed by dropping the
+  `.form-group` wrapper (New/Edit now put `.form-check` rows directly under
+  `.show-panel__section`, matching `pages/import_export.html.erb`'s existing
+  checkbox pattern, which never had this wrapper either). **Note: this class
+  of bug is invisible to Rack::Test feature specs** — `page.text`/
+  `have_content` read raw HTML text nodes, not CSS-computed rendering, so no
+  spec assertion could have caught (or can verify) this; it was only
+  visible in a real browser. Worth remembering if a future visual-only CSS
+  bug report doesn't reproduce under existing spec coverage — that doesn't
+  mean the bug isn't real.
+* Full suite green (1894 examples), coverage 96.05% (`COVERAGE=1`),
+  rubocop/brakeman/bundler-audit all clean.

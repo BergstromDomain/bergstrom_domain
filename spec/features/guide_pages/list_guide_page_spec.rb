@@ -21,10 +21,20 @@ RSpec.describe "List Guide Page", type: :feature do
       expect(page).to have_content("Occasions Guide")
     end
 
-    it "Displays guide pages in alphabetical order by title" do
+    it "Displays guide pages sorted by App Section label" do
       main_text = find("[data-testid='main-content']").text
+      # Chronicle Guide (blog_posts -> "Chronicle") / Getting Started (core
+      # -> "Core") / Occasions Guide (event_tracker -> "Occasions") happen to
+      # already read in label order alphabetically.
       expect(main_text.index("Chronicle Guide")).to be < main_text.index("Getting Started")
       expect(main_text.index("Getting Started")).to be < main_text.index("Occasions Guide")
+    end
+
+    it "Sorts by Title within the same App Section" do
+      create(:guide_page, title: "Zebra Guide", app_section: "core")
+      visit guide_pages_path
+      main_text = find("[data-testid='main-content']").text
+      expect(main_text.index("Getting Started")).to be < main_text.index("Zebra Guide")
     end
 
     it "Displays the app section for each guide page" do
@@ -41,7 +51,7 @@ RSpec.describe "List Guide Page", type: :feature do
     it "Shows Guest/User/Content Creator support columns with check/x marks" do
       within("[data-testid='guide-page-row']", text: "Getting Started") do
         expect(page).to have_selector("[data-testid='guide-page-supports_guest'] svg.classification-icon--success")
-        expect(page).to have_selector("[data-testid='guide-page-supports_user'] svg.support-icon--muted")
+        expect(page).to have_selector("[data-testid='guide-page-supports_user'] svg.classification-icon--danger")
       end
     end
   end
@@ -68,11 +78,21 @@ RSpec.describe "List Guide Page", type: :feature do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
-    it "Sorts guide pages case-insensitively" do
-      create(:guide_page, title: "admin overview", app_section: "admin")
+    it "Sorts by Title case-insensitively within the same App Section" do
+      create(:guide_page, title: "apple guide", app_section: "core")
       visit guide_pages_path
       main_text = find("[data-testid='main-content']").text
-      expect(main_text.index("admin overview")).to be < main_text.index("Chronicle Guide")
+      expect(main_text.index("apple guide")).to be < main_text.index("Getting Started")
+    end
+
+    it "Sorts by App Section ahead of Title, even when Title order alone would disagree" do
+      # By title alone "Apple Page" < "Zebra Page", but "Admin" < "Occasions"
+      # as App Section labels, so the Admin page must still come first.
+      create(:guide_page, title: "Apple Page", app_section: "event_tracker")
+      create(:guide_page, title: "Zebra Page", app_section: "admin")
+      visit guide_pages_path
+      main_text = find("[data-testid='main-content']").text
+      expect(main_text.index("Zebra Page")).to be < main_text.index("Apple Page")
     end
   end
 end

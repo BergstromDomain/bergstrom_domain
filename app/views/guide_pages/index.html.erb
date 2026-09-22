@@ -61,7 +61,7 @@
                 <% if guide_page.public_send(column) %>
                   <%= lucide_icon("check", size: 18, class: "classification-icon--success") %>
                 <% else %>
-                  <%= lucide_icon("x", size: 18, class: "support-icon--muted") %>
+                  <%= lucide_icon("x", size: 18, class: "classification-icon--danger") %>
                 <% end %>
               </td>
             <% end %>
