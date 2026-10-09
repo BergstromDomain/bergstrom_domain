@@ -39,4 +39,33 @@ module BlogPostsHelper
     blob = post.blog_image.blob
     "data:#{blob.content_type};base64,#{Base64.strict_encode64(blob.download)}"
   end
+
+  # Same "no browsing context, so relative URLs don't resolve" problem as
+  # blog_image_data_uri above, but for images embedded in the post body
+  # itself. Normal Quill-pasted images are already base64 (confirmed — see
+  # the body-content research in the Import/Export planning doc), so this
+  # only ever has real work to do for the rare relative ActiveStorage URL
+  # that reaches the body outside that flow (e.g. a seed script attaching a
+  # real blob and linking it by path) — found via a real seeded post whose
+  # inline image silently failed to render in its PDF.
+  BLOG_POST_BODY_IMAGE_SIGNED_ID = %r{/rails/active_storage/blobs/(?:redirect/|proxy/)?([^/]+)/}
+
+  def inline_body_images(html)
+    return html if html.blank?
+
+    fragment = Nokogiri::HTML::DocumentFragment.parse(html)
+    fragment.css("img").each do |img|
+      src = img["src"]
+      next if src.blank? || src.start_with?("data:")
+
+      signed_id = src[BLOG_POST_BODY_IMAGE_SIGNED_ID, 1]
+      next if signed_id.blank?
+
+      blob = ActiveStorage::Blob.find_signed(signed_id)
+      next if blob.nil?
+
+      img["src"] = "data:#{blob.content_type};base64,#{Base64.strict_encode64(blob.download)}"
+    end
+    fragment.to_html.html_safe
+  end
 end

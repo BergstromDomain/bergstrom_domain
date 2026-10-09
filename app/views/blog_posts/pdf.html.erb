@@ -42,6 +42,33 @@
   .pdf-body a {
     color: #b07d56;
   }
+  .pdf-reactions {
+    margin: 0 0 1.5rem;
+  }
+  .pdf-comments {
+    margin-top: 2rem;
+    border-top: 1px solid #e2ddd6;
+    padding-top: 1rem;
+  }
+  .pdf-comments__heading {
+    color: #b07d56;
+    font-size: 1.1rem;
+    margin: 0 0 1rem;
+  }
+  .pdf-comment {
+    margin-bottom: 1rem;
+  }
+  .pdf-comment--reply {
+    margin-left: 2rem;
+  }
+  .pdf-comment__meta {
+    font-size: 0.8rem;
+    color: #6b6460;
+    margin: 0 0 0.25rem;
+  }
+  .pdf-comment__body {
+    font-size: 0.95rem;
+  }
 </style>
 </head>
 <body>
@@ -51,15 +78,46 @@
     By <%= @blog_post.authors.map { |author| "#{author.first_name} #{author.last_name}" }.join(", ") %>
     &middot; <%= @blog_post.created_at.strftime("%d %B %Y") %>
   </p>
+  <p class="pdf-meta pdf-reactions">
+    <%= pluralize(@blog_post.comments_count, "comment") %> &middot;
+    <% if @blog_post.like_score %>
+      <%= number_with_precision(@blog_post.like_score, precision: 1) %> reaction score
+      (<%= pluralize(@blog_post.total_reactions, "reaction") %>)
+    <% else %>
+      No reactions yet
+    <% end %>
+  </p>
 
   <% if @blog_post.blog_image.attached? %>
     <img class="pdf-image" src="<%= blog_image_data_uri(@blog_post) %>" alt="<%= @blog_post.title %>">
   <% end %>
 
   <div class="pdf-body">
-    <%= sanitize @blog_post.rendered_body,
+    <%= inline_body_images(sanitize(@blog_post.rendered_body,
           tags:       BlogPost::RENDERED_BODY_ALLOWED_TAGS,
-          attributes: BlogPost::RENDERED_BODY_ALLOWED_ATTRIBUTES %>
+          attributes: BlogPost::RENDERED_BODY_ALLOWED_ATTRIBUTES)) %>
+  </div>
+
+  <div class="pdf-comments">
+    <h2 class="pdf-comments__heading"><%= pluralize(@blog_post.comments_count, "comment") %></h2>
+    <% @blog_post.comments.threads_ordered.includes(:user, replies: :user).each do |thread| %>
+      <div class="pdf-comment">
+        <p class="pdf-comment__meta">
+          <strong><%= thread.user.first_name %> <%= thread.user.last_name %></strong>
+          &middot; <%= thread.created_at.strftime("%d %B %Y") %>
+        </p>
+        <div class="pdf-comment__body"><%= thread.body %></div>
+      </div>
+      <% thread.replies.each do |reply| %>
+        <div class="pdf-comment pdf-comment--reply">
+          <p class="pdf-comment__meta">
+            <strong><%= reply.user.first_name %> <%= reply.user.last_name %></strong>
+            &middot; <%= reply.created_at.strftime("%d %B %Y") %>
+          </p>
+          <div class="pdf-comment__body"><%= reply.body %></div>
+        </div>
+      <% end %>
+    <% end %>
   </div>
 </body>
 </html>

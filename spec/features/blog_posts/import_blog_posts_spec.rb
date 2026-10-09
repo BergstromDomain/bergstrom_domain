@@ -88,6 +88,26 @@ RSpec.describe "Import Blog Posts", type: :feature do
       expect(post.classification).to eq("restricted")
       expect(post.blog_category).to be_nil
     end
+
+    # Turbo Drive's fetch-based form submission doesn't reliably carry a
+    # multipart file upload — Occasions' own Import page already worked
+    # around this with `data: { turbo: false }` on its form. rack_test (the
+    # driver every other example here uses) never exercises Turbo at all, so
+    # only a real js: true example actually catches this class of bug —
+    # confirmed by manual testing that clicking Import silently did nothing
+    # before the form picked up the same `data: { turbo: false }` fix.
+    it "Submits the form and shows results with JavaScript enabled", js: true do
+      category = create(:blog_category, name: "Technology")
+      file = csv_file_for([ [ "My JS Imported Post", "Technology", "", "", "Some body text." ] ])
+
+      sign_in_as(owner)
+      visit new_blog_import_path
+      attach_file("file", file.path)
+      click_button "Import"
+
+      expect(page).to have_selector("[data-testid='import-summary']", text: "1 row imported, 0 rows failed.")
+      expect(BlogPost.find_by(title: "My JS Imported Post")).to be_present
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────

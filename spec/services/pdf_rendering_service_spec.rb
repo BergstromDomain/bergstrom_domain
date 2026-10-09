@@ -31,6 +31,11 @@ RSpec.describe PdfRenderingService do
       pdf = described_class.new("<html><body>Letter</body></html>", format: :letter).render
       expect(pdf.byteslice(0, 5)).to eq("%PDF-")
     end
+
+    it "Renders successfully with the repeating 'BergstromDomain' footer enabled" do
+      pdf = described_class.new("<html><body>Has a footer</body></html>").render
+      expect(pdf.byteslice(0, 5)).to eq("%PDF-")
+    end
   end
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────

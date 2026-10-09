@@ -22,7 +22,7 @@ RSpec.describe "Blog Exports", type: :feature do
       click_link "Download CSV"
 
       expect(page.response_headers["Content-Type"]).to include("text/csv")
-      expect(page.response_headers["Content-Disposition"]).to include("blog_posts_export_")
+      expect(page.response_headers["Content-Disposition"]).to match(/BergstromDomain_Chronicle_\d{4}-\d{2}-\d{2}\.csv/)
       expect(page.body).to include("My Post")
     end
   end

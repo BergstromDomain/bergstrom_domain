@@ -13,7 +13,7 @@ class BlogExportsController < ApplicationController
   def csv
     compute_filtered_blog_posts
     csv_data = BlogPostExportService.new(@posts).generate_csv
-    filename = "blog_posts_export_#{Date.current.iso8601}.csv"
+    filename = "BergstromDomain_Chronicle_#{Date.current.iso8601}.csv"
 
     send_data csv_data,
               type:        "text/csv; charset=utf-8",
