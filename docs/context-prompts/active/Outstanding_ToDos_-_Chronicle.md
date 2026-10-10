@@ -8,6 +8,12 @@ no "resolved" section here, git history already has that record.
 
 ## Open
 
+- [ ] `spec/features/blog_posts/create_blog_post_spec.rb` "Adds a confirmed contact as a
+      co-author via the shuttle" (js: true) is `xit`-skipped: fails deterministically on CI
+      (page stays on `/blog-posts/new` after Save, even with a 10s wait), never locally.
+      Suspect the editor's async convert-before-submit in `blog_post_editor_controller.js`, or
+      a Turbo 422 re-render. Next step: a temporary CI-side failure hook dumping path, field
+      errors, title value, selected authors and browser console logs.
 - [ ] The "Likes" → "Reactions" label rename (`docs/context-prompts/archive/Update_Feature_-_Likes.md`)
       only touched the Show page's metadata panel. Browse Blog Posts
       (`app/views/blog_posts/index.html.erb`) still labels it "Likes:", and Filter Blog Posts
