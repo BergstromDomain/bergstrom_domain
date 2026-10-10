@@ -23,9 +23,6 @@ class PagesController < ApplicationController
   def event_tracker
   end
 
-  def import_export
-  end
-
   # Retrofitted from a static stub into a redirect to the guide directory —
   # there's no single "core" page to land on now that app_section is a
   # category (many pages can share it), not a 1-page-per-app slot. See
