@@ -7,11 +7,10 @@ RSpec.describe "Blog Exports", type: :feature do
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    it "Shows the Download options page with Print and CSV actions" do
+    it "Shows the Download options page with a CSV action" do
       sign_in_as(owner)
       visit blog_exports_path
 
-      expect(page).to have_selector("[data-testid='print-export-link']")
       expect(page).to have_selector("[data-testid='csv-export-link']")
     end
 
@@ -23,19 +22,8 @@ RSpec.describe "Blog Exports", type: :feature do
       click_link "Download CSV"
 
       expect(page.response_headers["Content-Type"]).to include("text/csv")
-      expect(page.response_headers["Content-Disposition"]).to include("blog_posts_export_")
+      expect(page.response_headers["Content-Disposition"]).to match(/BergstromDomain_Chronicle_\d{4}-\d{2}-\d{2}\.csv/)
       expect(page.body).to include("My Post")
-    end
-
-    it "Shows a print-friendly listing with a print button hidden from the printed output" do
-      create(:blog_post, :unrestricted, :published, user: owner, title: "Printable Post")
-
-      sign_in_as(owner)
-      visit blog_exports_path
-      click_link "Print / Save as PDF"
-
-      expect(page).to have_selector("[data-testid='print-post-row']", text: "Printable Post")
-      expect(page).to have_selector(".print-hide [data-testid='print-button']", text: "Print This Page")
     end
   end
 
@@ -66,6 +54,20 @@ RSpec.describe "Blog Exports", type: :feature do
 
       expect(page.body).to include("Restricted Draft")
     end
+
+    it "Only exports posts matching the applied Category filter" do
+      matching     = create(:blog_category, name: "Science")
+      non_matching = create(:blog_category, name: "History")
+      create(:blog_post, :unrestricted, :published, user: owner, title: "Science Post", blog_category: matching)
+      create(:blog_post, :unrestricted, :published, user: owner, title: "History Post", blog_category: non_matching)
+
+      sign_in_as(owner)
+      visit blog_exports_path(category_id: matching.slug)
+      click_link "Download CSV"
+
+      expect(page.body).to include("Science Post")
+      expect(page.body).not_to include("History Post")
+    end
   end
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
@@ -79,6 +81,15 @@ RSpec.describe "Blog Exports", type: :feature do
 
       expect(page.response_headers["Content-Type"]).to include("text/csv")
       expect(page.body).to include("Bare Post")
+    end
+
+    it "Downloads a CSV with just the header row when the filter matches nothing" do
+      sign_in_as(owner)
+      visit blog_exports_path(subject: "no-such-subject")
+      click_link "Download CSV"
+
+      rows = CSV.parse(page.body, headers: true)
+      expect(rows.length).to eq(0)
     end
   end
 end

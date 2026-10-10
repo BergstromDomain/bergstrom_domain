@@ -58,13 +58,19 @@ Rails.application.routes.draw do
   get    "settings/occasions",           to: "settings#occasions_settings",  as: :occasions_settings
   patch  "settings/occasions",           to: "settings#update_occasions_settings"
 
-  # Import & Export
-  get  "import_export",   to: "pages#import_export", as: :import_export
-  post "export",          to: "export#create",       as: :export
-  post "import",          to: "import#create",       as: :import
-  get  "import/template", to: "import#template",     as: :import_template
-  get  "user_guide",      to: "pages#user_guide",    as: :user_guide
+  get "user_guide", to: "pages#user_guide", as: :user_guide
   resources :guide_pages, path: "guide-pages"
+
+  # People & Events — Filter/Download/Import (Occasions' equivalent of
+  # Chronicle's Filter/Download/Import Blog Posts trio)
+  get "people-events/filter", to: "people_events#filter", as: :filter_people_events
+
+  get "people-events/export",     to: "people_events_exports#index", as: :people_events_exports
+  get "people-events/export/csv", to: "people_events_exports#csv",   as: :csv_people_events_exports
+
+  get  "people-events/import",          to: "people_events_imports#new",      as: :new_people_events_import
+  post "people-events/import",          to: "people_events_imports#create",   as: :people_events_imports
+  get  "people-events/import/template", to: "people_events_imports#template", as: :template_people_events_imports
 
   # Stub pages
   get "event_tracker", to: "pages#event_tracker", as: :event_tracker
@@ -72,9 +78,14 @@ Rails.application.routes.draw do
 
   # Chronicle export — declared before resources :blog_posts so these literal
   # paths win over the :id wildcard on GET /blog-posts/:id
-  get "blog-posts/export",       to: "blog_exports#index", as: :blog_exports
-  get "blog-posts/export/print", to: "blog_exports#print",  as: :print_blog_exports
-  get "blog-posts/export/csv",   to: "blog_exports#csv",    as: :csv_blog_exports
+  get "blog-posts/export",      to: "blog_exports#index", as: :blog_exports
+  get "blog-posts/export/csv",  to: "blog_exports#csv",    as: :csv_blog_exports
+  get "blog-posts/export/pdfs", to: "blog_exports#pdfs",   as: :pdfs_blog_exports
+  get "blog-posts/export/full", to: "blog_exports#full",   as: :full_blog_exports
+
+  get  "blog-posts/import",          to: "blog_imports#new",      as: :new_blog_import
+  post "blog-posts/import",          to: "blog_imports#create",   as: :blog_imports
+  get  "blog-posts/import/template", to: "blog_imports#template", as: :template_blog_imports
 
   # Chronicle (Blog Posts)
   resources :blog_posts, path: "blog-posts" do
@@ -84,6 +95,7 @@ Rails.application.routes.draw do
       post :publish
       post :unpublish
       post :restore
+      get  :pdf
     end
     collection do
       post :convert_format

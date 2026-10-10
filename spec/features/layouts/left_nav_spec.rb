@@ -175,8 +175,8 @@ RSpec.describe "Left Nav", type: :feature do
       it "Shows the 'Import & Export' section" do
         within("[data-testid='left-nav']") do
           expect(page).to have_selector("[data-testid='left-nav-import-export-h3']")
-          expect(page).to have_link("Import People And Events",   href: import_export_path)
-          expect(page).to have_link("Download People And Events", href: import_export_path)
+          expect(page).to have_link("Import People And Events",   href: new_people_events_import_path)
+          expect(page).to have_link("Download People And Events", href: people_events_exports_path)
         end
       end
     end
@@ -363,10 +363,11 @@ RSpec.describe "Left Nav", type: :feature do
           end
         end
 
-        it "Does not show the Exports section (hidden pending redesign)" do
+        it "Shows the Import & Export section with Import and Download Blog Posts links" do
           within("[data-testid='left-nav']") do
-            expect(page).not_to have_selector("[data-testid='left-nav-exports-h2']")
-            expect(page).not_to have_link("Download Blog Posts")
+            expect(page).to have_selector("[data-testid='left-nav-import-export-h3']")
+            expect(page).to have_link("Import Blog Posts", href: new_blog_import_path)
+            expect(page).to have_link("Download Blog Posts", href: blog_exports_path)
           end
         end
 

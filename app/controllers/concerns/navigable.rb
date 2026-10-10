@@ -30,11 +30,12 @@ module Navigable
     return :blog_posts if controller == "pages" && action == "chronicle"
 
     case controller
-    when "events", "event_types", "people", "pages", "social_media_platforms"
+    when "events", "event_types", "people", "pages", "social_media_platforms",
+         "people_events", "people_events_exports", "people_events_imports"
       :event_tracker
     when "settings", "contacts"
       :settings
-    when "blog_posts", "blog_categories", "blog_exports"
+    when "blog_posts", "blog_categories", "blog_exports", "blog_imports"
       :blog_posts
     when "guide_pages"
       :guide_pages

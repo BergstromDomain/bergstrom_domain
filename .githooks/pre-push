@@ -1,6 +1,8 @@
 #!/bin/bash
 echo "🔍 Validating commit messages before push..."
-COMMITS=$(git log origin/main..HEAD --pretty=format:%s)
+# Excludes auto-generated merge commits (e.g. GitHub's "Update branch"), matching
+# the CI commit-lint job in .github/workflows/commit-lint.yml.
+COMMITS=$(git log origin/main..HEAD --pretty=format:%s | grep -v "^Merge ")
 if [[ -z "$COMMITS" ]]; then
   echo "✅ No new commits to validate"
   exit 0

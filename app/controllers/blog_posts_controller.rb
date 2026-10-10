@@ -1,10 +1,12 @@
 # app/controllers/blog_posts_controller.rb
 class BlogPostsController < ApplicationController
   include Navigable
+  include PdfDownloadable
+  include BlogPostFilterable
 
-  allow_unauthenticated_access only: %i[index show filter]
-  before_action :resume_session_if_present, only: %i[index show filter]
-  before_action :set_blog_post,             only: %i[show edit update publish unpublish destroy restore]
+  allow_unauthenticated_access only: %i[index show filter pdf]
+  before_action :resume_session_if_present, only: %i[index show filter pdf]
+  before_action :set_blog_post,             only: %i[show pdf edit update publish unpublish destroy restore]
   before_action :require_create_access,     only: %i[new create convert_format]
   before_action :require_write_access,      only: %i[edit update publish unpublish]
   before_action :require_delete_access,     only: %i[destroy]
@@ -50,35 +52,11 @@ class BlogPostsController < ApplicationController
   FILTER_SORT_COLUMNS = %w[category subject topic title author created smiles].freeze
 
   def filter
-    posts = visible_blog_posts_scope.includes(:user, :blog_category, :likes).to_a
-
-    @mode  = params[:mode] == "sql" ? "sql" : "basic"
-    @query = params[:query].to_s
-    @filter_error = nil
-    @posts = posts
-
-    begin
-      ast =
-        if @mode == "sql"
-          @query.presence && Jql::Parser.parse(@query)
-        else
-          BlogPostFilter.basic_ast(**basic_filter_params)
-        end
-
-      if ast
-        BlogPostFilter::EVALUATOR.validate!(ast)
-        @posts = posts.select { |post| BlogPostFilter::EVALUATOR.matches?(ast, BlogPostFilter.attributes_for(post)) }
-      end
-    rescue Jql::ParseError => e
-      @filter_error = e.message
-      @posts = []
-    end
+    compute_filtered_blog_posts
 
     @sort      = FILTER_SORT_COLUMNS.include?(params[:sort]) ? params[:sort] : "created"
     @direction = params[:direction] == "asc" ? "asc" : "desc"
     @posts = BlogPostFilter.sort(@posts, @sort, @direction)
-
-    set_filter_options(posts)
   end
 
   def new
@@ -104,6 +82,16 @@ class BlogPostsController < ApplicationController
     unless @policy.can_read?
       redirect_to chronicle_path, alert: "You do not have permission to view that blog post."
     end
+  end
+
+  def pdf
+    @policy = Policy.new(current_user, @blog_post)
+    return redirect_to chronicle_path, alert: "You do not have permission to view that blog post." unless @policy.can_read?
+
+    send_data render_pdf(template: "blog_posts/pdf", assigns: { blog_post: @blog_post }),
+      type:        "application/pdf",
+      filename:    "#{@blog_post.title.gsub(' ', '_')}.pdf",
+      disposition: "attachment"
   end
 
   def edit
@@ -169,17 +157,8 @@ class BlogPostsController < ApplicationController
 
   # Mirrors PeopleController#index's exact three-way visibility split
   # (app/controllers/people_controller.rb) — BlogPost already has all three
-  # scopes from Foundation.
-  def visible_blog_posts_scope
-    if !authenticated?
-      BlogPost.visible_to_visitors
-    elsif current_user.can_administer?
-      BlogPost.visible_to_admins
-    else
-      BlogPost.visible_to_users(current_user)
-    end
-  end
-
+  # scopes from Foundation. (visible_blog_posts_scope itself now lives on the
+  # BlogPostFilterable concern, shared with BlogExportsController.)
   def find_category_from_param(param)
     return nil if param == "none"
     BlogCategory.friendly.find(param)
@@ -204,55 +183,6 @@ class BlogPostsController < ApplicationController
     end
     counts[:uncategorized] = scope.where(blog_category_id: nil).count
     counts
-  end
-
-  def basic_filter_params
-    category = params[:category_id].presence && safe_find_category(params[:category_id])
-    author   = params[:author_id].presence && safe_find_author(params[:author_id])
-
-    {
-      category:      category&.name,
-      subject:       params[:subject].presence,
-      topic:         params[:topic].presence,
-      author_name:   author && "#{author.first_name} #{author.last_name}",
-      created_range: created_range_for(params[:created]),
-      published:     published_filter_for(params[:published])
-    }
-  end
-
-  def published_filter_for(value)
-    case value
-    when "published" then "true"
-    when "draft"      then "false"
-    end
-  end
-
-  def safe_find_category(id)
-    BlogCategory.friendly.find(id)
-  rescue ActiveRecord::RecordNotFound
-    nil
-  end
-
-  def safe_find_author(id)
-    User.find(id)
-  rescue ActiveRecord::RecordNotFound
-    nil
-  end
-
-  def created_range_for(value)
-    case value
-    when "today"      then Date.current..Date.current
-    when "this_week"  then Date.current.beginning_of_week..Date.current
-    when "this_month" then Date.current.beginning_of_month..Date.current
-    when "this_year"  then Date.current.beginning_of_year..Date.current
-    end
-  end
-
-  def set_filter_options(posts)
-    @category_options = BlogCategory.where(id: posts.filter_map(&:blog_category_id)).order("LOWER(name) ASC")
-    @subject_options   = posts.map(&:subject).compact_blank.uniq.sort
-    @topic_options     = posts.map(&:topic).compact_blank.uniq.sort
-    @author_options    = posts.map(&:user).uniq.sort_by { |user| [ user.last_name.downcase, user.first_name.downcase ] }
   end
 
   def require_create_access
