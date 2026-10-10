@@ -10,7 +10,7 @@ RSpec.describe PersonEventFilter do
     describe ".attributes_for" do
       it "Builds the full attribute hash for a person+event row" do
         event_type = create(:event_type, name: "Birthday")
-        person = create(:person, user: owner, first_name: "James", last_name: "Hetfield")
+        person = create(:person, :unrestricted, user: owner, first_name: "James", last_name: "Hetfield")
         event = create(:event, user: owner, event_type: event_type, title: "James's Birthday",
           year: 2026, month: 3, day: 15)
 
@@ -18,11 +18,12 @@ RSpec.describe PersonEventFilter do
         attrs = described_class.attributes_for(row)
 
         expect(attrs).to eq(
-          first_name: "James",
-          last_name:  "Hetfield",
-          event_type: "Birthday",
-          title:      "James's Birthday",
-          date:       Date.new(2026, 3, 15)
+          first_name:     "James",
+          last_name:      "Hetfield",
+          event_type:     "Birthday",
+          title:          "James's Birthday",
+          date:           Date.new(2026, 3, 15),
+          classification: "unrestricted"
         )
       end
 
@@ -45,7 +46,8 @@ RSpec.describe PersonEventFilter do
 
       it "Builds an AST that matches only on the given First Name" do
         ast = described_class.basic_ast(first_name: "James")
-        base = { first_name: "James", last_name: "Hetfield", event_type: "Birthday", title: "X", date: Date.current }
+        base = { first_name: "James", last_name: "Hetfield", event_type: "Birthday", title: "X", date: Date.current,
+                 classification: "restricted" }
 
         expect(described_class::EVALUATOR.matches?(ast, base)).to be true
         expect(described_class::EVALUATOR.matches?(ast, base.merge(first_name: "Lars"))).to be false
@@ -53,7 +55,8 @@ RSpec.describe PersonEventFilter do
 
       it "Combines multiple filters with AND" do
         ast = described_class.basic_ast(first_name: "James", event_type: "Birthday")
-        base = { first_name: "James", last_name: "Hetfield", event_type: "Birthday", title: "X", date: Date.current }
+        base = { first_name: "James", last_name: "Hetfield", event_type: "Birthday", title: "X", date: Date.current,
+                 classification: "restricted" }
 
         expect(described_class::EVALUATOR.matches?(ast, base)).to be true
         expect(described_class::EVALUATOR.matches?(ast, base.merge(event_type: "Anniversary"))).to be false
@@ -62,10 +65,18 @@ RSpec.describe PersonEventFilter do
       it "Filters by the Date range boundaries" do
         range = Date.new(2026, 1, 1)..Date.new(2026, 1, 31)
         ast = described_class.basic_ast(date_range: range)
-        base = { first_name: "X", last_name: "Y", event_type: "Z", title: "X" }
+        base = { first_name: "X", last_name: "Y", event_type: "Z", title: "X", classification: "restricted" }
 
         expect(described_class::EVALUATOR.matches?(ast, base.merge(date: Date.new(2026, 1, 15)))).to be true
         expect(described_class::EVALUATOR.matches?(ast, base.merge(date: Date.new(2026, 2, 1)))).to be false
+      end
+
+      it "Builds an AST that matches only on the given Classification" do
+        ast = described_class.basic_ast(classification: "unrestricted")
+        base = { first_name: "X", last_name: "Y", event_type: "Z", title: "X", date: Date.current }
+
+        expect(described_class::EVALUATOR.matches?(ast, base.merge(classification: "unrestricted"))).to be true
+        expect(described_class::EVALUATOR.matches?(ast, base.merge(classification: "contacts"))).to be false
       end
     end
 

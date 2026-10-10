@@ -9,22 +9,24 @@ class PersonEventFilter
   Row = Struct.new(:person, :event, keyword_init: true)
 
   FIELD_SCHEMA = {
-    first_name: :string,
-    last_name:  :string,
-    event_type: :string,
-    title:      :string,
-    date:       :date
+    first_name:     :string,
+    last_name:      :string,
+    event_type:     :string,
+    title:          :string,
+    date:           :date,
+    classification: :string
   }.freeze
 
   EVALUATOR = Jql::Evaluator.new(FIELD_SCHEMA)
 
   def self.attributes_for(row)
     {
-      first_name: row.person.first_name,
-      last_name:  row.person.last_name,
-      event_type: row.event&.event_type&.name,
-      title:      row.event&.title,
-      date:       row.event && event_date(row.event)
+      first_name:     row.person.first_name,
+      last_name:      row.person.last_name,
+      event_type:     row.event&.event_type&.name,
+      title:          row.event&.title,
+      date:           row.event && event_date(row.event),
+      classification: row.person.classification
     }
   end
 
@@ -38,12 +40,14 @@ class PersonEventFilter
 
   # Builds an AND of whichever filters are present; returns nil ("no filter,
   # show everything") when every argument is blank.
-  def self.basic_ast(first_name: nil, last_name: nil, event_type: nil, title: nil, date_range: nil)
+  def self.basic_ast(first_name: nil, last_name: nil, event_type: nil, title: nil, date_range: nil,
+    classification: nil)
     conditions = []
     conditions << string_comparison(:first_name, first_name) if first_name.present?
     conditions << string_comparison(:last_name, last_name) if last_name.present?
     conditions << string_comparison(:event_type, event_type) if event_type.present?
     conditions << string_comparison(:title, title) if title.present?
+    conditions << string_comparison(:classification, classification) if classification.present?
 
     if date_range
       conditions << date_comparison(:date, ">=", date_range.first)

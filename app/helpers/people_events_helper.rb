@@ -1,5 +1,14 @@
 # app/helpers/people_events_helper.rb
 module PeopleEventsHelper
+  # Matches the exact copy already used on Person/Event's own classification
+  # select (see app/views/events/_form.html.erb) — same three values, same
+  # wording, so "Restricted" means the same thing everywhere in the app.
+  CLASSIFICATION_OPTIONS = [
+    [ "Unrestricted — visible to everyone", "unrestricted" ],
+    [ "Contacts — visible to my contacts",  "contacts" ],
+    [ "Restricted — visible only to me",    "restricted" ]
+  ].freeze
+
   FILTER_SORT_LABELS = {
     "first_name" => "First Name",
     "last_name"  => "Last Name",

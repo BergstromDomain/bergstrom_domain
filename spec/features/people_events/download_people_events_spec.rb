@@ -15,6 +15,13 @@ RSpec.describe "Download People and Events", type: :feature do
       expect(page).to have_selector("[data-testid='csv-export-link']")
     end
 
+    it "Shows a Classification filter on the Download page too" do
+      sign_in_as(owner)
+      visit people_events_exports_path
+
+      expect(page).to have_selector("[data-testid='classification-filter']")
+    end
+
     it "Downloads a CSV with the correct content type and matching people/events" do
       event_type = create(:event_type, name: "Birthday")
       james = create(:person, user: owner, first_name: "James", last_name: "Hetfield")
@@ -70,6 +77,18 @@ RSpec.describe "Download People and Events", type: :feature do
       click_link "Download CSV"
 
       expect(page.body).to include("Secret")
+    end
+
+    it "Only exports people matching the applied Classification filter" do
+      create(:person, :restricted, user: owner, first_name: "Mine")
+      create(:person, :contacts, user: owner, first_name: "Shared")
+
+      sign_in_as(owner)
+      visit people_events_exports_path(classification: "contacts")
+      click_link "Download CSV"
+
+      rows = CSV.parse(page.body, headers: true)
+      expect(rows.map { |r| r["First name"] }).to eq([ "Shared" ])
     end
   end
 

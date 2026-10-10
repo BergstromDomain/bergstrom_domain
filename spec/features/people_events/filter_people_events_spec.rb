@@ -44,6 +44,26 @@ RSpec.describe "Filter People and Events", type: :feature do
       expect(page).to have_selector("[data-testid='filter-row']", text: "James")
       expect(page).to have_no_selector("[data-testid='filter-row']", text: "Lars")
     end
+
+    it "Shows a Classification filter with My Own/Contacts/Public options" do
+      sign_in_as(owner)
+      visit filter_people_events_path
+
+      expect(page).to have_selector("[data-testid='classification-filter']")
+      within("[data-testid='classification-filter']") do
+        expect(page).to have_selector("option", text: /Restricted/)
+        expect(page).to have_selector("option", text: /Contacts/)
+        expect(page).to have_selector("option", text: /Unrestricted/)
+      end
+    end
+
+    it "Shows each row's Classification in the results table" do
+      create(:person, :unrestricted, user: owner, first_name: "Public", last_name: "Person")
+
+      visit filter_people_events_path
+
+      expect(page).to have_selector("[data-testid='filter-row-classification']", text: "Unrestricted")
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
@@ -83,6 +103,17 @@ RSpec.describe "Filter People and Events", type: :feature do
       visit filter_people_events_path
 
       expect(page).to have_selector("[data-testid='filter-row']", text: "Secret")
+    end
+
+    it "Narrows down to just Contacts-classification people via the Classification filter" do
+      create(:person, :restricted, user: owner, first_name: "Mine")
+      create(:person, :contacts, user: owner, first_name: "Shared")
+
+      sign_in_as(owner)
+      visit filter_people_events_path(classification: "contacts")
+
+      expect(page).to have_selector("[data-testid='filter-row']", text: "Shared")
+      expect(page).to have_no_selector("[data-testid='filter-row']", text: "Mine")
     end
 
     it "Sorts by Last Name when a sortable column is clicked" do

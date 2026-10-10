@@ -78,11 +78,12 @@ module PeopleEventsFilterable
 
   def basic_filter_params
     {
-      first_name: params[:first_name].presence,
-      last_name:  params[:last_name].presence,
-      event_type: params[:event_type].presence,
-      title:      params[:title].presence,
-      date_range: date_range_for(params[:date])
+      first_name:     params[:first_name].presence,
+      last_name:      params[:last_name].presence,
+      event_type:     params[:event_type].presence,
+      title:          params[:title].presence,
+      date_range:     date_range_for(params[:date]),
+      classification: params[:classification].presence
     }
   end
 
