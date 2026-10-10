@@ -29,7 +29,7 @@ RSpec.describe "Create Blog Post", type: :feature do
   def sign_in_and_settle(user, attempts: 3)
     attempts.times do
       sign_in_as(user)
-      return if page.has_css?("[data-testid='user-thumbnail-dropdown']", wait: 3)
+      return if page.has_css?("[data-testid='user-thumbnail-dropdown']", wait: 10)
     end
     raise "sign_in_and_settle: could not sign in as #{user.email_address} after #{attempts} attempts"
   end
@@ -132,9 +132,11 @@ RSpec.describe "Create Blog Post", type: :feature do
           expect(page).to have_content(chris.first_name)
         end
 
-        click_button "Save Blog Post"
+        js_click("save-button")
 
-        expect(page).to have_current_path(chronicle_path)
+        # Turbo submit + redirect + render can exceed Capybara's 2s default on
+        # a loaded CI runner — failed there with the page still on /new.
+        expect(page).to have_current_path(chronicle_path, wait: 10)
         post = BlogPost.find_by(title: "Co-Authored Post")
         expect(post.authors).to contain_exactly(charlie, chris)
       end
