@@ -3,6 +3,7 @@ class BlogPostsController < ApplicationController
   include Navigable
   include PdfDownloadable
   include BlogPostFilterable
+  include Browsable
 
   allow_unauthenticated_access only: %i[index show filter pdf]
   before_action :resume_session_if_present, only: %i[index show filter pdf]
@@ -13,40 +14,10 @@ class BlogPostsController < ApplicationController
   before_action :require_admin,             only: %i[deleted restore]
 
   def index
-    scope = visible_blog_posts_scope
+    return unless load_browse_tree(scope: visible_blog_posts_scope, levels: browse_levels,
+      root_label: "Chronicle", path_helper: :blog_posts_path)
 
-    @total_count = scope.count
-    @category_param = params[:category_id].presence
-    @subject_param  = params[:subject].presence
-    @topic_param    = params[:topic].presence
-
-    if @category_param
-      @category = find_category_from_param(@category_param)
-      redirect_to(blog_posts_path) && return if @category.nil? && @category_param != "none"
-      @category_scope = @category ? scope.where(blog_category: @category) : scope.where(blog_category_id: nil)
-      @category_label = @category&.name || "(Uncategorized)"
-      @category_count = @category_scope.count
-    end
-
-    if @subject_param
-      @subject = @subject_param == "none" ? nil : @subject_param
-      @subject_scope = @subject.present? ? @category_scope.where(subject: @subject) : @category_scope.where(subject: [ nil, "" ])
-      @subject_label = @subject.presence || "(No Subject)"
-      @subject_count = @subject_scope.count
-    end
-
-    if @topic_param
-      @topic = @topic_param == "none" ? nil : @topic_param
-      post_scope = @topic.present? ? @subject_scope.where(topic: @topic) : @subject_scope.where(topic: [ nil, "" ])
-      @topic_label = @topic.presence || "(No Topic)"
-      @posts = post_scope.includes(:user, :blog_category, :likes).order(created_at: :desc)
-    elsif @subject_param
-      @topics = grouped_counts(@subject_scope, :topic)
-    elsif @category_param
-      @subjects = grouped_counts(@category_scope, :subject)
-    else
-      @categories = category_counts(scope)
-    end
+    @browse_items = @browse_tree.items&.includes(:user, :blog_category, :likes)
   end
 
   FILTER_SORT_COLUMNS = %w[category subject topic title author created smiles].freeze
@@ -155,34 +126,14 @@ class BlogPostsController < ApplicationController
 
   private
 
-  # Mirrors PeopleController#index's exact three-way visibility split
-  # (app/controllers/people_controller.rb) — BlogPost already has all three
-  # scopes from Foundation. (visible_blog_posts_scope itself now lives on the
-  # BlogPostFilterable concern, shared with BlogExportsController.)
-  def find_category_from_param(param)
-    return nil if param == "none"
-    BlogCategory.friendly.find(param)
-  rescue ActiveRecord::RecordNotFound
-    nil
-  end
-
-  # Ruby-side grouping (not SQL GROUP BY) — deliberately simple at this app's
-  # scale, and sidesteps NULL-vs-empty-string edge cases entirely.
-  def grouped_counts(scope, column)
-    scope.pluck(column).map { |v| v.presence || "none" }.tally.sort.to_h
-  end
-
-  # Every Blog Category always shows, including ones with zero (visible)
-  # posts — there are few enough of them (admin-created, expected to stay
-  # under ~30) that a full list fits on one page without needing to hide
-  # empty buckets the way Subjects/Topics do (those aren't real records, so
-  # an "empty" one can't exist in the first place).
-  def category_counts(scope)
-    counts = BlogCategory.order("LOWER(name) ASC").to_h do |category|
-      [ category, scope.where(blog_category: category).count ]
-    end
-    counts[:uncategorized] = scope.where(blog_category_id: nil).count
-    counts
+  # Chronicle's Browse drill-down: Category › Subject › Topic (see BrowseTree).
+  def browse_levels
+    [
+      BrowseTree::Level.new(key: :category_id, association: :blog_category,
+        records: BlogCategory.order("LOWER(name) ASC")),
+      BrowseTree::Level.new(key: :subject, column: :subject),
+      BrowseTree::Level.new(key: :topic,   column: :topic)
+    ]
   end
 
   def require_create_access

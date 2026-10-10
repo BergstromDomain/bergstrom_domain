@@ -1,0 +1,8 @@
+<%# Root node, then the selected path nested node by node, then the next
+    level's children. Locals: tree (BrowseTree), root_label. %>
+<ul class="browse-tree" data-testid="browse-tree">
+  <li data-testid="browse-root-node">
+    <%= link_to "#{root_label} (#{tree.total_count})", browse_path_for %>
+    <%= render "shared/browse/tree_level", tree: tree, index: 0 %>
+  </li>
+</ul>

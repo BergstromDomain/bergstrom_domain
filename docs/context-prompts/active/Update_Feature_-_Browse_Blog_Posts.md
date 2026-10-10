@@ -121,7 +121,18 @@
 * `blog_post` factory: base definition gets a category (today only `:published` has one); fix
   any spec that relied on a category-less post.
 
-## Block 2 — Shared Browse drill-down + Chronicle retrofit
+## Block 2 — Shared Browse drill-down + Chronicle retrofit ✅ Done 2026-10-10
+* Shipped: `BrowseTree` service (`app/services/browse_tree.rb`, `Level`/`Node` structs),
+  `Browsable` concern (`load_browse_tree`, `browse_path_for`), shared partials in
+  `app/views/shared/browse/` (`_tree`, `_tree_level`, `_breadcrumb`, `_preview_panel`), and
+  Chronicle's card extracted to `blog_posts/_browse_card`. `BlogPostsController#index` is now a
+  three-line call plus a `browse_levels` method; the old `find_category_from_param`/
+  `grouped_counts`/`category_counts` helpers and all `"none"` handling are gone. An unknown
+  Category in the URL (including the old `category_id=none`) redirects to the Browse root.
+  Full suite: 2043 examples, 0 failures, 96.59% coverage.
+* **Confirmed 2026-10-10:** tree above, preview panel below (Category/Subject levels); a level's
+  preview panel includes **all** posts beneath it (not just those lacking a deeper value);
+  panel heading "Posts in <name> (N)"; no preview panel at the root level.
 * App-agnostic core, mirroring how `Jql::Evaluator`, `PdfRenderingService` and
   `ZipBundlingService` were built: a service describing an ordered list of levels. The first
   level is a reference-data association (every record listed, including (0)); later levels

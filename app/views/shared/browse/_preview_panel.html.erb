@@ -1,0 +1,19 @@
+<%# Every item at the selected level, newest first. Locals: tree (BrowseTree),
+    items (the relation to render), item_name (e.g. "Posts"), card (an
+    app-specific partial rendered once per item with local `item`),
+    list_class (the app's card-grid class), empty_message. %>
+<section class="browse-preview" data-testid="browse-preview">
+  <h2 class="browse-preview__heading" data-testid="browse-preview-heading">
+    <%= item_name %> in <%= tree.path.last.label %> (<%= tree.path.last.count %>)
+  </h2>
+
+  <% if items.any? %>
+    <div class="<%= list_class %>" data-testid="browse-items-list">
+      <%= render partial: card, collection: items, as: :item %>
+    </div>
+  <% else %>
+    <div class="empty-state" data-testid="empty-state">
+      <p><%= empty_message %></p>
+    </div>
+  <% end %>
+</section>
