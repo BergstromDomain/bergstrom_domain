@@ -16,8 +16,18 @@ RSpec.describe "Create Blog Post", type: :feature do
     find("[data-testid='title-field']").set(value)
   end
 
+  # Under Selenium, picking through the native <select> popup can leave Chrome
+  # swallowing the next real click (CI traces showed the Save click never
+  # reaching the page), so JS examples set the value directly instead.
   def choose_category(name = "Technology")
-    find("[data-testid='category-field']").select(name)
+    field = find("[data-testid='category-field']")
+    return field.select(name) unless Capybara.current_driver == Capybara.javascript_driver
+
+    page.execute_script(<<~JS, field, name)
+      const [select, name] = arguments
+      select.value = [ ...select.options ].find((option) => option.text === name).value
+      select.dispatchEvent(new Event("change", { bubbles: true }))
+    JS
   end
 
   # sign_in_as's final click triggers a server-side redirect; without an
@@ -160,16 +170,16 @@ RSpec.describe "Create Blog Post", type: :feature do
         visit new_blog_post_path
         fill_title("Round Trip Post")
         choose_category
-        find("[data-testid='raw-tab']").click
+        js_click("raw-tab")
         find("[data-testid='body-field']").set("# Hello\n\nWorld")
 
-        find("[data-testid='formatted-tab']").click
+        js_click("formatted-tab")
         within("[data-testid='quill-editor']") do
           expect(page).to have_css("h1", text: "Hello")
           expect(page).to have_content("World")
         end
 
-        find("[data-testid='raw-tab']").click
+        js_click("raw-tab")
         expect(wait_for_raw_value(includes: %w[Hello World])).to include("Hello").and include("World")
       end
     end
@@ -283,7 +293,7 @@ RSpec.describe "Create Blog Post", type: :feature do
         document.querySelector("[data-testid='selected-authors']").appendChild(option)
       JS
 
-      click_button "Save Blog Post"
+      js_click("save-button")
 
       expect(page).to have_current_path(chronicle_path)
       post = BlogPost.find_by(title: "Tampered Post")

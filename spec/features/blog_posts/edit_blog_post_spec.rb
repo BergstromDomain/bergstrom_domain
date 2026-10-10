@@ -84,10 +84,10 @@ RSpec.describe "Edit Blog Post", type: :feature do
         visit edit_blog_post_path(post)
 
         within("[data-testid='available-authors']") do
-          find("option[value='#{chris.id}']").click
+          find("option[value='#{chris.id}']").select_option
         end
-        find("[data-testid='add-author-button']").click
-        click_button "Update Blog Post"
+        js_click("add-author-button")
+        js_click("save-button")
 
         # The Formatted tab (default) intercepts submit to run an async
         # Markdown conversion before actually resubmitting — wait for that to
@@ -106,10 +106,10 @@ RSpec.describe "Edit Blog Post", type: :feature do
         visit edit_blog_post_path(post)
 
         within("[data-testid='selected-authors']") do
-          find("option[value='#{chris.id}']").click
+          find("option[value='#{chris.id}']").select_option
         end
-        find("[data-testid='remove-author-button']").click
-        click_button "Update Blog Post"
+        js_click("remove-author-button")
+        js_click("save-button")
 
         expect(page).to have_current_path(blog_post_path(post))
         expect(page).to have_css("[data-testid='flash-success']", text: "#{post.title} has been successfully updated")
@@ -159,7 +159,7 @@ RSpec.describe "Edit Blog Post", type: :feature do
         document.querySelector("[data-testid='selected-authors']").appendChild(option)
       JS
 
-      click_button "Update Blog Post"
+      js_click("save-button")
 
       expect(page).to have_current_path(blog_post_path(post))
       expect(page).to have_css("[data-testid='flash-success']", text: "#{post.title} has been successfully updated")
@@ -212,7 +212,7 @@ RSpec.describe "Edit Blog Post", type: :feature do
         document.querySelector("[data-testid='selected-authors']").innerHTML = ""
       JS
 
-      click_button "Update Blog Post"
+      js_click("save-button")
 
       expect(page).to have_current_path(blog_post_path(post))
       expect(page).to have_css("[data-testid='flash-success']", text: "#{post.title} has been successfully updated")
