@@ -6,6 +6,7 @@ RSpec.describe "Create Blog Post", type: :feature do
   let(:charlie) { create(:user, :content_creator) }
   let(:chris)   { create(:user, :content_creator) }
   let(:curtis)  { create(:user, :content_creator) }
+  let!(:technology) { create(:blog_category, name: "Technology") }
 
   before do
     create(:contact, user: charlie, contact: chris, status: "confirmed")
@@ -13,6 +14,10 @@ RSpec.describe "Create Blog Post", type: :feature do
 
   def fill_title(value)
     find("[data-testid='title-field']").set(value)
+  end
+
+  def choose_category(name = "Technology")
+    find("[data-testid='category-field']").select(name)
   end
 
   # sign_in_as's final click triggers a server-side redirect; without an
@@ -56,6 +61,7 @@ RSpec.describe "Create Blog Post", type: :feature do
     it "Creates a blog post as a draft and redirects to Chronicle" do
       visit new_blog_post_path
       fill_title("My First Post")
+      choose_category
       find("[data-testid='subject-field']").set("Ruby")
       find("[data-testid='topic-field']").set("Rails")
       click_button "Save Blog Post"
@@ -72,6 +78,7 @@ RSpec.describe "Create Blog Post", type: :feature do
     it "Automatically adds the creator as an author" do
       visit new_blog_post_path
       fill_title("My First Post")
+      choose_category
       click_button "Save Blog Post"
 
       post = BlogPost.find_by(title: "My First Post")
@@ -92,6 +99,7 @@ RSpec.describe "Create Blog Post", type: :feature do
     it "Creates a post with the chosen Classification" do
       visit new_blog_post_path
       fill_title("Public Post")
+      choose_category
       select "Unrestricted — visible to everyone", from: "Classification"
       click_button "Save Blog Post"
 
@@ -99,13 +107,19 @@ RSpec.describe "Create Blog Post", type: :feature do
       expect(post.classification).to eq("unrestricted")
     end
 
-    it "Allows the Category to be left blank" do
+    it "Creates the post under the chosen Category" do
       visit new_blog_post_path
-      fill_title("Uncategorised Post")
+      fill_title("Categorised Post")
+      choose_category
       click_button "Save Blog Post"
 
-      post = BlogPost.find_by(title: "Uncategorised Post")
-      expect(post.blog_category).to be_nil
+      expect(BlogPost.find_by!(title: "Categorised Post").blog_category).to eq(technology)
+    end
+
+    it "Starts the Category field on its 'Select a Category' prompt" do
+      visit new_blog_post_path
+      expect(page).to have_select("blog_post[blog_category_id]", with_options: [ "Select a Category" ])
+      expect(find("[data-testid='category-field']").value).to eq("")
     end
 
     it "Only lists confirmed contacts in the Available authors list" do
@@ -130,6 +144,7 @@ RSpec.describe "Create Blog Post", type: :feature do
       xit "Adds a confirmed contact as a co-author via the shuttle" do
         visit new_blog_post_path
         fill_title("Co-Authored Post")
+        choose_category
 
         # select_option + js_click rather than a raw `.click` — Selenium's
         # .click can dispatch zero events (see spec/support/js_click_helper.rb).
@@ -162,6 +177,7 @@ RSpec.describe "Create Blog Post", type: :feature do
       xit "Round-trips content between the Raw and Formatted tabs" do
         visit new_blog_post_path
         fill_title("Round Trip Post")
+        choose_category
         find("[data-testid='raw-tab']").click
         find("[data-testid='body-field']").set("# Hello\n\nWorld")
 
@@ -196,10 +212,20 @@ RSpec.describe "Create Blog Post", type: :feature do
         expect(BlogPost.count).to eq(0)
       end
 
+      it "Shows an error when Category is missing" do
+        visit new_blog_post_path
+        fill_title("No Category Post")
+        click_button "Save Blog Post"
+
+        expect(page).to have_selector("[data-testid='field-error']", text: "can't be blank")
+        expect(BlogPost.find_by(title: "No Category Post")).to be_nil
+      end
+
       it "Shows an error when the title is already used by the same user" do
         create(:blog_post, user: charlie, title: "Existing Post")
         visit new_blog_post_path
         fill_title("Existing Post")
+        choose_category
         click_button "Save Blog Post"
 
         expect(page).to have_content("has already been taken")
@@ -210,6 +236,7 @@ RSpec.describe "Create Blog Post", type: :feature do
         create(:blog_post, user: chris, title: "Shared Title")
         visit new_blog_post_path
         fill_title("Shared Title")
+        choose_category
         click_button "Save Blog Post"
 
         expect(page).to have_current_path(chronicle_path)
@@ -219,6 +246,7 @@ RSpec.describe "Create Blog Post", type: :feature do
       it "Shows an error when Topic is set without Subject" do
         visit new_blog_post_path
         fill_title("Bad Topic Post")
+        choose_category
         find("[data-testid='topic-field']").set("Rails")
         click_button "Save Blog Post"
 
@@ -240,6 +268,7 @@ RSpec.describe "Create Blog Post", type: :feature do
       sign_in_as(create(:user, :admin))
       visit new_blog_post_path
       fill_title("Admin Post")
+      choose_category
       click_button "Save Blog Post"
 
       expect(page).to have_current_path(chronicle_path)
@@ -263,6 +292,7 @@ RSpec.describe "Create Blog Post", type: :feature do
     it "Never creates a BlogPostAuthor for a non-confirmed-contact even if their id is submitted directly", js: true do
       visit new_blog_post_path
       fill_title("Tampered Post")
+      choose_category
 
       page.execute_script(<<~JS, curtis.id)
         const option = document.createElement("option")
@@ -281,6 +311,7 @@ RSpec.describe "Create Blog Post", type: :feature do
     it "Handles a long title without breaking the page" do
       visit new_blog_post_path
       fill_title("A" * 60)
+      choose_category
       click_button "Save Blog Post"
 
       expect(page).to have_current_path(chronicle_path)

@@ -3,7 +3,8 @@
 require "rails_helper"
 
 RSpec.describe BlogPostZipImportService do
-  let(:user) { create(:user, :content_creator) }
+  let(:user)     { create(:user, :content_creator) }
+  let(:category) { create(:blog_category) }
 
   def zip_for(entries)
     buffer = Zip::OutputStream.write_buffer do |zip|
@@ -20,7 +21,7 @@ RSpec.describe BlogPostZipImportService do
     it "Creates a Draft, Restricted post titled from the markdown filename" do
       file = zip_for("My_Great_Post.md" => "# Hello\n\nSome body text.")
 
-      result = described_class.new(user, file).import
+      result = described_class.new(user, file, blog_category: category).import
 
       expect(result.imported_count).to eq(1)
       expect(result.failed_count).to eq(0)
@@ -30,7 +31,7 @@ RSpec.describe BlogPostZipImportService do
       expect(post.body).to eq("# Hello\n\nSome body text.")
       expect(post.published?).to be false
       expect(post.classification).to eq("restricted")
-      expect(post.blog_category).to be_nil
+      expect(post.blog_category).to eq(category)
     end
 
     it "Embeds a referenced image as an inline base64 data URI" do
@@ -39,7 +40,7 @@ RSpec.describe BlogPostZipImportService do
         "images/photo.png" => "fake-png-bytes"
       )
 
-      described_class.new(user, file).import
+      described_class.new(user, file, blog_category: category).import
 
       body = BlogPost.find_by!(title: "post").body
       expect(body).to include("data:image/png;base64,")
@@ -52,7 +53,7 @@ RSpec.describe BlogPostZipImportService do
     it "Fails when the zip has no Markdown file" do
       file = zip_for("readme.txt" => "hello")
 
-      result = described_class.new(user, file).import
+      result = described_class.new(user, file, blog_category: category).import
 
       expect(result.imported_count).to eq(0)
       expect(result.failed_count).to eq(1)
@@ -62,7 +63,7 @@ RSpec.describe BlogPostZipImportService do
     it "Fails when the zip has more than one Markdown file" do
       file = zip_for("one.md" => "Body one", "two.md" => "Body two")
 
-      result = described_class.new(user, file).import
+      result = described_class.new(user, file, blog_category: category).import
 
       expect(result.failed_count).to eq(1)
       expect(result.errors.first[:message]).to match(/exactly one Markdown/)
@@ -71,10 +72,20 @@ RSpec.describe BlogPostZipImportService do
     it "Fails gracefully when the uploaded file isn't a valid zip" do
       file = StringIO.new("not a zip file")
 
-      result = described_class.new(user, file).import
+      result = described_class.new(user, file, blog_category: category).import
 
       expect(result.failed_count).to eq(1)
       expect(result.errors.first[:message]).to match(/zip/i)
+    end
+
+    it "Fails the import when no Category is given" do
+      file = zip_for("My_Post.md" => "Body")
+
+      result = described_class.new(user, file, blog_category: nil).import
+
+      expect(result.failed_count).to eq(1)
+      expect(result.errors.first[:message]).to eq("Blog category can't be blank")
+      expect(BlogPost.find_by(title: "My Post")).to be_nil
     end
   end
 
@@ -83,7 +94,7 @@ RSpec.describe BlogPostZipImportService do
     it "Accepts a .markdown extension as well as .md" do
       file = zip_for("notes.markdown" => "Some content")
 
-      result = described_class.new(user, file).import
+      result = described_class.new(user, file, blog_category: category).import
 
       expect(result.imported_count).to eq(1)
       expect(BlogPost.find_by(title: "notes")).to be_present
@@ -92,7 +103,7 @@ RSpec.describe BlogPostZipImportService do
     it "Derives the title from an underscored filename, replacing underscores with spaces" do
       file = zip_for("Getting_Started_With_Zip_Import.md" => "Body")
 
-      described_class.new(user, file).import
+      described_class.new(user, file, blog_category: category).import
 
       expect(BlogPost.find_by(title: "Getting Started With Zip Import")).to be_present
     end
@@ -103,7 +114,7 @@ RSpec.describe BlogPostZipImportService do
         "images/unused.png" => "fake-bytes"
       )
 
-      described_class.new(user, file).import
+      described_class.new(user, file, blog_category: category).import
 
       expect(BlogPost.find_by!(title: "post").body).to eq("Just text, no image reference.")
     end
@@ -115,7 +126,7 @@ RSpec.describe BlogPostZipImportService do
       create(:blog_post, user: user, title: "Existing Post")
       file = zip_for("Existing_Post.md" => "Body")
 
-      result = described_class.new(user, file).import
+      result = described_class.new(user, file, blog_category: category).import
 
       expect(result.failed_count).to eq(1)
       expect(result.errors.first[:message]).to match(/Title/)
@@ -127,7 +138,7 @@ RSpec.describe BlogPostZipImportService do
         "photo.jpg"        => "fake-jpeg-bytes"
       )
 
-      described_class.new(user, file).import
+      described_class.new(user, file, blog_category: category).import
 
       expect(BlogPost.find_by!(title: "post").body).to include("data:image/jpeg;base64,")
     end

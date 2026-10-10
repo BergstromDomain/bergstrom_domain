@@ -65,8 +65,12 @@
         <%= f.label :blog_category_id, class: "sr-only" %>
         <%= f.collection_select :blog_category_id,
               BlogCategory.order("LOWER(name) ASC"), :id, :name,
-              { include_blank: "Select a category (optional)" },
-              { class: "form-control", data: { testid: "category-field" } } %>
+              { prompt: "Select a Category" },
+              { class: "form-control #{'form-control--error' if blog_post.errors[:blog_category].any?}",
+                required: true, data: { testid: "category-field" } } %>
+        <% if blog_post.errors[:blog_category].any? %>
+          <span class="field-error" data-testid="field-error"><%= blog_post.errors[:blog_category].first %></span>
+        <% end %>
       </div>
     </div>
 

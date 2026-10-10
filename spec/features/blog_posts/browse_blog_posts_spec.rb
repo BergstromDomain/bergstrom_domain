@@ -149,22 +149,6 @@ RSpec.describe "Browse Blog Posts", type: :feature do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
-    it "Buckets a post with no Category under '(Uncategorized)' and it's reachable through it" do
-      post = create(:blog_post, :unrestricted, :published, user: owner, title: "Homeless Post")
-      # A published post always needs a Category (Block 4 validation) — force
-      # it uncategorized at the DB level, bypassing validation, purely to
-      # exercise this display branch.
-      post.update_column(:blog_category_id, nil)
-
-      visit blog_posts_path
-      within("[data-testid='browse-tree']") do
-        expect(page).to have_css("a.browse-tree__link--has-posts", text: "(Uncategorized) (1)")
-        click_link "(Uncategorized) (1)"
-      end
-
-      expect(page).to have_selector("[data-testid='browse-tree']", text: "(No Subject)")
-    end
-
     it "Buckets a post missing only Subject/Topic under '(No Subject)'/'(No Topic)'" do
       category = create(:blog_category, name: "Mixed")
       create(:blog_post, :unrestricted, :published, user: owner, blog_category: category, subject: nil, topic: nil)
@@ -190,17 +174,6 @@ RSpec.describe "Browse Blog Posts", type: :feature do
 
       within("[data-testid='browse-tree']") do
         expect(page).to have_link("Software Development (1)")
-      end
-    end
-
-    it "Falls back to a generic icon for a card whose post has neither an image nor a Category" do
-      post = create(:blog_post, :unrestricted, :published, user: owner, title: "Bare Post")
-      post.update_column(:blog_category_id, nil)
-
-      visit blog_posts_path(category_id: "none", subject: "none", topic: "none")
-
-      within("[data-testid='browse-post-card']") do
-        expect(page).to have_selector(".event-type-icon-large svg")
       end
     end
 

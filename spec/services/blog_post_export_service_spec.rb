@@ -52,13 +52,13 @@ RSpec.describe BlogPostExportService do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
-    it "Leaves Category/Subject/Topic blank for a post missing them" do
-      post = create(:blog_post, user: owner, title: "Bare Post", blog_category: nil, subject: nil, topic: nil)
+    it "Leaves Subject/Topic blank for a post missing them" do
+      post = create(:blog_post, user: owner, title: "Bare Post", subject: nil, topic: nil)
 
       rows = CSV.parse(described_class.new([ post ]).generate_csv, headers: true)
       row = rows.first
 
-      expect(row["Category"]).to be_nil
+      expect(row["Category"]).to eq(post.blog_category.name)
       expect(row["Subject"]).to be_nil
       expect(row["Topic"]).to be_nil
     end

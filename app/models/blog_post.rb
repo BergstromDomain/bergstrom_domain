@@ -48,17 +48,20 @@ class BlogPost < ApplicationRecord
   after_create :add_primary_author_as_blog_post_author
 
   validates :title, presence: true, uniqueness: { scope: :user_id, case_sensitive: false }
+  # Required on every save, drafts included (blog_category_id is also NOT NULL).
+  # Kept as a presence validation on an optional association, rather than a
+  # required belongs_to, so the error reads "can't be blank" like the rest.
+  validates :blog_category, presence: true
   validate  :topic_requires_subject
 
   validates :blog_image,
     content_type: { in: %w[image/jpeg image/png image/webp], message: "must be a JPEG, PNG, or WebP" },
     size:         { less_than: 5.megabytes, message: "must be smaller than 5MB" }
 
-  # Unique 'User: Title' is already enforced unconditionally above — these
-  # two are the rest of the Publish block's validation rules, only required
-  # once published_at is actually being set.
-  validates :blog_category, presence: true, if: :published?
-  validates :body,          presence: true, if: :published?
+  # Unique 'User: Title' and Category are already enforced unconditionally
+  # above — body is the rest of the Publish block's validation rules, only
+  # required once published_at is actually being set.
+  validates :body, presence: true, if: :published?
 
   scope :published, -> { where.not(published_at: nil) }
   scope :draft,      -> { where(published_at: nil) }

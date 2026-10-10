@@ -21,6 +21,11 @@ class BlogImportsController < ApplicationController
       return
     end
 
+    if service.is_a?(BlogPostZipImportService) && zip_category.nil?
+      redirect_to new_blog_import_path, alert: "Please choose a Category for a ZIP import."
+      return
+    end
+
     @import_result = service.import
     render :new
   end
@@ -39,8 +44,15 @@ class BlogImportsController < ApplicationController
   def import_service_for(file)
     case File.extname(file.original_filename.to_s).downcase
     when ".csv" then BlogPostImportService.new(current_user, file)
-    when ".zip" then BlogPostZipImportService.new(current_user, file)
+    when ".zip" then BlogPostZipImportService.new(current_user, file, blog_category: zip_category)
     end
+  end
+
+  # Only used for a ZIP upload — a CSV carries its own Category on every row.
+  def zip_category
+    return @zip_category if defined?(@zip_category)
+
+    @zip_category = BlogCategory.find_by(id: params[:blog_category_id])
   end
 
   def require_can_export

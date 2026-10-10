@@ -26,13 +26,9 @@
             <div class="blog-card__thumbnail">
               <% if post.blog_image.attached? %>
                 <%= image_tag post.blog_image.variant(:thumbnail), alt: post.title %>
-              <% elsif post.blog_category.present? %>
-                <span class="event-type-icon-large">
-                  <%= lucide_icon(post.blog_category.icon, size: 32) %>
-                </span>
               <% else %>
                 <span class="event-type-icon-large">
-                  <%= lucide_icon("file-text", size: 32) %>
+                  <%= lucide_icon(post.blog_category.icon, size: 32) %>
                 </span>
               <% end %>
             </div>

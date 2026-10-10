@@ -4,6 +4,7 @@ require "rails_helper"
 
 RSpec.describe BlogPostImportService do
   let(:user) { create(:user, :content_creator) }
+  let!(:technology) { create(:blog_category, name: "Technology") }
 
   def csv_for(rows)
     CSV.generate(headers: true) do |csv|
@@ -15,7 +16,7 @@ RSpec.describe BlogPostImportService do
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     it "Creates a post as a Draft, Restricted, with the current user as author" do
-      category = create(:blog_category, name: "Technology")
+      category = technology
       file = StringIO.new(csv_for([ [ "My Post", "Technology", "Ruby", "Rails", "Some **bold** text." ] ]))
 
       result = described_class.new(user, file).import
@@ -35,8 +36,8 @@ RSpec.describe BlogPostImportService do
 
     it "Imports multiple rows in one file" do
       file = StringIO.new(csv_for([
-        [ "First Post", "", "", "", "Body one" ],
-        [ "Second Post", "", "", "", "Body two" ]
+        [ "First Post", "Technology", "", "", "Body one" ],
+        [ "Second Post", "Technology", "", "", "Body two" ]
       ]))
 
       result = described_class.new(user, file).import
@@ -70,7 +71,7 @@ RSpec.describe BlogPostImportService do
     it "Continues importing later rows after an earlier row fails" do
       file = StringIO.new(csv_for([
         [ "", "", "", "", "Body" ],
-        [ "Good Post", "", "", "", "Body" ]
+        [ "Good Post", "Technology", "", "", "Body" ]
       ]))
 
       result = described_class.new(user, file).import
@@ -79,21 +80,36 @@ RSpec.describe BlogPostImportService do
       expect(result.failed_count).to eq(1)
       expect(BlogPost.find_by(title: "Good Post")).to be_present
     end
-  end
 
-  # 3) Alternative Paths ───────────────────────────────────────────────────────
-  describe "Alternative Paths" do
-    it "Leaves the post uncategorized when the Category name doesn't match any existing category" do
-      file = StringIO.new(csv_for([ [ "My Post", "No Such Category", "", "", "Body" ] ]))
+    it "Fails only the row whose Category doesn't match any existing category" do
+      file = StringIO.new(csv_for([
+        [ "Good Post", "Technology", "", "", "Body" ],
+        [ "Bad Post",  "No Such Category", "", "", "Body" ]
+      ]))
 
       result = described_class.new(user, file).import
 
       expect(result.imported_count).to eq(1)
-      expect(BlogPost.find_by!(title: "My Post").blog_category).to be_nil
+      expect(result.failed_count).to eq(1)
+      expect(result.errors.first[:message]).to eq("Category 'No Such Category' not found")
+      expect(BlogPost.find_by(title: "Bad Post")).to be_nil
+      expect(BlogPost.find_by(title: "Good Post")).to be_present
     end
 
+    it "Fails a row with a blank Category" do
+      file = StringIO.new(csv_for([ [ "My Post", "", "", "", "Body" ] ]))
+
+      result = described_class.new(user, file).import
+
+      expect(result.failed_count).to eq(1)
+      expect(result.errors.first[:message]).to eq("Category can't be blank")
+    end
+  end
+
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
     it "Matches an existing Category case-insensitively" do
-      category = create(:blog_category, name: "Technology")
+      category = technology
       file = StringIO.new(csv_for([ [ "My Post", "technology", "", "", "Body" ] ]))
 
       described_class.new(user, file).import
@@ -115,7 +131,7 @@ RSpec.describe BlogPostImportService do
     end
 
     it "Creates a post with a blank Body" do
-      file = StringIO.new(csv_for([ [ "Empty Body Post", "", "", "", "" ] ]))
+      file = StringIO.new(csv_for([ [ "Empty Body Post", "Technology", "", "", "" ] ]))
 
       result = described_class.new(user, file).import
 
@@ -125,7 +141,7 @@ RSpec.describe BlogPostImportService do
 
     it "Reports a duplicate title (per-user uniqueness) as a failed row" do
       create(:blog_post, user: user, title: "Existing Post")
-      file = StringIO.new(csv_for([ [ "Existing Post", "", "", "", "Body" ] ]))
+      file = StringIO.new(csv_for([ [ "Existing Post", "Technology", "", "", "Body" ] ]))
 
       result = described_class.new(user, file).import
 

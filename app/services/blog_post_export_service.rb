@@ -15,7 +15,7 @@ class BlogPostExportService
       @posts.each do |post|
         csv << [
           post.title,
-          post.blog_category&.name,
+          post.blog_category.name,
           post.subject,
           post.topic,
           "#{post.user.first_name} #{post.user.last_name}",

@@ -111,7 +111,7 @@
       <tbody>
         <% @posts.each do |post| %>
           <tr data-testid="filter-post-row">
-            <td data-testid="filter-post-category"><%= post.blog_category&.name || "(Uncategorized)" %></td>
+            <td data-testid="filter-post-category"><%= post.blog_category.name %></td>
             <td data-testid="filter-post-subject"><%= post.subject.presence || "—" %></td>
             <td data-testid="filter-post-topic"><%= post.topic.presence || "—" %></td>
             <td>
@@ -120,13 +120,9 @@
                   <%= image_tag post.blog_image.variant(:thumbnail),
                         alt: post.title,
                         class: "table-thumbnail table-thumbnail--small" %>
-                <% elsif post.blog_category.present? %>
-                  <div class="table-thumbnail-icon table-thumbnail-icon--small">
-                    <%= lucide_icon(post.blog_category.icon, size: 16) %>
-                  </div>
                 <% else %>
                   <div class="table-thumbnail-icon table-thumbnail-icon--small">
-                    <%= lucide_icon("file-text", size: 16) %>
+                    <%= lucide_icon(post.blog_category.icon, size: 16) %>
                   </div>
                 <% end %>
                 <%= link_to post.title, post, class: "data-table__name-link", data: { testid: "filter-post-title" } %>
