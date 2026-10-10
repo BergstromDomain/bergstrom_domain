@@ -55,6 +55,10 @@ RSpec.describe "Import Blog Posts", type: :feature do
       file = csv_file_for([ [ "My Imported Post", "Technology", "Ruby", "Rails", "Some body text." ] ])
 
       sign_in_as(owner)
+      # Settle on the post-sign-in page before navigating — in a real browser
+      # the `visit` below can otherwise race sign_in_as's redirect and land
+      # back on the sign-in form (no file field).
+      expect(page).to have_css("[data-testid='user-thumbnail-dropdown']")
       visit new_blog_import_path
       attach_file("file", file.path)
       click_button "Import"
@@ -75,6 +79,10 @@ RSpec.describe "Import Blog Posts", type: :feature do
       )
 
       sign_in_as(owner)
+      # Settle on the post-sign-in page before navigating — in a real browser
+      # the `visit` below can otherwise race sign_in_as's redirect and land
+      # back on the sign-in form (no file field).
+      expect(page).to have_css("[data-testid='user-thumbnail-dropdown']")
       visit new_blog_import_path
       attach_file("file", file.path)
       click_button "Import"
@@ -101,6 +109,10 @@ RSpec.describe "Import Blog Posts", type: :feature do
       file = csv_file_for([ [ "My JS Imported Post", "Technology", "", "", "Some body text." ] ])
 
       sign_in_as(owner)
+      # Settle on the post-sign-in page before navigating — in a real browser
+      # the `visit` below can otherwise race sign_in_as's redirect and land
+      # back on the sign-in form (no file field).
+      expect(page).to have_css("[data-testid='user-thumbnail-dropdown']")
       visit new_blog_import_path
       attach_file("file", file.path)
       click_button "Import"
@@ -146,6 +158,10 @@ RSpec.describe "Import Blog Posts", type: :feature do
       file = zip_file_for("readme.txt" => "hello")
 
       sign_in_as(owner)
+      # Settle on the post-sign-in page before navigating — in a real browser
+      # the `visit` below can otherwise race sign_in_as's redirect and land
+      # back on the sign-in form (no file field).
+      expect(page).to have_css("[data-testid='user-thumbnail-dropdown']")
       visit new_blog_import_path
       attach_file("file", file.path)
       click_button "Import"
@@ -164,6 +180,10 @@ RSpec.describe "Import Blog Posts", type: :feature do
       ])
 
       sign_in_as(owner)
+      # Settle on the post-sign-in page before navigating — in a real browser
+      # the `visit` below can otherwise race sign_in_as's redirect and land
+      # back on the sign-in form (no file field).
+      expect(page).to have_css("[data-testid='user-thumbnail-dropdown']")
       visit new_blog_import_path
       attach_file("file", file.path)
       click_button "Import"
@@ -179,6 +199,10 @@ RSpec.describe "Import Blog Posts", type: :feature do
       file = csv_file_for([ [ "My Post", "No Such Category", "", "", "Body" ] ])
 
       sign_in_as(owner)
+      # Settle on the post-sign-in page before navigating — in a real browser
+      # the `visit` below can otherwise race sign_in_as's redirect and land
+      # back on the sign-in form (no file field).
+      expect(page).to have_css("[data-testid='user-thumbnail-dropdown']")
       visit new_blog_import_path
       attach_file("file", file.path)
       click_button "Import"

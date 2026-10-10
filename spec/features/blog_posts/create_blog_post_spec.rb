@@ -121,10 +121,12 @@ RSpec.describe "Create Blog Post", type: :feature do
         visit new_blog_post_path
         fill_title("Co-Authored Post")
 
+        # select_option + js_click rather than a raw `.click` — Selenium's
+        # .click can dispatch zero events (see spec/support/js_click_helper.rb).
         within("[data-testid='available-authors']") do
-          find("option", text: "#{chris.first_name} #{chris.last_name}").click
+          find("option", text: "#{chris.first_name} #{chris.last_name}").select_option
         end
-        find("[data-testid='add-author-button']").click
+        js_click("add-author-button")
 
         within("[data-testid='selected-authors']") do
           expect(page).to have_content(chris.first_name)
