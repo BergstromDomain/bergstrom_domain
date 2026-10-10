@@ -12,6 +12,13 @@
   <ul>
     <li>A CSV-file with each post's body included in Markdown format</li>
     <li>A ZIP-file with each post included as a PDF</li>
+    <% if current_user&.can_administer? %>
+      <li>
+        <strong>Admins only:</strong> a Full Export ZIP — every column (including Classification
+        and all authors) plus the posts' actual images, for migrating content between
+        environments
+      </li>
+    <% end %>
   </ul>
 </div>
 
@@ -106,6 +113,13 @@
     <%= link_to csv_blog_exports_path(request.query_parameters), class: "btn btn-secondary",
           data: { testid: "csv-export-link" } do %>
       <%= lucide_icon("file-down", size: 16) %> Download CSV
+    <% end %>
+    <% if current_user&.can_administer? %>
+      <span class="btn-divider">|</span>
+      <%= link_to full_blog_exports_path(request.query_parameters), class: "btn btn-secondary",
+            data: { testid: "full-export-link" } do %>
+        <%= lucide_icon("archive", size: 16) %> Download Full Export
+      <% end %>
     <% end %>
   </div>
 <% end %>

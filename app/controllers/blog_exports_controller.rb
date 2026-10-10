@@ -5,6 +5,7 @@ class BlogExportsController < ApplicationController
   include BlogPostFilterable
 
   before_action :require_can_export
+  before_action :require_can_administer, only: %i[ full ]
 
   def index
     compute_filtered_blog_posts
@@ -32,10 +33,29 @@ class BlogExportsController < ApplicationController
               disposition: "attachment"
   end
 
+  # Admin-only PROD-migration export (Import/Export planning doc's Block 5)
+  # — full metadata + bundled images, not the everyday plain CSV/PDF
+  # downloads above. Export-only for now; the matching admin import is a
+  # separate, still-open decision.
+  def full
+    compute_filtered_blog_posts
+    zip_data = BlogPostFullExportService.new(@posts).generate_zip
+    filename = "BergstromDomain_Chronicle_FullExport_#{Date.current.iso8601}.zip"
+
+    send_data zip_data,
+              type:        "application/zip",
+              filename:    filename,
+              disposition: "attachment"
+  end
+
   private
 
   def require_can_export
     redirect_to chronicle_path, alert: "Not authorised." unless current_user&.can_export?
+  end
+
+  def require_can_administer
+    redirect_to chronicle_path, alert: "Not authorised." unless current_user&.can_administer?
   end
 
   # Post titles aren't unique app-wide (only per-author), so two filtered

@@ -74,6 +74,7 @@ Rails.application.routes.draw do
   get "blog-posts/export",      to: "blog_exports#index", as: :blog_exports
   get "blog-posts/export/csv",  to: "blog_exports#csv",    as: :csv_blog_exports
   get "blog-posts/export/pdfs", to: "blog_exports#pdfs",   as: :pdfs_blog_exports
+  get "blog-posts/export/full", to: "blog_exports#full",   as: :full_blog_exports
 
   get  "blog-posts/import",          to: "blog_imports#new",      as: :new_blog_import
   post "blog-posts/import",          to: "blog_imports#create",   as: :blog_imports
