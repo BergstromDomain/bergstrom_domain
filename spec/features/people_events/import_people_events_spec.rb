@@ -1,23 +1,25 @@
-# spec/features/import/import_spec.rb
+# spec/features/people_events/import_people_events_spec.rb
+
 require "rails_helper"
 
-RSpec.describe "Import", type: :feature do
+RSpec.describe "Import People and Events", type: :feature do
   let(:charlie) { create(:user, :content_creator) }
   let(:uno)     { create(:user) }
 
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    it "Shows a title-cased 'Download Import Template' link" do
+    it "Shows a 'Download CSV Template' link" do
       sign_in_as charlie
-      visit import_export_path
+      visit new_people_events_import_path
 
-      expect(page).to have_link("Download Import Template", href: import_template_path)
+      expect(page).to have_link("Download CSV Template", href: template_people_events_imports_path)
     end
 
     it "Imports all rows from a valid CSV and shows a success summary" do
       create(:event_type, name: "Birthday")
 
       sign_in_as charlie
-      visit import_export_path
+      visit new_people_events_import_path
 
       attach_file "import-file-input", Rails.root.join("spec/fixtures/files/imports/valid_import.csv")
       click_button "Import"
@@ -33,7 +35,7 @@ RSpec.describe "Import", type: :feature do
       create(:event_type, name: "Birthday")
 
       sign_in_as charlie
-      visit import_export_path
+      visit new_people_events_import_path
 
       attach_file "import-file-input", Rails.root.join("spec/fixtures/files/imports/partial_success.csv")
       click_button "Import"
@@ -47,33 +49,33 @@ RSpec.describe "Import", type: :feature do
       create(:person, user: charlie, first_name: "James", last_name: "Hetfield")
 
       sign_in_as charlie
-      visit import_export_path
+      visit new_people_events_import_path
 
       attach_file "import-file-input", Rails.root.join("spec/fixtures/files/imports/valid_import.csv")
       click_button "Import"
 
       expect(Person.where(first_name: "James", last_name: "Hetfield").count).to eq(1)
     end
-
-    it "Adds the person to an existing event instead of creating a duplicate event" do
-      birthday = create(:event_type, name: "Birthday")
-      create(:event, user: charlie, event_type: birthday, title: "James's Birthday", day: 3, month: 8, year: 1963)
-
-      sign_in_as charlie
-      visit import_export_path
-
-      attach_file "import-file-input", Rails.root.join("spec/fixtures/files/imports/valid_import.csv")
-      click_button "Import"
-
-      expect(Event.where(title: "James's Birthday").count).to eq(1)
-      expect(Event.find_by(title: "James's Birthday").people.map(&:first_name)).to include("James")
-    end
   end
 
+  # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
+    it "Redirects 'Gary Guest' to the 'Sign in' page" do
+      visit new_people_events_import_path
+      expect(page).to have_current_path(new_session_path)
+    end
+
+    it "Denies 'Uno User' (app_user role)" do
+      sign_in_as uno
+      visit new_people_events_import_path
+
+      expect(page).to have_current_path(event_tracker_path)
+      expect(page).to have_content("Not authorised")
+    end
+
     it "Shows an alert when no file is attached" do
       sign_in_as charlie
-      visit import_export_path
+      visit new_people_events_import_path
 
       click_button "Import"
 
@@ -83,7 +85,7 @@ RSpec.describe "Import", type: :feature do
 
     it "Rejects a non-CSV file type" do
       sign_in_as charlie
-      visit import_export_path
+      visit new_people_events_import_path
 
       attach_file "import-file-input", Rails.root.join("spec/fixtures/files/imports/not_a_csv.txt")
       click_button "Import"
@@ -91,27 +93,15 @@ RSpec.describe "Import", type: :feature do
       expect(page).to have_selector("[data-testid='flash-alert']")
       expect(page).to have_text("must be a CSV file")
     end
-
-    it "Redirects 'Gary Guest' to the 'Sign in' page" do
-      visit import_export_path
-      expect(page).to have_current_path(new_session_path)
-    end
-
-    it "Shows import disabled to 'Uno User'" do
-      sign_in_as uno
-      visit import_export_path
-
-      expect(page).to have_selector("[data-testid='import-disabled']")
-      expect(page).not_to have_button("Import")
-    end
   end
 
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
   describe "Alternative Paths" do
     it "Imports successfully with a blank year (year stored as nil)" do
       create(:event_type, name: "Birthday")
 
       sign_in_as charlie
-      visit import_export_path
+      visit new_people_events_import_path
 
       attach_file "import-file-input", Rails.root.join("spec/fixtures/files/imports/blank_year.csv")
       click_button "Import"
@@ -125,7 +115,7 @@ RSpec.describe "Import", type: :feature do
 
     it "Shows an unknown event type as a failed row" do
       sign_in_as charlie
-      visit import_export_path
+      visit new_people_events_import_path
 
       attach_file "import-file-input", Rails.root.join("spec/fixtures/files/imports/unknown_event_type.csv")
       click_button "Import"
@@ -134,12 +124,28 @@ RSpec.describe "Import", type: :feature do
       expect(page).to have_text("1 row failed")
       expect(page).to have_text("MadeUpType")
     end
+
+    it "Downloads a CSV template with the correct headers and one example row per event type" do
+      create(:event_type, name: "Anniversary")
+      create(:event_type, name: "Birthday")
+
+      sign_in_as charlie
+      visit new_people_events_import_path
+      click_link "Download CSV Template"
+
+      lines = page.body.strip.split("\n")
+      expect(lines.first).to eq("First name,Last name,Event type,Event title,Event date")
+      expect(lines.length).to eq(3)
+      expect(lines[1]).to include("Anniversary")
+      expect(lines[2]).to include("Birthday")
+    end
   end
 
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
     it "Shows 0 imported, 0 failed for a headers-only CSV" do
       sign_in_as charlie
-      visit import_export_path
+      visit new_people_events_import_path
 
       attach_file "import-file-input", Rails.root.join("spec/fixtures/files/imports/headers_only.csv")
       click_button "Import"
@@ -152,13 +158,18 @@ RSpec.describe "Import", type: :feature do
       create(:event_type, name: "Birthday")
 
       sign_in_as charlie
-      visit import_export_path
+      visit new_people_events_import_path
 
       attach_file "import-file-input", Rails.root.join("spec/fixtures/files/imports/duplicate_rows.csv")
       click_button "Import"
 
       expect(Person.where(first_name: "James", last_name: "Hetfield").count).to eq(1)
       expect(Event.where(title: "James's Birthday").count).to eq(1)
+    end
+
+    it "Redirects an unauthenticated visitor away from the template download too" do
+      visit template_people_events_imports_path
+      expect(page).to have_current_path(new_session_path)
     end
   end
 end

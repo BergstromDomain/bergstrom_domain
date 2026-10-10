@@ -1,0 +1,130 @@
+<%# app/views/people_events/filter.html.erb %>
+
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Filter People and Events</h1>
+  </div>
+</div>
+
+<%= form_with url: filter_people_events_path, method: :get, data: { controller: "filter-mode" } do %>
+  <%= hidden_field_tag :mode, @mode, data: { "filter-mode-target": "mode" } %>
+
+  <div class="editor-tabs" role="tablist">
+    <button type="button" class="editor-tab<%= " tab--active" if @mode == "basic" %>" role="tab"
+            data-filter-mode-target="basicTab" data-action="filter-mode#switchToBasic"
+            data-testid="basic-tab">Basic</button>
+    <button type="button" class="editor-tab<%= " tab--active" if @mode == "sql" %>" role="tab"
+            data-filter-mode-target="sqlTab" data-action="filter-mode#switchToSql"
+            data-testid="sql-tab">SQL</button>
+  </div>
+
+  <div class="show-panel" data-filter-mode-target="basicPanel" data-testid="basic-panel"
+       <%= "hidden" if @mode == "sql" %>>
+    <div class="filter-grid">
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">First Name</h3>
+        <%= select_tag :first_name,
+              options_for_select([ [ "All First Names", "" ] ] + @first_name_options.map { |n| [ n, n ] },
+                params[:first_name]),
+              class: "form-control", data: { testid: "first-name-filter" } %>
+      </div>
+
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Last Name</h3>
+        <%= select_tag :last_name,
+              options_for_select([ [ "All Last Names", "" ] ] + @last_name_options.map { |n| [ n, n ] },
+                params[:last_name]),
+              class: "form-control", data: { testid: "last-name-filter" } %>
+      </div>
+
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Event Type</h3>
+        <%= select_tag :event_type,
+              options_for_select([ [ "All Event Types", "" ] ] + @event_type_options.map { |t| [ t, t ] },
+                params[:event_type]),
+              class: "form-control", data: { testid: "event-type-filter" } %>
+      </div>
+
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Event Title</h3>
+        <%= select_tag :title,
+              options_for_select([ [ "All Event Titles", "" ] ] + @title_options.map { |t| [ t, t ] },
+                params[:title]),
+              class: "form-control", data: { testid: "title-filter" } %>
+      </div>
+
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Event Date</h3>
+        <%= select_tag :date,
+              options_for_select([ [ "Anytime", "" ], [ "Today", "today" ], [ "This Week", "this_week" ],
+                [ "This Month", "this_month" ], [ "This Year", "this_year" ] ], params[:date]),
+              class: "form-control", data: { testid: "date-filter" } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="show-panel" data-filter-mode-target="sqlPanel" data-testid="sql-panel"
+       <%= "hidden" if @mode == "basic" %>>
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Query</h3>
+      <%= text_area_tag :query, @query, rows: 4, class: "form-control",
+            placeholder: 'first_name = "James" AND (event_type = "Birthday" OR title CONTAINS "Tour")',
+            data: { testid: "jql-query-field" } %>
+      <% if @filter_error %>
+        <span class="field-error" data-testid="filter-error"><%= @filter_error %></span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="show-panel show-panel--actions">
+    <button type="submit" class="btn btn-primary" data-testid="apply-filters-button">
+      <%= lucide_icon("filter", size: 16) %> Apply Filters
+    </button>
+    <%= link_to filter_people_events_path, class: "btn btn-secondary", data: { testid: "clear-filters-link" } do %>
+      <%= lucide_icon("x", size: 16) %> Clear Filters
+    <% end %>
+  </div>
+<% end %>
+
+<% if @rows.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="filter-results-table">
+      <thead>
+        <tr>
+          <th><%= people_events_filter_sort_link("first_name", path_helper: :filter_people_events_path) %></th>
+          <th><%= people_events_filter_sort_link("last_name", path_helper: :filter_people_events_path) %></th>
+          <th><%= people_events_filter_sort_link("event_type", path_helper: :filter_people_events_path) %></th>
+          <th><%= people_events_filter_sort_link("title", path_helper: :filter_people_events_path) %></th>
+          <th><%= people_events_filter_sort_link("date", path_helper: :filter_people_events_path) %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @rows.each do |row| %>
+          <tr data-testid="filter-row">
+            <td>
+              <%= link_to row.person.first_name, row.person, class: "data-table__name-link",
+                    data: { testid: "filter-row-first-name" } %>
+            </td>
+            <td data-testid="filter-row-last-name"><%= row.person.last_name %></td>
+            <td data-testid="filter-row-event-type"><%= row.event&.event_type&.name || "—" %></td>
+            <td>
+              <% if row.event %>
+                <%= link_to row.event.title, row.event, class: "data-table__name-link",
+                      data: { testid: "filter-row-title" } %>
+              <% else %>
+                <span data-testid="filter-row-title">—</span>
+              <% end %>
+            </td>
+            <td data-testid="filter-row-date">
+              <%= row.event ? PersonEventFilter.event_date(row.event)&.strftime("%d-%b-%Y") || "—" : "—" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% elsif @filter_error.blank? %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No people or events match this filter.</p>
+  </div>
+<% end %>

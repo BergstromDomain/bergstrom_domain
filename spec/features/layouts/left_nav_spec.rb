@@ -164,8 +164,8 @@ RSpec.describe "Left Nav", type: :feature do
       it "Shows the 'Import & Export' section" do
         within("[data-testid='left-nav']") do
           expect(page).to have_selector("[data-testid='left-nav-import-export-h3']")
-          expect(page).to have_link("Import People And Events",   href: import_export_path)
-          expect(page).to have_link("Download People And Events", href: import_export_path)
+          expect(page).to have_link("Import People And Events",   href: new_people_events_import_path)
+          expect(page).to have_link("Download People And Events", href: people_events_exports_path)
         end
       end
     end

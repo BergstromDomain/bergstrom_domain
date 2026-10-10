@@ -58,6 +58,11 @@
         <span>People</span>
       <% end %>
 
+      <%= link_to filter_people_events_path, class: "left-nav-link" do %>
+        <%= lucide_icon("list-filter", size: 15) %>
+        <span>Filter People and Events</span>
+      <% end %>
+
       <h3 class="left-nav-h3" data-testid="left-nav-reference-data-h3">
         Reference Data
       </h3>
@@ -118,11 +123,11 @@
           Import &amp; Export
         </h3>
 
-        <%= link_to import_export_path, class: "left-nav-link" do %>
+        <%= link_to new_people_events_import_path, class: "left-nav-link" do %>
           <%= lucide_icon("upload", size: 15) %>
           <span>Import People And Events</span>
         <% end %>
-        <%= link_to import_export_path, class: "left-nav-link" do %>
+        <%= link_to people_events_exports_path, class: "left-nav-link" do %>
           <%= lucide_icon("download", size: 15) %>
           <span>Download People And Events</span>
         <% end %>

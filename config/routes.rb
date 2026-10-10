@@ -58,12 +58,18 @@ Rails.application.routes.draw do
   get    "settings/occasions",           to: "settings#occasions_settings",  as: :occasions_settings
   patch  "settings/occasions",           to: "settings#update_occasions_settings"
 
-  # Import & Export
-  get  "import_export",   to: "pages#import_export", as: :import_export
-  post "export",          to: "export#create",       as: :export
-  post "import",          to: "import#create",       as: :import
-  get  "import/template", to: "import#template",     as: :import_template
-  get  "user_guide",      to: "pages#user_guide",    as: :user_guide
+  get "user_guide", to: "pages#user_guide", as: :user_guide
+
+  # People & Events — Filter/Download/Import (Occasions' equivalent of
+  # Chronicle's Filter/Download/Import Blog Posts trio)
+  get "people-events/filter", to: "people_events#filter", as: :filter_people_events
+
+  get "people-events/export",     to: "people_events_exports#index", as: :people_events_exports
+  get "people-events/export/csv", to: "people_events_exports#csv",   as: :csv_people_events_exports
+
+  get  "people-events/import",          to: "people_events_imports#new",      as: :new_people_events_import
+  post "people-events/import",          to: "people_events_imports#create",   as: :people_events_imports
+  get  "people-events/import/template", to: "people_events_imports#template", as: :template_people_events_imports
 
   # Stub pages
   get "event_tracker", to: "pages#event_tracker", as: :event_tracker
