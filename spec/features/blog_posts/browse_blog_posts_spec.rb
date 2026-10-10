@@ -112,6 +112,13 @@ RSpec.describe "Browse Blog Posts", type: :feature do
         expect(page).to have_selector("[data-testid='browse-post-author']", text: "#{owner.first_name} #{owner.last_name}")
         expect(page).to have_selector("[data-testid='browse-post-created']", text: java_post.created_at.strftime("%d-%b-%Y"))
         expect(page).to have_selector("[data-testid='browse-post-path']", text: "Technology » Software Development » Java")
+        expect(page).to have_selector("[data-testid='browse-post-meta-left']", text: "Filed Under: Technology » Software Development » Java")
+        within("[data-testid='browse-post-meta-right']") do
+          expect(page).to have_content("Author:")
+          expect(page).to have_content("Created:")
+          expect(page).to have_content("Reactions:")
+          expect(page).to have_content("Comments:")
+        end
         expect(page).to have_content("Reactions:")
         expect(page).to have_no_content("Likes:")
         expect(page).to have_selector("[data-testid='browse-post-smiles']", text: "3.0")

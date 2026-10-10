@@ -1069,6 +1069,19 @@ code, pre {
   margin-bottom: var(--space-sm);
 }
 
+/* Variable-length Category path on the left, fixed-ish fields pushed right */
+.blog-card__meta--split {
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-md);
+}
+
+.blog-card__meta-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-left: auto;
+}
+
 .blog-card__teaser {
   margin: 0;
   color: var(--color-text-secondary);
