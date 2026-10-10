@@ -125,6 +125,19 @@ RSpec.describe "Filter People and Events", type: :feature do
       rows_before = page.all("[data-testid='filter-row-last-name']").map(&:text)
       expect(rows_before).to eq([ "Hetfield", "Ulrich" ])
     end
+
+    it "Sorts by Classification when the Classification column header is clicked" do
+      create(:person, :restricted, user: owner, first_name: "Mine")
+      create(:person, :unrestricted, user: owner, first_name: "Public")
+      create(:person, :contacts, user: owner, first_name: "Shared")
+
+      sign_in_as(owner)
+      visit filter_people_events_path
+      find("[data-testid='sort-classification']").click
+
+      classifications = page.all("[data-testid='filter-row-classification']").map(&:text)
+      expect(classifications).to eq([ "Contacts", "Restricted", "Unrestricted" ])
+    end
   end
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────

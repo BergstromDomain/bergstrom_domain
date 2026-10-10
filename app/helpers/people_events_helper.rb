@@ -10,11 +10,12 @@ module PeopleEventsHelper
   ].freeze
 
   FILTER_SORT_LABELS = {
-    "first_name" => "First Name",
-    "last_name"  => "Last Name",
-    "event_type" => "Event Type",
-    "title"      => "Event Title",
-    "date"       => "Event Date"
+    "first_name"     => "First Name",
+    "last_name"      => "Last Name",
+    "event_type"     => "Event Type",
+    "title"          => "Event Title",
+    "date"           => "Event Date",
+    "classification" => "Classification"
   }.freeze
 
   # A sortable column header link for the Filter/Download results table —

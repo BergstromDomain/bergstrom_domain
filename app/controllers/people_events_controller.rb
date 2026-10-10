@@ -9,7 +9,7 @@ class PeopleEventsController < ApplicationController
   include Navigable
   include PeopleEventsFilterable
 
-  FILTER_SORT_COLUMNS = %w[first_name last_name event_type title date].freeze
+  FILTER_SORT_COLUMNS = %w[first_name last_name event_type title date classification].freeze
 
   allow_unauthenticated_access only: %i[ filter ]
   before_action :resume_session_if_available, only: %i[ filter ]
