@@ -17,7 +17,7 @@ class BlogPostsController < ApplicationController
     return unless load_browse_tree(scope: visible_blog_posts_scope, levels: browse_levels,
       root_label: "Chronicle", path_helper: :blog_posts_path)
 
-    @browse_items = @browse_tree.items&.includes(:user, :blog_category, :likes)
+    @browse_items = @browse_tree.items&.includes(:user, :blog_category, :likes)&.with_attached_blog_image
   end
 
   FILTER_SORT_COLUMNS = %w[category subject topic title author created smiles].freeze
