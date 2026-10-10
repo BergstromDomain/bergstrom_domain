@@ -1028,6 +1028,12 @@ code, pre {
   margin-bottom: var(--space-md);
 }
 
+/* Line the empty message up under the heading rather than centring it */
+.browse-preview .empty-state {
+  text-align: left;
+  padding: 0;
+}
+
 .blog-cards {
   display: flex;
   flex-direction: column;
