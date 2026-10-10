@@ -44,11 +44,25 @@
   Metallica people/events, HP/LOTR/Star Wars/Jack Ryan franchises) — this is dev/test fixture
   data and must **not** run as-is against PROD. Need a PROD-safe seed path, or a documented
   manual bootstrap step instead.
-* Blog Categories (this doc's sibling, `[[Test_Data_-_Chronicle_Categories]]`) are the first
-  example of a "post-deployment step" — real reference/taxonomy data that should exist in PROD
-  but isn't part of the app-user-facing seed data. Worth deciding whether these accumulate as a
-  documented runbook (this file), a `db:seed:prod`-style rake task, or a migration-adjacent data
-  migration — before there are several of these to run by hand in the right order.
+* **Superseded/generalized 2026-09-22**: `docs/reference-data/` is now the master, maintained-
+  during-development list of *all* reference/taxonomy data that needs to exist in PROD but isn't
+  part of the app-user-facing seed data — currently Event Types, Blog Categories, and Social
+  Media Platforms (the latter's actual logo image files included), one CSV per type grouped by
+  app, with a README explaining the format and the maintain-then-deploy workflow. Blog
+  Categories' entry there supersedes the standalone `[[Test_Data_-_Chronicle_Categories]]` doc as
+  the source of truth for PROD deployment purposes (that doc stays as historical manual-testing
+  context, just isn't the thing to work from anymore for this).
+  * **Still open, decided informally in chat but not built**: whether this stays a manual runbook
+    (an admin re-enters each row through the app's own Create forms — the only path that exists
+    today) or gets a real bulk-import feature. If built, most reference types (Event Types, Blog
+    Categories, and probably most future ones like Cookbook's Cuisines/Food Types) reduce to the
+    same "unique name + a few scalar columns" shape and could share one generic
+    find-or-create-by-name importer parameterized by model class + column mapping — matching what
+    `ImportService` already does for `EventType` as a side effect of importing Events. Social
+    Media Platform is the one genuine exception: its `logo` is an uploaded file, not a plain
+    column, so it needs its own file-resolve-and-attach step regardless of whatever shared
+    importer exists for the rest. Not yet designed further than this, deliberately — no code
+    written.
 * Confirm whether any of the current dev-only content (franchise people/events) should exist in
   PROD at all, even scoped to the real admin account, or whether PROD starts genuinely empty
   aside from reference data like Blog Categories.
@@ -75,10 +89,13 @@
 # POST-DEPLOYMENT STEPS IDENTIFIED SO FAR
 *(Steps intended to run once, after the app is live in PROD, rather than being part of the
 deploy itself or the dev seed data.)*
-* Create Blog Categories (this doc's sibling `Test_Data_-_Chronicle_Categories.md`) — 25
-  categories, authored conceptually by the System Admin account (note: `BlogCategory` has no
-  creator/author column at all, so this is a procedural convention — run the seed as/via the
-  System Admin user — rather than something the schema enforces or stores).
+* **Re-create all reference data** — see `docs/reference-data/README.md` for the current full
+  list (Event Types, Blog Categories, Social Media Platforms) and how to work through it; entered
+  by hand through each resource's own admin Create form, one row at a time, since no bulk-import
+  path exists for these types yet (see the open question logged under Data / content above).
+  `BlogCategory`/`EventType` have no creator/author column at all, so "authored by the System
+  Admin" is a procedural convention for whoever runs this step, not something the schema
+  enforces or stores.
 
 ---
 
