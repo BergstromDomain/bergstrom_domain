@@ -63,7 +63,7 @@ class BlogPostFullExportService
 
     row = [
       post.title,
-      post.blog_category&.name,
+      post.blog_category.name,
       post.subject,
       post.topic,
       authors_list(post),

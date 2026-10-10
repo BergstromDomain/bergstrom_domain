@@ -38,18 +38,6 @@ RSpec.describe "Publish Blog Post", type: :feature do
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
-    it "Shows an alert and does not publish when Category is missing" do
-      post = create(:blog_post, user: owner, blog_category: nil, body: "Content.")
-      sign_in_as(owner)
-      visit blog_post_path(post)
-
-      click_button "Publish"
-
-      expect(page).to have_content("Cannot publish")
-      expect(page).to have_content("Blog category can't be blank")
-      expect(post.reload.published_at).to be_nil
-    end
-
     it "Shows an alert and does not publish when body is missing" do
       post = create(:blog_post, user: owner, blog_category: category, body: nil)
       sign_in_as(owner)

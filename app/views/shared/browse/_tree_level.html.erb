@@ -1,0 +1,18 @@
+<ul>
+  <% if index < tree.depth %>
+    <% node = tree.path[index] %>
+    <li data-testid="browse-path-node">
+      <%= link_to "#{node.label} (#{node.count})", browse_path_for(node.params) %>
+      <%= render "shared/browse/tree_level", tree: tree, index: index + 1 %>
+    </li>
+  <% else %>
+    <% tree.children.each do |node| %>
+      <li data-testid="browse-child-node">
+        <%# Only the first level can have zero-count entries, so only it bolds
+            the populated ones to set them apart. %>
+        <%= link_to "#{node.label} (#{node.count})", browse_path_for(node.params),
+              class: ("browse-tree__link--has-posts" if tree.depth.zero? && node.count.positive?) %>
+      </li>
+    <% end %>
+  <% end %>
+</ul>

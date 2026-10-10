@@ -5,8 +5,9 @@ require "zip"
 # plus any images it references by relative path. Unlike BlogPostImportService
 # (CSV), this path carries no structured metadata — a real external Word-to-
 # Markdown converter tool produces plain Markdown + images, not an app-specific
-# schema, so Category/Subject/Topic are always left blank here for the
-# importing user to fill in afterward (Title is derived from the filename).
+# schema, so the Category is chosen on the Import page and passed in, while
+# Subject/Topic are left blank for the importing user to fill in afterward
+# (Title is derived from the filename).
 #
 # Referenced images are rewritten into inline base64 data URIs at import time
 # rather than kept as separate attachments — self-contained, and sidesteps the
@@ -22,9 +23,10 @@ class BlogPostZipImportService
   IMAGE_CONTENT_TYPES = { ".png" => "image/png", ".jpg" => "image/jpeg", ".jpeg" => "image/jpeg",
                            ".webp" => "image/webp" }.freeze
 
-  def initialize(user, file)
-    @user = user
-    @file = file
+  def initialize(user, file, blog_category:)
+    @user          = user
+    @file          = file
+    @blog_category = blog_category
   end
 
   def import
@@ -51,6 +53,7 @@ class BlogPostZipImportService
     BlogPost.create!(
       user:           @user,
       title:          title,
+      blog_category:  @blog_category,
       body:           body,
       format:         "raw",
       classification: :restricted

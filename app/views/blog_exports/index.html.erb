@@ -141,7 +141,7 @@
       <tbody>
         <% @posts.each do |post| %>
           <tr data-testid="export-filter-post-row">
-            <td><%= post.blog_category&.name || "(Uncategorized)" %></td>
+            <td><%= post.blog_category.name %></td>
             <td><%= post.subject.presence || "—" %></td>
             <td><%= post.topic.presence || "—" %></td>
             <td data-testid="export-filter-post-title"><%= post.title %></td>

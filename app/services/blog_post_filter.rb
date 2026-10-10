@@ -16,7 +16,7 @@ class BlogPostFilter
 
   def self.attributes_for(post)
     {
-      category:  post.blog_category&.name,
+      category:  post.blog_category.name,
       subject:   post.subject,
       topic:     post.topic,
       title:     post.title,

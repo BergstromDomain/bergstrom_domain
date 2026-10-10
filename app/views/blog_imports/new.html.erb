@@ -21,8 +21,9 @@
     <li>
       <strong>A ZIP file</strong> containing exactly one Markdown (<code>.md</code>) file, plus
       any images it references by a relative path — formatting and images come through as
-      written, but Category/Subject/Topic aren't part of this format and need to be added
-      manually afterward (the post's title is taken from the Markdown file's name). If you're
+      written. Choose the post's Category below; Subject/Topic aren't part of this format and
+      need to be added manually afterward (the post's title is taken from the Markdown file's
+      name). If you're
       starting from a Word document, search online for a "Word to Markdown" converter that can
       also export the document's images alongside the Markdown file, then zip the two together.
     </li>
@@ -32,6 +33,14 @@
     <div class="form-group">
       <%= f.label :file, "CSV or ZIP file", class: "sr-only" %>
       <%= f.file_field :file, accept: ".csv,.zip", class: "form-control", data: { testid: "import-file-input" } %>
+    </div>
+
+    <div class="form-group">
+      <h3 class="show-meta-cell__label">Category (ZIP only)</h3>
+      <%= f.label :blog_category_id, "Category (ZIP only)", class: "sr-only" %>
+      <%= f.collection_select :blog_category_id, BlogCategory.order("LOWER(name) ASC"), :id, :name,
+            { prompt: "Select a Category" },
+            { class: "form-control", data: { testid: "import-category-select" } } %>
     </div>
 
     <div class="show-panel show-panel--actions">

@@ -74,7 +74,7 @@
 <body>
   <h1 class="pdf-title"><%= @blog_post.title %></h1>
   <p class="pdf-meta">
-    <% if @blog_post.blog_category.present? %><%= @blog_post.blog_category.name %> &middot; <% end %>
+    <%= @blog_post.blog_category.name %> &middot; 
     By <%= @blog_post.authors.map { |author| "#{author.first_name} #{author.last_name}" }.join(", ") %>
     &middot; <%= @blog_post.created_at.strftime("%d %B %Y") %>
   </p>

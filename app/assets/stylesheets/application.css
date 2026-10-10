@@ -977,7 +977,8 @@ code, pre {
   font-size: var(--font-size-sm);
 }
 
-/* Chronicle browsing — tree levels and leaf breadcrumb */
+/* Browse drill-down (shared, app/views/shared/browse/) — tree levels, leaf
+   breadcrumb, and the preview panel below the tree */
 .breadcrumb {
   display: flex;
   flex-wrap: wrap;
@@ -1014,6 +1015,23 @@ code, pre {
 
 .browse-tree__link--has-posts {
   font-weight: var(--font-weight-bold);
+}
+
+.browse-preview {
+  margin-top: var(--space-lg);
+}
+
+.browse-preview__heading {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+/* Line the empty message up under the heading rather than centring it */
+.browse-preview .empty-state {
+  text-align: left;
+  padding: 0;
 }
 
 .blog-cards {
@@ -1055,6 +1073,19 @@ code, pre {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
   margin-bottom: var(--space-sm);
+}
+
+/* Variable-length Category path on the left, fixed-ish fields pushed right */
+.blog-card__meta--split {
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-md);
+}
+
+.blog-card__meta-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-left: auto;
 }
 
 .blog-card__teaser {

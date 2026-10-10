@@ -21,7 +21,11 @@ RSpec.describe BlogPost, type: :model do
   # ── Associations ──────────────────────────────────────────────────────────
   describe "Associations" do
     it { is_expected.to belong_to(:user) }
-    it { is_expected.to belong_to(:blog_category).optional }
+    # Optional at the association level so a missing Category reads "can't be
+    # blank" (the presence validation) rather than Rails' "must exist".
+    it { is_expected.to belong_to(:blog_category).without_validating_presence }
+    it { is_expected.to validate_presence_of(:blog_category) }
+    it { is_expected.to have_db_column(:blog_category_id).with_options(null: false) }
     it { is_expected.to have_many(:blog_post_authors).dependent(:destroy) }
     it { is_expected.to have_many(:authors).through(:blog_post_authors).source(:user) }
     it { is_expected.to have_one_attached(:blog_image) }
@@ -124,6 +128,12 @@ RSpec.describe BlogPost, type: :model do
         expect(post.errors[:blog_image]).to be_present
       end
 
+      it "is invalid without a Category, even as a draft" do
+        post = build(:blog_post, user: owner, blog_category: nil)
+        expect(post).not_to be_valid
+        expect(post.errors[:blog_category]).to include("can't be blank")
+      end
+
       it "is invalid to publish without a Category" do
         post = build(:blog_post, :published, user: owner, blog_category: nil, body: "Some content.")
         expect(post).not_to be_valid
@@ -154,8 +164,8 @@ RSpec.describe BlogPost, type: :model do
         expect(post).to be_valid
       end
 
-      it "does not require a Category or body while still a draft" do
-        post = build(:blog_post, user: owner, blog_category: nil, body: nil)
+      it "does not require a body while still a draft" do
+        post = build(:blog_post, user: owner, body: nil)
         expect(post).to be_valid
       end
     end

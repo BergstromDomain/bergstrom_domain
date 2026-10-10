@@ -159,15 +159,15 @@ RSpec.describe "Filter Blog Posts", type: :feature do
       expect(page).not_to have_content("Someone Else's Draft")
     end
 
-    it "Keeps a post with no Category/Subject/Topic filterable via the 'All ...' defaults" do
-      create(:blog_post, :unrestricted, :published, user: owner, title: "Bare Post").tap do |post|
-        post.update_column(:blog_category_id, nil)
-      end
+    it "Keeps a post with no Subject/Topic filterable via the 'All ...' defaults" do
+      category = create(:blog_category, name: "Technology")
+      create(:blog_post, :unrestricted, :published, user: owner, title: "Bare Post",
+        blog_category: category, subject: nil, topic: nil)
 
       visit filter_blog_posts_path
 
       expect(page).to have_content("Bare Post")
-      expect(page).to have_selector("[data-testid='filter-post-category']", text: "(Uncategorized)")
+      expect(page).to have_selector("[data-testid='filter-post-category']", text: "Technology")
     end
 
     it "Shows a different Published icon for a published post vs. a draft" do

@@ -72,12 +72,37 @@ RSpec.describe "Browse Blog Posts", type: :feature do
 
       expect(page).to have_selector("[data-testid='browse-breadcrumb']", text: "Technology")
       expect(page).to have_selector("[data-testid='browse-breadcrumb']", text: "Software Development")
-      expect(page).to have_selector("[data-testid='browse-breadcrumb-topic']", text: "Ruby On Rails")
+      expect(page).to have_selector("[data-testid='browse-breadcrumb-current']", text: "Ruby On Rails")
       expect(page).to have_selector("[data-testid='browse-post-card']", count: 3)
+    end
+
+    it "Shows a Category's Subjects above a preview panel of every post in the Category" do
+      visit blog_posts_path(category_id: technology.slug)
+
+      expect(page).to have_selector("[data-testid='browse-tree'] + [data-testid='browse-preview']")
+      within("[data-testid='browse-preview']") do
+        expect(page).to have_selector("[data-testid='browse-preview-heading']", text: "Posts in Technology (5)")
+        expect(page).to have_selector("[data-testid='browse-post-card']", count: 5)
+      end
+    end
+
+    it "Shows a Subject's Topics above a preview panel of every post with that Subject" do
+      visit blog_posts_path(category_id: technology.slug, subject: "Software Development")
+
+      within("[data-testid='browse-preview']") do
+        expect(page).to have_selector("[data-testid='browse-preview-heading']", text: "Posts in Software Development (4)")
+        expect(page).to have_selector("[data-testid='browse-post-card']", count: 4)
+      end
+    end
+
+    it "Shows no preview panel at the root level" do
+      visit blog_posts_path
+      expect(page).to have_no_selector("[data-testid='browse-preview']")
     end
 
     it "Displays the correct fields on each post card" do
       java_post.likes.create!(user: create(:user), face: "neutral")
+      create_list(:comment, 2, commentable: java_post)
       visit blog_posts_path(category_id: technology.slug, subject: "Software Development", topic: "Java")
 
       card = find("[data-testid='browse-post-card']")
@@ -86,7 +111,18 @@ RSpec.describe "Browse Blog Posts", type: :feature do
         expect(page).to have_link("Java Basics", href: blog_post_path(java_post))
         expect(page).to have_selector("[data-testid='browse-post-author']", text: "#{owner.first_name} #{owner.last_name}")
         expect(page).to have_selector("[data-testid='browse-post-created']", text: java_post.created_at.strftime("%d-%b-%Y"))
+        expect(page).to have_selector("[data-testid='browse-post-path']", text: "Technology » Software Development » Java")
+        expect(page).to have_selector("[data-testid='browse-post-meta-left']", text: "Filed Under: Technology » Software Development » Java")
+        within("[data-testid='browse-post-meta-right']") do
+          expect(page).to have_content("Author:")
+          expect(page).to have_content("Created:")
+          expect(page).to have_content("Reactions:")
+          expect(page).to have_content("Comments:")
+        end
+        expect(page).to have_content("Reactions:")
+        expect(page).to have_no_content("Likes:")
         expect(page).to have_selector("[data-testid='browse-post-smiles']", text: "3.0")
+        expect(page).to have_selector("[data-testid='browse-post-comments']", text: "2")
         expect(page).to have_selector("[data-testid='browse-post-teaser']", text: "A" * 197 + "...")
       end
     end
@@ -149,35 +185,45 @@ RSpec.describe "Browse Blog Posts", type: :feature do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
-    it "Buckets a post with no Category under '(Uncategorized)' and it's reachable through it" do
-      post = create(:blog_post, :unrestricted, :published, user: owner, title: "Homeless Post")
-      # A published post always needs a Category (Block 4 validation) — force
-      # it uncategorized at the DB level, bypassing validation, purely to
-      # exercise this display branch.
-      post.update_column(:blog_category_id, nil)
+    it "Lists a post with no Subject/Topic in the parent's preview panel, with no '(No ...)' entry" do
+      category = create(:blog_category, name: "Mixed")
+      create(:blog_post, :unrestricted, :published, user: owner, blog_category: category,
+        subject: nil, topic: nil, title: "Bare Post")
+      create(:blog_post, :unrestricted, :published, user: owner, blog_category: category,
+        subject: "Ruby", topic: nil, title: "Ruby Post")
 
-      visit blog_posts_path
+      visit blog_posts_path(category_id: category.slug)
       within("[data-testid='browse-tree']") do
-        expect(page).to have_css("a.browse-tree__link--has-posts", text: "(Uncategorized) (1)")
-        click_link "(Uncategorized) (1)"
+        expect(page).to have_link("Ruby (1)")
+        expect(page).to have_no_link(text: /No Subject/)
       end
+      within("[data-testid='browse-preview']") { expect(page).to have_content("Bare Post") }
 
-      expect(page).to have_selector("[data-testid='browse-tree']", text: "(No Subject)")
+      visit blog_posts_path(category_id: category.slug, subject: "Ruby")
+      within("[data-testid='browse-tree']") { expect(page).to have_no_link(text: /No Topic/) }
+      within("[data-testid='browse-preview']") { expect(page).to have_content("Ruby Post") }
     end
 
-    it "Buckets a post missing only Subject/Topic under '(No Subject)'/'(No Topic)'" do
+    it "Leaves a missing Subject/Topic out of a card's Category path" do
       category = create(:blog_category, name: "Mixed")
       create(:blog_post, :unrestricted, :published, user: owner, blog_category: category, subject: nil, topic: nil)
 
       visit blog_posts_path(category_id: category.slug)
-      within("[data-testid='browse-tree']") do
-        expect(page).to have_link("(No Subject) (1)")
-        click_link "(No Subject) (1)"
-      end
 
-      within("[data-testid='browse-tree']") do
-        expect(page).to have_link("(No Topic) (1)")
-      end
+      expect(find("[data-testid='browse-post-path']").text).to eq("Mixed")
+    end
+
+    it "Orders the preview panel newest first" do
+      category = create(:blog_category, name: "Ordered")
+      create(:blog_post, :unrestricted, :published, user: owner, blog_category: category,
+        title: "Older Post", created_at: 2.days.ago)
+      create(:blog_post, :unrestricted, :published, user: owner, blog_category: category,
+        title: "Newer Post", created_at: 1.day.ago)
+
+      visit blog_posts_path(category_id: category.slug)
+
+      titles = page.all("[data-testid='browse-post-title']").map(&:text)
+      expect(titles).to eq([ "Newer Post", "Older Post" ])
     end
 
     it "Navigates back to the correct intermediate level via a breadcrumb link" do
@@ -190,17 +236,6 @@ RSpec.describe "Browse Blog Posts", type: :feature do
 
       within("[data-testid='browse-tree']") do
         expect(page).to have_link("Software Development (1)")
-      end
-    end
-
-    it "Falls back to a generic icon for a card whose post has neither an image nor a Category" do
-      post = create(:blog_post, :unrestricted, :published, user: owner, title: "Bare Post")
-      post.update_column(:blog_category_id, nil)
-
-      visit blog_posts_path(category_id: "none", subject: "none", topic: "none")
-
-      within("[data-testid='browse-post-card']") do
-        expect(page).to have_selector(".event-type-icon-large svg")
       end
     end
 
@@ -231,16 +266,20 @@ RSpec.describe "Browse Blog Posts", type: :feature do
       end
     end
 
-    it "Shows '(Uncategorized) (0)' even when every existing post already has a Category" do
+    it "Never shows an '(Uncategorized)' entry" do
       category = create(:blog_category, name: "Has A Post")
       create(:blog_post, :unrestricted, :published, user: owner, blog_category: category)
 
       visit blog_posts_path
 
       within("[data-testid='browse-tree']") do
-        expect(page).to have_link("(Uncategorized) (0)", href: blog_posts_path(category_id: "none"))
-        expect(page).to have_no_css("a.browse-tree__link--has-posts", text: "(Uncategorized) (0)")
+        expect(page).to have_no_link(text: /Uncategorized/)
       end
+    end
+
+    it "Redirects an unknown Category back to the Browse root" do
+      visit blog_posts_path(category_id: "none")
+      expect(page).to have_current_path(blog_posts_path)
     end
   end
 end

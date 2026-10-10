@@ -14,7 +14,7 @@
       <div class="page-header__image" data-testid="blog-post-image">
         <%= image_tag @blog_post.blog_image.variant(:thumbnail), alt: @blog_post.title %>
       </div>
-    <% elsif @blog_post.blog_category.present? %>
+    <% else %>
       <span class="event-type-icon-large page-header__image" data-testid="blog-post-category-icon">
         <%= lucide_icon(@blog_post.blog_category.icon, size: 40) %>
       </span>
@@ -28,15 +28,13 @@
 <%# Metadata div — moved above the body, per manual-testing feedback %>
 <div class="show-panel" data-testid="show-panel-metadata">
   <div class="show-meta-row">
-    <% if @blog_post.blog_category.present? %>
-      <div class="show-meta-cell">
-        <h3 class="show-meta-cell__label">Category</h3>
-        <p class="show-meta-cell__value" data-testid="blog-post-category">
-          <%= lucide_icon(@blog_post.blog_category.icon, size: 16) %>
-          <%= link_to @blog_post.blog_category.name, blog_category_path(@blog_post.blog_category) %>
-        </p>
-      </div>
-    <% end %>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Category</h3>
+      <p class="show-meta-cell__value" data-testid="blog-post-category">
+        <%= lucide_icon(@blog_post.blog_category.icon, size: 16) %>
+        <%= link_to @blog_post.blog_category.name, blog_category_path(@blog_post.blog_category) %>
+      </p>
+    </div>
 
     <% if @blog_post.subject.present? %>
       <div class="show-meta-cell">

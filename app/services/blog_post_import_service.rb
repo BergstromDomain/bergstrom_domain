@@ -62,13 +62,13 @@ class BlogPostImportService
     raise ImportRowError, e.record.errors.full_messages.to_sentence
   end
 
-  # Unlike EventType (required on Event, so a miss fails the row), a Blog
-  # Category is optional on BlogPost — and creating one is admin-only, so an
-  # unmatched/blank name leaves the post uncategorized rather than failing.
+  # Category is required on every BlogPost, and creating one is admin-only —
+  # so a blank or unmatched name fails just this row rather than guessing.
   def find_category(name)
     name = name.to_s.strip
-    return nil if name.blank?
+    raise ImportRowError, "Category can't be blank" if name.blank?
 
-    BlogCategory.find_by("LOWER(name) = ?", name.downcase)
+    BlogCategory.find_by("LOWER(name) = ?", name.downcase) ||
+      raise(ImportRowError, "Category '#{name}' not found")
   end
 end

@@ -132,19 +132,6 @@ RSpec.describe "Show Blog Post", type: :feature do
       expect(page).not_to have_selector("[data-testid='blog-post-topic']")
     end
 
-    it "Hides the Category section entirely and shows no icon when no Category is set" do
-      # A published post always has a Category (required to publish, Block 4)
-      # — a draft is the only state that can lack one, so it's what exercises
-      # this display branch; the author views their own draft to see it.
-      post = create(:blog_post, :unrestricted, user: owner, blog_category: nil)
-      sign_in_as(owner)
-      visit blog_post_path(post)
-
-      expect(page).not_to have_selector("[data-testid='blog-post-category']")
-      expect(page).not_to have_selector("[data-testid='blog-post-category-icon']")
-      expect(page).not_to have_selector("[data-testid='blog-post-image']")
-    end
-
     it "Strips a script tag out of the rendered body" do
       post = create(:blog_post, :unrestricted, :published, user: owner,
         body: "Hello <script>alert('xss')</script> World")

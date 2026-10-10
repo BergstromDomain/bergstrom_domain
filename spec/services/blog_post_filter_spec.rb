@@ -28,11 +28,6 @@ RSpec.describe BlogPostFilter do
           published: true
         )
       end
-
-      it "Uses nil for Category when the post has none" do
-        post = create(:blog_post, user: owner, blog_category: nil)
-        expect(described_class.attributes_for(post)[:category]).to be_nil
-      end
     end
 
     describe ".basic_ast" do

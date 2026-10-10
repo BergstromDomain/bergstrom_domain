@@ -1,0 +1,10 @@
+<%# Leaf level only. Locals: tree (BrowseTree), root_label. %>
+<nav class="breadcrumb" data-testid="browse-breadcrumb">
+  <%= link_to root_label, browse_path_for %>
+  <% tree.path[0...-1].each do |node| %>
+    &raquo;
+    <%= link_to node.label, browse_path_for(node.params) %>
+  <% end %>
+  &raquo;
+  <span data-testid="browse-breadcrumb-current"><%= tree.path.last.label %></span>
+</nav>

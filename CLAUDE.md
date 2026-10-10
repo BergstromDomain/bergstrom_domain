@@ -84,6 +84,14 @@ this implies at scale. The A–Z browse feature buckets people by `last_name` (f
 migration (`db/migrate/*_add_swedish_collation_to_people_names.rb`) rather than app-level
 Ruby sorting.
 
+**Browse drill-down** (shared, any app): `BrowseTree` (`app/services/browse_tree.rb`) +
+`Browsable` concern + `app/views/shared/browse/` partials. An app describes its levels (first
+= a reference-data association listing every record incl. zero counts; later = optional
+string columns), passes an already-visibility-scoped relation, and supplies its own card
+partial — see `BlogPostsController#index`/`#browse_levels` (Category › Subject › Topic) for
+the reference usage. Every selected level shows a newest-first preview panel; the leaf shows
+a breadcrumb instead of the tree.
+
 **Import/export**: `ExportService`/`ImportService`/`ImportTemplateService`
 (`app/services/`) round-trip people+events through a fixed CSV column layout
 (`ExportService::HEADERS`). Export scope is classification-based (`scopes` array of symbols

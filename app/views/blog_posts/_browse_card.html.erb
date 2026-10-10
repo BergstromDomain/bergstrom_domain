@@ -1,0 +1,43 @@
+<div class="blog-card" data-testid="browse-post-card">
+  <div class="blog-card__header">
+    <div class="blog-card__thumbnail">
+      <% if item.blog_image.attached? %>
+        <%= image_tag item.blog_image.variant(:thumbnail), alt: item.title %>
+      <% else %>
+        <span class="event-type-icon-large">
+          <%= lucide_icon(item.blog_category.icon, size: 32) %>
+        </span>
+      <% end %>
+    </div>
+    <h2 class="blog-card__title">
+      <%= link_to item.title, item, data: { testid: "browse-post-title" } %>
+    </h2>
+  </div>
+
+  <div class="blog-card__meta blog-card__meta--split">
+    <span class="blog-card__meta-left" data-testid="browse-post-meta-left">
+      <strong>Filed Under:</strong>
+      <span data-testid="browse-post-path"><%= [ item.blog_category.name, item.subject, item.topic ].compact_blank.join(" » ") %></span>
+    </span>
+    <span class="blog-card__meta-right" data-testid="browse-post-meta-right">
+      <span><strong>Author:</strong> <span data-testid="browse-post-author"><%= item.user.first_name %> <%= item.user.last_name %></span></span>
+      <span class="btn-divider">|</span>
+      <span><strong>Created:</strong> <span data-testid="browse-post-created"><%= item.created_at.strftime("%d-%b-%Y") %></span></span>
+      <span class="btn-divider">|</span>
+      <span>
+        <strong>Reactions:</strong>
+        <% if item.like_score %>
+          <%= lucide_icon(Like::FACES[item.like_score_face][:icon], size: 16,
+                class: "like-face--#{item.like_score_face}") %>
+          <span data-testid="browse-post-smiles"><%= number_with_precision(item.like_score, precision: 1) %></span>
+        <% else %>
+          <span data-testid="browse-post-smiles">No reactions yet</span>
+        <% end %>
+      </span>
+      <span class="btn-divider">|</span>
+      <span><strong>Comments:</strong> <span data-testid="browse-post-comments"><%= item.comments_count %></span></span>
+    </span>
+  </div>
+
+  <p class="blog-card__teaser" data-testid="browse-post-teaser"><%= blog_post_teaser(item) %></p>
+</div>

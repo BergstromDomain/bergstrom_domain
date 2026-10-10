@@ -282,7 +282,7 @@ CREATE TABLE public.blog_posts (
     deleted_at timestamp(6) without time zone,
     comments_count integer DEFAULT 0 NOT NULL,
     user_id bigint NOT NULL,
-    blog_category_id bigint,
+    blog_category_id bigint NOT NULL,
     classification character varying DEFAULT 'contacts'::character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL
@@ -1911,6 +1911,7 @@ ALTER TABLE ONLY public.contacts
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261010073755'),
 ('20260922045836'),
 ('20260921104820'),
 ('20260921073200'),

@@ -2,6 +2,7 @@
 FactoryBot.define do
   factory :blog_post do
     association      :user
+    association      :blog_category
     sequence(:title) { |n| "Blog Post #{n}" }
     body             { Faker::Lorem.paragraph }
     classification   { "contacts" }
@@ -20,7 +21,6 @@ FactoryBot.define do
 
     trait :published do
       published_at { Time.current }
-      association :blog_category
     end
 
     trait :raw do
