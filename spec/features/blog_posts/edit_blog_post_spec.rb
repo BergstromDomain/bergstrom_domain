@@ -203,11 +203,7 @@ RSpec.describe "Edit Blog Post", type: :feature do
       expect(post.reload.published_at).to be_nil
     end
 
-    # TODO: fails 3/3 on CI since feature/browse-blog-posts-update (stays on
-    # /edit after "Update Blog Post"), never locally — same class as the two
-    # xit-skipped specs in create_blog_post_spec.rb. CI artifact showed no JS
-    # error and no Turbo submission in flight. See Outstanding_ToDos_-_Chronicle.md.
-    xit "Never removes the primary author's own row even if the shuttle is emptied out", js: true do
+    it "Never removes the primary author's own row even if the shuttle is emptied out", js: true do
       post = create(:blog_post, user: owner)
       sign_in_and_settle(owner)
       visit edit_blog_post_path(post)
