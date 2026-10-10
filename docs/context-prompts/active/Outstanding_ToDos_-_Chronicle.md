@@ -17,11 +17,9 @@ no "resolved" section here, git history already has that record.
       `blog_post_editor_controller.js`. Next step: unskip one; `spec/support/failure_artifacts.rb`
       will put a screenshot/HTML/console log in CI's "screenshots" artifact.
 - [ ] The "Likes" → "Reactions" label rename (`docs/context-prompts/archive/Update_Feature_-_Likes.md`)
-      only touched the Show page's metadata panel. Browse Blog Posts
-      (`app/views/blog_posts/index.html.erb`) still labels it "Likes:", and Filter Blog Posts
-      (`app/views/blog_posts/filter.html.erb`) still calls the same column "Smiles" (header and
-      `filter_sort_link("smiles")`). Pick one consistent name and apply it everywhere
-      `Like`/`like_score` is surfaced to the user.
+      is still incomplete in Filter Blog Posts (`app/views/blog_posts/filter.html.erb`), which
+      calls the column "Smiles" (header and `filter_sort_link("smiles")`). Browse's cards were
+      fixed on 2026-10-10 (now "Reactions:"). Apply the same name there.
 - [ ] "Deleted Posts" (admin-only, Chronicle's Actions section) sits under the "New" `h3`
       subgroup in the left nav, but doesn't really belong there. CLAUDE.md's own left-nav
       convention already says a link that doesn't fit any bucket should stay loose directly

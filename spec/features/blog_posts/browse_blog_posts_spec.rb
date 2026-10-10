@@ -102,6 +102,7 @@ RSpec.describe "Browse Blog Posts", type: :feature do
 
     it "Displays the correct fields on each post card" do
       java_post.likes.create!(user: create(:user), face: "neutral")
+      create_list(:comment, 2, commentable: java_post)
       visit blog_posts_path(category_id: technology.slug, subject: "Software Development", topic: "Java")
 
       card = find("[data-testid='browse-post-card']")
@@ -110,7 +111,11 @@ RSpec.describe "Browse Blog Posts", type: :feature do
         expect(page).to have_link("Java Basics", href: blog_post_path(java_post))
         expect(page).to have_selector("[data-testid='browse-post-author']", text: "#{owner.first_name} #{owner.last_name}")
         expect(page).to have_selector("[data-testid='browse-post-created']", text: java_post.created_at.strftime("%d-%b-%Y"))
+        expect(page).to have_selector("[data-testid='browse-post-path']", text: "Technology » Software Development » Java")
+        expect(page).to have_content("Reactions:")
+        expect(page).to have_no_content("Likes:")
         expect(page).to have_selector("[data-testid='browse-post-smiles']", text: "3.0")
+        expect(page).to have_selector("[data-testid='browse-post-comments']", text: "2")
         expect(page).to have_selector("[data-testid='browse-post-teaser']", text: "A" * 197 + "...")
       end
     end
@@ -190,6 +195,15 @@ RSpec.describe "Browse Blog Posts", type: :feature do
       visit blog_posts_path(category_id: category.slug, subject: "Ruby")
       within("[data-testid='browse-tree']") { expect(page).to have_no_link(text: /No Topic/) }
       within("[data-testid='browse-preview']") { expect(page).to have_content("Ruby Post") }
+    end
+
+    it "Leaves a missing Subject/Topic out of a card's Category path" do
+      category = create(:blog_category, name: "Mixed")
+      create(:blog_post, :unrestricted, :published, user: owner, blog_category: category, subject: nil, topic: nil)
+
+      visit blog_posts_path(category_id: category.slug)
+
+      expect(find("[data-testid='browse-post-path']").text).to eq("Mixed")
     end
 
     it "Orders the preview panel newest first" do
