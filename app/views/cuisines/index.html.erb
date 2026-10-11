@@ -1,0 +1,47 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Cuisines</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Cuisines group Cookbook recipes by where the dish comes from.
+  </p>
+</div>
+
+<% if @cuisines.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="cuisine-table">
+      <colgroup>
+        <col style="width: 3.5rem;">
+        <col style="width: 14rem;">
+        <col>
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Flag</th>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @cuisines.each do |cuisine| %>
+          <tr data-testid="cuisine-row">
+            <td class="data-table__icon-cell">
+              <%= render "shared/flag_badge", flag: cuisine.flag, badge: "utensils", testid: "cuisine-flag" %>
+            </td>
+            <td>
+              <%= link_to cuisine.name, cuisine_path(cuisine),
+                    class: "data-table__name-link", data: { testid: "cuisine-name" } %>
+            </td>
+            <td class="data-table__description" data-testid="cuisine-description">
+              <%= cuisine.description %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No cuisines have been added yet.</p>
+  </div>
+<% end %>

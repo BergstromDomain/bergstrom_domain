@@ -286,6 +286,19 @@ Cookbook-side gaps found, all folded into the blocks below:
    `BlogCategoriesController`.
    * Half-width pages; flag emoji plus a Lucide icon badge (Design Question-3); admin-only.
    * Add `docs/reference-data/cookbook/` to the PROD reference-data checklist.
+   * **Done 2026-10-11.** Decisions confirmed at the Block 1 gate:
+     * Languages get their own left-nav link and an "Add A Language" action, alongside
+       Cuisines and Food Types.
+     * Starting lists come from the user: 18 Cuisines, 14 Food Types, 5 Languages. Seeded by
+       `db/seeds/cookbook.rb` and listed in `docs/reference-data/cookbook/`. Spelling fixed
+       in two names: "Pilipino" → "Filipino", "Deserts" → "Desserts".
+     * Food Type icons are a first draft for the user to review. Lucide has no pasta or pie
+       icon, so Pasta uses `cooking-pot` and Pies uses `croissant`.
+     * Flag badge (`shared/_flag_badge.html.erb`) styled in CSS, reviewed in the browser
+       rather than mocked up first.
+     * Left-nav Actions shows only for admins until Block 3 adds Write A Recipe.
+     * Delete is refused while recipes use the row ("Cannot delete record because dependent
+       recipes exist").
 2. **Cookbook Settings**: mirrors the Chronicle/Occasions Settings pages (start page, default
    Classification) plus a **default Language**, which Create needs. Moved forward from the old
    Block 9.

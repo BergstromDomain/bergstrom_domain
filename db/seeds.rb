@@ -30,6 +30,9 @@ event_types = {
   music:     EventType.find_or_create_by!(name: "Music")     { |et| et.description = "Musical releases and concerts"; et.icon = "music" }
 }
 
+# ── Cookbook reference data ─────────────────────────────────────────────────
+load Rails.root.join("db/seeds/cookbook.rb")
+
 # ── Named test personas (spec/support/authentication_helpers.rb) ────────────
 # Pat Pending and Gary Guest aren't included here — Pat has no content to own,
 # and Gary Guest is unauthenticated (no account at all).

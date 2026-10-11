@@ -59,5 +59,14 @@ RSpec.describe "Left Nav session state", type: :request do
 
       expect(current_session.reload.left_nav_section).to eq("recipes")
     end
+
+    it "keeps Cookbook's reference-data pages in the Cookbook section" do
+      sign_in_as(user)
+
+      [ cuisines_path, food_types_path, languages_path ].each do |path|
+        get path
+        expect(current_session.reload.left_nav_section).to eq("recipes"), path
+      end
+    end
   end
 end

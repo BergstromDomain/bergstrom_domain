@@ -1,0 +1,12 @@
+<%#
+  A Cookbook Cuisine/Language flag emoji with a small Lucide badge in its
+  corner (Design Question-3 in docs/context-prompts/active/App_-_Cookbook.md).
+  Locals: flag (emoji), badge (Lucide icon name), large (bool, default false),
+  testid (optional).
+%>
+<% large = local_assigns.fetch(:large, false) %>
+<span class="flag-badge<%= ' flag-badge--large' if large %>"
+      <%= tag.attributes(data: { testid: local_assigns[:testid] }) %>>
+  <span class="flag-badge__flag" role="img"><%= flag %></span>
+  <span class="flag-badge__icon" aria-hidden="true"><%= lucide_icon(badge, size: large ? 22 : 11) %></span>
+</span>

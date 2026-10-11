@@ -1781,6 +1781,38 @@ textarea.form-control {
   color: var(--color-accent);
 }
 
+/* Cookbook Cuisine/Language: flag emoji + a small Lucide badge in its
+   bottom-right corner (app/views/shared/_flag_badge.html.erb). */
+.flag-badge {
+  position: relative;
+  display: inline-flex;
+  line-height: 1;
+}
+
+.flag-badge__flag {
+  font-size: 1.6rem;
+}
+
+.flag-badge__icon {
+  position: absolute;
+  right: -0.35em;
+  bottom: -0.3em;
+  display: flex;
+  padding: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-accent);
+}
+
+.flag-badge--large .flag-badge__flag {
+  font-size: 4rem;
+}
+
+.flag-badge--large .flag-badge__icon {
+  padding: 4px;
+}
+
 
 /* ==========================================================================
    14. Authentication Layout

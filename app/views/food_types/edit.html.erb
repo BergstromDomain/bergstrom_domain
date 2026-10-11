@@ -1,0 +1,7 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title"><%= @food_type.name_was %></h1>
+  </div>
+</div>
+
+<%= render "form", food_type: @food_type, panel: "edit", submit_label: "Update Food Type", cancel_path: food_type_path(@food_type) %>

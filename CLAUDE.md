@@ -10,8 +10,8 @@ under one auth/permission system. Each app has a technical name (the `app_name` 
 - **Event_Tracker** → "Occasions" (people, events, event types): implemented.
 - **Blog_Posts** → "Chronicle" (blog posts, categories, comments, reactions): implemented.
 - **Recipes** → "Cookbook": in progress, built block by block per
-  `docs/context-prompts/active/App_-_Cookbook.md` (models, landing page and left-nav
-  skeleton so far).
+  `docs/context-prompts/active/App_-_Cookbook.md` (models, landing page, left nav and
+  Cuisine/Food Type/Language reference data so far).
 - **Photo_Album**: reserved enum value only.
 
 Development is documented as a blog series (`docs/blog/`) written in strict Red → Green →
@@ -152,10 +152,10 @@ DOCUMENTATION (h2)
 ```
 
 **Page sizing** (New/Show/Edit): every resource is either "normal" data (Person, Event, Blog
-Post) or "reference" data (Event Type, Social Media Platform, Blog Category — the same set
-grouped under a left nav's "Reference Data" header, above). Normal-data pages render full
-width; reference-data pages render at a narrower, centered width, consistently across their
-New, Show, and Edit pages:
+Post) or "reference" data (Event Type, Social Media Platform, Blog Category, Cuisine, Food
+Type, Language — the same set grouped under a left nav's "Reference Data" header, above).
+Normal-data pages render full width; reference-data pages render at a narrower, centered
+width, consistently across their New, Show, and Edit pages:
 - New/Edit forms: `.resource-form` alone is the narrow (560px, centered) default, used by
   reference-data resources. Add `.resource-form--wide` for normal-data resources (`class:
   "resource-form resource-form--wide"` on the `form_with` call) to go full width.

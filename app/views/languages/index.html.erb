@@ -1,0 +1,45 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Languages</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    The language each Cookbook recipe is written in.
+  </p>
+</div>
+
+<% if @languages.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="language-table">
+      <colgroup>
+        <col style="width: 3.5rem;">
+        <col style="width: 14rem;">
+        <col>
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Flag</th>
+          <th>Name</th>
+          <th>Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @languages.each do |language| %>
+          <tr data-testid="language-row">
+            <td class="data-table__icon-cell">
+              <%= render "shared/flag_badge", flag: language.flag, badge: "book-open-check", testid: "language-flag" %>
+            </td>
+            <td>
+              <%= link_to language.name, language_path(language),
+                    class: "data-table__name-link", data: { testid: "language-name" } %>
+            </td>
+            <td data-testid="language-code"><%= language.code %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No languages have been added yet.</p>
+  </div>
+<% end %>

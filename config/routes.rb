@@ -106,6 +106,11 @@ Rails.application.routes.draw do
   end
   resources :blog_categories, path: "blog-post-categories"
 
+  # Cookbook reference data
+  resources :cuisines
+  resources :food_types, path: "food-types"
+  resources :languages
+
   root "pages#home"
   get "about",      to: "pages#about"
   get "contact",    to: "pages#contact"

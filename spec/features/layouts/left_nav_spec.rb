@@ -437,6 +437,46 @@ RSpec.describe "Left Nav", type: :feature do
             expect(page).not_to have_link("User Guide", href: user_guide_path)
           end
         end
+
+        it "Shows a 'Reference Data' group linking Cuisines, Food Types and Languages" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-reference-data-h3']", text: "Reference Data")
+            expect(page).to have_link("Cuisines",   href: cuisines_path)
+            expect(page).to have_link("Food Types", href: food_types_path)
+            expect(page).to have_link("Languages",  href: languages_path)
+          end
+        end
+      end
+
+      context "When 'Charlie Content Creator' visits the 'Cookbook' landing page" do
+        before do
+          sign_in_as(create(:user, :content_creator))
+          visit cookbook_path
+        end
+
+        it "Does not show the Actions section — nothing to create there yet" do
+          within("[data-testid='left-nav']") do
+            expect(page).not_to have_selector("[data-testid='left-nav-actions-h2']")
+            expect(page).not_to have_link("Add A Cuisine")
+          end
+        end
+      end
+
+      context "When 'Adam Admin' visits the 'Cookbook' landing page" do
+        before do
+          sign_in_as(create(:user, :admin))
+          visit cookbook_path
+        end
+
+        it "Shows Actions › New with the admin-only Add links" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
+            expect(page).to have_selector("[data-testid='left-nav-new-h3']", text: "New")
+            expect(page).to have_link("Add A Cuisine",   href: new_cuisine_path)
+            expect(page).to have_link("Add A Food Type", href: new_food_type_path)
+            expect(page).to have_link("Add A Language",  href: new_language_path)
+          end
+        end
       end
     end
 
