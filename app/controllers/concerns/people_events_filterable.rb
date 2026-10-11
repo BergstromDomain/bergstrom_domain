@@ -40,7 +40,7 @@ module PeopleEventsFilterable
   end
 
   def all_rows
-    events_by_person_id = visible_events_scope.includes(:event_type)
+    events_by_person_id = visible_events_scope.includes(:event_type, :people)
       .order("year ASC NULLS LAST, month ASC, day ASC")
       .each_with_object(Hash.new { |h, k| h[k] = [] }) do |event, by_person|
         event.people.each { |person| by_person[person.id] << event }
