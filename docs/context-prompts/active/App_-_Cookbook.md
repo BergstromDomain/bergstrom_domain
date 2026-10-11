@@ -206,19 +206,13 @@ No text, no letters, no numbers, no logos and no readable recipes. Avoid excessi
   button uses that param (validated as a relative path only, to avoid open-redirect). Also logged
   as a retrofit TODO for Chronicle/Occasions in `Feature_-_Style.md`, so all three apps end up
   consistent.
-* **Likes**: Cookbook does **not** build interactive Likes yet. The `Like` model was hard-wired to
-  `BlogPost` (not reusable as-is), so its rewrite was spun out into
-  `docs/context-prompts/archive/Update_Feature_-_Likes.md`. Cookbook's Read-a-Recipe page ships
-  with a static, non-interactive placeholder where Likes would go, until Cookbook itself picks
-  this up.
-  * **Confirmed 2026-09-19:** that rewrite's scope was the shared/polymorphic Like engine +
-    Chronicle's retrofit only — it did not wire anything into Cookbook, since `Recipe` didn't
-    exist yet.
-  * **Ready to use as of 2026-09-19** (branch `feature/generalize-likes`, pending PR/merge): `Like`
-    is now polymorphic (`belongs_to :likeable`) via the shared `Likeable` concern, so when
-    Cookbook's Recipe Read block is built, it can `include Likeable` and swap the static
-    placeholder for the real reaction row + breakdown popup — no further Likes-side work needed.
-    Verify the branch has actually merged to `main` before relying on this.
+* **Reactions (formerly Likes)**: originally a static placeholder, because `Like` was hard-wired
+  to `BlogPost`. **Superseded 2026-10-11:** `Like` is now polymorphic (`Likeable`, PR #73) and is
+  called "Reactions" in the UI. Cookbook ships **real Reactions** in the Read block.
+  * Still needed: `LikesController#set_likeable` is hard-coded to `BlogPost`, so generalise it.
+    The reaction row and breakdown popup are inline in `blog_posts/show.html.erb`; extract them
+    into a shared partial that Chronicle uses too.
+  * The overview's "Stars" metadata is dropped in favour of Reactions.
 * **Comments**: generalized to polymorphic (`belongs_to :commentable, polymorphic: true`,
   replacing `Comment`'s former `belongs_to :blog_post`) — shared by Chronicle and Cookbook now,
   and by future apps going forward, rather than duplicating a `RecipeComment` model. Planning
@@ -231,37 +225,84 @@ No text, no letters, no numbers, no logos and no readable recipes. Avoid excessi
 * **Ownership**: Recipe is single-owner only — no co-author shuttle like Chronicle's `BlogPost`
   (the app overview only ever says "his/hers recipe").
 
-## DEVELOPMENT BLOCKS (confirmed order)
-0. Foundation — `Recipe`/`Cuisine`/`FoodType`/`Language` models + migrations, routes, landing
-   page, left-nav skeleton. `Recipe`'s migration must include its own `comments_count` integer
-   column (`null: false, default: 0`), same as `BlogPost#comments_count` — `Comment`'s
-   `counter_cache: true` is on a polymorphic association now (see
-   `docs/context-prompts/archive/Update_Feature_-_Comments.md`), so it needs a matching column on
-   every commentable host, not just Chronicle's.
-1. Reference Data CRUD (Cuisine, Food Type, Language) — mirrors `EventTypesController`, plus the
-   flag-emoji/icon-badge fields from Design Question-3
-2. ~~Generalize Comments to polymorphic~~ — **done independently, 2026-09-20** (touched Chronicle's
-   existing `Comment` model/specs, ahead of Cookbook's own timeline). See
-   `docs/context-prompts/archive/Update_Feature_-_Comments.md`. `Comment.commentable` is ready for
-   `Recipe` to `include Commentable` once Block 4 (Read a Recipe) is reached — no further
-   Comments-side work needed beyond the `comments_count` column noted in Block 0 above.
-3. Create a Recipe (Title/Description/Image frame, Metadata frame, Ingredients frame — new
-   two-level dynamic add/remove rows, Description/body Raw-Formatted frame reusing
-   Quill/`convert_format`, Action frame: Cancel | Save only)
-4. Read a Recipe (Title/Metadata/Ingredients/Description/Comments/Action frames; Back button uses
-   `return_to`; Likes = static placeholder)
-5. Edit + Publish/Unpublish a Recipe (combined block, like Chronicle's; after each edit reverts to
-   Draft)
-6. Delete a Recipe (soft-delete, 30-day retention, admin restore — mirrors
-   `PurgeDeletedBlogPostsJob`)
-7. Comments (Recipe-specific wiring, mostly free once polymorphic)
-8. Browse (by Cuisine, by Food Type — two separate single-level trees) + Filter (Basic/SQL,
-   reusing `Jql::Parser`/`Jql::Evaluator` via a new `RecipeFilter` service)
-9. Full Left Nav wiring + Toasts (`to_toast_label` on Recipe/Cuisine/FoodType/Language) +
-   Cookbook Settings page (mirrors Chronicle/Occasions Settings)
-* Explicitly out of scope for this plan: Likes (→ `Update_Feature_-_Likes.md`), collapsible/show-hide nav
-  (→ `Feature_-_Collapsible_Navbar.md`), Download Recipes (doc's own "future improvement, empty
-  link for now").
+## PREREQUISITE REVIEW (2026-10-11, before resuming)
+Checked against `main` after PRs #73–#83. Done: Comments generalised (#76), Likes → Reactions
+(#73), Collapsible Navbar (#74), User Guide (#78), Reference Data PROD checklist (#79),
+Import/Export redesign (#80), shared Browse drill-down `BrowseTree` (#81), N+1 guard (#83), and 5
+of the 6 left-nav structure TODOs (`docs/context-prompts/archive/Update_Feature_-_Layout_and_Style.md`).
+Cookbook-side gaps found, all folded into the blocks below:
+* `CommentsController#set_commentable` and `comments/_form.html.erb` still assume `BlogPost`.
+* `LikesController#set_likeable` is `BlogPost`-only; the reaction UI is not a shared partial.
+* `GuidePage#app_section` has no `recipes` value. `UserAppSetting::LIVE_APPS` and the top-nav
+  Apps menu don't list Cookbook.
+* CLAUDE.md's "What this is" section still says only Event_Tracker is implemented.
+* `return_to` breadcrumb (Design Question-4) is still unbuilt; the Style doc deferred it until
+  Cookbook.
+
+## DECISIONS (2026-10-11)
+* **Reactions**: real, not a placeholder. See the Reactions entry above.
+* **Cuisine, Food Type and Language are required on every save**, drafts included. Same as
+  Chronicle's Category since PR #81, which removed "Uncategorized" from Browse, Filter and Import.
+  Supersedes "Mandatory for Publishing but not for Create" in Write A Recipe above.
+  * **Language defaults from the user's Cookbook settings** when left empty, so a recipe can
+    always be saved. This needs a per-user default Language, so Cookbook Settings moves forward
+    to Block 2, ahead of Create.
+* **Import/Export**: **Download Recipes** is in scope: a Filter-style page, CSV plus a ZIP of
+  PDFs, reusing `PdfRenderingService`/`ZipBundlingService`, the same as Chronicle.
+  **Import Recipes is deferred**: a recipe's several ingredient sections don't fit one CSV row.
+  Revisit later, likely as a Dev→Prod ZIP-with-manifest like Chronicle's. Left nav shows
+  "Download Recipes" only until then.
+* **`return_to` breadcrumb**: built as a shared, app-agnostic concern while building Cookbook.
+  Chronicle and Occasions adopt it afterwards in a separate small follow-up PR.
+* **Browse**: "Browse Recipes By Cuisine" and "Browse Recipes By Food Type" are each a one-level
+  `BrowseTree` (`app/services/browse_tree.rb`): the tree, then a breadcrumb and newest-first
+  preview panel at the leaf. No new browse engine.
+* **This doc** stays in `docs/context-prompts/active/` and lives on branch `feature/cookbook`.
+
+## DEVELOPMENT BLOCKS (revised 2026-10-11)
+0. **Foundation**: models and migrations for `Recipe`, `Cuisine`, `FoodType` and `Language`.
+   * `Recipe` gets a `comments_count` column (`null: false, default: 0`) for `Comment`'s
+     polymorphic counter cache, plus soft-delete (`deleted_at`) and Classification.
+   * Routes, landing page with the hero image, and Cookbook in the top-nav Apps menu
+     (alphabetical).
+   * Left-nav skeleton.
+   * `recipes` added to `GuidePage#app_section` (label "Cookbook") and
+     `UserAppSetting::LIVE_APPS`.
+   * Update CLAUDE.md's "What this is" section.
+1. **Reference Data CRUD** (Cuisine, Food Type, Language): mirrors `EventTypesController` and
+   `BlogCategoriesController`.
+   * Half-width pages; flag emoji plus a Lucide icon badge (Design Question-3); admin-only.
+   * Add `docs/reference-data/cookbook/` to the PROD reference-data checklist.
+2. **Cookbook Settings**: mirrors the Chronicle/Occasions Settings pages (start page, default
+   Classification) plus a **default Language**, which Create needs. Moved forward from the old
+   Block 9.
+3. **Create a Recipe**:
+   * Title/Description/Image frame.
+   * Metadata frame: Cuisine, Food Type and Language required; Language pre-filled from settings.
+   * Ingredients frame: a new two-level dynamic add/remove (sections, then rows).
+   * Description/body frame: Raw/Formatted, reusing Quill and `convert_format`.
+   * Action frame: Cancel | Save.
+4. **Read a Recipe**: Title, Metadata, Ingredients, Description, Reactions, Comments and Action
+   frames.
+   * Back button uses the new shared `return_to` concern.
+   * **Real Reactions**: generalise `LikesController` and extract the shared reaction partial
+     (Chronicle switches to it too).
+5. **Edit + Publish/Unpublish a Recipe**: a combined block, like Chronicle's. Each edit reverts
+   the recipe to Draft.
+6. **Delete a Recipe**: soft-delete, 30-day retention, admin restore; mirrors
+   `PurgeDeletedBlogPostsJob`.
+7. **Comments**: wire up Recipe. Generalise `CommentsController#set_commentable` and
+   `comments/_form.html.erb`'s BlogPost-only URL.
+8. **Browse + Filter**:
+   * Browse by Cuisine and by Food Type: two one-level `BrowseTree`s.
+   * Filter: Basic/SQL via a new `RecipeFilter` on `Jql::Parser`/`Jql::Evaluator`.
+   * Add the list pages to `spec/requests/eager_loading_spec.rb`.
+9. **Download Recipes**: a Filter-style page with CSV and PDF-ZIP downloads, reusing
+   `PdfRenderingService`/`ZipBundlingService`.
+10. **Full Left Nav wiring + Toasts** (`to_toast_label` on Recipe, Cuisine, FoodType and Language)
+    and **User Guide pages** for Cookbook.
+* Explicitly out of scope: **Import Recipes** (deferred, see Decisions 2026-10-11) and the
+  `return_to` retrofit for Chronicle and Occasions (a separate follow-up PR).
 
 ## Cleanup
 * Update this document with all decisions during the development
