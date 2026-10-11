@@ -1,0 +1,34 @@
+<%#
+  The Raw/Formatted body editor (markdown_editor_controller.js). The
+  enclosing form must carry data-controller="markdown-editor" and its
+  convert-url value, and load the Quill stylesheet.
+  Locals: f (form builder), testid (panel testid), heading (optional).
+%>
+<div class="show-panel" data-testid="<%= testid %>">
+  <% if local_assigns[:heading] %>
+    <h2 class="show-panel__heading"><%= heading %></h2>
+  <% end %>
+  <div class="editor-tabs" role="tablist">
+    <button type="button" class="editor-tab" role="tab"
+            data-markdown-editor-target="rawTab"
+            data-action="markdown-editor#switchToRaw"
+            data-testid="raw-tab">Raw</button>
+    <button type="button" class="editor-tab tab--active" role="tab"
+            data-markdown-editor-target="formattedTab"
+            data-action="markdown-editor#switchToFormatted"
+            data-testid="formatted-tab">Formatted</button>
+  </div>
+
+  <%= f.hidden_field :format, data: { "markdown-editor-target": "format" } %>
+
+  <div data-markdown-editor-target="rawPanel" hidden data-testid="raw-panel">
+    <%= f.label :body, "Body (Markdown)", class: "sr-only" %>
+    <%= f.text_area :body,
+          class: "form-control editor-panel",
+          data: { "markdown-editor-target": "raw", testid: "body-field" } %>
+  </div>
+
+  <div data-markdown-editor-target="formattedPanel" data-testid="formatted-panel">
+    <div class="editor-panel" data-markdown-editor-target="editor" data-testid="quill-editor"></div>
+  </div>
+</div>

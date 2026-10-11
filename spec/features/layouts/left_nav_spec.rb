@@ -454,9 +454,10 @@ RSpec.describe "Left Nav", type: :feature do
           visit cookbook_path
         end
 
-        it "Does not show the Actions section — nothing to create there yet" do
+        it "Shows Actions › New with 'Write A Recipe' but not the admin-only Add links" do
           within("[data-testid='left-nav']") do
-            expect(page).not_to have_selector("[data-testid='left-nav-actions-h2']")
+            expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
+            expect(page).to have_link("Write A Recipe", href: new_recipe_path)
             expect(page).not_to have_link("Add A Cuisine")
           end
         end
@@ -472,6 +473,7 @@ RSpec.describe "Left Nav", type: :feature do
           within("[data-testid='left-nav']") do
             expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
             expect(page).to have_selector("[data-testid='left-nav-new-h3']", text: "New")
+            expect(page).to have_link("Write A Recipe",  href: new_recipe_path)
             expect(page).to have_link("Add A Cuisine",   href: new_cuisine_path)
             expect(page).to have_link("Add A Food Type", href: new_food_type_path)
             expect(page).to have_link("Add A Language",  href: new_language_path)

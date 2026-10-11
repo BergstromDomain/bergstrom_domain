@@ -7,6 +7,7 @@ class User < ApplicationRecord
   has_many :contacts, dependent: :destroy
   has_many :contact_users, through: :contacts, source: :contact
   has_many :blog_posts
+  has_many :recipes
   has_many :user_app_settings, dependent: :destroy
 
   has_many :person_mutes, dependent: :destroy

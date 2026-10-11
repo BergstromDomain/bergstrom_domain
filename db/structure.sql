@@ -684,6 +684,75 @@ ALTER SEQUENCE public.guide_pages_id_seq OWNED BY public.guide_pages.id;
 
 
 --
+-- Name: ingredient_sections; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.ingredient_sections (
+    id bigint NOT NULL,
+    recipe_id bigint NOT NULL,
+    heading character varying,
+    "position" integer NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: ingredient_sections_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.ingredient_sections_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ingredient_sections_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.ingredient_sections_id_seq OWNED BY public.ingredient_sections.id;
+
+
+--
+-- Name: ingredients; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.ingredients (
+    id bigint NOT NULL,
+    ingredient_section_id bigint NOT NULL,
+    quantity character varying NOT NULL,
+    measurement character varying,
+    name character varying NOT NULL,
+    comment text,
+    "position" integer NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: ingredients_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.ingredients_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ingredients_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.ingredients_id_seq OWNED BY public.ingredients.id;
+
+
+--
 -- Name: languages; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1188,6 +1257,20 @@ ALTER TABLE ONLY public.guide_pages ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
+-- Name: ingredient_sections id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ingredient_sections ALTER COLUMN id SET DEFAULT nextval('public.ingredient_sections_id_seq'::regclass);
+
+
+--
+-- Name: ingredients id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ingredients ALTER COLUMN id SET DEFAULT nextval('public.ingredients_id_seq'::regclass);
+
+
+--
 -- Name: languages id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1415,6 +1498,22 @@ ALTER TABLE ONLY public.friendly_id_slugs
 
 ALTER TABLE ONLY public.guide_pages
     ADD CONSTRAINT guide_pages_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ingredient_sections ingredient_sections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ingredient_sections
+    ADD CONSTRAINT ingredient_sections_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ingredients ingredients_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ingredients
+    ADD CONSTRAINT ingredients_pkey PRIMARY KEY (id);
 
 
 --
@@ -1807,6 +1906,20 @@ CREATE UNIQUE INDEX index_guide_pages_on_title ON public.guide_pages USING btree
 
 
 --
+-- Name: index_ingredient_sections_on_recipe_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ingredient_sections_on_recipe_id ON public.ingredient_sections USING btree (recipe_id);
+
+
+--
+-- Name: index_ingredients_on_ingredient_section_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ingredients_on_ingredient_section_id ON public.ingredients USING btree (ingredient_section_id);
+
+
+--
 -- Name: index_languages_on_code; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2130,6 +2243,14 @@ ALTER TABLE ONLY public.event_type_mutes
 
 
 --
+-- Name: ingredient_sections fk_rails_85e5692e81; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ingredient_sections
+    ADD CONSTRAINT fk_rails_85e5692e81 FOREIGN KEY (recipe_id) REFERENCES public.recipes(id);
+
+
+--
 -- Name: user_app_settings fk_rails_8c969b3de5; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2258,6 +2379,14 @@ ALTER TABLE ONLY public.contacts
 
 
 --
+-- Name: ingredients fk_rails_dad1c533ad; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ingredients
+    ADD CONSTRAINT fk_rails_dad1c533ad FOREIGN KEY (ingredient_section_id) REFERENCES public.ingredient_sections(id);
+
+
+--
 -- Name: recipes fk_rails_e70336bf23; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2272,6 +2401,8 @@ ALTER TABLE ONLY public.recipes
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261011114916'),
+('20261011114915'),
 ('20261011114134'),
 ('20261011085214'),
 ('20261011085213'),

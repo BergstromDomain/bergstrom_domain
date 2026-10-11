@@ -349,7 +349,7 @@
   <% elsif @left_nav_section == :recipes %>
 
     <%# ── Views ─────────────────────────────────────────────────────────── %>
-    <%# Further Cookbook links (Recipes, My Recipes, Write A Recipe)
+    <%# Further Cookbook links (Browse/Filter Recipes, My Recipes)
         are added block by block as their pages exist — see
         docs/context-prompts/active/App_-_Cookbook.md. %>
     <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('views') %>">
@@ -381,12 +381,11 @@
       </div>
     </div>
 
-    <%# Admin-only until Block 3 adds Write A Recipe — then this widens to
-        can_see_left_nav_actions? like the other apps. %>
-    <% if current_user&.can_administer? %>
+    <% if can_see_left_nav_actions? %>
+      <% recipe_policy = Policy.new(current_user, :recipes) %>
       <hr class="left-nav-divider">
 
-      <%# ── Actions ────────────────────────────────────────────────────────── %>
+      <%# ── Actions (Content Creator and above) ────────────────────────────── %>
       <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('actions') %>">
         <h2 class="left-nav-h2" data-testid="left-nav-actions-h2">
           <%= lucide_icon("cog", size: 14) %> Actions
@@ -394,20 +393,32 @@
         </h2>
 
         <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('actions') %>>
-        <h3 class="left-nav-h3" data-testid="left-nav-new-h3">
-          New
-        </h3>
-        <%= link_to new_cuisine_path, class: "left-nav-link" do %>
-          <%= lucide_icon("utensils", size: 15) %>
-          <span>Add A Cuisine</span>
+        <% if recipe_policy.can_create? || current_user.can_administer? %>
+          <h3 class="left-nav-h3" data-testid="left-nav-new-h3">
+            New
+          </h3>
         <% end %>
-        <%= link_to new_food_type_path, class: "left-nav-link" do %>
-          <%= lucide_icon("soup", size: 15) %>
-          <span>Add A Food Type</span>
+
+        <% if recipe_policy.can_create? %>
+          <%= link_to new_recipe_path, class: "left-nav-link" do %>
+            <%= lucide_icon("file-plus-2", size: 15) %>
+            <span>Write A Recipe</span>
+          <% end %>
         <% end %>
-        <%= link_to new_language_path, class: "left-nav-link" do %>
-          <%= lucide_icon("languages", size: 15) %>
-          <span>Add A Language</span>
+
+        <% if current_user.can_administer? %>
+          <%= link_to new_cuisine_path, class: "left-nav-link" do %>
+            <%= lucide_icon("utensils", size: 15) %>
+            <span>Add A Cuisine</span>
+          <% end %>
+          <%= link_to new_food_type_path, class: "left-nav-link" do %>
+            <%= lucide_icon("soup", size: 15) %>
+            <span>Add A Food Type</span>
+          <% end %>
+          <%= link_to new_language_path, class: "left-nav-link" do %>
+            <%= lucide_icon("languages", size: 15) %>
+            <span>Add A Language</span>
+          <% end %>
         <% end %>
         </div>
       </div>

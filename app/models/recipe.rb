@@ -20,12 +20,25 @@ class Recipe < ApplicationRecord
     attachable.variant :thumbnail, resize_to_fill: [ 200, 200 ]
   end
 
+  has_many :ingredient_sections, -> { order(:position) }, dependent: :destroy, inverse_of: :recipe
+  # A list with no heading and only blank rows is the form's untouched
+  # starting list — dropped rather than saved empty.
+  accepts_nested_attributes_for :ingredient_sections, allow_destroy: true,
+    reject_if: ->(attrs) {
+      attrs["heading"].blank? &&
+        (attrs["ingredients_attributes"] || {}).values.all? do |row|
+          row.slice("quantity", "measurement", "name", "comment").values.all?(&:blank?)
+        end
+    }
+
   enum :format, { raw: "raw", formatted: "formatted" }, validate: true
 
   validates :title, presence: true, uniqueness: { scope: :user_id, case_sensitive: false }
   validates :cuisine, :food_type, :language, presence: true
   validates :serves, :makes, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
   validates :body, presence: true, if: :published?
+
+  before_validation :assign_ingredient_positions
 
   validates :recipe_image,
     content_type: { in: %w[image/jpeg image/png image/webp], message: "must be a JPEG, PNG, or WebP" },
@@ -70,5 +83,17 @@ class Recipe < ApplicationRecord
   # Identifying label used by Toastable — see docs/context-prompts/active/New_Feature_Toasts.md
   def to_toast_label
     title
+  end
+
+  private
+
+  # Lists and rows are saved in the order the form submitted them.
+  def assign_ingredient_positions
+    ingredient_sections.reject(&:marked_for_destruction?).each_with_index do |section, i|
+      section.position = i
+      section.ingredients.reject(&:marked_for_destruction?).each_with_index do |ingredient, j|
+        ingredient.position = j
+      end
+    end
   end
 end

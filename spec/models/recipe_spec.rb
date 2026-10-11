@@ -32,6 +32,8 @@ RSpec.describe Recipe, type: :model do
     it { is_expected.to belong_to(:food_type).without_validating_presence }
     it { is_expected.to belong_to(:language).without_validating_presence }
     it { is_expected.to have_one_attached(:recipe_image) }
+    it { is_expected.to have_many(:ingredient_sections).dependent(:destroy) }
+    it { is_expected.to accept_nested_attributes_for(:ingredient_sections).allow_destroy(true) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────
@@ -162,6 +164,55 @@ RSpec.describe Recipe, type: :model do
 
     it "shows admins everything except soft-deleted recipes" do
       expect(Recipe.visible_to_admins).to contain_exactly(public_recipe, private_recipe, draft_recipe)
+    end
+  end
+
+  # ── Ingredients ───────────────────────────────────────────────────────────
+  describe "Ingredients" do
+    def ingredient(quantity, name, measurement: nil, comment: nil)
+      { quantity: quantity, measurement: measurement, name: name, comment: comment }
+    end
+
+    # 1) Happy Path ──────────────────────────────────────────────────────────
+    it "Saves headed lists and their rows in the order submitted" do
+      recipe = create(:recipe, ingredient_sections_attributes: {
+        "0" => { heading: "Meat sauce", ingredients_attributes: {
+          "0" => ingredient("500", "minced beef", measurement: "g"),
+          "1" => ingredient("1", "onion", comment: "finely chopped")
+        } },
+        "1" => { heading: "White sauce", ingredients_attributes: { "0" => ingredient("5", "milk", measurement: "dl") } }
+      })
+
+      sections = recipe.reload.ingredient_sections
+      expect(sections.map(&:heading)).to eq([ "Meat sauce", "White sauce" ])
+      expect(sections.map(&:position)).to eq([ 0, 1 ])
+      expect(sections.first.ingredients.map(&:name)).to eq([ "minced beef", "onion" ])
+      expect(sections.first.ingredients.map(&:position)).to eq([ 0, 1 ])
+    end
+
+    # 2) Negative Path ───────────────────────────────────────────────────────
+    it "Is invalid when a row has an ingredient but no quantity" do
+      recipe = build(:recipe, ingredient_sections_attributes: {
+        "0" => { ingredients_attributes: { "0" => ingredient("", "salt") } }
+      })
+      expect(recipe).not_to be_valid
+      expect(recipe.errors.full_messages).to include("Quantity can't be blank")
+    end
+
+    # 3) Alternative Path ────────────────────────────────────────────────────
+    it "Ignores completely blank rows and an empty list with no heading" do
+      recipe = create(:recipe, ingredient_sections_attributes: {
+        "0" => { heading: "", ingredients_attributes: { "0" => ingredient("", "") } }
+      })
+      expect(recipe.ingredient_sections).to be_empty
+    end
+
+    # 4) Edge Cases ──────────────────────────────────────────────────────────
+    it "Keeps free-text quantities exactly as typed" do
+      recipe = create(:recipe, ingredient_sections_attributes: {
+        "0" => { ingredients_attributes: { "0" => ingredient("½", "lemon"), "1" => ingredient("2–3", "garlic cloves") } }
+      })
+      expect(recipe.reload.ingredient_sections.first.ingredients.map(&:quantity)).to eq([ "½", "2–3" ])
     end
   end
 

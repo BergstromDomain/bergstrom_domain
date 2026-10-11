@@ -316,6 +316,21 @@ Cookbook-side gaps found, all folded into the blocks below:
    * Ingredients frame: a new two-level dynamic add/remove (sections, then rows).
    * Description/body frame: Raw/Formatted, reusing Quill and `convert_format`.
    * Action frame: Cancel | Save.
+   * **Done 2026-10-11.** Decisions confirmed at the Block 3 gate:
+     * Quantity is mandatory free text ("½", "2–3", "a pinch"). Ingredient is mandatory;
+       Measurement and Comment are optional. A completely blank row is ignored.
+     * Every list heading is optional. The form starts with one unheaded list holding one
+       blank row; an untouched starting list is not saved.
+     * Stored in `ingredient_sections` and `ingredients` tables, each with a `position`
+       set from the submitted order (`Recipe#assign_ingredient_positions`).
+     * Serves and Makes are both kept when both are filled in; Makes is displayed.
+     * Save returns to the Cookbook landing page until the Read page exists (Block 4).
+     * Shared pieces extracted along the way:
+       * `blog_post_editor_controller.js` became `markdown_editor_controller.js`.
+       * The body frame became `shared/_markdown_editor.html.erb`.
+       * `#convert_format` became the `FormatConvertible` concern, so the Recipe editor
+         doesn't depend on Chronicle create permission.
+     * The left-nav Actions section now shows for content creators, with Write A Recipe.
 4. **Read a Recipe**: Title, Metadata, Ingredients, Description, Reactions, Comments and Action
    frames.
    * Back button uses the new shared `return_to` concern.

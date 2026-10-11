@@ -17,6 +17,7 @@ RSpec.describe User, type: :model do
     it { is_expected.to have_many(:contacts).dependent(:destroy) }
     it { is_expected.to have_many(:contact_users).through(:contacts).source(:contact) }
     it { is_expected.to have_many(:blog_posts) }
+    it { is_expected.to have_many(:recipes) }
     it { is_expected.to have_many(:user_app_settings).dependent(:destroy) }
   end
 

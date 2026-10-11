@@ -108,6 +108,12 @@ Rails.application.routes.draw do
   end
   resources :blog_categories, path: "blog-post-categories"
 
+  resources :recipes, only: %i[new create] do
+    collection do
+      post :convert_format
+    end
+  end
+
   # Cookbook reference data
   resources :cuisines
   resources :food_types, path: "food-types"
