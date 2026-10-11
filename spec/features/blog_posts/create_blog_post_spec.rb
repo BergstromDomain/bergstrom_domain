@@ -12,12 +12,31 @@ RSpec.describe "Create Blog Post", type: :feature do
     create(:contact, user: charlie, contact: chris, status: "confirmed")
   end
 
+  # Like choose_category below: CI traces showed native WebDriver input going
+  # missing (a saved Title came back blank), so JS examples set it directly.
   def fill_title(value)
-    find("[data-testid='title-field']").set(value)
+    field = find("[data-testid='title-field']")
+    return field.set(value) unless Capybara.current_driver == Capybara.javascript_driver
+
+    page.execute_script(<<~JS, field, value)
+      const [input, value] = arguments
+      input.value = value
+      input.dispatchEvent(new Event("input", { bubbles: true }))
+    JS
   end
 
+  # Under Selenium, picking through the native <select> popup can leave Chrome
+  # swallowing the next real click (CI traces showed the Save click never
+  # reaching the page), so JS examples set the value directly instead.
   def choose_category(name = "Technology")
-    find("[data-testid='category-field']").select(name)
+    field = find("[data-testid='category-field']")
+    return field.select(name) unless Capybara.current_driver == Capybara.javascript_driver
+
+    page.execute_script(<<~JS, field, name)
+      const [select, name] = arguments
+      select.value = [ ...select.options ].find((option) => option.text === name).value
+      select.dispatchEvent(new Event("change", { bubbles: true }))
+    JS
   end
 
   # sign_in_as's final click triggers a server-side redirect; without an
@@ -131,17 +150,7 @@ RSpec.describe "Create Blog Post", type: :feature do
     end
 
     context "With JavaScript", js: true do
-      # TODO: fails deterministically on CI (3 runs in a row), never locally —
-      # not even across repeated full feature-suite runs. After select_option +
-      # js_click fixed the shuttle step itself, CI still stays on
-      # /blog-posts/new after Save even with a 10s wait, ruling out plain
-      # timing. Suspect blog_post_editor_controller.js's async HTML->Markdown
-      # convert fetch (handleSubmit preventDefaults, awaits it, then
-      # requestSubmits) or a Turbo 422 re-render (which keeps the /new URL).
-      # Server-side co-author rules stay covered by the non-JS Edge Case below.
-      # Revisit with CI-side diagnostics (dump path/field errors/console logs
-      # on failure) — see Outstanding_ToDos_-_Chronicle.md.
-      xit "Adds a confirmed contact as a co-author via the shuttle" do
+      it "Adds a confirmed contact as a co-author via the shuttle" do
         visit new_blog_post_path
         fill_title("Co-Authored Post")
         choose_category
@@ -166,28 +175,20 @@ RSpec.describe "Create Blog Post", type: :feature do
         expect(post.authors).to contain_exactly(charlie, chris)
       end
 
-      # TODO: skipped alongside the co-author shuttle example above, same
-      # CI-only failure — after that one was skipped, this became the
-      # failing example instead (Raw panel never appears after clicking the
-      # Raw tab). Both await blog_post_editor_controller.js's convert_format
-      # fetch, so the problem is the New Blog Post page's JS in CI, not
-      # either example. spec/support/failure_artifacts.rb now captures a
-      # screenshot/HTML/console log for CI's artifact upload — unskip one of
-      # these to collect evidence. See Outstanding_ToDos_-_Chronicle.md.
-      xit "Round-trips content between the Raw and Formatted tabs" do
+      it "Round-trips content between the Raw and Formatted tabs" do
         visit new_blog_post_path
         fill_title("Round Trip Post")
         choose_category
-        find("[data-testid='raw-tab']").click
+        js_click("raw-tab")
         find("[data-testid='body-field']").set("# Hello\n\nWorld")
 
-        find("[data-testid='formatted-tab']").click
+        js_click("formatted-tab")
         within("[data-testid='quill-editor']") do
           expect(page).to have_css("h1", text: "Hello")
           expect(page).to have_content("World")
         end
 
-        find("[data-testid='raw-tab']").click
+        js_click("raw-tab")
         expect(wait_for_raw_value(includes: %w[Hello World])).to include("Hello").and include("World")
       end
     end
@@ -301,7 +302,7 @@ RSpec.describe "Create Blog Post", type: :feature do
         document.querySelector("[data-testid='selected-authors']").appendChild(option)
       JS
 
-      click_button "Save Blog Post"
+      js_click("save-button")
 
       expect(page).to have_current_path(chronicle_path)
       post = BlogPost.find_by(title: "Tampered Post")
