@@ -2,6 +2,7 @@
 * Plan the development of 'Cookbook', a recepies app to be integrated into BergstromDomain
 * Outline the main development blocks for developing the app. Before starting a new development block, summarise what you know and ask me to confirm and/or answer any design questions before progressing
 * Follow previously TDD methodology with clear tests, keeping the test coverage above 95% and follow previously established guidelines
+* Create a new feature branch and add this file
 
 #APP OVERVIEW
 - The app should allow Content Creators to
@@ -16,6 +17,8 @@
 - Use the existing Authentication, Authorisation and Classification 
 - The app should have it's own landing page, left nav bar and footer
 - The app should have the same Toasts, Likes and Comment functionality as Chronicle
+- The app should have similar Import and Export functionality as the other apps
+- The app shuld have it's own header in the User Guide
 - All pages to be full with of the main frame
 - All Referece data pages should be half size - Same a Create Blog Post Category
 
@@ -58,10 +61,11 @@ No text, no letters, no numbers, no logos and no readable recipes. Avoid excessi
       * Add A Cuisine			Same behaviour as for Chronicle
       * Add A Food Type			Same behaviour as for Chronicle
     H2 IMPORT & EXPORT 			Add a TODO to the file 'Feature_-_Style.md' to update Occasions and Chronicle left nav to move the Import sections as a subsection under Actions
-      * Dowload Recipies		Future improvement (empty link for now)
-  H1 DOCUMENTATION			Add a TODO to the file 'Feature_-_Style.md' to update Occasions and Chronicle left nav to to add this H1
-    H2 HOW TO				Add a TODO to the file 'Feature_-_Style.md' to update Occasions and Chronicle left nav to to add this H2
-      * User Guide			Future improvement (empty link for now)
+      * Download Recipies		Same behaviour as for Chronicle
+      * Import Recipies			Same behaviour as for Chronicle
+  H1 DOCUMENTATION
+    H2 HOW TO
+      * User Guide			Same behaviour as for Chronicle
 
 * Design Question-1: Suggest a few options of what to do when the number of items in the left nav bar does not fit on the page and list pros and cons for these options
   * I have identified 2 options, add another one if possible
