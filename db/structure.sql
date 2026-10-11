@@ -990,7 +990,8 @@ CREATE TABLE public.user_app_settings (
     start_page character varying,
     default_classification character varying DEFAULT 'restricted'::character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    default_language_id bigint
 );
 
 
@@ -1974,6 +1975,13 @@ CREATE UNIQUE INDEX index_social_media_platforms_on_slug ON public.social_media_
 
 
 --
+-- Name: index_user_app_settings_on_default_language_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_user_app_settings_on_default_language_id ON public.user_app_settings USING btree (default_language_id);
+
+
+--
 -- Name: index_user_app_settings_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2047,6 +2055,14 @@ ALTER TABLE ONLY public.event_people
 
 ALTER TABLE ONLY public.likes
     ADD CONSTRAINT fk_rails_1e09b5dabf FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: user_app_settings fk_rails_251c45444d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_app_settings
+    ADD CONSTRAINT fk_rails_251c45444d FOREIGN KEY (default_language_id) REFERENCES public.languages(id) ON DELETE SET NULL;
 
 
 --
@@ -2256,6 +2272,7 @@ ALTER TABLE ONLY public.recipes
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261011114134'),
 ('20261011085214'),
 ('20261011085213'),
 ('20261011085211'),

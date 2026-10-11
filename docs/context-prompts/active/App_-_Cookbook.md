@@ -302,6 +302,14 @@ Cookbook-side gaps found, all folded into the blocks below:
 2. **Cookbook Settings**: mirrors the Chronicle/Occasions Settings pages (start page, default
    Classification) plus a **default Language**, which Create needs. Moved forward from the old
    Block 9.
+   * **Done 2026-10-11.** Decisions confirmed at the Block 2 gate:
+     * Start Page choices are added as each page is built. Today the choices are Cookbook,
+       Cuisines, Food Types and Languages.
+     * Default Language is the saved choice, otherwise English (`code: "en"`), via
+       `UserAppSetting#effective_default_language`. If neither exists, the page asks
+       "Select a Language".
+     * Deleting a Language clears anyone's default for it (FK `on_delete: :nullify`). A
+       Language that recipes use still can't be deleted.
 3. **Create a Recipe**:
    * Title/Description/Image frame.
    * Metadata frame: Cuisine, Food Type and Language required; Language pre-filled from settings.

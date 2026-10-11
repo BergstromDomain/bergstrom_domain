@@ -1,6 +1,8 @@
 # app/models/user_app_setting.rb
 class UserAppSetting < ApplicationRecord
   belongs_to :user
+  # Cookbook only — the Language a new Recipe starts with.
+  belongs_to :default_language, class_name: "Language", optional: true
 
   DISPLAY_NAMES = {
     "event_tracker" => "Occasions",
@@ -26,6 +28,11 @@ class UserAppSetting < ApplicationRecord
   }, validate: true
 
   validates :app_name, presence: true, uniqueness: { scope: :user_id }
+
+  # The saved default, else English; nil only if neither exists.
+  def effective_default_language
+    default_language || Language.find_by(code: "en")
+  end
 
   def self.display_name_for(app_name)
     DISPLAY_NAMES.fetch(app_name.to_s, app_name.to_s.humanize)

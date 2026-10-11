@@ -55,6 +55,8 @@ Rails.application.routes.draw do
   patch  "settings/preferences",         to: "settings#update_preferences"
   get    "settings/chronicle",           to: "settings#chronicle_settings",  as: :chronicle_settings
   patch  "settings/chronicle",           to: "settings#update_chronicle_settings"
+  get    "settings/cookbook",            to: "settings#cookbook_settings",   as: :cookbook_settings
+  patch  "settings/cookbook",            to: "settings#update_cookbook_settings"
   get    "settings/occasions",           to: "settings#occasions_settings",  as: :occasions_settings
   patch  "settings/occasions",           to: "settings#update_occasions_settings"
 

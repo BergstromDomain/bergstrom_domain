@@ -124,6 +124,16 @@ RSpec.describe "Sign In", type: :feature do
       expect(page).to have_current_path(blog_categories_path)
     end
 
+    it "Redirects to the Cookbook sub-page set in Cookbook Settings" do
+      user.update!(start_page: "recipes")
+      user.app_settings_for("recipes").update!(start_page: "cuisines")
+      visit new_session_path
+      fill_in "Email address", with: "bergstrom@example.com"
+      fill_in "Password",      with: "password123"
+      click_button "Sign In"
+      expect(page).to have_current_path(cuisines_path)
+    end
+
     it "Redirects to the Occasions sub-page set in Occasions Settings" do
       user.update!(start_page: "event_tracker")
       user.app_settings_for("event_tracker").update!(start_page: "people")

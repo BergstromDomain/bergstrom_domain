@@ -50,8 +50,7 @@ module Authentication
     case current_user.start_page
     when "event_tracker" then occasions_start_page_url(current_user)
     when "blog_posts"    then chronicle_start_page_url(current_user)
-    # Cookbook Settings (its own start-page choice) arrives in a later block.
-    when "recipes"       then cookbook_url
+    when "recipes"       then cookbook_start_page_url(current_user)
     end
   end
 
@@ -63,6 +62,16 @@ module Authentication
     when "my_unpublished_posts"  then filter_blog_posts_url(author_id: user.id, published: "draft")
     when "blog_categories"       then blog_categories_url
     else                              chronicle_url
+    end
+  end
+
+  # Choices are added as each Cookbook page is built.
+  def cookbook_start_page_url(user)
+    case user.app_settings_for("recipes").start_page
+    when "cuisines"   then cuisines_url
+    when "food_types" then food_types_url
+    when "languages"  then languages_url
+    else                   cookbook_url
     end
   end
 

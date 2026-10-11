@@ -81,6 +81,20 @@ class SettingsController < ApplicationController
     end
   end
 
+  def cookbook_settings
+    @user_app_setting = Current.user.app_settings_for("recipes")
+  end
+
+  def update_cookbook_settings
+    @user_app_setting = Current.user.app_settings_for("recipes")
+
+    if @user_app_setting.update(cookbook_setting_params)
+      redirect_to cookbook_settings_path, notice: "Cookbook Settings updated."
+    else
+      render :cookbook_settings, status: :unprocessable_entity
+    end
+  end
+
   def occasions_settings
     @user_app_setting = Current.user.app_settings_for("event_tracker")
   end
@@ -111,5 +125,9 @@ class SettingsController < ApplicationController
     attrs = params.require(:user_app_setting).permit(:start_page, :default_classification)
     attrs[:start_page] = attrs[:start_page].presence if attrs.key?(:start_page)
     attrs
+  end
+
+  def cookbook_setting_params
+    app_setting_params.merge(params.require(:user_app_setting).permit(:default_language_id))
   end
 end
