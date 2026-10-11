@@ -1,0 +1,98 @@
+# spec/requests/eager_loading_spec.rb
+
+require "rails_helper"
+
+# List pages that render one row/card per record must eager-load everything
+# each row touches — Bullet (dev only) flagged these as N+1s during manual
+# testing. Two records per page is the minimum Bullet needs to spot one.
+RSpec.describe "Eager loading", type: :request do
+  let(:adam) { create(:user, :admin) }
+
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
+    before { sign_in_as(adam) }
+
+    it "Loads Filter Blog Posts without N+1 queries" do
+      create_list(:blog_post, 2)
+
+      without_n_plus_one_queries { get filter_blog_posts_path }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads a Browse Blog Posts preview panel without N+1 queries" do
+      category = create(:blog_category)
+      create_list(:blog_post, 2, blog_category: category)
+
+      without_n_plus_one_queries { get blog_posts_path(category_id: category.slug) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads Filter People and Events without N+1 queries" do
+      create_list(:event, 2)
+
+      without_n_plus_one_queries { get filter_people_events_path }
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
+    it "Fails code that does have an N+1 query" do
+      create_list(:blog_post, 2)
+
+      expect {
+        without_n_plus_one_queries { BlogPost.all.each { |post| post.user.email_address } }
+      }.to raise_error(Bullet::Notification::UnoptimizedQueryError)
+    end
+  end
+
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
+    it "Loads Download Blog Posts without N+1 or unused eager loading" do
+      sign_in_as(adam)
+      create_list(:blog_post, 2)
+
+      without_n_plus_one_queries { get blog_exports_path }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads a filtered Download Blog Posts without N+1 queries" do
+      sign_in_as(adam)
+      create_list(:blog_post, 2, :published)
+
+      without_n_plus_one_queries { get blog_exports_path(published: "published") }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads Download People and Events without N+1 or unused eager loading" do
+      sign_in_as(adam)
+      create_list(:event, 2)
+
+      without_n_plus_one_queries { get people_events_exports_path }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads Filter Blog Posts without N+1 queries for a guest" do
+      create_list(:blog_post, 2, :unrestricted, :published)
+
+      without_n_plus_one_queries { get filter_blog_posts_path }
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
+    it "Leaves Bullet switched off again after the block" do
+      without_n_plus_one_queries { nil }
+
+      expect(Bullet.enable?).to be(false)
+    end
+  end
+end

@@ -10,9 +10,8 @@ no "resolved" section here, git history already has that record.
 
 ## Open
 
-- [ ] Missing eager loading (N+1 queries): Bullet (dev only, `config/environments/development.rb`)
-      has now pinned down the known cases, logged in the per-app docs: 2 in
-      `Outstanding_ToDos_-_Chronicle.md`, 1 in `Outstanding_ToDos_-_Occasions.md`. Fix them
-      together in one small `perf` PR. Cross-app follow-up: consider enabling Bullet in the test
-      env (`Bullet.raise = true`) so new N+1s fail specs instead of only showing up in the dev log.
-      This matters more as more apps (Cookbook next) reuse the shared filter/browse patterns.
+- [ ] Consider enabling Bullet suite-wide in the test env (`Bullet.raise = true`) so any new N+1
+      fails specs instead of only showing up in the dev log. For now only the pages in
+      `spec/requests/eager_loading_spec.rb` are guarded, via `without_n_plus_one_queries`
+      (`spec/support/bullet_helpers.rb`). Add new list pages there, especially as Cookbook
+      reuses the shared filter/browse patterns.

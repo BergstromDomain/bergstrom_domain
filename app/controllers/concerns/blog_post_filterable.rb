@@ -10,8 +10,11 @@ module BlogPostFilterable
 
   private
 
-  def compute_filtered_blog_posts
-    posts = visible_blog_posts_scope.includes(:user, :blog_category, :likes).to_a
+  # `includes` is whatever else the caller's own page renders per post (e.g.
+  # the Filter page's hero images and author photos) — the Download pages
+  # render less, and Bullet flags eager loads a page doesn't use.
+  def compute_filtered_blog_posts(includes: [])
+    posts = visible_blog_posts_scope.includes(:user, :blog_category, *includes).to_a
 
     @mode  = params[:mode] == "sql" ? "sql" : "basic"
     @query = params[:query].to_s
@@ -28,6 +31,9 @@ module BlogPostFilterable
 
       if ast
         BlogPostFilter::EVALUATOR.validate!(ast)
+        # The evaluator reads every post's like score, so only a filtered
+        # request needs Likes (a no-op when the caller already included them).
+        ActiveRecord::Associations::Preloader.new(records: posts, associations: :likes).call
         @posts = posts.select { |post| BlogPostFilter::EVALUATOR.matches?(ast, BlogPostFilter.attributes_for(post)) }
       end
     rescue Jql::ParseError => e

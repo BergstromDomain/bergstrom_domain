@@ -23,7 +23,7 @@ class BlogPostsController < ApplicationController
   FILTER_SORT_COLUMNS = %w[category subject topic title author created smiles].freeze
 
   def filter
-    compute_filtered_blog_posts
+    compute_filtered_blog_posts(includes: [ :likes, { blog_image_attachment: :blob }, { user: { profile_image_attachment: :blob } } ])
 
     @sort      = FILTER_SORT_COLUMNS.include?(params[:sort]) ? params[:sort] : "created"
     @direction = params[:direction] == "asc" ? "asc" : "desc"

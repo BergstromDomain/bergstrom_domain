@@ -8,7 +8,4 @@ no "resolved" section here, git history already has that record.
 
 ## Open
 
-- [ ] N+1: the People/Events filter loads each Event's people one query at a time
-      (Bullet: `Event => [:people]`, from
-      `app/controllers/concerns/people_events_filterable.rb:45`). Add `.includes(:people)` to
-      the Event relation it iterates.
+*(none yet)*
