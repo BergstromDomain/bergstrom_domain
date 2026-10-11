@@ -336,6 +336,20 @@ Cookbook-side gaps found, all folded into the blocks below:
    * Back button uses the new shared `return_to` concern.
    * **Real Reactions**: generalise `LikesController` and extract the shared reaction partial
      (Chronicle switches to it too).
+   * **Done 2026-10-11.** Decisions confirmed at the Block 4 gate:
+     * Ingredients read like a printed recipe: one list per section under its heading
+       (if any), each row showing "5 dl" then "yellow peas", with the comment in grey italics.
+     * Blank Description, Serves/Makes and Cook Time are hidden, not shown as empty labels.
+     * Chef shows the owner's full name with their profile thumbnail.
+     * A recipe with no image shows its Cuisine flag badge; the Language flag sits right of
+       the title.
+     * `ReturnTo` concern (`return_to_or(fallback)`): only a relative path on this site is
+       honoured, so `//host` and absolute URLs fall back. Back falls back to the Cookbook
+       landing page until Browse exists.
+     * Reactions: `LikesController` serves both `blog_posts/:id/like` and `recipes/:id/like`.
+       The shared partials are `shared/_reactions_score`, `shared/_reactions_panel` and
+       `shared/_reactions_breakdown` (was `blog_posts/_likes_breakdown`).
+     * Save now opens the new recipe's Read page.
 5. **Edit + Publish/Unpublish a Recipe**: a combined block, like Chronicle's. Each edit reverts
    the recipe to Draft.
 6. **Delete a Recipe**: soft-delete, 30-day retention, admin restore; mirrors

@@ -108,7 +108,8 @@ Rails.application.routes.draw do
   end
   resources :blog_categories, path: "blog-post-categories"
 
-  resources :recipes, only: %i[new create] do
+  resources :recipes, only: %i[new create show] do
+    resource :like, only: %i[create destroy], controller: "likes"
     collection do
       post :convert_format
     end

@@ -724,6 +724,50 @@ code, pre {
   text-align: center;
 }
 
+/* Recipe Read page (app/views/recipes/show.html.erb) */
+.recipe-title .page-title {
+  flex: 1;
+}
+
+.recipe-title__language {
+  margin-left: auto;
+}
+
+.recipe-ingredient-section + .recipe-ingredient-section {
+  margin-top: var(--space-lg);
+}
+
+.recipe-ingredient-section__heading {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-xs);
+}
+
+.recipe-ingredients {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.recipe-ingredient {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: var(--space-md);
+  padding: var(--space-2xs) 0;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.recipe-ingredient__amount {
+  font-weight: var(--font-weight-semibold);
+  text-align: right;
+}
+
+.recipe-ingredient__comment {
+  color: var(--color-text-secondary);
+  font-style: italic;
+  margin-left: var(--space-xs);
+}
+
 .page-header__title-group {
   display: flex;
   align-items: center;
@@ -2133,7 +2177,7 @@ textarea.form-control {
 }
 .form-check label {
   cursor: pointer;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-md);
   color: var(--color-text-primary);
 }
 

@@ -1,0 +1,141 @@
+<% unless @recipe.published? %>
+  <%= render "shared/toast",
+        variant: "warning",
+        message: "This recipe is still in Draft mode.",
+        testid: "draft-mode-warning",
+        dismissible: false %>
+<% end %>
+
+<%# Title Frame %>
+<div class="page-header">
+  <div class="page-header__top recipe-title">
+    <% if @recipe.recipe_image.attached? %>
+      <div class="page-header__image" data-testid="recipe-image">
+        <%= image_tag @recipe.recipe_image.variant(:thumbnail), alt: @recipe.title %>
+      </div>
+    <% else %>
+      <div class="page-header__image" data-testid="recipe-cuisine-image">
+        <%= render "shared/flag_badge", flag: @recipe.cuisine.flag, badge: "utensils", large: true %>
+      </div>
+    <% end %>
+    <h1 class="page-title" data-testid="recipe-title"><%= @recipe.title %></h1>
+    <span class="recipe-title__language" title="<%= @recipe.language.name %>" data-testid="recipe-language">
+      <%= render "shared/flag_badge", flag: @recipe.language.flag, badge: "book-open-check" %>
+    </span>
+  </div>
+  <% if @recipe.description.present? %>
+    <p class="page-header__subtitle" data-testid="recipe-description"><%= @recipe.description %></p>
+  <% end %>
+</div>
+
+<%# Metadata Frame %>
+<div class="show-panel" data-testid="show-panel-metadata">
+  <div class="show-meta-row">
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Food Type</h3>
+      <p class="show-meta-cell__value" data-testid="recipe-food-type">
+        <%= lucide_icon(@recipe.food_type.icon, size: 16) %>
+        <%= link_to @recipe.food_type.name, food_type_path(@recipe.food_type) %>
+      </p>
+    </div>
+
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Cuisine</h3>
+      <p class="show-meta-cell__value" data-testid="recipe-cuisine">
+        <%= @recipe.cuisine.flag %>
+        <%= link_to @recipe.cuisine.name, cuisine_path(@recipe.cuisine) %>
+      </p>
+    </div>
+
+    <% portions_label, portions = @recipe.portions %>
+    <% if portions.present? %>
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label" data-testid="recipe-portions-label"><%= portions_label %></h3>
+        <p class="show-meta-cell__value" data-testid="recipe-portions"><%= portions %></p>
+      </div>
+    <% end %>
+
+    <% if @recipe.cook_time.present? %>
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label">Cook Time</h3>
+        <p class="show-meta-cell__value" data-testid="recipe-cook-time"><%= @recipe.cook_time %></p>
+      </div>
+    <% end %>
+
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Chef</h3>
+      <div class="show-meta-cell__value comment__header" data-testid="recipe-chef">
+        <% if @recipe.user.profile_image.attached? %>
+          <%= image_tag @recipe.user.profile_image.variant(:thumbnail),
+                alt: "#{@recipe.user.first_name} #{@recipe.user.last_name}",
+                class: "table-thumbnail table-thumbnail--person table-thumbnail--small" %>
+        <% else %>
+          <div class="table-thumbnail-icon table-thumbnail-icon--person table-thumbnail-icon--small">
+            <%= lucide_icon("user", size: 16) %>
+          </div>
+        <% end %>
+        <span><%= @recipe.user.first_name %> <%= @recipe.user.last_name %></span>
+      </div>
+    </div>
+
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Comments</h3>
+      <p class="show-meta-cell__value" data-testid="recipe-comments-count"><%= @recipe.comments_count %></p>
+    </div>
+
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Reactions</h3>
+      <%= render "shared/reactions_score", likeable: @recipe, testid: "recipe-likes-count" %>
+    </div>
+  </div>
+</div>
+
+<%# Ingredients Frame %>
+<div class="show-panel" data-testid="recipe-ingredients">
+  <h2 class="show-panel__heading">Ingredients</h2>
+  <% if @ingredient_sections.any? %>
+    <% @ingredient_sections.each do |section| %>
+      <div class="recipe-ingredient-section" data-testid="recipe-ingredient-section">
+        <% if section.heading.present? %>
+          <h3 class="recipe-ingredient-section__heading"><%= section.heading %></h3>
+        <% end %>
+        <ul class="recipe-ingredients">
+          <% section.ingredients.each do |ingredient| %>
+            <li class="recipe-ingredient" data-testid="recipe-ingredient">
+              <span class="recipe-ingredient__amount"><%= [ ingredient.quantity, ingredient.measurement ].compact_blank.join(" ") %></span>
+              <span>
+                <span class="recipe-ingredient__name"><%= ingredient.name %></span>
+                <% if ingredient.comment.present? %>
+                  <span class="recipe-ingredient__comment"><%= ingredient.comment %></span>
+                <% end %>
+              </span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  <% else %>
+    <p class="empty-state" data-testid="recipe-no-ingredients">No ingredients have been added yet.</p>
+  <% end %>
+</div>
+
+<%# Method Frame %>
+<div class="show-panel" data-testid="recipe-method">
+  <h2 class="show-panel__heading">Method</h2>
+  <div class="show-panel__section">
+    <%= sanitize @recipe.rendered_body,
+          tags:       Recipe::RENDERED_BODY_ALLOWED_TAGS,
+          attributes: Recipe::RENDERED_BODY_ALLOWED_ATTRIBUTES %>
+  </div>
+</div>
+
+<%# Reactions Frame %>
+<%= render "shared/reactions_panel", likeable: @recipe, like_path: recipe_like_path(@recipe), noun: "recipe" %>
+
+<%# Action Frame — Edit/Publish (Block 5), Delete (Block 6) and Comments
+    (Block 7) arrive in later blocks of docs/context-prompts/active/App_-_Cookbook.md. %>
+<div class="show-panel show-panel--actions" data-testid="show-panel-actions">
+  <%= link_to return_to_or(cookbook_path), class: "btn btn-secondary" do %>
+    <%= lucide_icon("arrow-left", size: 16) %> Back
+  <% end %>
+</div>

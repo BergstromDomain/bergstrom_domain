@@ -2,11 +2,15 @@
 class Recipe < ApplicationRecord
   include Classifiable
   include MarkdownRenderable
+  include Likeable
 
   extend FriendlyId
   # :title is only unique per owner, so a second owner's same-titled recipe
   # falls back to [:title, :user_id] — mirrors BlogPost.
   friendly_id :slug_candidates, use: [ :slugged, :history ]
+
+  RENDERED_BODY_ALLOWED_TAGS       = %w[h1 h2 h3 h4 h5 h6 p br strong em u s blockquote ol ul li a code pre img span].freeze
+  RENDERED_BODY_ALLOWED_ATTRIBUTES = %w[href src alt style lang].freeze
 
   # Required on every save, drafts included (the columns are NOT NULL too) —
   # see "DECISIONS (2026-10-11)" in docs/context-prompts/active/App_-_Cookbook.md.

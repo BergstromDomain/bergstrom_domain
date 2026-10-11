@@ -2,7 +2,10 @@
 class RecipesController < ApplicationController
   include Navigable
   include FormatConvertible
+  include ReturnTo
 
+  allow_unauthenticated_access only: %i[show]
+  before_action :resume_session_if_present, only: %i[show]
   before_action :require_create_access, only: %i[new create convert_format]
 
   def new
@@ -14,12 +17,21 @@ class RecipesController < ApplicationController
     @recipe.ingredient_sections.build.ingredients.build
   end
 
+  def show
+    @recipe = Recipe.friendly.find(params[:id])
+    @policy = Policy.new(current_user, @recipe)
+    unless @policy.can_read?
+      redirect_to cookbook_path, alert: "You do not have permission to view that recipe."
+      return
+    end
+    @ingredient_sections = @recipe.ingredient_sections.includes(:ingredients)
+  end
+
   def create
     @recipe = current_user.recipes.build(recipe_params)
     if @recipe.save
       toast_created(@recipe)
-      # The Read page arrives in Block 4 of docs/context-prompts/active/App_-_Cookbook.md.
-      redirect_to cookbook_path
+      redirect_to @recipe
     else
       @recipe.ingredient_sections.build.ingredients.build if @recipe.ingredient_sections.empty?
       render :new, status: :unprocessable_entity
@@ -29,6 +41,10 @@ class RecipesController < ApplicationController
   private
 
   def format_model = Recipe
+
+  def resume_session_if_present
+    Current.session ||= find_session_by_cookie
+  end
 
   def require_create_access
     redirect_to cookbook_path, alert: "Not authorised." unless Policy.new(current_user, :recipes).can_create?

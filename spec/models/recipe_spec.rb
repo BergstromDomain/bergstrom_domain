@@ -32,6 +32,7 @@ RSpec.describe Recipe, type: :model do
     it { is_expected.to belong_to(:food_type).without_validating_presence }
     it { is_expected.to belong_to(:language).without_validating_presence }
     it { is_expected.to have_one_attached(:recipe_image) }
+    it { is_expected.to have_many(:likes).dependent(:destroy) }
     it { is_expected.to have_many(:ingredient_sections).dependent(:destroy) }
     it { is_expected.to accept_nested_attributes_for(:ingredient_sections).allow_destroy(true) }
   end

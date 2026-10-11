@@ -58,7 +58,7 @@ RSpec.describe "Create Recipe", type: :feature do
   describe "Happy Path" do
     before { sign_in_as(charlie) }
 
-    it "Creates a draft recipe and returns to the Cookbook with a toast" do
+    it "Creates a draft recipe and opens it with a toast" do
       visit new_recipe_path
       fill_required
       fill_in "Description", with: "A Thursday classic."
@@ -66,7 +66,7 @@ RSpec.describe "Create Recipe", type: :feature do
       fill_in "Cook Time",   with: "2 hours"
       click_button "Save Recipe"
 
-      expect(page).to have_current_path(cookbook_path)
+      expect(page).to have_current_path(recipe_path(Recipe.find_by!(title: "Pea Soup")))
       expect(page).to have_css("[data-testid='flash-success']", text: "Pea Soup has been successfully created")
 
       recipe = Recipe.find_by!(title: "Pea Soup")
@@ -100,6 +100,11 @@ RSpec.describe "Create Recipe", type: :feature do
     end
 
     context "With JavaScript", js: true do
+      # sign_in_as's redirect can still be in flight under Selenium, and a
+      # `visit` straight after it can lose the race (left on "/") — settle on
+      # the signed-in top nav first, as sign_in_and_settle does elsewhere.
+      before { expect(page).to have_css("[data-testid='user-thumbnail-dropdown']", wait: 10) }
+
       it "Adds rows and a second headed list, and saves them in order" do
         visit new_recipe_path
         fill_required(title: "Lasagna")
@@ -118,7 +123,7 @@ RSpec.describe "Create Recipe", type: :feature do
         fill_row(second_section.find("[data-testid='ingredient-row']"), quantity: "5", measurement: "dl", name: "milk")
 
         save
-        expect(page).to have_current_path(cookbook_path, wait: 10)
+        expect(page).to have_css("[data-testid='flash-success']", wait: 10)
 
         sections = Recipe.find_by!(title: "Lasagna").ingredient_sections
         expect(sections.map(&:heading)).to eq([ "Meat sauce", "White sauce" ])
@@ -139,7 +144,7 @@ RSpec.describe "Create Recipe", type: :feature do
         expect(page).to have_css("[data-testid='ingredient-section']", count: 1)
 
         save
-        expect(page).to have_current_path(cookbook_path, wait: 10)
+        expect(page).to have_css("[data-testid='flash-success']", wait: 10)
         recipe = Recipe.find_by!(title: "Pea Soup")
         expect(recipe.ingredient_sections.count).to eq(1)
         expect(recipe.ingredient_sections.first.ingredients.map(&:name)).to eq([ "yellow peas" ])
@@ -152,7 +157,7 @@ RSpec.describe "Create Recipe", type: :feature do
         set_value(find("[data-testid='body-field']"), "1. Soak the peas")
         save
 
-        expect(page).to have_current_path(cookbook_path, wait: 10)
+        expect(page).to have_css("[data-testid='flash-success']", wait: 10)
         expect(Recipe.find_by!(title: "Pea Soup").body).to include("Soak the peas")
       end
     end
@@ -254,7 +259,7 @@ RSpec.describe "Create Recipe", type: :feature do
       visit new_recipe_path
       fill_required
       click_button "Save Recipe"
-      expect(page).to have_current_path(cookbook_path)
+      expect(page).to have_current_path(recipe_path(Recipe.last))
     end
   end
 

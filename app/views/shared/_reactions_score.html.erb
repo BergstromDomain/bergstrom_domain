@@ -1,0 +1,20 @@
+<%#
+  A Likeable's aggregate reaction score for a metadata cell, opening the
+  breakdown popup on click. Locals: likeable, testid.
+%>
+<% if likeable.like_score %>
+  <div data-controller="popup">
+    <button type="button" class="show-meta-cell__value show-meta-cell__value--clickable"
+            data-action="popup#open" data-testid="<%= testid %>">
+      <%= number_with_precision(likeable.like_score, precision: 1) %>
+      <%= lucide_icon(Like::FACES[likeable.like_score_face][:icon], size: 16,
+            class: "like-face--#{likeable.like_score_face}") %>
+    </button>
+
+    <%= render layout: "shared/popup", locals: { testid: "likes-breakdown-popup" } do %>
+      <%= render "shared/reactions_breakdown", likeable: likeable %>
+    <% end %>
+  </div>
+<% else %>
+  <p class="show-meta-cell__value" data-testid="<%= testid %>">No reactions yet</p>
+<% end %>
