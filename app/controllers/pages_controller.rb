@@ -1,9 +1,9 @@
 # app/controllers/pages_controller.rb
 class PagesController < ApplicationController
   include Navigable
-  skip_before_action :set_left_nav, except: %i[ event_tracker chronicle user_guide ]
+  skip_before_action :set_left_nav, except: %i[ event_tracker chronicle cookbook user_guide ]
 
-  allow_unauthenticated_access only: %i[ home about contact chronicle event_tracker user_guide ]
+  allow_unauthenticated_access only: %i[ home about contact chronicle cookbook event_tracker user_guide ]
 
   def home
   end
@@ -15,6 +15,9 @@ class PagesController < ApplicationController
   end
 
   def chronicle
+  end
+
+  def cookbook
   end
 
   def settings

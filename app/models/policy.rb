@@ -15,9 +15,10 @@ class Policy
       return !!can_administer?
     end
 
-    # A draft BlogPost is visible only to its authors/admins, regardless of
-    # classification — Classifiable's normal rules only govern published posts.
-    if @resource.is_a?(BlogPost) && !@resource.published?
+    # A draft BlogPost or Recipe is visible only to its authors/owner and
+    # admins, regardless of classification — Classifiable's normal rules only
+    # govern published ones.
+    if (@resource.is_a?(BlogPost) || @resource.is_a?(Recipe)) && !@resource.published?
       return !!(owner? || can_administer?)
     end
 
@@ -100,7 +101,7 @@ class Policy
     case resource
     when Event, EventType, Person, SocialMediaPlatform, :event_tracker then "event_tracker"
     when BlogPost, BlogCategory, :blog_posts      then "blog_posts"
-    when :recipes                                 then "recipes"
+    when Recipe, Cuisine, FoodType, Language, :recipes then "recipes"
     when :photo_albums                            then "photo_albums"
     end
   end

@@ -342,6 +342,58 @@
       </div>
     </div>
 
+  <% elsif @left_nav_section == :recipes %>
+
+    <%# ── Views ─────────────────────────────────────────────────────────── %>
+    <%# Further Cookbook links (Recipes, My Recipes, Reference Data, Actions)
+        are added block by block as their pages exist — see
+        docs/context-prompts/active/App_-_Cookbook.md. %>
+    <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('views') %>">
+      <h2 class="left-nav-h2" data-testid="left-nav-views-h2">
+        <%= lucide_icon("eye", size: 14) %> Views
+        <%= left_nav_section_toggle("views", "left-nav-views-h2") %>
+      </h2>
+
+      <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('views') %>>
+      <h3 class="left-nav-h3" data-testid="left-nav-cookbook-h3">Cookbook</h3>
+      <%= link_to cookbook_path, class: "left-nav-link" do %>
+        <%= lucide_icon("chef-hat", size: 15) %>
+        <span>Cookbook</span>
+      <% end %>
+      </div>
+    </div>
+
+    <hr class="left-nav-divider">
+
+    <%# ── Documentation ──────────────────────────────────────────────────── %>
+    <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('documentation') %>">
+      <h2 class="left-nav-h2" data-testid="left-nav-documentation-h2">
+        <%= lucide_icon("book-open", size: 14) %> Documentation
+        <%= left_nav_section_toggle("documentation", "left-nav-documentation-h2") %>
+      </h2>
+
+      <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('documentation') %>>
+      <h3 class="left-nav-h3" data-testid="left-nav-how-to-h3">
+        How To
+      </h3>
+
+      <% recipes_guide_pages = guide_pages_for_section(:recipes) %>
+      <% if recipes_guide_pages.any? %>
+        <% recipes_guide_pages.each do |guide_page| %>
+          <%= link_to guide_page_path(guide_page), class: "left-nav-link", data: { testid: "left-nav-guide-page-link" } do %>
+            <%= lucide_icon("file-text", size: 15) %>
+            <span><%= guide_page.title %></span>
+          <% end %>
+        <% end %>
+      <% else %>
+        <%= link_to user_guide_path, class: "left-nav-link" do %>
+          <%= lucide_icon("book-open-check", size: 15) %>
+          <span>User Guide</span>
+        <% end %>
+      <% end %>
+      </div>
+    </div>
+
   <% elsif @left_nav_section == :guide_pages %>
 
     <%# ── Views ─────────────────────────────────────────────────────────── %>

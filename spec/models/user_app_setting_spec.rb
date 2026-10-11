@@ -30,15 +30,19 @@ RSpec.describe UserAppSetting, type: :model do
       expect(UserAppSetting.display_name_for("blog_posts")).to eq("Chronicle")
     end
 
+    it "returns 'Cookbook' for recipes" do
+      expect(UserAppSetting.display_name_for("recipes")).to eq("Cookbook")
+    end
+
     it "falls back to a humanized name for an app without a mapped display name" do
-      expect(UserAppSetting.display_name_for("recipes")).to eq("Recipes")
+      expect(UserAppSetting.display_name_for("photo_albums")).to eq("Photo albums")
     end
   end
 
   describe ".live_apps_by_display_name" do
     it "returns [display name, app_name] pairs sorted alphabetically by display name" do
       expect(UserAppSetting.live_apps_by_display_name).to eq(
-        [ [ "Chronicle", "blog_posts" ], [ "Occasions", "event_tracker" ] ]
+        [ [ "Chronicle", "blog_posts" ], [ "Cookbook", "recipes" ], [ "Occasions", "event_tracker" ] ]
       )
     end
   end

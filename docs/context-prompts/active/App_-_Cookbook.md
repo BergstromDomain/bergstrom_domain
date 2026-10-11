@@ -269,6 +269,19 @@ Cookbook-side gaps found, all folded into the blocks below:
    * `recipes` added to `GuidePage#app_section` (label "Cookbook") and
      `UserAppSetting::LIVE_APPS`.
    * Update CLAUDE.md's "What this is" section.
+   * **Done 2026-10-11.** Decisions confirmed at the Block 0 gate:
+     * **Cuisine**: name, description and flag. **Language**: name, a 2-letter code (`sv`,
+       `en`; stored lower case, unique) and flag. **Food Type**: name, description and a
+       Lucide icon, like Blog Categories.
+     * A flag is any single emoji (`Flaggable` concern), so a regional Cuisine can use 🌍.
+     * Language fallback: the form pre-selects the user's default; if both are empty, save
+       fails with "Language can't be blank" (built in Blocks 2 and 3).
+     * Serves/Makes are optional positive whole numbers; `Recipe#portions` returns Makes if
+       set, otherwise Serves. Cooktime is free text.
+     * Left-nav links are added only once their page exists (no dead links).
+     * Landing-page copy is a first draft for the user to edit.
+     * The Cookbook start-page choice in Preferences goes to the landing page until
+       Cookbook Settings (Block 2) adds sub-page choices.
 1. **Reference Data CRUD** (Cuisine, Food Type, Language): mirrors `EventTypesController` and
    `BlogCategoriesController`.
    * Half-width pages; flag emoji plus a Lucide icon badge (Design Question-3); admin-only.

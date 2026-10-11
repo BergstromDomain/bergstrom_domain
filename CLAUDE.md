@@ -4,13 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-The Rails app behind bergstromdomain.com — a personal platform intended to host several
-sub-apps under one auth/permission system. Only **Event_Tracker** (people, events, event
-types) is implemented so far; **Blog_Posts**, **Recipes**, and **Photo_Album** exist today
-only as enum values / stub routes (`app_name` in `AppPermission`, `pages#blog_posts`,
-`pages#event_tracker`) reserved for future apps. Development is documented as a blog series
-(`docs/blog/`) written in strict Red → Green → Refactor TDD style — keep that workflow in
-mind when asked to add features: write/adjust the spec first.
+The Rails app behind bergstromdomain.com — a personal platform hosting several sub-apps
+under one auth/permission system. Each app has a technical name (the `app_name` value in
+`AppPermission`/`UserAppSetting`, the commit prefix) and a user-facing brand:
+- **Event_Tracker** → "Occasions" (people, events, event types): implemented.
+- **Blog_Posts** → "Chronicle" (blog posts, categories, comments, reactions): implemented.
+- **Recipes** → "Cookbook": in progress, built block by block per
+  `docs/context-prompts/active/App_-_Cookbook.md` (models, landing page and left-nav
+  skeleton so far).
+- **Photo_Album**: reserved enum value only.
+
+Development is documented as a blog series (`docs/blog/`) written in strict Red → Green →
+Refactor TDD style — keep that workflow in mind when asked to add features: write/adjust the
+spec first.
 
 ## Commands
 

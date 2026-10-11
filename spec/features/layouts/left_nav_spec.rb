@@ -403,6 +403,43 @@ RSpec.describe "Left Nav", type: :feature do
       end
     end
 
+    describe "Cookbook" do
+      context "When 'Gary Guest' visits the 'Cookbook' landing page" do
+        before { visit cookbook_path }
+
+        it "Shows the 'Views' section with a 'Cookbook' group and link" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-views-h2']")
+            expect(page).to have_selector("[data-testid='left-nav-cookbook-h3']", text: "Cookbook")
+            expect(page).to have_link("Cookbook", href: cookbook_path)
+          end
+        end
+
+        it "Does not show the Actions section" do
+          within("[data-testid='left-nav']") do
+            expect(page).not_to have_selector("[data-testid='left-nav-actions-h2']")
+          end
+        end
+
+        it "Shows the Documentation section with a How To group and User Guide link" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-documentation-h2']")
+            expect(page).to have_selector("[data-testid='left-nav-how-to-h3']")
+            expect(page).to have_link("User Guide", href: user_guide_path)
+          end
+        end
+
+        it "Lists Cookbook's own guide pages once they exist, instead of the single fallback link" do
+          cookbook_guide = create(:guide_page, title: "Cookbook Guide", app_section: "recipes")
+          visit cookbook_path
+          within("[data-testid='left-nav']") do
+            expect(page).to have_link("Cookbook Guide", href: guide_page_path(cookbook_guide))
+            expect(page).not_to have_link("User Guide", href: user_guide_path)
+          end
+        end
+      end
+    end
+
     describe "Guide Pages" do
       context "When 'Gary Guest' visits the guide pages index" do
         before { visit guide_pages_path }

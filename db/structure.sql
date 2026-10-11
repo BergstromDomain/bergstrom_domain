@@ -376,6 +376,40 @@ ALTER SEQUENCE public.contacts_id_seq OWNED BY public.contacts.id;
 
 
 --
+-- Name: cuisines; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.cuisines (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    description text NOT NULL,
+    flag character varying NOT NULL,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: cuisines_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.cuisines_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: cuisines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.cuisines_id_seq OWNED BY public.cuisines.id;
+
+
+--
 -- Name: event_mutes; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -546,6 +580,40 @@ ALTER SEQUENCE public.events_id_seq OWNED BY public.events.id;
 
 
 --
+-- Name: food_types; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.food_types (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    description text NOT NULL,
+    icon character varying NOT NULL,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: food_types_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.food_types_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: food_types_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.food_types_id_seq OWNED BY public.food_types.id;
+
+
+--
 -- Name: friendly_id_slugs; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -613,6 +681,40 @@ CREATE SEQUENCE public.guide_pages_id_seq
 --
 
 ALTER SEQUENCE public.guide_pages_id_seq OWNED BY public.guide_pages.id;
+
+
+--
+-- Name: languages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.languages (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    code character varying NOT NULL,
+    flag character varying NOT NULL,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: languages_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.languages_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: languages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.languages_id_seq OWNED BY public.languages.id;
 
 
 --
@@ -750,6 +852,52 @@ CREATE SEQUENCE public.person_social_media_accounts_id_seq
 --
 
 ALTER SEQUENCE public.person_social_media_accounts_id_seq OWNED BY public.person_social_media_accounts.id;
+
+
+--
+-- Name: recipes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.recipes (
+    id bigint NOT NULL,
+    title character varying NOT NULL,
+    description text,
+    body text,
+    format character varying DEFAULT 'formatted'::character varying NOT NULL,
+    serves integer,
+    makes integer,
+    cook_time character varying,
+    classification character varying DEFAULT 'contacts'::character varying NOT NULL,
+    slug character varying,
+    published_at timestamp(6) without time zone,
+    deleted_at timestamp(6) without time zone,
+    comments_count integer DEFAULT 0 NOT NULL,
+    user_id bigint NOT NULL,
+    cuisine_id bigint NOT NULL,
+    food_type_id bigint NOT NULL,
+    language_id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: recipes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.recipes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: recipes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.recipes_id_seq OWNED BY public.recipes.id;
 
 
 --
@@ -976,6 +1124,13 @@ ALTER TABLE ONLY public.contacts ALTER COLUMN id SET DEFAULT nextval('public.con
 
 
 --
+-- Name: cuisines id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.cuisines ALTER COLUMN id SET DEFAULT nextval('public.cuisines_id_seq'::regclass);
+
+
+--
 -- Name: event_mutes id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1011,6 +1166,13 @@ ALTER TABLE ONLY public.events ALTER COLUMN id SET DEFAULT nextval('public.event
 
 
 --
+-- Name: food_types id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.food_types ALTER COLUMN id SET DEFAULT nextval('public.food_types_id_seq'::regclass);
+
+
+--
 -- Name: friendly_id_slugs id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1022,6 +1184,13 @@ ALTER TABLE ONLY public.friendly_id_slugs ALTER COLUMN id SET DEFAULT nextval('p
 --
 
 ALTER TABLE ONLY public.guide_pages ALTER COLUMN id SET DEFAULT nextval('public.guide_pages_id_seq'::regclass);
+
+
+--
+-- Name: languages id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.languages ALTER COLUMN id SET DEFAULT nextval('public.languages_id_seq'::regclass);
 
 
 --
@@ -1050,6 +1219,13 @@ ALTER TABLE ONLY public.person_mutes ALTER COLUMN id SET DEFAULT nextval('public
 --
 
 ALTER TABLE ONLY public.person_social_media_accounts ALTER COLUMN id SET DEFAULT nextval('public.person_social_media_accounts_id_seq'::regclass);
+
+
+--
+-- Name: recipes id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipes ALTER COLUMN id SET DEFAULT nextval('public.recipes_id_seq'::regclass);
 
 
 --
@@ -1169,6 +1345,14 @@ ALTER TABLE ONLY public.contacts
 
 
 --
+-- Name: cuisines cuisines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.cuisines
+    ADD CONSTRAINT cuisines_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: event_mutes event_mutes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1209,6 +1393,14 @@ ALTER TABLE ONLY public.events
 
 
 --
+-- Name: food_types food_types_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.food_types
+    ADD CONSTRAINT food_types_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: friendly_id_slugs friendly_id_slugs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1222,6 +1414,14 @@ ALTER TABLE ONLY public.friendly_id_slugs
 
 ALTER TABLE ONLY public.guide_pages
     ADD CONSTRAINT guide_pages_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: languages languages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.languages
+    ADD CONSTRAINT languages_pkey PRIMARY KEY (id);
 
 
 --
@@ -1254,6 +1454,14 @@ ALTER TABLE ONLY public.person_mutes
 
 ALTER TABLE ONLY public.person_social_media_accounts
     ADD CONSTRAINT person_social_media_accounts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: recipes recipes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipes
+    ADD CONSTRAINT recipes_pkey PRIMARY KEY (id);
 
 
 --
@@ -1430,6 +1638,20 @@ CREATE UNIQUE INDEX index_contacts_on_user_id_and_contact_id ON public.contacts 
 
 
 --
+-- Name: index_cuisines_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_cuisines_on_name ON public.cuisines USING btree (name);
+
+
+--
+-- Name: index_cuisines_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_cuisines_on_slug ON public.cuisines USING btree (slug);
+
+
+--
 -- Name: index_event_mutes_on_user_id_and_event_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1521,6 +1743,27 @@ CREATE INDEX index_events_on_year_month_day ON public.events USING btree (year, 
 
 
 --
+-- Name: index_food_types_on_icon; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_food_types_on_icon ON public.food_types USING btree (icon);
+
+
+--
+-- Name: index_food_types_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_food_types_on_name ON public.food_types USING btree (name);
+
+
+--
+-- Name: index_food_types_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_food_types_on_slug ON public.food_types USING btree (slug);
+
+
+--
 -- Name: index_friendly_id_slugs_on_slug_and_sluggable_type; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1560,6 +1803,27 @@ CREATE UNIQUE INDEX index_guide_pages_on_slug ON public.guide_pages USING btree 
 --
 
 CREATE UNIQUE INDEX index_guide_pages_on_title ON public.guide_pages USING btree (title);
+
+
+--
+-- Name: index_languages_on_code; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_languages_on_code ON public.languages USING btree (code);
+
+
+--
+-- Name: index_languages_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_languages_on_name ON public.languages USING btree (name);
+
+
+--
+-- Name: index_languages_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_languages_on_slug ON public.languages USING btree (slug);
 
 
 --
@@ -1637,6 +1901,55 @@ CREATE INDEX index_person_social_media_accounts_on_person_id ON public.person_so
 --
 
 CREATE INDEX index_person_social_media_accounts_on_social_media_platform_id ON public.person_social_media_accounts USING btree (social_media_platform_id);
+
+
+--
+-- Name: index_recipes_on_cuisine_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_recipes_on_cuisine_id ON public.recipes USING btree (cuisine_id);
+
+
+--
+-- Name: index_recipes_on_deleted_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_recipes_on_deleted_at ON public.recipes USING btree (deleted_at);
+
+
+--
+-- Name: index_recipes_on_food_type_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_recipes_on_food_type_id ON public.recipes USING btree (food_type_id);
+
+
+--
+-- Name: index_recipes_on_language_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_recipes_on_language_id ON public.recipes USING btree (language_id);
+
+
+--
+-- Name: index_recipes_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_recipes_on_slug ON public.recipes USING btree (slug);
+
+
+--
+-- Name: index_recipes_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_recipes_on_user_id ON public.recipes USING btree (user_id);
+
+
+--
+-- Name: index_recipes_on_user_id_and_title; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_recipes_on_user_id_and_title ON public.recipes USING btree (user_id, title);
 
 
 --
@@ -1825,11 +2138,27 @@ ALTER TABLE ONLY public.blog_posts
 
 
 --
+-- Name: recipes fk_rails_9606fce865; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipes
+    ADD CONSTRAINT fk_rails_9606fce865 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: active_storage_variant_records fk_rails_993965df05; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.active_storage_variant_records
     ADD CONSTRAINT fk_rails_993965df05 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
+
+--
+-- Name: recipes fk_rails_a212e43289; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipes
+    ADD CONSTRAINT fk_rails_a212e43289 FOREIGN KEY (language_id) REFERENCES public.languages(id);
 
 
 --
@@ -1862,6 +2191,14 @@ ALTER TABLE ONLY public.people
 
 ALTER TABLE ONLY public.app_permissions
     ADD CONSTRAINT fk_rails_b3c7d3a776 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: recipes fk_rails_be504d0fa1; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipes
+    ADD CONSTRAINT fk_rails_be504d0fa1 FOREIGN KEY (cuisine_id) REFERENCES public.cuisines(id);
 
 
 --
@@ -1905,12 +2242,24 @@ ALTER TABLE ONLY public.contacts
 
 
 --
+-- Name: recipes fk_rails_e70336bf23; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipes
+    ADD CONSTRAINT fk_rails_e70336bf23 FOREIGN KEY (food_type_id) REFERENCES public.food_types(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261011085214'),
+('20261011085213'),
+('20261011085211'),
+('20261011085209'),
 ('20261010073755'),
 ('20260922045836'),
 ('20260921104820'),

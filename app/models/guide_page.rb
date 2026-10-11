@@ -15,13 +15,13 @@ class GuidePage < ApplicationRecord
 
   # A category a guide page belongs to, not a 1-page-per-app slot — many
   # pages can share a section (e.g. "Classification" and "Sign Up" both
-  # under :core), each distinguished by its own title. Recipes/Photo Album
-  # are left out for now since neither app exists yet; add them back once
-  # they do.
+  # under :core), each distinguished by its own title. Photo Album is left
+  # out for now since that app doesn't exist yet; add it once it does.
   enum :app_section, {
     core:          "core",
     event_tracker: "event_tracker",
     blog_posts:    "blog_posts",
+    recipes:       "recipes",
     admin:         "admin"
   }, validate: true
 
@@ -34,6 +34,7 @@ class GuidePage < ApplicationRecord
     "core"          => "Core",
     "event_tracker" => "Occasions",
     "blog_posts"    => "Chronicle",
+    "recipes"       => "Cookbook",
     "admin"         => "Admin"
   }.freeze
 

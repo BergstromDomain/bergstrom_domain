@@ -20,7 +20,7 @@ RSpec.describe GuidePage, type: :model do
     it {
       is_expected.to define_enum_for(:app_section)
         .with_values(
-          core: "core", event_tracker: "event_tracker", blog_posts: "blog_posts", admin: "admin"
+          core: "core", event_tracker: "event_tracker", blog_posts: "blog_posts", recipes: "recipes", admin: "admin"
         ).backed_by_column_of_type(:string)
     }
   end
@@ -136,6 +136,7 @@ RSpec.describe GuidePage, type: :model do
     it "returns the brand-facing label for the app_section" do
       expect(build(:guide_page, app_section: "event_tracker").app_section_label).to eq("Occasions")
       expect(build(:guide_page, app_section: "blog_posts").app_section_label).to eq("Chronicle")
+      expect(build(:guide_page, app_section: "recipes").app_section_label).to eq("Cookbook")
       expect(build(:guide_page, app_section: "core").app_section_label).to eq("Core")
       expect(build(:guide_page, app_section: "admin").app_section_label).to eq("Admin")
     end

@@ -28,6 +28,7 @@ module Navigable
 
   def left_nav_section_for(controller, action)
     return :blog_posts if controller == "pages" && action == "chronicle"
+    return :recipes    if controller == "pages" && action == "cookbook"
 
     case controller
     when "events", "event_types", "people", "pages", "social_media_platforms",

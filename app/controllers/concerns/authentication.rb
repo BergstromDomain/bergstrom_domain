@@ -50,6 +50,8 @@ module Authentication
     case current_user.start_page
     when "event_tracker" then occasions_start_page_url(current_user)
     when "blog_posts"    then chronicle_start_page_url(current_user)
+    # Cookbook Settings (its own start-page choice) arrives in a later block.
+    when "recipes"       then cookbook_url
     end
   end
 
