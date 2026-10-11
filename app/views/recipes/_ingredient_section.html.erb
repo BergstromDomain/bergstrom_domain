@@ -1,5 +1,5 @@
 <%# One ingredient list. Locals: sf (fields_for builder for an IngredientSection). %>
-<div class="ingredient-section" data-recipe-ingredients-target="section" data-testid="ingredient-section">
+<div class="ingredient-section" data-recipe-ingredients-target="section" data-testid="ingredient-section" style="<%= 'display: none' if sf.object.marked_for_destruction? %>">
   <div class="ingredient-section__header">
     <%= sf.label :heading, "List Heading", class: "sr-only" %>
     <%= sf.text_field :heading,
@@ -7,7 +7,7 @@
           class: "form-control",
           data: { testid: "section-heading-field" } %>
     <% if sf.object.persisted? %>
-      <%= sf.hidden_field :_destroy, value: "0", data: { recipe_ingredients_target: "destroy" } %>
+      <%= sf.hidden_field :_destroy, value: sf.object.marked_for_destruction? ? "1" : "0", data: { recipe_ingredients_target: "destroy" } %>
     <% end %>
     <button type="button" class="btn btn-secondary ingredient-section__remove"
             data-action="recipe-ingredients#removeSection" data-testid="remove-section-button"

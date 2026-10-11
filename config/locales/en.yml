@@ -38,3 +38,6 @@ en:
         name: "Ingredient"
       recipe/ingredient_sections:
         heading: "List heading"
+      # The body is labelled "Method" on the recipe form.
+      recipe:
+        body: "Method"

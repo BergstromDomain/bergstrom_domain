@@ -147,12 +147,12 @@
 
   <%# Action Frame %>
   <div class="show-panel show-panel--actions" data-testid="new-panel-actions">
-    <%= link_to cookbook_path, class: "btn btn-secondary" do %>
+    <%= link_to recipe.persisted? ? recipe_path(recipe) : cookbook_path, class: "btn btn-secondary" do %>
       <%= lucide_icon("circle-x", size: 16) %> Cancel
     <% end %>
     <span class="btn-divider">|</span>
     <button type="submit" class="btn btn-primary" data-testid="save-button">
-      <%= lucide_icon("save", size: 16) %> Save Recipe
+      <%= lucide_icon("save", size: 16) %> <%= recipe.persisted? ? "Update Recipe" : "Save Recipe" %>
     </button>
   </div>
 <% end %>

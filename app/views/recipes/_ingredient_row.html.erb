@@ -1,6 +1,6 @@
 <%# One ingredient row. Locals: ingf (fields_for builder for an Ingredient). %>
 <% ingredient = ingf.object %>
-<div class="ingredient-row" data-testid="ingredient-row">
+<div class="ingredient-row" data-testid="ingredient-row" style="<%= 'display: none' if ingredient.marked_for_destruction? %>">
   <% { quantity: "e.g. 2", measurement: "e.g. dl", name: "e.g. sugar", comment: "optional" }.each do |field, placeholder| %>
     <%= ingf.label field, Ingredient.human_attribute_name(field), class: "sr-only" %>
     <%= ingf.text_field field,
@@ -9,7 +9,7 @@
           data: { testid: "ingredient-#{field}-field" } %>
   <% end %>
   <% if ingredient.persisted? %>
-    <%= ingf.hidden_field :_destroy, value: "0", data: { recipe_ingredients_target: "destroy" } %>
+    <%= ingf.hidden_field :_destroy, value: ingredient.marked_for_destruction? ? "1" : "0", data: { recipe_ingredients_target: "destroy" } %>
   <% end %>
   <button type="button" class="btn btn-secondary ingredient-row__remove"
           data-action="recipe-ingredients#removeIngredient" data-testid="remove-ingredient-button"

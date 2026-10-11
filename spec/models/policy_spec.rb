@@ -167,7 +167,7 @@ RSpec.describe Policy do
       end
 
       it "Falls back to normal classification rules once published" do
-        unrestricted_draft.update!(published_at: Time.current)
+        unrestricted_draft.update_column(:published_at, Time.current)
         expect(Policy.new(app_user, unrestricted_draft).can_read?).to be true
       end
     end

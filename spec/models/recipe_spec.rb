@@ -49,7 +49,7 @@ RSpec.describe Recipe, type: :model do
         expect(build(:recipe, body: nil, published_at: nil)).to be_valid
       end
 
-      it "is valid when published with a body" do
+      it "is valid when published with a Method and an ingredient" do
         expect(build(:recipe, :published)).to be_valid
       end
     end
@@ -81,6 +81,13 @@ RSpec.describe Recipe, type: :model do
         recipe = build(:recipe, :published, body: "")
         expect(recipe).not_to be_valid
         expect(recipe.errors[:body]).to include("can't be blank")
+        expect(recipe.errors.full_messages).to include("Method can't be blank")
+      end
+
+      it "is invalid when published without an ingredient" do
+        recipe = build(:recipe, published_at: Time.current)
+        expect(recipe).not_to be_valid
+        expect(recipe.errors[:base]).to include("Add at least one ingredient before publishing")
       end
 
       it "is invalid when Serves or Makes is zero or negative" do
@@ -123,6 +130,24 @@ RSpec.describe Recipe, type: :model do
     describe "Edge Cases" do
       it "allows both Serves and Makes to be blank" do
         expect(build(:recipe, serves: nil, makes: nil)).to be_valid
+      end
+
+      it "allows a draft with no ingredients" do
+        expect(build(:recipe, published_at: nil).ingredient_sections).to be_empty
+        expect(build(:recipe, published_at: nil)).to be_valid
+      end
+
+      it "counts no ingredient that is marked for destruction" do
+        recipe = create(:recipe, :published)
+        recipe.ingredient_sections.first.ingredients.each(&:mark_for_destruction)
+        expect(recipe).not_to be_valid
+        expect(recipe.errors[:base]).to include("Add at least one ingredient before publishing")
+      end
+
+      it "counts no ingredient in a list that is marked for destruction" do
+        recipe = create(:recipe, :published)
+        recipe.ingredient_sections.each(&:mark_for_destruction)
+        expect(recipe).not_to be_valid
       end
     end
   end

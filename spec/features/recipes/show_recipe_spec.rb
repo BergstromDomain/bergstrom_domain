@@ -139,8 +139,10 @@ RSpec.describe "Show Recipe", type: :feature do
       within("[data-testid='recipe-ingredient-section']") { expect(page).not_to have_selector("h3") }
     end
 
-    it "Says so when a recipe has no ingredients yet" do
-      visit recipe_path(create(:recipe, :published, :unrestricted))
+    it "Says so when a draft has no ingredients yet" do
+      owner = create(:user, :content_creator)
+      sign_in_as(owner)
+      visit recipe_path(create(:recipe, user: owner))
       expect(page).to have_selector("[data-testid='recipe-no-ingredients']")
     end
 

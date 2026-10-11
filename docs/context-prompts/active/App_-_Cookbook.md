@@ -144,7 +144,8 @@ No text, no letters, no numbers, no logos and no readable recipes. Avoid excessi
   Back (Design Desision-4) | Edit | Publish/Unpublish | Delete		Edit, Publish/Unpublish and Delete only available on your own recipies. Publish/Unpublish depending on current status
 
 ## Edit a recipie
-* After each edit, the recipie should be Draft
+* ~~After each edit, the recipie should be Draft~~ Superseded at the Block 5 gate: a published
+  recipe stays published after an edit; the owner can Unpublish it manually.
 
 ## Delete a recipie
 * The Owner's should be able to delete a recipie
@@ -350,8 +351,19 @@ Cookbook-side gaps found, all folded into the blocks below:
        The shared partials are `shared/_reactions_score`, `shared/_reactions_panel` and
        `shared/_reactions_breakdown` (was `blog_posts/_likes_breakdown`).
      * Save now opens the new recipe's Read page.
-5. **Edit + Publish/Unpublish a Recipe**: a combined block, like Chronicle's. Each edit reverts
-   the recipe to Draft.
+5. **Edit + Publish/Unpublish a Recipe**: a combined block, like Chronicle's.
+   * **Done 2026-10-12.** Decisions confirmed at the Block 5 gate:
+     * Unlike Chronicle, an edit leaves a published recipe published. Unpublish is a manual
+       action on the Read page.
+     * Publishing needs a Method (the body, now labelled "Method" in error messages) and at
+       least one ingredient. Checked on every save while published, so an edit can't remove
+       the last ingredient of a published recipe either.
+     * Edit, Publish and Unpublish follow `Policy#can_update?`: the owner, admins, and the
+       Cookbook `AppPermission` override. Action frame: Back | Edit | Publish/Unpublish.
+     * Edit reuses `recipes/_form`; Cancel returns to the Read page. A failed Update keeps
+       rows and lists already removed hidden, with `_destroy` still set.
+     * Also fixed: the metadata grid's Cuisine cell sat higher than the others (the stacked
+       `.show-panel__section` top margin applied to every cell but the first).
 6. **Delete a Recipe**: soft-delete, 30-day retention, admin restore; mirrors
    `PurgeDeletedBlogPostsJob`.
 7. **Comments**: wire up Recipe. Generalise `CommentsController#set_commentable` and

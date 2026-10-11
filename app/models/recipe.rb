@@ -41,6 +41,7 @@ class Recipe < ApplicationRecord
   validates :cuisine, :food_type, :language, presence: true
   validates :serves, :makes, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
   validates :body, presence: true, if: :published?
+  validate :must_have_an_ingredient, if: :published?
 
   before_validation :assign_ingredient_positions
 
@@ -90,6 +91,16 @@ class Recipe < ApplicationRecord
   end
 
   private
+
+  # A published recipe needs something to cook with — see "DECISIONS (Block 5)"
+  # in docs/context-prompts/active/App_-_Cookbook.md. Checked on every save
+  # while published, so an edit can't strip the last ingredient either.
+  def must_have_an_ingredient
+    has_one = ingredient_sections.reject(&:marked_for_destruction?).any? do |section|
+      section.ingredients.reject(&:marked_for_destruction?).any?
+    end
+    errors.add(:base, "Add at least one ingredient before publishing") unless has_one
+  end
 
   # Lists and rows are saved in the order the form submitted them.
   def assign_ingredient_positions

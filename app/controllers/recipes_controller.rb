@@ -6,7 +6,9 @@ class RecipesController < ApplicationController
 
   allow_unauthenticated_access only: %i[show]
   before_action :resume_session_if_present, only: %i[show]
+  before_action :set_recipe,            only: %i[show edit update publish unpublish]
   before_action :require_create_access, only: %i[new create convert_format]
+  before_action :require_write_access,  only: %i[edit update publish unpublish]
 
   def new
     settings = current_user.app_settings_for("recipes")
@@ -18,7 +20,6 @@ class RecipesController < ApplicationController
   end
 
   def show
-    @recipe = Recipe.friendly.find(params[:id])
     @policy = Policy.new(current_user, @recipe)
     unless @policy.can_read?
       redirect_to cookbook_path, alert: "You do not have permission to view that recipe."
@@ -33,14 +34,56 @@ class RecipesController < ApplicationController
       toast_created(@recipe)
       redirect_to @recipe
     else
-      @recipe.ingredient_sections.build.ingredients.build if @recipe.ingredient_sections.empty?
+      build_blank_ingredient_list
       render :new, status: :unprocessable_entity
     end
+  end
+
+  def edit
+    build_blank_ingredient_list
+  end
+
+  # Unlike Chronicle, an edit leaves a published recipe published — see
+  # "DECISIONS (Block 5)" in docs/context-prompts/active/App_-_Cookbook.md.
+  def update
+    previous_label = @recipe.to_toast_label
+    if @recipe.update(recipe_params)
+      toast_updated(@recipe, previous_label: previous_label)
+      redirect_to @recipe
+    else
+      build_blank_ingredient_list
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def publish
+    @recipe.published_at = Time.current
+    if @recipe.save
+      toast_published(@recipe)
+    else
+      toast_error(@recipe, prefix: "Cannot publish")
+    end
+    redirect_to @recipe
+  end
+
+  def unpublish
+    @recipe.update!(published_at: nil)
+    toast_unpublished(@recipe)
+    redirect_to @recipe
   end
 
   private
 
   def format_model = Recipe
+
+  def set_recipe
+    @recipe = Recipe.friendly.find(params[:id])
+  end
+
+  # The form always offers somewhere to start typing ingredients.
+  def build_blank_ingredient_list
+    @recipe.ingredient_sections.build.ingredients.build if @recipe.ingredient_sections.reject(&:marked_for_destruction?).empty?
+  end
 
   def resume_session_if_present
     Current.session ||= find_session_by_cookie
@@ -48,6 +91,11 @@ class RecipesController < ApplicationController
 
   def require_create_access
     redirect_to cookbook_path, alert: "Not authorised." unless Policy.new(current_user, :recipes).can_create?
+  end
+
+  def require_write_access
+    @policy = Policy.new(current_user, @recipe)
+    redirect_to @recipe, alert: "Not authorised." unless @policy.can_update?
   end
 
   def recipe_params
