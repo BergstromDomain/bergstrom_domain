@@ -419,6 +419,10 @@
             <%= lucide_icon("languages", size: 15) %>
             <span>Add A Language</span>
           <% end %>
+          <%= link_to deleted_recipes_path, class: "left-nav-link" do %>
+            <%= lucide_icon("trash-2", size: 15) %>
+            <span>Deleted Recipes</span>
+          <% end %>
         <% end %>
         </div>
       </div>

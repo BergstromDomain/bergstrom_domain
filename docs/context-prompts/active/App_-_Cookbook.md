@@ -366,6 +366,15 @@ Cookbook-side gaps found, all folded into the blocks below:
        `.show-panel__section` top margin applied to every cell but the first).
 6. **Delete a Recipe**: soft-delete, 30-day retention, admin restore; mirrors
    `PurgeDeletedBlogPostsJob`.
+   * **Done 2026-10-12.** Decisions confirmed at the Block 6 gate:
+     * A published recipe can be deleted directly, without unpublishing first.
+     * Restore brings a recipe back exactly as it was, published or draft.
+     * Delete follows `Policy#can_delete?`; Deleted Recipes and Restore are admin-only.
+       The left nav link sits after "Add A Language", as Chronicle's "Deleted Posts" does.
+     * `PurgeDeletedRecipesJob` runs daily at 3am (production `config/recurring.yml`) and
+       destroys ingredient lists, ingredients, reactions and the image with the recipe.
+     * Delete and Restore write `deleted_at` without validations, so a recipe that no
+       longer meets the publishing rules can still be deleted and restored.
 7. **Comments**: wire up Recipe. Generalise `CommentsController#set_commentable` and
    `comments/_form.html.erb`'s BlogPost-only URL.
 8. **Browse + Filter**:

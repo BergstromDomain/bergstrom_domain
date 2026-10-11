@@ -459,6 +459,7 @@ RSpec.describe "Left Nav", type: :feature do
             expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
             expect(page).to have_link("Write A Recipe", href: new_recipe_path)
             expect(page).not_to have_link("Add A Cuisine")
+            expect(page).not_to have_link("Deleted Recipes")
           end
         end
       end
@@ -477,6 +478,7 @@ RSpec.describe "Left Nav", type: :feature do
             expect(page).to have_link("Add A Cuisine",   href: new_cuisine_path)
             expect(page).to have_link("Add A Food Type", href: new_food_type_path)
             expect(page).to have_link("Add A Language",  href: new_language_path)
+            expect(page).to have_link("Deleted Recipes", href: deleted_recipes_path)
           end
         end
       end

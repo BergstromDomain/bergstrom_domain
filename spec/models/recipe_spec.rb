@@ -243,6 +243,17 @@ RSpec.describe Recipe, type: :model do
   end
 
   # ── Toasts ────────────────────────────────────────────────────────────────
+  describe "#purge_at" do
+    it "is 30 days after deletion" do
+      deleted_at = Time.zone.parse("2026-10-12 10:00")
+      expect(build(:recipe, deleted_at: deleted_at).purge_at).to eq(deleted_at + 30.days)
+    end
+
+    it "is nil for a recipe that isn't deleted" do
+      expect(build(:recipe).purge_at).to be_nil
+    end
+  end
+
   describe "#to_toast_label" do
     it "uses the title" do
       expect(build(:recipe, title: "Meatballs").to_toast_label).to eq("Meatballs")

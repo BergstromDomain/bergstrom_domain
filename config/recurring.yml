@@ -17,3 +17,7 @@ production:
     class: PurgeDeletedBlogPostsJob
     queue: default
     schedule: every day at 3am
+  purge_deleted_recipes:
+    class: PurgeDeletedRecipesJob
+    queue: default
+    schedule: every day at 3am

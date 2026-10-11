@@ -11,8 +11,8 @@ under one auth/permission system. Each app has a technical name (the `app_name` 
 - **Blog_Posts** → "Chronicle" (blog posts, categories, comments, reactions): implemented.
 - **Recipes** → "Cookbook": in progress, built block by block per
   `docs/context-prompts/active/App_-_Cookbook.md` (models, landing page, left nav and
-  Cuisine/Food Type/Language reference data, Cookbook Settings, Write, Read, Edit and
-  Publish A Recipe so far).
+  Cuisine/Food Type/Language reference data, Cookbook Settings, Write, Read, Edit,
+  Publish and Delete A Recipe so far).
 - **Photo_Album**: reserved enum value only.
 
 Development is documented as a blog series (`docs/blog/`) written in strict Red → Green →

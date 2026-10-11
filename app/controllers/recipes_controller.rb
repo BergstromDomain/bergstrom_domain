@@ -6,9 +6,11 @@ class RecipesController < ApplicationController
 
   allow_unauthenticated_access only: %i[show]
   before_action :resume_session_if_present, only: %i[show]
-  before_action :set_recipe,            only: %i[show edit update publish unpublish]
+  before_action :set_recipe,            only: %i[show edit update publish unpublish destroy restore]
   before_action :require_create_access, only: %i[new create convert_format]
   before_action :require_write_access,  only: %i[edit update publish unpublish]
+  before_action :require_delete_access, only: %i[destroy]
+  before_action :require_admin,         only: %i[deleted restore]
 
   def new
     settings = current_user.app_settings_for("recipes")
@@ -72,6 +74,27 @@ class RecipesController < ApplicationController
     redirect_to @recipe
   end
 
+  # Soft delete: published or not, the recipe is hidden until an admin
+  # restores it or PurgeDeletedRecipesJob removes it after 30 days. Written
+  # without validations so a recipe that no longer meets today's publishing
+  # rules can still be deleted and restored.
+  def destroy
+    @recipe.update_column(:deleted_at, Time.current)
+    toast_deleted(@recipe, info: "The recipe can be restored by Admin for 30 days.")
+    redirect_to cookbook_path
+  end
+
+  def deleted
+    @recipes = Recipe.discarded.includes(:user).order(deleted_at: :desc)
+  end
+
+  # Comes back exactly as it was, published or draft.
+  def restore
+    @recipe.update_column(:deleted_at, nil)
+    flash[:success] = "#{@recipe.to_toast_label} has been successfully restored"
+    redirect_to deleted_recipes_path
+  end
+
   private
 
   def format_model = Recipe
@@ -91,6 +114,15 @@ class RecipesController < ApplicationController
 
   def require_create_access
     redirect_to cookbook_path, alert: "Not authorised." unless Policy.new(current_user, :recipes).can_create?
+  end
+
+  def require_delete_access
+    @policy = Policy.new(current_user, @recipe)
+    redirect_to @recipe, alert: "Not authorised." unless @policy.can_delete?
+  end
+
+  def require_admin
+    redirect_to cookbook_path, alert: "Not authorised." unless current_user&.can_administer?
   end
 
   def require_write_access

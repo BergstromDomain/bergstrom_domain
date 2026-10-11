@@ -4,6 +4,10 @@ class Recipe < ApplicationRecord
   include MarkdownRenderable
   include Likeable
 
+  # Soft-deleted recipes are kept this long before PurgeDeletedRecipesJob
+  # removes them for good — mirrors BlogPost.
+  DELETION_RETENTION_PERIOD = 30.days
+
   extend FriendlyId
   # :title is only unique per owner, so a second owner's same-titled recipe
   # falls back to [:title, :user_id] — mirrors BlogPost.
@@ -66,6 +70,10 @@ class Recipe < ApplicationRecord
 
   def published?
     published_at.present?
+  end
+
+  def purge_at
+    deleted_at + DELETION_RETENTION_PERIOD if deleted_at
   end
 
   # The Read page shows "Makes: 24" when Makes is set, otherwise "Serves: 4" —

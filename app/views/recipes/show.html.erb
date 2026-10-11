@@ -132,8 +132,8 @@
 <%# Reactions Frame %>
 <%= render "shared/reactions_panel", likeable: @recipe, like_path: recipe_like_path(@recipe), noun: "recipe" %>
 
-<%# Action Frame — Delete (Block 6) and Comments (Block 7) arrive in later
-    blocks of docs/context-prompts/active/App_-_Cookbook.md. %>
+<%# Action Frame — Comments arrive in Block 7 of
+    docs/context-prompts/active/App_-_Cookbook.md. %>
 <div class="show-panel show-panel--actions" data-testid="show-panel-actions">
   <%= link_to return_to_or(cookbook_path), class: "btn btn-secondary" do %>
     <%= lucide_icon("arrow-left", size: 16) %> Back
@@ -160,6 +160,19 @@
             data: { testid: "publish-button" } do %>
         <%= lucide_icon("upload", size: 16) %> Publish
       <% end %>
+    <% end %>
+  <% end %>
+
+  <% if @policy.can_delete? %>
+    <span class="btn-divider">|</span>
+    <%= button_to recipe_path(@recipe),
+          method: :delete,
+          class: "btn btn-danger",
+          data: {
+            testid: "delete-button",
+            turbo_confirm: "Delete \"#{@recipe.title}\"? This can be restored by an admin within 30 days."
+          } do %>
+      <%= lucide_icon("trash-2", size: 16) %> Delete
     <% end %>
   <% end %>
 </div>
