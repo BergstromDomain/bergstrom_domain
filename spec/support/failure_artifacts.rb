@@ -7,10 +7,10 @@
 # only be guessed at.
 #
 # The trace comes from a small script Chrome injects into every page before
-# the app's own JS runs: clicks, submit events (and whether anything cancelled
-# them), form-validation `invalid` events, every fetch's start/finish/failure,
-# Turbo's submit start/end, and uncaught errors — enough to see where a
-# stalled form submit actually stopped.
+# the app's own JS runs: clicks, input/change events, submit events (and
+# whether anything cancelled them), form-validation `invalid` events, every
+# fetch's start/finish/failure, Turbo's submit start/end, and uncaught errors
+# — enough to see where a stalled form submit actually stopped.
 module FailureArtifacts
   TRACE_SCRIPT = <<~JS.freeze
     (() => {
@@ -24,6 +24,8 @@ module FailureArtifacts
       document.addEventListener("click", (e) => log("click", describe(e.target)), true)
       document.addEventListener("submit", (e) => log("submit:capture", describe(e.target)), true)
       window.addEventListener("submit", (e) => log("submit:bubbled", `defaultPrevented=${e.defaultPrevented}`))
+      document.addEventListener("change", (e) => log("change", `${describe(e.target)} ${e.target.value}`), true)
+      document.addEventListener("input", (e) => log("input", `${describe(e.target)} ${String(e.target.value).slice(0, 40)}`), true)
       document.addEventListener("invalid", (e) => log("invalid", `${describe(e.target)} ${e.target.validationMessage}`), true)
       document.addEventListener("turbo:submit-start", () => log("turbo:submit-start"))
       document.addEventListener("turbo:submit-end", (e) => log("turbo:submit-end", `success=${e.detail.success}`))

@@ -12,8 +12,17 @@ RSpec.describe "Create Blog Post", type: :feature do
     create(:contact, user: charlie, contact: chris, status: "confirmed")
   end
 
+  # Like choose_category below: CI traces showed native WebDriver input going
+  # missing (a saved Title came back blank), so JS examples set it directly.
   def fill_title(value)
-    find("[data-testid='title-field']").set(value)
+    field = find("[data-testid='title-field']")
+    return field.set(value) unless Capybara.current_driver == Capybara.javascript_driver
+
+    page.execute_script(<<~JS, field, value)
+      const [input, value] = arguments
+      input.value = value
+      input.dispatchEvent(new Event("input", { bubbles: true }))
+    JS
   end
 
   # Under Selenium, picking through the native <select> popup can leave Chrome
