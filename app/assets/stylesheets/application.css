@@ -1239,12 +1239,21 @@ code, pre {
   font-weight: var(--font-weight-semibold);
 }
 
+/* The last column is a fixed width, not auto: the header row's cell is
+   empty, so an auto column there would be narrower than the rows' remove
+   button and shift the Ingredient/Comment headers off their fields. */
 .ingredient-row {
   display: grid;
-  grid-template-columns: 6rem 8rem minmax(10rem, 2fr) minmax(8rem, 2fr) auto;
+  grid-template-columns: 6rem 8rem minmax(10rem, 2fr) minmax(8rem, 2fr) 2.5rem;
   gap: var(--space-sm);
   align-items: center;
   margin-bottom: var(--space-xs);
+}
+
+.ingredient-row__remove {
+  width: 2.5rem;
+  justify-content: center;
+  padding-inline: 0;
 }
 
 .ingredient-row--labels {
