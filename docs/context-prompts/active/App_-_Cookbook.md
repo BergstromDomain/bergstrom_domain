@@ -377,6 +377,14 @@ Cookbook-side gaps found, all folded into the blocks below:
        longer meets the publishing rules can still be deleted and restored.
 7. **Comments**: wire up Recipe. Generalise `CommentsController#set_commentable` and
    `comments/_form.html.erb`'s BlogPost-only URL.
+   * **Done 2026-10-12.** Decisions confirmed at the Block 7 gate:
+     * Same rules as Chronicle: anyone signed in who can read the recipe can comment and
+       reply; guests see the threads but no comment box.
+     * Comments are allowed on drafts (so the owner and admins can keep cooking notes).
+     * `CommentsController::COMMENTABLES` picks the parent from the matched route (mirrors
+       `LikesController::LIKEABLES`); the form posts to `polymorphic_path([commentable, :comments])`.
+     * Recipes nest only `comments#create`; update/destroy reuse the shallow `comments/:id`.
+     * The comments panel is now `shared/_comments_panel.html.erb`, used by both show pages.
 8. **Browse + Filter**:
    * Browse by Cuisine and by Food Type: two one-level `BrowseTree`s.
    * Filter: Basic/SQL via a new `RecipeFilter` on `Jql::Parser`/`Jql::Evaluator`.

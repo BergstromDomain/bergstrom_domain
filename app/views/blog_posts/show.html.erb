@@ -82,25 +82,7 @@
 <%= render "shared/reactions_panel", likeable: @blog_post, like_path: blog_post_like_path(@blog_post), noun: "post" %>
 
 <%# Comments div %>
-<div class="show-panel" data-testid="comments-panel">
-  <h2 class="show-panel__heading" data-testid="comments-count">
-    <%= pluralize(@blog_post.comments_count, "comment") %> in
-    <%= pluralize(@blog_post.comments.top_level.count, "thread") %>
-  </h2>
-
-  <% if authenticated? %>
-    <%= render "comments/form", commentable: @blog_post, comment: Comment.new %>
-  <% end %>
-
-  <div class="comments-list">
-    <% @blog_post.comments.threads_ordered.includes(:user, replies: :user).each do |thread| %>
-      <%= render "comments/comment", comment: thread, commentable: @blog_post %>
-      <% thread.replies.each do |reply| %>
-        <%= render "comments/comment", comment: reply, commentable: @blog_post, reply: true %>
-      <% end %>
-    <% end %>
-  </div>
-</div>
+<%= render "shared/comments_panel", commentable: @blog_post %>
 
 <%# Actions div %>
 <div class="show-panel show-panel--actions" data-testid="show-panel-actions">

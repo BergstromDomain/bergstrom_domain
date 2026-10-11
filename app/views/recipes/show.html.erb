@@ -132,8 +132,10 @@
 <%# Reactions Frame %>
 <%= render "shared/reactions_panel", likeable: @recipe, like_path: recipe_like_path(@recipe), noun: "recipe" %>
 
-<%# Action Frame — Comments arrive in Block 7 of
-    docs/context-prompts/active/App_-_Cookbook.md. %>
+<%# Comments Frame %>
+<%= render "shared/comments_panel", commentable: @recipe %>
+
+<%# Action Frame %>
 <div class="show-panel show-panel--actions" data-testid="show-panel-actions">
   <%= link_to return_to_or(cookbook_path), class: "btn btn-secondary" do %>
     <%= lucide_icon("arrow-left", size: 16) %> Back

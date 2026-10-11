@@ -110,6 +110,8 @@ Rails.application.routes.draw do
 
   resources :recipes, only: %i[new create show edit update destroy] do
     resource :like, only: %i[create destroy], controller: "likes"
+    # Update/destroy are the shallow comments/:id routes declared under blog_posts.
+    resources :comments, only: %i[create]
     member do
       post :publish
       post :unpublish

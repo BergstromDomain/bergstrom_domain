@@ -3,6 +3,7 @@ class Recipe < ApplicationRecord
   include Classifiable
   include MarkdownRenderable
   include Likeable
+  include Commentable
 
   # Soft-deleted recipes are kept this long before PurgeDeletedRecipesJob
   # removes them for good — mirrors BlogPost.
