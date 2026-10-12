@@ -122,6 +122,7 @@ Rails.application.routes.draw do
       get  :filter
       get  "browse/cuisine",   action: :browse_by_cuisine,   as: :browse_by_cuisine
       get  "browse/food-type", action: :browse_by_food_type, as: :browse_by_food_type
+      get  "find-by-ingredients", action: :find_by_ingredients, as: :find_by_ingredients
       post :convert_format
     end
   end

@@ -1,0 +1,9 @@
+<span class="ingredient-chip" data-testid="ingredient-chip">
+  <%= hidden_field_tag "ingredients[]", term, id: nil, data: { "ingredient-chips-target": "value" } %>
+  <span data-ingredient-chips-target="label"><%= term %></span>
+  <button type="button" class="ingredient-chip__remove" aria-label="Remove <%= term %>"
+          data-action="ingredient-chips#remove" data-ingredient-chips-target="remove"
+          data-testid="ingredient-chip-remove-<%= term.parameterize %>">
+    <%= lucide_icon("x", size: 14) %>
+  </button>
+</span>

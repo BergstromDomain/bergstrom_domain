@@ -137,7 +137,8 @@ RSpec.describe "Sign In", type: :feature do
     {
       "browse_by_cuisine"   => :browse_by_cuisine_recipes_path,
       "browse_by_food_type" => :browse_by_food_type_recipes_path,
-      "filter_recipes"      => :filter_recipes_path
+      "filter_recipes"      => :filter_recipes_path,
+      "find_by_ingredients" => :find_by_ingredients_recipes_path
     }.each do |start_page, path_helper|
       it "Redirects to the Cookbook '#{start_page}' Start Page" do
         user.update!(start_page: "recipes")

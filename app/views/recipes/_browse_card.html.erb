@@ -50,4 +50,10 @@
       <span><strong>Comments:</strong> <span data-testid="browse-recipe-comments"><%= item.comments_count %></span></span>
     </span>
   </div>
+
+  <% if local_assigns[:matched] %>
+    <div class="blog-card__meta" data-testid="browse-recipe-matched">
+      <strong>Matched:</strong>&nbsp;<%= matched.join(" · ") %>
+    </div>
+  <% end %>
 </div>

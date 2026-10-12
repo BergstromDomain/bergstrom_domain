@@ -19,7 +19,7 @@ RSpec.describe "Cookbook Settings", type: :feature do
     it "Offers Cookbook's existing pages as 'Start Page' options" do
       expect(page).to have_select("Start Page", options: [
         "Cookbook", "Browse Recipes By Cuisine", "Browse Recipes By Food Type", "Filter Recipes",
-        "Cuisines", "Food Types", "Languages"
+        "Find Recipes By Ingredients", "Cuisines", "Food Types", "Languages"
       ])
     end
 

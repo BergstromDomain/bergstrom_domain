@@ -6,8 +6,8 @@ class RecipesController < ApplicationController
   include Browsable
   include RecipeFilterable
 
-  allow_unauthenticated_access only: %i[show browse_by_cuisine browse_by_food_type filter]
-  before_action :resume_session_if_present, only: %i[show browse_by_cuisine browse_by_food_type filter]
+  allow_unauthenticated_access only: %i[show browse_by_cuisine browse_by_food_type filter find_by_ingredients]
+  before_action :resume_session_if_present, only: %i[show browse_by_cuisine browse_by_food_type filter find_by_ingredients]
   before_action :set_recipe,            only: %i[show edit update publish unpublish destroy restore]
   before_action :require_create_access, only: %i[new create convert_format]
   before_action :require_write_access,  only: %i[edit update publish unpublish]
@@ -36,6 +36,15 @@ class RecipesController < ApplicationController
     @sort      = FILTER_SORT_COLUMNS.include?(params[:sort]) ? params[:sort] : "created"
     @direction = params[:direction] == "asc" ? "asc" : "desc"
     @recipes = RecipeFilter.sort(@recipes, @sort, @direction)
+  end
+
+  # Every recipe the viewer can see containing all the entered ingredients
+  # (Block 10), newest first, with a running count per ingredient.
+  def find_by_ingredients
+    @search  = RecipeIngredientSearch.new(scope: visible_recipes_scope, terms: params[:ingredients])
+    @recipes = @search.recipes.order(created_at: :desc)
+      .includes(:user, :language, :likes, :cuisines, :food_types, recipe_image_attachment: :blob,
+        ingredient_sections: :ingredients)
   end
 
   def new

@@ -375,6 +375,10 @@
         <%= lucide_icon("list-filter", size: 15) %>
         <span>Filter Recipes</span>
       <% end %>
+      <%= link_to find_by_ingredients_recipes_path, class: "left-nav-link" do %>
+        <%= lucide_icon("carrot", size: 15) %>
+        <span>Find Recipes By Ingredients</span>
+      <% end %>
 
       <% if current_user %>
         <h3 class="left-nav-h3" data-testid="left-nav-my-recipes-h3">My Recipes</h3>

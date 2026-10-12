@@ -71,6 +71,7 @@ module Authentication
     when "browse_by_cuisine"   then browse_by_cuisine_recipes_url
     when "browse_by_food_type" then browse_by_food_type_recipes_url
     when "filter_recipes"      then filter_recipes_url
+    when "find_by_ingredients" then find_by_ingredients_recipes_url
     when "cuisines"   then cuisines_url
     when "food_types" then food_types_url
     when "languages"  then languages_url

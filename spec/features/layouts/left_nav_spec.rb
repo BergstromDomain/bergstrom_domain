@@ -438,12 +438,13 @@ RSpec.describe "Left Nav", type: :feature do
           end
         end
 
-        it "Shows a 'Recipes' group with the Browse and Filter links, but no 'My Recipes' group" do
+        it "Shows a 'Recipes' group with the Browse, Filter and Find By Ingredients links, but no 'My Recipes' group" do
           within("[data-testid='left-nav']") do
             expect(page).to have_selector("[data-testid='left-nav-recipes-h3']", text: "Recipes")
             expect(page).to have_link("Browse Recipes By Cuisine",   href: browse_by_cuisine_recipes_path)
             expect(page).to have_link("Browse Recipes By Food Type", href: browse_by_food_type_recipes_path)
             expect(page).to have_link("Filter Recipes",              href: filter_recipes_path)
+            expect(page).to have_link("Find Recipes By Ingredients", href: find_by_ingredients_recipes_path)
             expect(page).not_to have_selector("[data-testid='left-nav-my-recipes-h3']")
           end
         end

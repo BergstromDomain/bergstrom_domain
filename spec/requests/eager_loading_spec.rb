@@ -56,6 +56,18 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads Find Recipes By Ingredients without N+1 queries" do
+      2.times do
+        create(:recipe, :published, cuisines: create_list(:cuisine, 2),
+          ingredient_sections_attributes: { "0" => { ingredients_attributes: {
+            "0" => { quantity: "1", name: "Garlic" }, "1" => { quantity: "1", name: "Cream" } } } })
+      end
+
+      without_n_plus_one_queries { get find_by_ingredients_recipes_path(ingredients: [ "garlic", "cream" ]) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "Loads Filter People and Events without N+1 queries" do
       create_list(:event, 2)
 
