@@ -153,11 +153,14 @@ class Recipe < ApplicationRecord
     records  = Array(records).compact.uniq
     existing = rows.to_a
 
+    # Matched on the foreign key, so existing rows never load their record.
+    foreign_key = "#{key}_id"
     records.each_with_index do |record, position|
-      row = existing.find { |r| r.public_send(key) == record } || rows.build(key => record)
+      row = existing.find { |r| r.public_send(foreign_key) == record.id } || rows.build(key => record)
       row.position = position
     end
-    existing.each { |row| row.mark_for_destruction unless records.include?(row.public_send(key)) }
+    kept_ids = records.map(&:id)
+    existing.each { |row| row.mark_for_destruction unless kept_ids.include?(row.public_send(foreign_key)) }
   end
 
   def one_or_two_cuisines_and_food_types

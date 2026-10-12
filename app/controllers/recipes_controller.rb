@@ -10,6 +10,7 @@ class RecipesController < ApplicationController
   allow_unauthenticated_access only: %i[show pdf browse_by_cuisine browse_by_food_type filter find_by_ingredients]
   before_action :resume_session_if_present, only: %i[show pdf browse_by_cuisine browse_by_food_type filter find_by_ingredients]
   before_action :set_recipe,            only: %i[show pdf edit update publish unpublish destroy restore]
+  before_action :preload_ingredients,   only: %i[edit update]
   before_action :require_create_access, only: %i[new create convert_format]
   before_action :require_write_access,  only: %i[edit update publish unpublish]
   before_action :require_delete_access, only: %i[destroy]
@@ -156,6 +157,11 @@ class RecipesController < ApplicationController
 
   def set_recipe
     @recipe = Recipe.friendly.find(params[:id])
+  end
+
+  # The form renders (and an update assigns) every section's ingredients.
+  def preload_ingredients
+    ActiveRecord::Associations::Preloader.new(records: [ @recipe ], associations: { ingredient_sections: :ingredients }).call
   end
 
   # The form always offers somewhere to start typing ingredients.

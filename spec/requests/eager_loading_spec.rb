@@ -68,6 +68,25 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads and saves the Edit A Recipe form without N+1 queries" do
+      cuisines   = create_list(:cuisine, 2)
+      food_types = create_list(:food_type, 2)
+      recipe = create(:recipe, user: adam, cuisines: cuisines, food_types: food_types, ingredient_sections_attributes: {
+        "0" => { heading: "Sauce",   ingredients_attributes: { "0" => { quantity: "1", name: "Butter" } } },
+        "1" => { heading: "Topping", ingredients_attributes: { "0" => { quantity: "1", name: "Cheese" } } }
+      })
+      choices = { cuisine_ids: cuisines.reverse.map(&:id), food_type_ids: food_types.reverse.map(&:id) }
+
+      without_n_plus_one_queries { get edit_recipe_path(recipe) }
+      expect(response).to have_http_status(:ok)
+
+      without_n_plus_one_queries { patch recipe_path(recipe), params: { recipe: choices.merge(title: "") } }
+      expect(response).to have_http_status(:unprocessable_entity)
+
+      without_n_plus_one_queries { patch recipe_path(recipe), params: { recipe: choices.merge(title: "Renamed") } }
+      expect(response).to redirect_to(recipe_path(recipe.reload))
+    end
+
     it "Loads Filter People and Events without N+1 queries" do
       create_list(:event, 2)
 
