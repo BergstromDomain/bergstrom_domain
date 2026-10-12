@@ -38,7 +38,7 @@ module Navigable
       :settings
     when "blog_posts", "blog_categories", "blog_exports", "blog_imports"
       :blog_posts
-    when "recipes", "cuisines", "food_types", "languages"
+    when "recipes", "cuisines", "food_types", "languages", "recipe_exports"
       :recipes
     when "guide_pages"
       :guide_pages

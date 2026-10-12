@@ -108,6 +108,16 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads Download Recipes and its CSV and PDF downloads without N+1 or unused eager loading" do
+      sign_in_as(adam)
+      create_list(:recipe, 2, :published, cuisines: create_list(:cuisine, 2))
+
+      [ recipe_exports_path, csv_recipe_exports_path, pdfs_recipe_exports_path ].each do |path|
+        without_n_plus_one_queries { get path }
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
     it "Loads Download People and Events without N+1 or unused eager loading" do
       sign_in_as(adam)
       create_list(:event, 2)

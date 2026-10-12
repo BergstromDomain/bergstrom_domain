@@ -6,6 +6,11 @@
 module RecipeFilterable
   extend ActiveSupport::Concern
 
+  FILTER_SORT_COLUMNS = %w[cuisine food_type title chef created reactions].freeze
+  # What the shared results table (recipes/_filter_results) renders per recipe.
+  FILTER_RESULTS_INCLUDES = [ :likes, :cuisines, :food_types, { recipe_image_attachment: :blob },
+    { user: { profile_image_attachment: :blob } } ].freeze
+
   private
 
   # `includes` is whatever the caller's own page renders (and sorts) per
@@ -40,6 +45,15 @@ module RecipeFilterable
 
     ActiveRecord::Associations::Preloader.new(records: @recipes, associations: includes).call if includes.any?
     set_filter_options(recipes)
+  end
+
+  # Newest first unless a column header asked otherwise. Loads whatever the
+  # sort column reads, for callers whose own includes don't cover it.
+  def sort_filtered_recipes
+    @sort      = FILTER_SORT_COLUMNS.include?(params[:sort]) ? params[:sort] : "created"
+    @direction = params[:direction] == "asc" ? "asc" : "desc"
+    RecipeFilter.preload(@recipes, [ @sort ])
+    @recipes = RecipeFilter.sort(@recipes, @sort, @direction)
   end
 
   # Mirrors BlogPostFilterable#visible_blog_posts_scope — Recipe has the same

@@ -108,11 +108,17 @@ Rails.application.routes.draw do
   end
   resources :blog_categories, path: "blog-post-categories"
 
+  # Declared before resources :recipes so "export" isn't read as a recipe slug.
+  get "recipes/export",      to: "recipe_exports#index", as: :recipe_exports
+  get "recipes/export/csv",  to: "recipe_exports#csv",   as: :csv_recipe_exports
+  get "recipes/export/pdfs", to: "recipe_exports#pdfs",  as: :pdfs_recipe_exports
+
   resources :recipes, only: %i[new create show edit update destroy] do
     resource :like, only: %i[create destroy], controller: "likes"
     # Update/destroy are the shallow comments/:id routes declared under blog_posts.
     resources :comments, only: %i[create]
     member do
+      get  :pdf
       post :publish
       post :unpublish
       post :restore

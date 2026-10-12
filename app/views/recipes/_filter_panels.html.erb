@@ -1,0 +1,67 @@
+<%= hidden_field_tag :mode, @mode, data: { "filter-mode-target": "mode" } %>
+
+<div class="editor-tabs" role="tablist">
+  <button type="button" class="editor-tab<%= " tab--active" if @mode == "basic" %>" role="tab"
+          data-filter-mode-target="basicTab" data-action="filter-mode#switchToBasic"
+          data-testid="basic-tab">Basic</button>
+  <button type="button" class="editor-tab<%= " tab--active" if @mode == "sql" %>" role="tab"
+          data-filter-mode-target="sqlTab" data-action="filter-mode#switchToSql"
+          data-testid="sql-tab">SQL</button>
+</div>
+
+<div class="show-panel" data-filter-mode-target="basicPanel" data-testid="basic-panel"
+     <%= "hidden" if @mode == "sql" %>>
+  <div class="filter-grid">
+    <% [ [ "Cuisine",   :cuisine_id,   @cuisine_options,   "All Cuisines" ],
+         [ "Food Type", :food_type_id, @food_type_options, "All Food Types" ],
+         [ "Language",  :language_id,  @language_options,  "All Languages" ] ].each do |label, param, options, all_label| %>
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label"><%= label %></h3>
+        <%= select_tag param,
+              options_for_select([ [ all_label, "" ] ] + options.map { |record| [ record.name, record.slug ] }, params[param]),
+              class: "form-control", data: { testid: "#{param.to_s.delete_suffix('_id').dasherize}-filter" } %>
+      </div>
+    <% end %>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Chef</h3>
+      <%= select_tag :chef_id,
+            options_for_select([ [ "All Chefs", "" ] ] +
+              @chef_options.map { |u| [ "#{u.first_name} #{u.last_name}", u.id ] }, params[:chef_id]),
+            class: "form-control", data: { testid: "chef-filter" } %>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Created</h3>
+      <%= select_tag :created,
+            options_for_select([ [ "Anytime", "" ], [ "Today", "today" ], [ "This Week", "this_week" ],
+              [ "This Month", "this_month" ], [ "This Year", "this_year" ] ], params[:created]),
+            class: "form-control", data: { testid: "created-filter" } %>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Published</h3>
+      <%= select_tag :published,
+            options_for_select([ [ "All", "" ], [ "Published Only", "published" ], [ "Drafts Only", "draft" ] ],
+              params[:published]),
+            class: "form-control", data: { testid: "published-filter" } %>
+    </div>
+  </div>
+</div>
+
+<div class="show-panel" data-filter-mode-target="sqlPanel" data-testid="sql-panel"
+     <%= "hidden" if @mode == "basic" %>>
+  <div class="show-panel__section">
+    <h3 class="show-meta-cell__label">Query</h3>
+    <%= text_area_tag :query, @query, rows: 4, class: "form-control",
+          placeholder: 'cuisine = "Italian" AND ingredients CONTAINS "garlic" AND reactions >= 4',
+          data: { testid: "jql-query-field" } %>
+    <% if @filter_error %>
+      <span class="field-error" data-testid="filter-error"><%= @filter_error %></span>
+    <% end %>
+    <p class="form-hint">
+      Fields: <%= RecipeFilter::FIELD_SCHEMA.keys.join(", ") %>.
+      Cuisine, Food Type and Ingredients match when any of a recipe's values does.
+    </p>
+  </div>
+</div>

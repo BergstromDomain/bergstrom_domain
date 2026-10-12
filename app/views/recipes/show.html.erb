@@ -149,6 +149,11 @@
     <%= lucide_icon("arrow-left", size: 16) %> Back
   <% end %>
 
+  <span class="btn-divider">|</span>
+  <%= link_to pdf_recipe_path(@recipe), class: "btn btn-secondary", data: { testid: "download-pdf-link" } do %>
+    <%= lucide_icon("file-down", size: 16) %> Download PDF
+  <% end %>
+
   <% if @policy.can_update? %>
     <span class="btn-divider">|</span>
     <%= link_to edit_recipe_path(@recipe), class: "btn btn-secondary", data: { testid: "edit-link" } do %>

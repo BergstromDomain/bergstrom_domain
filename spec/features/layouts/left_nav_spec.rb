@@ -484,6 +484,14 @@ RSpec.describe "Left Nav", type: :feature do
             expect(page).not_to have_link("Deleted Recipes")
           end
         end
+
+        it "Shows Actions › Import & Export with 'Download Recipes' only" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-import-export-h3']", text: "Import & Export")
+            expect(page).to have_link("Download Recipes", href: recipe_exports_path)
+            expect(page).not_to have_link("Import Recipes")
+          end
+        end
       end
 
       context "When 'Adam Admin' visits the 'Cookbook' landing page" do

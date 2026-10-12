@@ -4,11 +4,12 @@ class RecipesController < ApplicationController
   include FormatConvertible
   include ReturnTo
   include Browsable
+  include PdfDownloadable
   include RecipeFilterable
 
-  allow_unauthenticated_access only: %i[show browse_by_cuisine browse_by_food_type filter find_by_ingredients]
-  before_action :resume_session_if_present, only: %i[show browse_by_cuisine browse_by_food_type filter find_by_ingredients]
-  before_action :set_recipe,            only: %i[show edit update publish unpublish destroy restore]
+  allow_unauthenticated_access only: %i[show pdf browse_by_cuisine browse_by_food_type filter find_by_ingredients]
+  before_action :resume_session_if_present, only: %i[show pdf browse_by_cuisine browse_by_food_type filter find_by_ingredients]
+  before_action :set_recipe,            only: %i[show pdf edit update publish unpublish destroy restore]
   before_action :require_create_access, only: %i[new create convert_format]
   before_action :require_write_access,  only: %i[edit update publish unpublish]
   before_action :require_delete_access, only: %i[destroy]
@@ -27,15 +28,9 @@ class RecipesController < ApplicationController
       records: FoodType, path_helper: :browse_by_food_type_recipes_path)
   end
 
-  FILTER_SORT_COLUMNS = %w[cuisine food_type title chef created reactions].freeze
-
   def filter
-    compute_filtered_recipes(includes: [ :likes, :cuisines, :food_types, { recipe_image_attachment: :blob },
-      { user: { profile_image_attachment: :blob } } ])
-
-    @sort      = FILTER_SORT_COLUMNS.include?(params[:sort]) ? params[:sort] : "created"
-    @direction = params[:direction] == "asc" ? "asc" : "desc"
-    @recipes = RecipeFilter.sort(@recipes, @sort, @direction)
+    compute_filtered_recipes(includes: FILTER_RESULTS_INCLUDES)
+    sort_filtered_recipes
   end
 
   # Every recipe the viewer can see containing all the entered ingredients
@@ -63,6 +58,18 @@ class RecipesController < ApplicationController
       return
     end
     @ingredient_sections = @recipe.ingredient_sections.includes(:ingredients)
+  end
+
+  def pdf
+    unless Policy.new(current_user, @recipe).can_read?
+      redirect_to cookbook_path, alert: "You do not have permission to view that recipe."
+      return
+    end
+
+    send_data render_pdf(template: "recipes/pdf", assigns: { recipe: @recipe }),
+      type:        "application/pdf",
+      filename:    "#{@recipe.title.gsub(' ', '_')}.pdf",
+      disposition: "attachment"
   end
 
   def create

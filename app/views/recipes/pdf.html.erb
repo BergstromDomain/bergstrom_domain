@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: #2c2825;
+    margin: 0;
+    padding: 2rem;
+  }
+  .pdf-title {
+    color: #b07d56;
+    margin: 0 0 0.5rem;
+  }
+  .pdf-meta {
+    color: #6b6460;
+    font-size: 0.875rem;
+    margin: 0 0 0.25rem;
+  }
+  .pdf-description {
+    font-style: italic;
+    margin: 1rem 0 1.5rem;
+  }
+  .pdf-image {
+    max-width: 100%;
+    max-height: 20rem;
+    margin: 1rem 0;
+    border-radius: 4px;
+  }
+  .pdf-heading {
+    color: #b07d56;
+    font-size: 1.2rem;
+    margin: 1.5rem 0 0.5rem;
+    border-bottom: 1px solid #e2ddd6;
+    padding-bottom: 0.25rem;
+  }
+  .pdf-section-heading {
+    font-size: 1rem;
+    margin: 1rem 0 0.25rem;
+  }
+  .pdf-ingredients {
+    margin: 0;
+    padding-left: 1.25rem;
+    line-height: 1.6;
+  }
+  .pdf-body {
+    line-height: 1.6;
+  }
+  .pdf-body img {
+    max-width: 100%;
+  }
+</style>
+</head>
+<body>
+  <h1 class="pdf-title"><%= @recipe.title %></h1>
+  <p class="pdf-meta">
+    <%= recipe_choice_names(@recipe.cuisines) %> » <%= recipe_choice_names(@recipe.food_types) %>
+    &middot; <%= @recipe.language.name %>
+    &middot; By <%= @recipe.user.first_name %> <%= @recipe.user.last_name %>
+  </p>
+  <% portions_label, portions = @recipe.portions %>
+  <% details = [ (portions.present? ? "#{portions_label}: #{portions}" : nil),
+                 (@recipe.cook_time.present? ? "Cook Time: #{@recipe.cook_time}" : nil) ].compact %>
+  <% if details.any? %>
+    <p class="pdf-meta"><%= safe_join(details, " · ") %></p>
+  <% end %>
+
+  <% if @recipe.recipe_image.attached? %>
+    <img class="pdf-image" src="<%= recipe_image_data_uri(@recipe) %>" alt="<%= @recipe.title %>">
+  <% end %>
+
+  <% if @recipe.description.present? %>
+    <p class="pdf-description"><%= @recipe.description %></p>
+  <% end %>
+
+  <h2 class="pdf-heading">Ingredients</h2>
+  <% @recipe.ingredient_sections.each do |section| %>
+    <% if section.heading.present? %>
+      <h3 class="pdf-section-heading"><%= section.heading %></h3>
+    <% end %>
+    <ul class="pdf-ingredients">
+      <% section.ingredients.each do |ingredient| %>
+        <li><%= RecipeExportService.ingredient_line(ingredient) %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <h2 class="pdf-heading">Method</h2>
+  <div class="pdf-body">
+    <%= inline_body_images(sanitize(@recipe.rendered_body,
+          tags:       Recipe::RENDERED_BODY_ALLOWED_TAGS,
+          attributes: Recipe::RENDERED_BODY_ALLOWED_ATTRIBUTES)) %>
+  </div>
+</body>
+</html>

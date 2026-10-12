@@ -453,6 +453,17 @@
             <span>Deleted Recipes</span>
           <% end %>
         <% end %>
+
+        <% if current_user.can_export? %>
+          <%# ── Import & Export (Download only until Import Recipes) ─────── %>
+          <h3 class="left-nav-h3" data-testid="left-nav-import-export-h3">
+            Import &amp; Export
+          </h3>
+          <%= link_to recipe_exports_path, class: "left-nav-link" do %>
+            <%= lucide_icon("download", size: 15) %>
+            <span>Download Recipes</span>
+          <% end %>
+        <% end %>
         </div>
       </div>
     <% end %>
