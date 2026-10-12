@@ -2,7 +2,7 @@
 
 # A reference-data row shown as a flag emoji (e.g. 🇸🇪) with a small Lucide
 # badge over it — Cookbook's Cuisine and Language (Design Question-3 in
-# docs/context-prompts/active/App_-_Cookbook.md). Any single emoji is
+# docs/context-prompts/active/Cookbook_App.md). Any single emoji is
 # accepted, not only national flags, so a regional Cuisine like
 # "Mediterranean" can use 🌍.
 module Flaggable

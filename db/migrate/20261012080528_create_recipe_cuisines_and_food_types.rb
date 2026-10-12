@@ -1,6 +1,6 @@
 # A recipe has one or two Cuisines and one or two Food Types (Swedish lasagna:
 # Swedish + Italian, Pasta + Mince Meat) — see Block 8 in
-# docs/context-prompts/active/App_-_Cookbook.md. `position` 0 is the primary one.
+# docs/context-prompts/active/Cookbook_App.md. `position` 0 is the primary one.
 class CreateRecipeCuisinesAndFoodTypes < ActiveRecord::Migration[8.1]
   def up
     create_table :recipe_cuisines do |t|

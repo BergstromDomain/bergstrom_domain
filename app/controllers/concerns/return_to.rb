@@ -2,7 +2,7 @@
 
 # A `return_to` query param that sends a page's Back button to wherever the
 # reader came from (Browse, Filter, My Recipes) instead of a fixed index —
-# Design Question-4 in docs/context-prompts/active/App_-_Cookbook.md. Only a
+# Design Question-4 in docs/context-prompts/active/Cookbook_App.md. Only a
 # relative path on this site is honoured, so the param can't be used as an
 # open redirect; anything else falls back.
 module ReturnTo

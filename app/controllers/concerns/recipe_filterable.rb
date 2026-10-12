@@ -9,9 +9,11 @@ module RecipeFilterable
   private
 
   # `includes` is whatever the caller's own page renders (and sorts) per
-  # recipe; anything else a query reads is preloaded via RecipeFilter.preload.
+  # recipe, preloaded only onto the recipes that pass the filter — loading it
+  # for recipes the filter drops is what Bullet flags as unused eager loading.
+  # Anything a query reads is preloaded via RecipeFilter.preload.
   def compute_filtered_recipes(includes: [])
-    recipes = visible_recipes_scope.includes(*includes).to_a
+    recipes = visible_recipes_scope.to_a
 
     @mode  = params[:mode] == "sql" ? "sql" : "basic"
     @query = params[:query].to_s
@@ -36,6 +38,7 @@ module RecipeFilterable
       @recipes = []
     end
 
+    ActiveRecord::Associations::Preloader.new(records: @recipes, associations: includes).call if includes.any?
     set_filter_options(recipes)
   end
 

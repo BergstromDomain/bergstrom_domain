@@ -121,5 +121,27 @@ RSpec.describe "Eager loading", type: :request do
 
       expect(Bullet.enable?).to be(false)
     end
+
+    it "Loads Filter Recipes without unused eager loading when nothing matches" do
+      sign_in_as(adam)
+      create_list(:recipe, 2, :published)
+
+      without_n_plus_one_queries { get filter_recipes_path(mode: "sql", query: 'title = "No Such Recipe"') }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads a Browse Recipes By Cuisine preview panel with recipe images without unused eager loading" do
+      sign_in_as(adam)
+      cuisine = create(:cuisine)
+      create_list(:recipe, 2, :published, cuisines: [ cuisine ]).each do |recipe|
+        recipe.recipe_image.attach(io: file_fixture("test_image.jpg").open, filename: "lasagna.jpg")
+        recipe.recipe_image.variant(:thumbnail).processed
+      end
+
+      without_n_plus_one_queries { get browse_by_cuisine_recipes_path(cuisine_id: cuisine.slug) }
+
+      expect(response).to have_http_status(:ok)
+    end
   end
 end

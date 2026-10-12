@@ -11,10 +11,10 @@
     </div>
     <h2 class="blog-card__title">
       <%= recipe_link_returning_here(item, data: { testid: "browse-recipe-title" }) %>
-      <span class="recipe-title__language" title="<%= item.language.name %>" data-testid="browse-recipe-language">
-        <%= render "shared/flag_badge", flag: item.language.flag, badge: "book-open-check" %>
-      </span>
     </h2>
+    <span class="recipe-title__language" title="<%= item.language.name %>" data-testid="browse-recipe-language">
+      <%= render "shared/flag_badge", flag: item.language.flag, badge: "book-open-check" %>
+    </span>
   </div>
 
   <div class="blog-card__meta blog-card__meta--split">
