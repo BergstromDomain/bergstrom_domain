@@ -41,3 +41,6 @@ en:
       # The body is labelled "Method" on the recipe form.
       recipe:
         body: "Method"
+        # A recipe has one or two of each, but errors read "Cuisine can't be blank".
+        cuisines: "Cuisine"
+        food_types: "Food Type"

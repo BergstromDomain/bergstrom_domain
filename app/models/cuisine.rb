@@ -4,7 +4,8 @@ class Cuisine < ApplicationRecord
   extend FriendlyId
   friendly_id :name, use: [ :slugged, :history ]
 
-  has_many :recipes, dependent: :restrict_with_error
+  has_many :recipe_cuisines
+  has_many :recipes, through: :recipe_cuisines, dependent: :restrict_with_error
 
   validates :name,        presence: true, uniqueness: { case_sensitive: false }
   validates :description, presence: true

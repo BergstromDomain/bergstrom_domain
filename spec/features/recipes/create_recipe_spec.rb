@@ -71,9 +71,23 @@ RSpec.describe "Create Recipe", type: :feature do
 
       recipe = Recipe.find_by!(title: "Pea Soup")
       expect(recipe).to have_attributes(
-        user: charlie, cuisine: swedish_c, food_type: soup, language: english,
+        user: charlie, cuisines: [ swedish_c ], food_types: [ soup ], language: english,
         description: "A Thursday classic.", serves: 4, cook_time: "2 hours", published_at: nil
       )
+    end
+
+    it "Saves a second Cuisine and Food Type after the primary ones" do
+      italian = create(:cuisine, name: "Italian", flag: "🇮🇹")
+      pasta   = create(:food_type, name: "Pasta", icon: "cooking-pot")
+      visit new_recipe_path
+      fill_required(title: "Swedish Lasagna")
+      choose("Italian", from: "Second Cuisine")
+      choose("Pasta",   from: "Second Food Type")
+      click_button "Save Recipe"
+
+      recipe = Recipe.find_by!(title: "Swedish Lasagna")
+      expect(recipe.cuisines).to eq([ swedish_c, italian ])
+      expect(recipe.food_types).to eq([ soup, pasta ])
     end
 
     it "Starts with one unheaded ingredient list holding one blank row" do
@@ -192,7 +206,7 @@ RSpec.describe "Create Recipe", type: :feature do
 
         expect(page).to have_content("Title can't be blank")
         expect(page).to have_content("Cuisine can't be blank")
-        expect(page).to have_content("Food type can't be blank")
+        expect(page).to have_content("Food Type can't be blank")
         expect(Recipe.count).to eq(0)
       end
 
@@ -266,6 +280,16 @@ RSpec.describe "Create Recipe", type: :feature do
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
     before { sign_in_as(charlie) }
+
+    it "Treats a Second Cuisine chosen on its own as the primary one" do
+      visit new_recipe_path
+      set_value(find_field("Title"), "Pea Soup")
+      choose("Swedish", from: "Second Cuisine")
+      choose("Soup",    from: "Food Type")
+      click_button "Save Recipe"
+
+      expect(Recipe.find_by!(title: "Pea Soup").cuisines).to eq([ swedish_c ])
+    end
 
     it "Keeps a free-text quantity exactly as typed" do
       visit new_recipe_path

@@ -17,13 +17,21 @@ class Recipe < ApplicationRecord
   RENDERED_BODY_ALLOWED_TAGS       = %w[h1 h2 h3 h4 h5 h6 p br strong em u s blockquote ol ul li a code pre img span].freeze
   RENDERED_BODY_ALLOWED_ATTRIBUTES = %w[href src alt style lang].freeze
 
-  # Required on every save, drafts included (the columns are NOT NULL too) —
-  # see "DECISIONS (2026-10-11)" in docs/context-prompts/active/App_-_Cookbook.md.
-  # Kept as presence validations on optional associations, rather than
-  # required belongs_to, so the errors read "can't be blank" like the rest.
-  belongs_to :cuisine,   optional: true
-  belongs_to :food_type, optional: true
-  belongs_to :language,  optional: true
+  # A recipe has one or two of each, the first being the primary one — see
+  # Block 8 in docs/context-prompts/active/App_-_Cookbook.md.
+  MAX_CUISINES_AND_FOOD_TYPES = 2
+
+  # Cuisine, Food Type and Language are required on every save, drafts
+  # included — see "DECISIONS (2026-10-11)" in
+  # docs/context-prompts/active/App_-_Cookbook.md. Language is kept as a
+  # presence validation on an optional association, rather than a required
+  # belongs_to, so the error reads "can't be blank" like the rest.
+  belongs_to :language, optional: true
+
+  has_many :recipe_cuisines,   -> { order(:position) }, dependent: :destroy, autosave: true, inverse_of: :recipe
+  has_many :recipe_food_types, -> { order(:position) }, dependent: :destroy, autosave: true, inverse_of: :recipe
+  has_many :cuisines,   through: :recipe_cuisines
+  has_many :food_types, through: :recipe_food_types
 
   has_one_attached :recipe_image do |attachable|
     attachable.variant :thumbnail, resize_to_fill: [ 200, 200 ]
@@ -43,7 +51,8 @@ class Recipe < ApplicationRecord
   enum :format, { raw: "raw", formatted: "formatted" }, validate: true
 
   validates :title, presence: true, uniqueness: { scope: :user_id, case_sensitive: false }
-  validates :cuisine, :food_type, :language, presence: true
+  validates :language, presence: true
+  validate :one_or_two_cuisines_and_food_types
   validates :serves, :makes, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
   validates :body, presence: true, if: :published?
   validate :must_have_an_ingredient, if: :published?
@@ -73,6 +82,35 @@ class Recipe < ApplicationRecord
     published_at.present?
   end
 
+  # Writers take records (or the form's ids) in the order chosen and only
+  # build or mark join rows, so nothing is saved until the recipe is — unlike
+  # the stock has_many :through writers, which save straight away.
+  def cuisines=(records)
+    assign_ordered(recipe_cuisines, :cuisine, records)
+  end
+
+  def food_types=(records)
+    assign_ordered(recipe_food_types, :food_type, records)
+  end
+
+  def cuisine_ids=(ids)
+    self.cuisines = records_in_order(Cuisine, ids)
+  end
+
+  def food_type_ids=(ids)
+    self.food_types = records_in_order(FoodType, ids)
+  end
+
+  # Read from the join rows in memory, so a form re-rendered after a failed
+  # save shows what was chosen rather than what is saved.
+  def cuisine_ids
+    current_rows(recipe_cuisines).map(&:cuisine_id)
+  end
+
+  def food_type_ids
+    current_rows(recipe_food_types).map(&:food_type_id)
+  end
+
   def purge_at
     deleted_at + DELETION_RETENTION_PERIOD if deleted_at
   end
@@ -100,6 +138,35 @@ class Recipe < ApplicationRecord
   end
 
   private
+
+  def current_rows(rows)
+    rows.reject(&:marked_for_destruction?).sort_by(&:position)
+  end
+
+  def records_in_order(model, ids)
+    ids = Array(ids).compact_blank.map(&:to_i)
+    by_id = model.where(id: ids).index_by(&:id)
+    ids.filter_map { |id| by_id[id] }
+  end
+
+  def assign_ordered(rows, key, records)
+    records  = Array(records).compact.uniq
+    existing = rows.to_a
+
+    records.each_with_index do |record, position|
+      row = existing.find { |r| r.public_send(key) == record } || rows.build(key => record)
+      row.position = position
+    end
+    existing.each { |row| row.mark_for_destruction unless records.include?(row.public_send(key)) }
+  end
+
+  def one_or_two_cuisines_and_food_types
+    { cuisines: recipe_cuisines, food_types: recipe_food_types }.each do |attribute, rows|
+      count = current_rows(rows).size
+      errors.add(attribute, :blank) if count.zero?
+      errors.add(attribute, "can have at most #{MAX_CUISINES_AND_FOOD_TYPES}") if count > MAX_CUISINES_AND_FOOD_TYPES
+    end
+  end
 
   # A published recipe needs something to cook with — see "DECISIONS (Block 5)"
   # in docs/context-prompts/active/App_-_Cookbook.md. Checked on every save

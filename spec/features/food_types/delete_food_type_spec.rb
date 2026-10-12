@@ -21,7 +21,14 @@ RSpec.describe "Delete Food Type", type: :feature do
   # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
     it "Does not delete a food type that recipes use, and says why" do
-      create(:recipe, food_type: food_type)
+      create(:recipe, food_types: [ food_type ])
+      visit food_type_path(food_type)
+      expect { click_button "Delete Food Type" }.not_to change(FoodType, :count)
+      expect(page).to have_content("Cannot delete record because dependent recipes exist")
+    end
+
+    it "Does not delete one that a recipe uses only as its second choice" do
+      create(:recipe, food_types: [ create(:food_type), food_type ])
       visit food_type_path(food_type)
       expect { click_button "Delete Food Type" }.not_to change(FoodType, :count)
       expect(page).to have_content("Cannot delete record because dependent recipes exist")

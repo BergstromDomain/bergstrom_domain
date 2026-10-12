@@ -146,6 +146,26 @@ RSpec.describe "Edit Recipe", type: :feature do
       expect(page).to have_button("Unpublish")
     end
 
+    it "Swaps the primary and second Cuisine, and drops the second Food Type" do
+      swedish = recipe.cuisines.first
+      italian = create(:cuisine, name: "Italian")
+      pasta   = create(:food_type, name: "Pasta", icon: "cooking-pot")
+      recipe.update!(cuisine_ids: [ swedish.id, italian.id ], food_type_ids: [ recipe.food_types.first.id, pasta.id ])
+      sign_in_as(charlie)
+      visit edit_recipe_path(recipe)
+      expect(page).to have_select("Second Cuisine", selected: "Italian")
+
+      select italian.name, from: "Cuisine"
+      select swedish.name, from: "Second Cuisine"
+      select "None", from: "Second Food Type"
+      click_button "Update Recipe"
+
+      recipe.reload
+      expect(recipe.cuisines).to eq([ italian, swedish ])
+      expect(recipe.food_types.map(&:name)).not_to include("Pasta")
+      expect(recipe.food_types.size).to eq(1)
+    end
+
     it "Allows 'Adam Admin' to edit anyone's recipe" do
       sign_in_as(create(:user, :admin))
       visit edit_recipe_path(recipe)

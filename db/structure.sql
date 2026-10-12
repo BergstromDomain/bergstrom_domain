@@ -924,6 +924,72 @@ ALTER SEQUENCE public.person_social_media_accounts_id_seq OWNED BY public.person
 
 
 --
+-- Name: recipe_cuisines; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.recipe_cuisines (
+    id bigint NOT NULL,
+    recipe_id bigint NOT NULL,
+    cuisine_id bigint NOT NULL,
+    "position" integer NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: recipe_cuisines_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.recipe_cuisines_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: recipe_cuisines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.recipe_cuisines_id_seq OWNED BY public.recipe_cuisines.id;
+
+
+--
+-- Name: recipe_food_types; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.recipe_food_types (
+    id bigint NOT NULL,
+    recipe_id bigint NOT NULL,
+    food_type_id bigint NOT NULL,
+    "position" integer NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: recipe_food_types_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.recipe_food_types_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: recipe_food_types_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.recipe_food_types_id_seq OWNED BY public.recipe_food_types.id;
+
+
+--
 -- Name: recipes; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -942,8 +1008,6 @@ CREATE TABLE public.recipes (
     deleted_at timestamp(6) without time zone,
     comments_count integer DEFAULT 0 NOT NULL,
     user_id bigint NOT NULL,
-    cuisine_id bigint NOT NULL,
-    food_type_id bigint NOT NULL,
     language_id bigint NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL
@@ -1306,6 +1370,20 @@ ALTER TABLE ONLY public.person_social_media_accounts ALTER COLUMN id SET DEFAULT
 
 
 --
+-- Name: recipe_cuisines id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_cuisines ALTER COLUMN id SET DEFAULT nextval('public.recipe_cuisines_id_seq'::regclass);
+
+
+--
+-- Name: recipe_food_types id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_food_types ALTER COLUMN id SET DEFAULT nextval('public.recipe_food_types_id_seq'::regclass);
+
+
+--
 -- Name: recipes id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1554,6 +1632,22 @@ ALTER TABLE ONLY public.person_mutes
 
 ALTER TABLE ONLY public.person_social_media_accounts
     ADD CONSTRAINT person_social_media_accounts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: recipe_cuisines recipe_cuisines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_cuisines
+    ADD CONSTRAINT recipe_cuisines_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: recipe_food_types recipe_food_types_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_food_types
+    ADD CONSTRAINT recipe_food_types_pkey PRIMARY KEY (id);
 
 
 --
@@ -2018,10 +2112,45 @@ CREATE INDEX index_person_social_media_accounts_on_social_media_platform_id ON p
 
 
 --
--- Name: index_recipes_on_cuisine_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_recipe_cuisines_on_cuisine_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_recipes_on_cuisine_id ON public.recipes USING btree (cuisine_id);
+CREATE INDEX index_recipe_cuisines_on_cuisine_id ON public.recipe_cuisines USING btree (cuisine_id);
+
+
+--
+-- Name: index_recipe_cuisines_on_recipe_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_recipe_cuisines_on_recipe_id ON public.recipe_cuisines USING btree (recipe_id);
+
+
+--
+-- Name: index_recipe_cuisines_on_recipe_id_and_cuisine_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_recipe_cuisines_on_recipe_id_and_cuisine_id ON public.recipe_cuisines USING btree (recipe_id, cuisine_id);
+
+
+--
+-- Name: index_recipe_food_types_on_food_type_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_recipe_food_types_on_food_type_id ON public.recipe_food_types USING btree (food_type_id);
+
+
+--
+-- Name: index_recipe_food_types_on_recipe_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_recipe_food_types_on_recipe_id ON public.recipe_food_types USING btree (recipe_id);
+
+
+--
+-- Name: index_recipe_food_types_on_recipe_id_and_food_type_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_recipe_food_types_on_recipe_id_and_food_type_id ON public.recipe_food_types USING btree (recipe_id, food_type_id);
 
 
 --
@@ -2029,13 +2158,6 @@ CREATE INDEX index_recipes_on_cuisine_id ON public.recipes USING btree (cuisine_
 --
 
 CREATE INDEX index_recipes_on_deleted_at ON public.recipes USING btree (deleted_at);
-
-
---
--- Name: index_recipes_on_food_type_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_recipes_on_food_type_id ON public.recipes USING btree (food_type_id);
 
 
 --
@@ -2179,11 +2301,27 @@ ALTER TABLE ONLY public.user_app_settings
 
 
 --
+-- Name: recipe_food_types fk_rails_270df21dad; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_food_types
+    ADD CONSTRAINT fk_rails_270df21dad FOREIGN KEY (food_type_id) REFERENCES public.food_types(id);
+
+
+--
 -- Name: comments fk_rails_31554e7034; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.comments
     ADD CONSTRAINT fk_rails_31554e7034 FOREIGN KEY (parent_id) REFERENCES public.comments(id);
+
+
+--
+-- Name: recipe_cuisines fk_rails_3ff95737b9; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_cuisines
+    ADD CONSTRAINT fk_rails_3ff95737b9 FOREIGN KEY (recipe_id) REFERENCES public.recipes(id);
 
 
 --
@@ -2331,14 +2469,6 @@ ALTER TABLE ONLY public.app_permissions
 
 
 --
--- Name: recipes fk_rails_be504d0fa1; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recipes
-    ADD CONSTRAINT fk_rails_be504d0fa1 FOREIGN KEY (cuisine_id) REFERENCES public.cuisines(id);
-
-
---
 -- Name: event_people fk_rails_c2cdc05600; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2352,6 +2482,14 @@ ALTER TABLE ONLY public.event_people
 
 ALTER TABLE ONLY public.active_storage_attachments
     ADD CONSTRAINT fk_rails_c3b3935057 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
+
+--
+-- Name: recipe_food_types fk_rails_ce075da4d1; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_food_types
+    ADD CONSTRAINT fk_rails_ce075da4d1 FOREIGN KEY (recipe_id) REFERENCES public.recipes(id);
 
 
 --
@@ -2387,11 +2525,11 @@ ALTER TABLE ONLY public.ingredients
 
 
 --
--- Name: recipes fk_rails_e70336bf23; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: recipe_cuisines fk_rails_e3a7342ca7; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.recipes
-    ADD CONSTRAINT fk_rails_e70336bf23 FOREIGN KEY (food_type_id) REFERENCES public.food_types(id);
+ALTER TABLE ONLY public.recipe_cuisines
+    ADD CONSTRAINT fk_rails_e3a7342ca7 FOREIGN KEY (cuisine_id) REFERENCES public.cuisines(id);
 
 
 --
@@ -2401,6 +2539,7 @@ ALTER TABLE ONLY public.recipes
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261012080528'),
 ('20261011114916'),
 ('20261011114915'),
 ('20261011114134'),

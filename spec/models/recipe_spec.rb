@@ -19,8 +19,8 @@ RSpec.describe Recipe, type: :model do
     it { is_expected.to have_db_column(:published_at).of_type(:datetime) }
     it { is_expected.to have_db_column(:deleted_at).of_type(:datetime) }
     it { is_expected.to have_db_column(:comments_count).of_type(:integer).with_options(null: false, default: 0) }
-    it { is_expected.to have_db_column(:cuisine_id).of_type(:integer).with_options(null: false) }
-    it { is_expected.to have_db_column(:food_type_id).of_type(:integer).with_options(null: false) }
+    it { is_expected.not_to have_db_column(:cuisine_id) }
+    it { is_expected.not_to have_db_column(:food_type_id) }
     it { is_expected.to have_db_column(:language_id).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:slug).of_type(:string) }
   end
@@ -28,8 +28,10 @@ RSpec.describe Recipe, type: :model do
   # ── Associations ──────────────────────────────────────────────────────────
   describe "Associations" do
     it { is_expected.to belong_to(:user) }
-    it { is_expected.to belong_to(:cuisine).without_validating_presence }
-    it { is_expected.to belong_to(:food_type).without_validating_presence }
+    it { is_expected.to have_many(:recipe_cuisines).dependent(:destroy) }
+    it { is_expected.to have_many(:cuisines).through(:recipe_cuisines) }
+    it { is_expected.to have_many(:recipe_food_types).dependent(:destroy) }
+    it { is_expected.to have_many(:food_types).through(:recipe_food_types) }
     it { is_expected.to belong_to(:language).without_validating_presence }
     it { is_expected.to have_one_attached(:recipe_image) }
     it { is_expected.to have_many(:likes).dependent(:destroy) }
@@ -40,8 +42,6 @@ RSpec.describe Recipe, type: :model do
 
   # ── Validations ──────────────────────────────────────────────────────────
   describe "Validations" do
-    it { is_expected.to validate_presence_of(:cuisine) }
-    it { is_expected.to validate_presence_of(:food_type) }
     it { is_expected.to validate_presence_of(:language) }
 
     # 1) Happy Path ───────────────────────────────────────────────────────────
@@ -52,6 +52,11 @@ RSpec.describe Recipe, type: :model do
 
       it "is valid when published with a Method and an ingredient" do
         expect(build(:recipe, :published)).to be_valid
+      end
+
+      it "is valid with two Cuisines and two Food Types" do
+        recipe = build(:recipe, cuisines: create_list(:cuisine, 2), food_types: create_list(:food_type, 2))
+        expect(recipe).to be_valid
       end
     end
 
@@ -71,11 +76,19 @@ RSpec.describe Recipe, type: :model do
       end
 
       it "is invalid as a draft without a Cuisine, Food Type or Language" do
-        recipe = build(:recipe, cuisine: nil, food_type: nil, language: nil)
+        recipe = build(:recipe, cuisines: [], food_types: [], language: nil)
         expect(recipe).not_to be_valid
-        expect(recipe.errors[:cuisine]).to include("can't be blank")
-        expect(recipe.errors[:food_type]).to include("can't be blank")
+        expect(recipe.errors[:cuisines]).to include("can't be blank")
+        expect(recipe.errors[:food_types]).to include("can't be blank")
         expect(recipe.errors[:language]).to include("can't be blank")
+        expect(recipe.errors.full_messages).to include("Cuisine can't be blank", "Food Type can't be blank")
+      end
+
+      it "is invalid with three Cuisines or three Food Types" do
+        recipe = build(:recipe, cuisines: create_list(:cuisine, 3), food_types: create_list(:food_type, 3))
+        expect(recipe).not_to be_valid
+        expect(recipe.errors[:cuisines]).to include("can have at most 2")
+        expect(recipe.errors[:food_types]).to include("can have at most 2")
       end
 
       it "is invalid when published without a body" do
@@ -165,6 +178,68 @@ RSpec.describe Recipe, type: :model do
 
     it "still labels it Serves when both are blank" do
       expect(build(:recipe, serves: nil, makes: nil).portions).to eq([ "Serves", nil ])
+    end
+  end
+
+  # ── Cuisines / Food Types ─────────────────────────────────────────────────
+  describe "Cuisines and Food Types" do
+    let(:swedish) { create(:cuisine, name: "Swedish") }
+    let(:italian) { create(:cuisine, name: "Italian") }
+    let(:pasta)   { create(:food_type, name: "Pasta", icon: "cooking-pot") }
+    let(:mince)   { create(:food_type, name: "Mince Meat", icon: "beef") }
+
+    # 1) Happy Path ──────────────────────────────────────────────────────────
+    describe "Happy Path" do
+      it "keeps them in the order they were chosen, the first being the primary one" do
+        recipe = create(:recipe, cuisines: [ italian, swedish ], food_types: [ mince, pasta ])
+        expect(recipe.reload.cuisines).to eq([ italian, swedish ])
+        expect(recipe.food_types).to eq([ mince, pasta ])
+        expect(recipe.cuisine_ids).to eq([ italian.id, swedish.id ])
+      end
+
+      it "assigns them from the form's ids, in order" do
+        recipe = create(:recipe, cuisines: [ swedish ])
+        recipe.update!(cuisine_ids: [ "", italian.id.to_s, swedish.id.to_s ], food_type_ids: [ pasta.id.to_s, "" ])
+        expect(recipe.reload.cuisines).to eq([ italian, swedish ])
+        expect(recipe.food_types).to eq([ pasta ])
+      end
+    end
+
+    # 2) Negative Path ───────────────────────────────────────────────────────
+    describe "Negative Path" do
+      it "leaves the saved choices alone when an update fails" do
+        recipe = create(:recipe, cuisines: [ swedish ])
+        expect(recipe.update(cuisine_ids: [ "" ])).to be(false)
+        expect(recipe.reload.cuisines).to eq([ swedish ])
+      end
+    end
+
+    # 3) Alternative Paths ───────────────────────────────────────────────────
+    describe "Alternative Paths" do
+      it "swaps the primary and the second one" do
+        recipe = create(:recipe, cuisines: [ swedish, italian ])
+        recipe.update!(cuisine_ids: [ italian.id, swedish.id ])
+        expect(recipe.reload.cuisines).to eq([ italian, swedish ])
+      end
+
+      it "drops the second one" do
+        recipe = create(:recipe, cuisines: [ swedish, italian ])
+        recipe.update!(cuisine_ids: [ swedish.id ])
+        expect(recipe.reload.cuisines).to eq([ swedish ])
+      end
+    end
+
+    # 4) Edge Cases ──────────────────────────────────────────────────────────
+    describe "Edge Cases" do
+      it "ignores the same Cuisine chosen twice" do
+        recipe = create(:recipe, cuisine_ids: [ swedish.id, swedish.id ])
+        expect(recipe.reload.cuisines).to eq([ swedish ])
+      end
+
+      it "ignores an id that doesn't exist" do
+        recipe = create(:recipe, cuisine_ids: [ swedish.id, 0 ])
+        expect(recipe.reload.cuisines).to eq([ swedish ])
+      end
     end
   end
 

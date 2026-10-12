@@ -63,24 +63,50 @@
 
   <%# Metadata Frame %>
   <div class="show-panel recipe-form-metadata" data-testid="new-panel-metadata">
+    <%# One or two of each — the second is optional (Block 8 in
+        docs/context-prompts/active/App_-_Cookbook.md). %>
     <% [ [ :cuisine, Cuisine, "Select a Cuisine" ],
-         [ :food_type, FoodType, "Select a Food Type" ],
-         [ :language, Language, "Select a Language" ] ].each do |association, model, prompt| %>
+         [ :food_type, FoodType, "Select a Food Type" ] ].each do |singular, model, prompt| %>
+      <% label    = model.model_name.human.titleize %>
+      <% records  = model.order("LOWER(name) ASC") %>
+      <% chosen   = recipe.public_send(:"#{singular}_ids") %>
+      <% errors   = recipe.errors[singular.to_s.pluralize.to_sym] %>
+      <% name     = "recipe[#{singular}_ids][]" %>
+      <% testid   = singular.to_s.dasherize %>
       <div class="show-panel__section">
-        <h3 class="show-meta-cell__label"><%= model.model_name.human.titleize %></h3>
+        <h3 class="show-meta-cell__label"><%= label %></h3>
         <div class="form-group">
-          <%= f.label :"#{association}_id", model.model_name.human.titleize, class: "sr-only" %>
-          <%= f.collection_select :"#{association}_id",
-                model.order("LOWER(name) ASC"), :id, :name,
-                { prompt: prompt },
-                { class: "form-control #{'form-control--error' if recipe.errors[association].any?}",
-                  data: { testid: "#{association.to_s.dasherize}-field" } } %>
-          <% if recipe.errors[association].any? %>
-            <span class="field-error" data-testid="field-error"><%= recipe.errors[association].first %></span>
+          <%= label_tag "recipe_#{singular}_ids_0", label, class: "sr-only" %>
+          <%= select_tag name, options_from_collection_for_select(records, :id, :name, chosen[0]),
+                prompt: prompt, id: "recipe_#{singular}_ids_0",
+                class: "form-control #{'form-control--error' if errors.any?}",
+                data: { testid: "#{testid}-field" } %>
+          <%= label_tag "recipe_#{singular}_ids_1", "Second #{label}", class: "sr-only" %>
+          <%= select_tag name, options_from_collection_for_select(records, :id, :name, chosen[1]),
+                include_blank: "None", id: "recipe_#{singular}_ids_1",
+                class: "form-control recipe-form-second-choice",
+                data: { testid: "second-#{testid}-field" } %>
+          <% if errors.any? %>
+            <span class="field-error" data-testid="field-error"><%= errors.first %></span>
           <% end %>
         </div>
       </div>
     <% end %>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Language</h3>
+      <div class="form-group">
+        <%= f.label :language_id, "Language", class: "sr-only" %>
+        <%= f.collection_select :language_id,
+              Language.order("LOWER(name) ASC"), :id, :name,
+              { prompt: "Select a Language" },
+              { class: "form-control #{'form-control--error' if recipe.errors[:language].any?}",
+                data: { testid: "language-field" } } %>
+        <% if recipe.errors[:language].any? %>
+          <span class="field-error" data-testid="field-error"><%= recipe.errors[:language].first %></span>
+        <% end %>
+      </div>
+    </div>
 
     <div class="show-panel__section">
       <h3 class="show-meta-cell__label">Serves or Makes</h3>

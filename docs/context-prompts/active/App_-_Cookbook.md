@@ -385,14 +385,56 @@ Cookbook-side gaps found, all folded into the blocks below:
        `LikesController::LIKEABLES`); the form posts to `polymorphic_path([commentable, :comments])`.
      * Recipes nest only `comments#create`; update/destroy reuse the shallow `comments/:id`.
      * The comments panel is now `shared/_comments_panel.html.erb`, used by both show pages.
-8. **Browse + Filter**:
+8. **Multiple Cuisines and Food Types**: a recipe has one or two of each (e.g. Swedish
+   lasagna: Swedish + Italian, Pasta + Mince Meat). Inserted 2026-10-12, before Browse, so
+   Browse and Filter are built on it rather than rewritten.
+   * Decisions confirmed 2026-10-12:
+     * Join tables (`recipe_cuisines`, `recipe_food_types`) with a `position`; the first value
+       is the primary one (Read-page image fallback, Filter sort). At least one, at most two.
+       Rejected: a `secondary_cuisine_id` column (every query ORs two columns; a third value
+       means another migration).
+     * Language stays single.
+     * Form: a required first dropdown plus an optional second one.
+     * `BrowseTree` association levels learn many-to-many, so a recipe counts under both.
+     * `Jql::Evaluator` accepts list values: `=` matches any, `!=` matches none, `CONTAINS`
+       checks each.
+     * Deleting a Cuisine or Food Type is still refused while recipes use it.
+   * **Done 2026-10-12.** Notes from the build:
+     * `Recipe#cuisines=`/`#cuisine_ids=` (and the Food Type pair) only build or mark join
+       rows, so nothing saves until the recipe does; a failed update leaves the saved choices
+       alone. Blanks, duplicates and unknown ids are dropped, so a "Second Cuisine" chosen on
+       its own becomes the primary one.
+     * Errors sit on `:cuisines`/`:food_types` but read "Cuisine can't be blank" and
+       "Food Type can't be blank" (`config/locales/en.yml`); the old "Food type" spelling is
+       gone.
+     * The Read page labels the cell "Cuisines"/"Food Types" when there are two, separated
+       by "·"; the image fallback uses the primary Cuisine's flag.
+     * The migration copies each existing recipe's Cuisine/Food Type into the join tables;
+       rolling back keeps only the primary one.
+9. **Browse + Filter**:
    * Browse by Cuisine and by Food Type: two one-level `BrowseTree`s.
    * Filter: Basic/SQL via a new `RecipeFilter` on `Jql::Parser`/`Jql::Evaluator`.
    * Add the list pages to `spec/requests/eager_loading_spec.rb`.
-9. **Download Recipes**: a Filter-style page with CSV and PDF-ZIP downloads, reusing
-   `PdfRenderingService`/`ZipBundlingService`.
-10. **Full Left Nav wiring + Toasts** (`to_toast_label` on Recipe, Cuisine, FoodType and Language)
+   * Decisions confirmed 2026-10-12 (Block 9 gate):
+     * Routes `/recipes/browse/cuisine` and `/recipes/browse/food-type`.
+     * Browse card: image or Cuisine flag badge, Language flag by the title, "Filed Under:
+       Cuisine » Food Type", then Chef | Created | Reactions | Comments, plus Serves/Makes
+       and Cook Time when filled in. No teaser (Description is usually blank).
+     * Basic filter: Cuisine, Food Type, Language, Chef, Created, Published.
+     * SQL fields: cuisine, food_type, language, title, chef, cook_time, created, portions,
+       serves, makes, comments, reactions (Chronicle's `smiles`, renamed), published.
+     * Results table: Cuisine | Food Type | Title | Chef | Created | Published | Reactions.
+     * Left nav: Recipes (Browse By Cuisine, Browse By Food Type, Filter) and My Recipes
+       (My Published / My Draft, as Filter links). The three pages join the Start Page choices.
+     * `return_to` on every link into a recipe; with none, Back falls back to Browse By
+       Cuisine.
+10. **Find Recipes By Ingredients**: enter e.g. Chicken, Garlic, Cream and watch the result
+    count drop as each ingredient is added. Requested 2026-10-12.
+11. **Download Recipes**: a Filter-style page with CSV and PDF-ZIP downloads, reusing
+    `PdfRenderingService`/`ZipBundlingService`.
+12. **Full Left Nav wiring + Toasts** (`to_toast_label` on Recipe, Cuisine, FoodType and Language)
     and **User Guide pages** for Cookbook.
+* Later block: link each Cuisine/Food Type show page to its Browse leaf.
 * Explicitly out of scope: **Import Recipes** (deferred, see Decisions 2026-10-11) and the
   `return_to` retrofit for Chronicle and Occasions (a separate follow-up PR).
 

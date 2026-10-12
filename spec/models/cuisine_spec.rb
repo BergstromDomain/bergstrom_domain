@@ -14,7 +14,8 @@ RSpec.describe Cuisine, type: :model do
 
   # ── Associations ──────────────────────────────────────────────────────────
   describe "Associations" do
-    it { is_expected.to have_many(:recipes).dependent(:restrict_with_error) }
+    it { is_expected.to have_many(:recipe_cuisines) }
+    it { is_expected.to have_many(:recipes).through(:recipe_cuisines).dependent(:restrict_with_error) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────

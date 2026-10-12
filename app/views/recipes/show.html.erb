@@ -15,7 +15,7 @@
       </div>
     <% else %>
       <div class="page-header__image" data-testid="recipe-cuisine-image">
-        <%= render "shared/flag_badge", flag: @recipe.cuisine.flag, badge: "utensils", large: true %>
+        <%= render "shared/flag_badge", flag: @recipe.cuisines.first.flag, badge: "utensils", large: true %>
       </div>
     <% end %>
     <h1 class="page-title" data-testid="recipe-title"><%= @recipe.title %></h1>
@@ -32,18 +32,26 @@
 <div class="show-panel" data-testid="show-panel-metadata">
   <div class="show-meta-row">
     <div class="show-meta-cell">
-      <h3 class="show-meta-cell__label">Food Type</h3>
+      <h3 class="show-meta-cell__label"><%= "Food Type".pluralize(@recipe.food_types.size) %></h3>
       <p class="show-meta-cell__value" data-testid="recipe-food-type">
-        <%= lucide_icon(@recipe.food_type.icon, size: 16) %>
-        <%= link_to @recipe.food_type.name, food_type_path(@recipe.food_type) %>
+        <% @recipe.food_types.each do |food_type| %>
+          <span class="recipe-meta-choice">
+            <%= lucide_icon(food_type.icon, size: 16) %>
+            <%= link_to food_type.name, food_type_path(food_type) %>
+          </span>
+        <% end %>
       </p>
     </div>
 
     <div class="show-meta-cell">
-      <h3 class="show-meta-cell__label">Cuisine</h3>
+      <h3 class="show-meta-cell__label"><%= "Cuisine".pluralize(@recipe.cuisines.size) %></h3>
       <p class="show-meta-cell__value" data-testid="recipe-cuisine">
-        <%= @recipe.cuisine.flag %>
-        <%= link_to @recipe.cuisine.name, cuisine_path(@recipe.cuisine) %>
+        <% @recipe.cuisines.each do |cuisine| %>
+          <span class="recipe-meta-choice">
+            <%= cuisine.flag %>
+            <%= link_to cuisine.name, cuisine_path(cuisine) %>
+          </span>
+        <% end %>
       </p>
     </div>
 

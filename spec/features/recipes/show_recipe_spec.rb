@@ -11,7 +11,7 @@ RSpec.describe "Show Recipe", type: :feature do
   let(:recipe) do
     create(:recipe, :published, :unrestricted,
       user: charlie, title: "Pea Soup", description: "A Thursday classic.",
-      cuisine: cuisine, food_type: food_type, language: language,
+      cuisines: [ cuisine ], food_types: [ food_type ], language: language,
       serves: 4, cook_time: "2 hours", body: "1. Soak the peas overnight.",
       ingredient_sections_attributes: {
         "0" => { heading: "Soup", ingredients_attributes: {
@@ -47,6 +47,21 @@ RSpec.describe "Show Recipe", type: :feature do
         expect(page).to have_selector("[data-testid='recipe-comments-count']", text: "0")
         expect(page).to have_selector("[data-testid='recipe-likes-count']", text: "No reactions yet")
       end
+    end
+
+    it "Shows both Cuisines and Food Types, the primary one first" do
+      italian = create(:cuisine, name: "Italian", flag: "🇮🇹")
+      pasta   = create(:food_type, name: "Pasta", icon: "cooking-pot")
+      recipe.update!(cuisine_ids: [ cuisine.id, italian.id ], food_type_ids: [ food_type.id, pasta.id ])
+      visit recipe_path(recipe)
+
+      within("[data-testid='show-panel-metadata']") do
+        expect(page).to have_selector("h3", text: "Cuisines")
+        expect(all("[data-testid='recipe-cuisine'] a").map(&:text)).to eq([ "Swedish", "Italian" ])
+        expect(page).to have_selector("h3", text: "Food Types")
+        expect(all("[data-testid='recipe-food-type'] a").map(&:text)).to eq([ "Soup", "Pasta" ])
+      end
+      expect(page).to have_selector("[data-testid='recipe-cuisine-image'] .flag-badge__flag", text: "🇸🇪")
     end
 
     it "Lists each ingredient list under its heading, in order, amount then ingredient" do

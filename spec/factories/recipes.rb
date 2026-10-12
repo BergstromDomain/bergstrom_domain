@@ -2,8 +2,8 @@
 FactoryBot.define do
   factory :recipe do
     association      :user
-    association      :cuisine
-    association      :food_type
+    cuisines         { [ association(:cuisine) ] }
+    food_types       { [ association(:food_type) ] }
     association      :language
     sequence(:title) { |n| "Recipe #{n}" }
     body             { Faker::Lorem.paragraph }

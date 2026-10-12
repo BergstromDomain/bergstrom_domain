@@ -5,7 +5,8 @@ class FoodType < ApplicationRecord
 
   LUCIDE_VALID_ICONS = LucideRails::IconProvider.memory.keys.to_set.freeze
 
-  has_many :recipes, dependent: :restrict_with_error
+  has_many :recipe_food_types
+  has_many :recipes, through: :recipe_food_types, dependent: :restrict_with_error
 
   validates :name,        presence: true, uniqueness: { case_sensitive: false }
   validates :description, presence: true

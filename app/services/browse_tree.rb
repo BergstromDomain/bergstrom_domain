@@ -6,7 +6,9 @@
 # their levels and pass in an already-visibility-scoped relation.
 #
 # The first level is a reference-data association: every record is listed,
-# including ones with a zero count. Later levels are optional string columns:
+# including ones with a zero count. It may be a belongs_to (a BlogPost's one
+# Category) or a has_many (a Recipe's one or two Cuisines), in which case an
+# item is counted and listed under each of its records. Later levels are optional string columns:
 # only values that actually occur are listed, and blank values are never a
 # child of their own — those items simply appear in the parent's `items`.
 #
@@ -66,7 +68,7 @@ class BrowseTree
         record = find_record(level, value)
         return @invalid = true if record.nil?
 
-        @current_scope = @current_scope.where(level.association => record)
+        @current_scope = narrow_to(level, record)
         label = level.label_for(record)
         value = record.to_param
       else
@@ -86,13 +88,33 @@ class BrowseTree
     nil
   end
 
+  def narrow_to(level, record)
+    reflection = reflection_for(level)
+    return @current_scope.where(level.association => record) unless reflection.collection?
+
+    # A subquery rather than a join, so each item is listed once and the
+    # scope stays free to be ordered or counted as usual.
+    model = @scope.klass
+    @current_scope.where(model.primary_key => model.joins(level.association)
+      .where(reflection.table_name => { id: record.id }).select(model.primary_key))
+  end
+
   def association_children(level)
-    foreign_key = @scope.klass.reflect_on_association(level.association).foreign_key
-    counts = @current_scope.group(foreign_key).count
+    reflection = reflection_for(level)
+    counts =
+      if reflection.collection?
+        @current_scope.joins(level.association).group("#{reflection.table_name}.id").count
+      else
+        @current_scope.group(reflection.foreign_key).count
+      end
 
     level.records.map do |record|
       Node.new(label: level.label_for(record), count: counts.fetch(record.id, 0), params: child_params(level, record.to_param))
     end
+  end
+
+  def reflection_for(level)
+    @scope.klass.reflect_on_association(level.association)
   end
 
   def column_children(level)

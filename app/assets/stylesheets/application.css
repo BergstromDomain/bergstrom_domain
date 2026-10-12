@@ -729,6 +729,13 @@ code, pre {
   flex: 1;
 }
 
+/* A recipe's one or two Cuisines/Food Types on the Read page. */
+.recipe-meta-choice + .recipe-meta-choice::before {
+  content: "·";
+  margin: 0 var(--space-xs);
+  color: var(--color-text-secondary);
+}
+
 .recipe-title__language {
   margin-left: auto;
 }
@@ -1206,6 +1213,11 @@ code, pre {
    only on the first child) would push every cell but Cuisine down. */
 .recipe-form-metadata .show-panel__section {
   margin-top: 0;
+}
+
+/* The optional second Cuisine/Food Type sits under the primary one. */
+.recipe-form-second-choice {
+  margin-top: var(--space-xs);
 }
 
 .recipe-form-portions {

@@ -14,7 +14,8 @@ RSpec.describe FoodType, type: :model do
 
   # ── Associations ──────────────────────────────────────────────────────────
   describe "Associations" do
-    it { is_expected.to have_many(:recipes).dependent(:restrict_with_error) }
+    it { is_expected.to have_many(:recipe_food_types) }
+    it { is_expected.to have_many(:recipes).through(:recipe_food_types).dependent(:restrict_with_error) }
   end
 
   # ── Validations ──────────────────────────────────────────────────────────

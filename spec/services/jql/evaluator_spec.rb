@@ -158,6 +158,25 @@ RSpec.describe Jql::Evaluator do
       expect(evaluator.matches?(ast, published: true)).to be true
       expect(evaluator.matches?(ast, published: false)).to be false
     end
+
+    describe "a text field holding a list (a Recipe's one or two Cuisines)" do
+      let(:lasagna) { { title: [ "Swedish", "Italian" ] } }
+
+      it "Matches = when any value equals it, ignoring case" do
+        expect(evaluator.matches?(string_comparison(:title, "=", "italian"), lasagna)).to be true
+        expect(evaluator.matches?(string_comparison(:title, "=", "French"), lasagna)).to be false
+      end
+
+      it "Matches != only when no value equals it" do
+        expect(evaluator.matches?(string_comparison(:title, "!=", "Italian"), lasagna)).to be false
+        expect(evaluator.matches?(string_comparison(:title, "!=", "French"), lasagna)).to be true
+      end
+
+      it "Matches CONTAINS when any value contains it" do
+        expect(evaluator.matches?(string_comparison(:title, "CONTAINS", "tal"), lasagna)).to be true
+        expect(evaluator.matches?(string_comparison(:title, "CONTAINS", "ren"), lasagna)).to be false
+      end
+    end
   end
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
@@ -180,6 +199,11 @@ RSpec.describe Jql::Evaluator do
     it "Correctly matches != for a nil string record value against a non-blank literal" do
       ast = string_comparison(:title, "!=", "Ruby")
       expect(evaluator.matches?(ast, title: nil)).to be true
+    end
+
+    it "Treats an empty list like a nil value" do
+      expect(evaluator.matches?(string_comparison(:title, "=", "Ruby"), title: [])).to be false
+      expect(evaluator.matches?(string_comparison(:title, "!=", "Ruby"), title: [])).to be true
     end
 
     it "Never matches a boolean comparison when the record's value is nil" do
