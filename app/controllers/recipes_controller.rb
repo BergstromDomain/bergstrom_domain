@@ -3,14 +3,40 @@ class RecipesController < ApplicationController
   include Navigable
   include FormatConvertible
   include ReturnTo
+  include Browsable
+  include RecipeFilterable
 
-  allow_unauthenticated_access only: %i[show]
-  before_action :resume_session_if_present, only: %i[show]
+  allow_unauthenticated_access only: %i[show browse_by_cuisine browse_by_food_type filter]
+  before_action :resume_session_if_present, only: %i[show browse_by_cuisine browse_by_food_type filter]
   before_action :set_recipe,            only: %i[show edit update publish unpublish destroy restore]
   before_action :require_create_access, only: %i[new create convert_format]
   before_action :require_write_access,  only: %i[edit update publish unpublish]
   before_action :require_delete_access, only: %i[destroy]
   before_action :require_admin,         only: %i[deleted restore]
+
+  # Two one-level BrowseTrees, one per reference-data list (Block 9 in
+  # docs/context-prompts/active/App_-_Cookbook.md). A recipe counts under
+  # each of its one or two Cuisines/Food Types.
+  def browse_by_cuisine
+    browse(title: "Browse Recipes By Cuisine", key: :cuisine_id, association: :cuisines,
+      records: Cuisine, path_helper: :browse_by_cuisine_recipes_path)
+  end
+
+  def browse_by_food_type
+    browse(title: "Browse Recipes By Food Type", key: :food_type_id, association: :food_types,
+      records: FoodType, path_helper: :browse_by_food_type_recipes_path)
+  end
+
+  FILTER_SORT_COLUMNS = %w[cuisine food_type title chef created reactions].freeze
+
+  def filter
+    compute_filtered_recipes(includes: [ :likes, :cuisines, :food_types, { recipe_image_attachment: :blob },
+      { user: { profile_image_attachment: :blob } } ])
+
+    @sort      = FILTER_SORT_COLUMNS.include?(params[:sort]) ? params[:sort] : "created"
+    @direction = params[:direction] == "asc" ? "asc" : "desc"
+    @recipes = RecipeFilter.sort(@recipes, @sort, @direction)
+  end
 
   def new
     settings = current_user.app_settings_for("recipes")
@@ -96,6 +122,17 @@ class RecipesController < ApplicationController
   end
 
   private
+
+  def browse(title:, key:, association:, records:, path_helper:)
+    @browse_title = title
+    level = BrowseTree::Level.new(key: key, association: association, records: records.order("LOWER(name) ASC"))
+    return unless load_browse_tree(scope: visible_recipes_scope, levels: [ level ],
+      root_label: "Cookbook", path_helper: path_helper)
+
+    @browse_items = @browse_tree.items&.includes(:user, :language, :likes, :cuisines, :food_types)
+      &.with_attached_recipe_image
+    render :browse
+  end
 
   def format_model = Recipe
 

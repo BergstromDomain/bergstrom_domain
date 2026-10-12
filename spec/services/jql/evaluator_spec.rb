@@ -41,6 +41,13 @@ RSpec.describe Jql::Evaluator do
       end
     end
 
+    describe "#fields" do
+      it "Lists each field a query compares, once" do
+        ast = Jql::Parser.parse('title = "A" AND (comments > 1 OR title CONTAINS "B")')
+        expect(evaluator.fields(ast)).to eq(Set[:title, :comments])
+      end
+    end
+
     describe "#matches?" do
       it "Matches string equality case-insensitively" do
         ast = string_comparison(:title, "=", "hello world")

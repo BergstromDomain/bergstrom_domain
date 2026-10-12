@@ -1,0 +1,17 @@
+<div class="page-header">
+  <div class="page-header__top">
+    <h1 class="page-title" data-testid="browse-root"><%= @browse_title %></h1>
+  </div>
+</div>
+
+<% if @browse_tree.leaf? %>
+  <%= render "shared/browse/breadcrumb", tree: @browse_tree, root_label: @browse_root_label %>
+<% else %>
+  <%= render "shared/browse/tree", tree: @browse_tree, root_label: @browse_root_label %>
+<% end %>
+
+<% if @browse_items %>
+  <%= render "shared/browse/preview_panel", tree: @browse_tree, items: @browse_items,
+        item_name: "Recipes", card: "recipes/browse_card", list_class: "blog-cards",
+        empty_message: "No recipes here yet." %>
+<% end %>

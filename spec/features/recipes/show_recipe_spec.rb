@@ -84,8 +84,8 @@ RSpec.describe "Show Recipe", type: :feature do
       end
     end
 
-    it "Defaults 'Back' to the Cookbook" do
-      expect(page).to have_link("Back", href: cookbook_path, exact: true)
+    it "Defaults 'Back' to Browse Recipes By Cuisine" do
+      expect(page).to have_link("Back", href: browse_by_cuisine_recipes_path, exact: true)
     end
 
     it "Shows no Draft warning on a published recipe" do
@@ -116,7 +116,7 @@ RSpec.describe "Show Recipe", type: :feature do
 
     it "Ignores a return_to that points off-site" do
       visit recipe_path(recipe, return_to: "https://evil.example.com/")
-      expect(page).to have_link("Back", href: cookbook_path, exact: true)
+      expect(page).to have_link("Back", href: browse_by_cuisine_recipes_path, exact: true)
     end
   end
 
@@ -165,7 +165,7 @@ RSpec.describe "Show Recipe", type: :feature do
 
     it "Treats a protocol-relative return_to as off-site" do
       visit recipe_path(recipe, return_to: "//evil.example.com/")
-      expect(page).to have_link("Back", href: cookbook_path, exact: true)
+      expect(page).to have_link("Back", href: browse_by_cuisine_recipes_path, exact: true)
     end
   end
 end

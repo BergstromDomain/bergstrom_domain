@@ -428,6 +428,20 @@ Cookbook-side gaps found, all folded into the blocks below:
        (My Published / My Draft, as Filter links). The three pages join the Start Page choices.
      * `return_to` on every link into a recipe; with none, Back falls back to Browse By
        Cuisine.
+     * `ingredients` SQL field included (`ingredients CONTAINS "garlic"`), not deferred to
+       Block 10.
+   * **Done 2026-10-12.** Notes from the build:
+     * Routes are `browse_by_cuisine_recipes`, `browse_by_food_type_recipes` and
+       `filter_recipes`; both Browse actions render `recipes/browse` via a private
+       `RecipesController#browse`.
+     * `RecipeFilter` builds attributes lazily and `RecipeFilter.preload` loads only what a
+       query names (`Jql::Evaluator#fields`), so `ingredients`/`language` cost nothing unless
+       used. `RecipeFilterable` holds the visibility scope and Basic params for Block 11.
+     * Basic dropdowns list only Cuisines/Food Types/Languages/Chefs that visible recipes
+       use; My Published/Draft Recipes are `filter_recipes_path(chef_id:, published:)`.
+     * `RecipesHelper#recipe_filter_sort_link` (Chronicle's `filter_sort_link` is a global
+       helper name already) and `#recipe_link_returning_here` (adds `return_to`).
+     * Start Page gains Browse Recipes By Cuisine/Food Type and Filter Recipes.
 10. **Find Recipes By Ingredients**: enter e.g. Chicken, Garlic, Cream and watch the result
     count drop as each ingredient is added. Requested 2026-10-12.
 11. **Download Recipes**: a Filter-style page with CSV and PDF-ZIP downloads, reusing

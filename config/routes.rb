@@ -119,6 +119,9 @@ Rails.application.routes.draw do
     end
     collection do
       get  :deleted
+      get  :filter
+      get  "browse/cuisine",   action: :browse_by_cuisine,   as: :browse_by_cuisine
+      get  "browse/food-type", action: :browse_by_food_type, as: :browse_by_food_type
       post :convert_format
     end
   end

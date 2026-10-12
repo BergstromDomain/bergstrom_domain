@@ -68,6 +68,9 @@ module Authentication
   # Choices are added as each Cookbook page is built.
   def cookbook_start_page_url(user)
     case user.app_settings_for("recipes").start_page
+    when "browse_by_cuisine"   then browse_by_cuisine_recipes_url
+    when "browse_by_food_type" then browse_by_food_type_recipes_url
+    when "filter_recipes"      then filter_recipes_url
     when "cuisines"   then cuisines_url
     when "food_types" then food_types_url
     when "languages"  then languages_url

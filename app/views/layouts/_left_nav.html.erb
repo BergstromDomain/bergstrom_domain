@@ -349,9 +349,6 @@
   <% elsif @left_nav_section == :recipes %>
 
     <%# ── Views ─────────────────────────────────────────────────────────── %>
-    <%# Further Cookbook links (Browse/Filter Recipes, My Recipes)
-        are added block by block as their pages exist — see
-        docs/context-prompts/active/App_-_Cookbook.md. %>
     <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('views') %>">
       <h2 class="left-nav-h2" data-testid="left-nav-views-h2">
         <%= lucide_icon("eye", size: 14) %> Views
@@ -363,6 +360,34 @@
       <%= link_to cookbook_path, class: "left-nav-link" do %>
         <%= lucide_icon("chef-hat", size: 15) %>
         <span>Cookbook</span>
+      <% end %>
+
+      <h3 class="left-nav-h3" data-testid="left-nav-recipes-h3">Recipes</h3>
+      <%= link_to browse_by_cuisine_recipes_path, class: "left-nav-link" do %>
+        <%= lucide_icon("list-tree", size: 15) %>
+        <span>Browse Recipes By Cuisine</span>
+      <% end %>
+      <%= link_to browse_by_food_type_recipes_path, class: "left-nav-link" do %>
+        <%= lucide_icon("list-tree", size: 15) %>
+        <span>Browse Recipes By Food Type</span>
+      <% end %>
+      <%= link_to filter_recipes_path, class: "left-nav-link" do %>
+        <%= lucide_icon("list-filter", size: 15) %>
+        <span>Filter Recipes</span>
+      <% end %>
+
+      <% if current_user %>
+        <h3 class="left-nav-h3" data-testid="left-nav-my-recipes-h3">My Recipes</h3>
+        <%= link_to filter_recipes_path(chef_id: current_user.id, published: "published"),
+              class: "left-nav-link" do %>
+          <%= lucide_icon("file-check", size: 15) %>
+          <span>My Published Recipes</span>
+        <% end %>
+        <%= link_to filter_recipes_path(chef_id: current_user.id, published: "draft"),
+              class: "left-nav-link" do %>
+          <%= lucide_icon("pencil-line", size: 15) %>
+          <span>My Draft Recipes</span>
+        <% end %>
       <% end %>
 
       <h3 class="left-nav-h3" data-testid="left-nav-reference-data-h3">Reference Data</h3>

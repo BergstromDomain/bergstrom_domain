@@ -29,6 +29,33 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads Filter Recipes without N+1 queries" do
+      create_list(:recipe, 2, :published, cuisines: create_list(:cuisine, 2))
+
+      without_n_plus_one_queries { get filter_recipes_path }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads a Filter Recipes SQL query on Language and ingredients without N+1 queries" do
+      create_list(:recipe, 2, :published)
+
+      without_n_plus_one_queries do
+        get filter_recipes_path(mode: "sql", query: 'language != "x" AND ingredients CONTAINS "onion"', sort: "chef")
+      end
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads a Browse Recipes By Cuisine preview panel without N+1 queries" do
+      cuisine = create(:cuisine)
+      create_list(:recipe, 2, :published, cuisines: [ cuisine, create(:cuisine) ])
+
+      without_n_plus_one_queries { get browse_by_cuisine_recipes_path(cuisine_id: cuisine.slug) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "Loads Filter People and Events without N+1 queries" do
       create_list(:event, 2)
 

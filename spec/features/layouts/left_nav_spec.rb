@@ -438,6 +438,16 @@ RSpec.describe "Left Nav", type: :feature do
           end
         end
 
+        it "Shows a 'Recipes' group with the Browse and Filter links, but no 'My Recipes' group" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-recipes-h3']", text: "Recipes")
+            expect(page).to have_link("Browse Recipes By Cuisine",   href: browse_by_cuisine_recipes_path)
+            expect(page).to have_link("Browse Recipes By Food Type", href: browse_by_food_type_recipes_path)
+            expect(page).to have_link("Filter Recipes",              href: filter_recipes_path)
+            expect(page).not_to have_selector("[data-testid='left-nav-my-recipes-h3']")
+          end
+        end
+
         it "Shows a 'Reference Data' group linking Cuisines, Food Types and Languages" do
           within("[data-testid='left-nav']") do
             expect(page).to have_selector("[data-testid='left-nav-reference-data-h3']", text: "Reference Data")
@@ -452,6 +462,17 @@ RSpec.describe "Left Nav", type: :feature do
         before do
           sign_in_as(create(:user, :content_creator))
           visit cookbook_path
+        end
+
+        it "Shows a 'My Recipes' group with My Published and My Draft Recipes" do
+          user = User.last
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-my-recipes-h3']", text: "My Recipes")
+            expect(page).to have_link("My Published Recipes",
+              href: filter_recipes_path(chef_id: user.id, published: "published"))
+            expect(page).to have_link("My Draft Recipes",
+              href: filter_recipes_path(chef_id: user.id, published: "draft"))
+          end
         end
 
         it "Shows Actions › New with 'Write A Recipe' but not the admin-only Add links" do

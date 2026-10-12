@@ -134,6 +134,22 @@ RSpec.describe "Sign In", type: :feature do
       expect(page).to have_current_path(cuisines_path)
     end
 
+    {
+      "browse_by_cuisine"   => :browse_by_cuisine_recipes_path,
+      "browse_by_food_type" => :browse_by_food_type_recipes_path,
+      "filter_recipes"      => :filter_recipes_path
+    }.each do |start_page, path_helper|
+      it "Redirects to the Cookbook '#{start_page}' Start Page" do
+        user.update!(start_page: "recipes")
+        user.app_settings_for("recipes").update!(start_page: start_page)
+        visit new_session_path
+        fill_in "Email address", with: "bergstrom@example.com"
+        fill_in "Password",      with: "password123"
+        click_button "Sign In"
+        expect(page).to have_current_path(public_send(path_helper))
+      end
+    end
+
     it "Redirects to the Occasions sub-page set in Occasions Settings" do
       user.update!(start_page: "event_tracker")
       user.app_settings_for("event_tracker").update!(start_page: "people")

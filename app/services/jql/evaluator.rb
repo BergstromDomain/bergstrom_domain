@@ -25,6 +25,12 @@ module Jql
       true
     end
 
+    # The fields a query compares — lets a caller load only the data those
+    # fields need before calling #matches?.
+    def fields(ast)
+      Set.new.tap { |found| each_comparison(ast) { |node| found << node.field } }
+    end
+
     def matches?(ast, record)
       case ast
       when Parser::And        then matches?(ast.left, record) && matches?(ast.right, record)

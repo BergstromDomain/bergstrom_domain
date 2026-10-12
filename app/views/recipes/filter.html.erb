@@ -1,0 +1,157 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Filter Recipes</h1>
+  </div>
+</div>
+
+<%= form_with url: filter_recipes_path, method: :get, data: { controller: "filter-mode" } do %>
+  <%= hidden_field_tag :mode, @mode, data: { "filter-mode-target": "mode" } %>
+
+  <div class="editor-tabs" role="tablist">
+    <button type="button" class="editor-tab<%= " tab--active" if @mode == "basic" %>" role="tab"
+            data-filter-mode-target="basicTab" data-action="filter-mode#switchToBasic"
+            data-testid="basic-tab">Basic</button>
+    <button type="button" class="editor-tab<%= " tab--active" if @mode == "sql" %>" role="tab"
+            data-filter-mode-target="sqlTab" data-action="filter-mode#switchToSql"
+            data-testid="sql-tab">SQL</button>
+  </div>
+
+  <div class="show-panel" data-filter-mode-target="basicPanel" data-testid="basic-panel"
+       <%= "hidden" if @mode == "sql" %>>
+    <div class="filter-grid">
+      <% [ [ "Cuisine",   :cuisine_id,   @cuisine_options,   "All Cuisines" ],
+           [ "Food Type", :food_type_id, @food_type_options, "All Food Types" ],
+           [ "Language",  :language_id,  @language_options,  "All Languages" ] ].each do |label, param, options, all_label| %>
+        <div class="show-panel__section">
+          <h3 class="show-meta-cell__label"><%= label %></h3>
+          <%= select_tag param,
+                options_for_select([ [ all_label, "" ] ] + options.map { |record| [ record.name, record.slug ] }, params[param]),
+                class: "form-control", data: { testid: "#{param.to_s.delete_suffix('_id').dasherize}-filter" } %>
+        </div>
+      <% end %>
+
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Chef</h3>
+        <%= select_tag :chef_id,
+              options_for_select([ [ "All Chefs", "" ] ] +
+                @chef_options.map { |u| [ "#{u.first_name} #{u.last_name}", u.id ] }, params[:chef_id]),
+              class: "form-control", data: { testid: "chef-filter" } %>
+      </div>
+
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Created</h3>
+        <%= select_tag :created,
+              options_for_select([ [ "Anytime", "" ], [ "Today", "today" ], [ "This Week", "this_week" ],
+                [ "This Month", "this_month" ], [ "This Year", "this_year" ] ], params[:created]),
+              class: "form-control", data: { testid: "created-filter" } %>
+      </div>
+
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label">Published</h3>
+        <%= select_tag :published,
+              options_for_select([ [ "All", "" ], [ "Published Only", "published" ], [ "Drafts Only", "draft" ] ],
+                params[:published]),
+              class: "form-control", data: { testid: "published-filter" } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="show-panel" data-filter-mode-target="sqlPanel" data-testid="sql-panel"
+       <%= "hidden" if @mode == "basic" %>>
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Query</h3>
+      <%= text_area_tag :query, @query, rows: 4, class: "form-control",
+            placeholder: 'cuisine = "Italian" AND ingredients CONTAINS "garlic" AND reactions >= 4',
+            data: { testid: "jql-query-field" } %>
+      <% if @filter_error %>
+        <span class="field-error" data-testid="filter-error"><%= @filter_error %></span>
+      <% end %>
+      <p class="form-hint">
+        Fields: <%= RecipeFilter::FIELD_SCHEMA.keys.join(", ") %>.
+        Cuisine, Food Type and Ingredients match when any of a recipe's values does.
+      </p>
+    </div>
+  </div>
+
+  <div class="show-panel show-panel--actions">
+    <button type="submit" class="btn btn-primary" data-testid="apply-filters-button">
+      <%= lucide_icon("filter", size: 16) %> Apply Filters
+    </button>
+    <%= link_to filter_recipes_path, class: "btn btn-secondary", data: { testid: "clear-filters-link" } do %>
+      <%= lucide_icon("x", size: 16) %> Clear Filters
+    <% end %>
+  </div>
+<% end %>
+
+<% if @recipes.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="filter-results-table">
+      <thead>
+        <tr>
+          <th><%= recipe_filter_sort_link("cuisine") %></th>
+          <th><%= recipe_filter_sort_link("food_type") %></th>
+          <th><%= recipe_filter_sort_link("title") %></th>
+          <th><%= recipe_filter_sort_link("chef") %></th>
+          <th><%= recipe_filter_sort_link("created") %></th>
+          <th>Published</th>
+          <th><%= recipe_filter_sort_link("reactions") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @recipes.each do |recipe| %>
+          <tr data-testid="filter-recipe-row">
+            <td data-testid="filter-recipe-cuisine"><%= recipe_choice_names(recipe.cuisines) %></td>
+            <td data-testid="filter-recipe-food-type"><%= recipe_choice_names(recipe.food_types) %></td>
+            <td>
+              <div class="comment__header">
+                <% if recipe.recipe_image.attached? %>
+                  <%= image_tag recipe.recipe_image.variant(:thumbnail),
+                        alt: recipe.title,
+                        class: "table-thumbnail table-thumbnail--small" %>
+                <% else %>
+                  <%= render "shared/flag_badge", flag: recipe.cuisines.first.flag, badge: "utensils" %>
+                <% end %>
+                <%= recipe_link_returning_here(recipe, class: "data-table__name-link", data: { testid: "filter-recipe-title" }) %>
+              </div>
+            </td>
+            <td>
+              <div class="comment__header">
+                <% if recipe.user.profile_image.attached? %>
+                  <%= image_tag recipe.user.profile_image.variant(:thumbnail),
+                        alt: "#{recipe.user.first_name} #{recipe.user.last_name}",
+                        class: "table-thumbnail table-thumbnail--person table-thumbnail--small" %>
+                <% else %>
+                  <div class="table-thumbnail-icon table-thumbnail-icon--person table-thumbnail-icon--small">
+                    <%= lucide_icon("user", size: 16) %>
+                  </div>
+                <% end %>
+                <span data-testid="filter-recipe-chef"><%= recipe.user.first_name %> <%= recipe.user.last_name %></span>
+              </div>
+            </td>
+            <td data-testid="filter-recipe-created"><%= recipe.created_at.strftime("%d-%b-%Y") %></td>
+            <td data-testid="filter-recipe-published">
+              <% if recipe.published? %>
+                <%= lucide_icon("book-check", size: 16) %>
+              <% else %>
+                <%= lucide_icon("book-dashed", size: 16) %>
+              <% end %>
+            </td>
+            <td data-testid="filter-recipe-reactions">
+              <% if recipe.like_score %>
+                <%= lucide_icon(Like::FACES[recipe.like_score_face][:icon], size: 16,
+                      class: "like-face--#{recipe.like_score_face}") %>
+                <%= number_with_precision(recipe.like_score, precision: 1) %>
+              <% else %>
+                No reactions yet
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% elsif @filter_error.blank? %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No recipes match this filter.</p>
+  </div>
+<% end %>

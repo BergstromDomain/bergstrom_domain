@@ -17,7 +17,10 @@ RSpec.describe "Cookbook Settings", type: :feature do
     end
 
     it "Offers Cookbook's existing pages as 'Start Page' options" do
-      expect(page).to have_select("Start Page", options: [ "Cookbook", "Cuisines", "Food Types", "Languages" ])
+      expect(page).to have_select("Start Page", options: [
+        "Cookbook", "Browse Recipes By Cuisine", "Browse Recipes By Food Type", "Filter Recipes",
+        "Cuisines", "Food Types", "Languages"
+      ])
     end
 
     it "Renders the 'Default Classification' field defaulting to 'Restricted'" do

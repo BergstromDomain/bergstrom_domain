@@ -12,8 +12,8 @@ under one auth/permission system. Each app has a technical name (the `app_name` 
 - **Recipes** → "Cookbook": in progress, built block by block per
   `docs/context-prompts/active/App_-_Cookbook.md` (models, landing page, left nav and
   Cuisine/Food Type/Language reference data, Cookbook Settings, Write, Read, Edit,
-  Publish, Delete and Comment on A Recipe, and one or two Cuisines/Food Types per recipe so
-  far).
+  Publish, Delete and Comment on A Recipe, one or two Cuisines/Food Types per recipe, and
+  Browse/Filter Recipes so far).
 - **Photo_Album**: reserved enum value only.
 
 Development is documented as a blog series (`docs/blog/`) written in strict Red → Green →
