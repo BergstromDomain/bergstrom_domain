@@ -58,6 +58,8 @@ RSpec.describe "Show Recipe", type: :feature do
       within("[data-testid='show-panel-metadata']") do
         expect(page).to have_selector("h3", text: "Cuisines")
         expect(all("[data-testid='recipe-cuisine'] a").map(&:text)).to eq([ "Swedish", "Italian" ])
+        expect(all("[data-testid='recipe-cuisine'] .flag-badge__flag").map(&:text)).to eq([ "🇸🇪", "🇮🇹" ])
+        expect(page).to have_selector("[data-testid='recipe-cuisine'] .flag-badge__icon svg", count: 2)
         expect(page).to have_selector("h3", text: "Food Types")
         expect(all("[data-testid='recipe-food-type'] a").map(&:text)).to eq([ "Soup", "Pasta" ])
       end

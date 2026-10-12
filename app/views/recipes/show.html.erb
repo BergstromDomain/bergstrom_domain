@@ -48,7 +48,7 @@
       <p class="show-meta-cell__value" data-testid="recipe-cuisine">
         <% @recipe.cuisines.each do |cuisine| %>
           <span class="recipe-meta-choice">
-            <%= cuisine.flag %>
+            <%= render "shared/flag_badge", flag: cuisine.flag, badge: "utensils" %>
             <%= link_to cuisine.name, cuisine_path(cuisine) %>
           </span>
         <% end %>
