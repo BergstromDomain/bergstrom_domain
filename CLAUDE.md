@@ -10,10 +10,10 @@ under one auth/permission system. Each app has a technical name (the `app_name` 
 - **Event_Tracker** → "Occasions" (people, events, event types): implemented.
 - **Blog_Posts** → "Chronicle" (blog posts, categories, comments, reactions): implemented.
 - **Recipes** → "Cookbook": in progress, built block by block per
-  `docs/context-prompts/active/App_-_Cookbook.md` (models, landing page, left nav and
+  `docs/context-prompts/active/Cookbook_App.md` (models, landing page, left nav and
   Cuisine/Food Type/Language reference data, Cookbook Settings, Write, Read, Edit,
-  Publish, Delete and Comment on A Recipe, one or two Cuisines/Food Types per recipe, and
-  Browse/Filter Recipes so far).
+  Publish, Delete and Comment on A Recipe, one or two Cuisines/Food Types per recipe,
+  Browse/Filter Recipes, and Find Recipes By Ingredients so far).
 - **Photo_Album**: reserved enum value only.
 
 Development is documented as a blog series (`docs/blog/`) written in strict Red → Green →
@@ -146,7 +146,7 @@ ACTIONS (h2, content-creator-and-above only)
                              (Blog Post, Recipe), Create for entities (Person, Event), Add for
                              reference data (Event Type)
   Import & Export (h3)    → nested here, not a standalone top-level section; omit if the app
-                             has nothing to import/export yet (e.g. Cookbook currently); Chronicle
+                             has nothing to import/export yet; Cookbook shows Download Recipes only; Chronicle
                              has this today (Download Blog Posts — export only, import pending)
 DOCUMENTATION (h2)
   How To (h3)

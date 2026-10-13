@@ -444,10 +444,80 @@ Cookbook-side gaps found, all folded into the blocks below:
      * Start Page gains Browse Recipes By Cuisine/Food Type and Filter Recipes.
 10. **Find Recipes By Ingredients**: enter e.g. Chicken, Garlic, Cream and watch the result
     count drop as each ingredient is added. Requested 2026-10-12.
+    * Decisions confirmed 2026-10-12 (Block 10 gate):
+      * Its own page, `/recipes/find-by-ingredients`, linked under the left nav's Recipes
+        group and offered as a Start Page.
+      * Enter or a comma turns the typed text into a removable chip; results update after
+        every change, and the chips live in the URL (`?ingredients[]=chicken`), so searches
+        can be bookmarked and Back from a recipe returns to them. Works without JavaScript
+        via a Find Recipes button.
+      * A recipe matches when every ingredient appears, case-insensitively, inside one of
+        its ingredient names ("cream" matches "Sour cream"). Title and Description are not
+        searched. Simple English plural tolerance ("Tomatoes" finds "Tomato"); no translation.
+      * A running tally above the results: `Chicken 14 → Garlic 9 → Cream 3`.
+      * Results are the Browse cards, newest first, plus "Matched: Chicken breast · Garlic
+        cloves · Double cream".
+      * A hint before any ingredient is entered; "No recipes contain all of these
+        ingredients." when nothing matches. Usual visibility rules; matching runs in SQL.
+      * Saved for later: a "Missing just one" section and excluding with `-mushroom`.
+    * **Done 2026-10-12.** Notes from the build:
+      * `RecipeIngredientSearch` adds one `EXISTS (... ILIKE ...)` per ingredient, so only
+        matching recipes are loaded; `#steps` is one `COUNT` per ingredient. Swedish letters
+        fold case correctly in Postgres `ILIKE`.
+      * Plural tolerance tries the word minus a trailing "es" and minus a trailing "s",
+        never trimming below three letters ("Os" doesn't become "o"). LIKE wildcards are
+        escaped. At most 10 ingredients; repeats are dropped, keeping the first spelling.
+      * The `ingredient-chips` Stimulus controller strips the text box's `name` and hides the
+        button once connected, so only chips submit; results load into a `_top`-targeted
+        Turbo Frame with `turbo_action: "advance"`, which keeps the URL in step.
+      * `recipes/_browse_card` takes an optional `matched:` local for the Matched line.
 11. **Download Recipes**: a Filter-style page with CSV and PDF-ZIP downloads, reusing
     `PdfRenderingService`/`ZipBundlingService`.
+    * Decisions confirmed 2026-10-12 (Block 11 gate):
+      * `/recipes/export` (+ `/csv`, `/pdfs`), Content Creator and above, under Actions ›
+        Import & Export › Download Recipes (Cookbook's first Import & Export group).
+      * Same page as Download Blog Posts: intro, Filter Recipes' Basic/SQL filter, Apply/Clear,
+        Download PDFs (confirms the count) and Download CSV, and Filter's results table.
+      * CSV: Title, Cuisine, Food Type, Language, Chef, Created, Published, Serves, Makes,
+        Cook Time, Description, Ingredients (one line each, section headings on their own
+        line), Method (Markdown). Two Cuisines/Food Types share a cell: "Swedish · Italian".
+      * A new printed-recipe PDF (title, image, metadata, Description, Ingredients by
+        section, Method; no comments or reactions), also as Download PDF on the Read page.
+        Headings stay in English.
+      * `BergstromDomain_Cookbook_YYYY-MM-DD.csv`/`.zip`; `Title.pdf` entries, `_2` on clashes.
+      * No admin Full Export until Import Recipes.
+    * **Done 2026-10-12.** Notes from the build:
+      * `RecipeExportsController` reuses `RecipeFilterable`, which now also holds the sort
+        (`sort_filtered_recipes`, preloading what the sort column reads) and the results
+        table's includes. Downloads follow the table's sort order.
+      * Filter's form panels and results table are shared partials
+        (`recipes/_filter_panels`, `recipes/_filter_results`); `recipe_filter_sort_link` now
+        links to the current page so both tables sort.
+      * The Method is always stored as Markdown (the Formatted editor converts on save), so
+        the CSV exports `body` as-is.
+      * `RecipeExportService.ingredient_line` is shared by the CSV and the PDF:
+        "1 tbsp Butter, softened".
+      * The export routes are declared before `resources :recipes` so "export" isn't read as
+        a recipe slug.
 12. **Full Left Nav wiring + Toasts** (`to_toast_label` on Recipe, Cuisine, FoodType and Language)
     and **User Guide pages** for Cookbook.
+    * Decisions confirmed 2026-10-13 (Block 12 gate):
+      * The left nav and toasts were already wired block by block; this block audits them.
+        Active-link highlighting (`left_nav_link_class`, unused by every app) is logged in
+        `BergstromDomain_ToDo.md` for all apps together.
+      * Guide pages are Markdown files in `docs/user-guide/cookbook/` (front matter: title,
+        app_section, supports_* flags), loaded by a reusable `bin/rails guide_pages:load[cookbook]`.
+      * Pages: Cookbook Overview, Finding Recipes, Writing A Recipe, Downloading Recipes,
+        Cookbook Settings, and Managing Cookbook Reference Data (Admin section). Real content,
+        not lorem ipsum.
+    * **Done 2026-10-13.** Notes from the build:
+      * Audit: every link in the Left nav bar design above is wired (plus Languages, Find
+        Recipes By Ingredients and Deleted Recipes); Import Recipes stays deferred. Every
+        Recipe, Cuisine, Food Type and Language action toasts.
+      * `GuidePageLoader` matches pages on title ignoring case, leaves identical pages
+        untouched, and is all-or-nothing: one bad file names itself and saves nothing.
+      * A spec loads the real `docs/user-guide/cookbook/` files, so a broken page fails CI.
+      * Loading the guide is now a step in `BergstromDomain_Deployment_Readiness.md`.
 * Later block: link each Cuisine/Food Type show page to its Browse leaf.
 * Explicitly out of scope: **Import Recipes** (deferred, see Decisions 2026-10-11) and the
   `return_to` retrofit for Chronicle and Occasions (a separate follow-up PR).
