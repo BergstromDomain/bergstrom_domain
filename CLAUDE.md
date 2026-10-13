@@ -9,11 +9,8 @@ under one auth/permission system. Each app has a technical name (the `app_name` 
 `AppPermission`/`UserAppSetting`, the commit prefix) and a user-facing brand:
 - **Event_Tracker** → "Occasions" (people, events, event types): implemented.
 - **Blog_Posts** → "Chronicle" (blog posts, categories, comments, reactions): implemented.
-- **Recipes** → "Cookbook": in progress, built block by block per
-  `docs/context-prompts/active/Cookbook_App.md` (models, landing page, left nav and
-  Cuisine/Food Type/Language reference data, Cookbook Settings, Write, Read, Edit,
-  Publish, Delete and Comment on A Recipe, one or two Cuisines/Food Types per recipe,
-  Browse/Filter Recipes, and Find Recipes By Ingredients so far).
+- **Recipes** → "Cookbook" (recipes, cuisines, food types, languages): implemented, per
+  `docs/context-prompts/archive/Cookbook_App.md`. Import Recipes is still pending.
 - **Photo_Album**: reserved enum value only.
 
 Development is documented as a blog series (`docs/blog/`) written in strict Red → Green →

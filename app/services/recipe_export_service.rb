@@ -1,7 +1,7 @@
 # app/services/recipe_export_service.rb
 require "csv"
 
-# Download Recipes' CSV (Block 11 in docs/context-prompts/active/Cookbook_App.md):
+# Download Recipes' CSV (Block 11 in docs/context-prompts/archive/Cookbook_App.md):
 # one row per recipe. Ingredients are one multi-line cell, each section's
 # heading on its own line above its ingredients. The Method is stored as
 # Markdown whichever editor wrote it, so it exports as-is.

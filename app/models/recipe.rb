@@ -18,12 +18,12 @@ class Recipe < ApplicationRecord
   RENDERED_BODY_ALLOWED_ATTRIBUTES = %w[href src alt style lang].freeze
 
   # A recipe has one or two of each, the first being the primary one — see
-  # Block 8 in docs/context-prompts/active/Cookbook_App.md.
+  # Block 8 in docs/context-prompts/archive/Cookbook_App.md.
   MAX_CUISINES_AND_FOOD_TYPES = 2
 
   # Cuisine, Food Type and Language are required on every save, drafts
   # included — see "DECISIONS (2026-10-11)" in
-  # docs/context-prompts/active/Cookbook_App.md. Language is kept as a
+  # docs/context-prompts/archive/Cookbook_App.md. Language is kept as a
   # presence validation on an optional association, rather than a required
   # belongs_to, so the error reads "can't be blank" like the rest.
   belongs_to :language, optional: true
@@ -172,7 +172,7 @@ class Recipe < ApplicationRecord
   end
 
   # A published recipe needs something to cook with — see "DECISIONS (Block 5)"
-  # in docs/context-prompts/active/Cookbook_App.md. Checked on every save
+  # in docs/context-prompts/archive/Cookbook_App.md. Checked on every save
   # while published, so an edit can't strip the last ingredient either.
   def must_have_an_ingredient
     has_one = ingredient_sections.reject(&:marked_for_destruction?).any? do |section|
