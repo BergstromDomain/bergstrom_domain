@@ -98,6 +98,16 @@ RSpec.describe GuidePageLoader do
       expect(GuidePage.first.body).to eq("Above\n\n---\n\nBelow")
     end
 
+    it "Loads every page in docs/user-guide/chronicle" do
+      result = described_class.new(Rails.root.join("docs/user-guide/chronicle")).call
+
+      expect(result[:created]).to contain_exactly(
+        "Chronicle Overview", "Reading Blog Posts", "Writing A Blog Post",
+        "Importing And Downloading Blog Posts", "Chronicle Settings", "Managing Chronicle Reference Data"
+      )
+      expect(GuidePage.find_by!(title: "Managing Chronicle Reference Data").app_section).to eq("admin")
+    end
+
     it "Loads every page in docs/user-guide/cookbook" do
       result = described_class.new(Rails.root.join("docs/user-guide/cookbook")).call
 
