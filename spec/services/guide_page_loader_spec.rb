@@ -107,5 +107,16 @@ RSpec.describe GuidePageLoader do
       )
       expect(GuidePage.find_by!(title: "Managing Cookbook Reference Data").app_section).to eq("admin")
     end
+
+    it "Loads every page in docs/user-guide/occasions" do
+      result = described_class.new(Rails.root.join("docs/user-guide/occasions")).call
+
+      expect(result[:created]).to contain_exactly(
+        "Occasions Overview", "Viewing Events", "People", "Filtering People And Events",
+        "Creating Events And People", "Importing And Downloading", "Occasions Settings",
+        "Managing Occasions Reference Data"
+      )
+      expect(GuidePage.find_by!(title: "Managing Occasions Reference Data").app_section).to eq("admin")
+    end
   end
 end
