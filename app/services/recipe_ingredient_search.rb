@@ -1,7 +1,7 @@
 # app/services/recipe_ingredient_search.rb
 
 # Find Recipes By Ingredients (Block 10 in
-# docs/context-prompts/active/Cookbook_App.md): a recipe matches when every
+# docs/context-prompts/archive/Cookbook_App.md): a recipe matches when every
 # term appears, case-insensitively, somewhere inside one of its ingredient
 # names. Matching runs in the database, one EXISTS per term, so the page
 # never loads recipes it won't show.

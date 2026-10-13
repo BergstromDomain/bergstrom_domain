@@ -17,7 +17,7 @@ class RecipesController < ApplicationController
   before_action :require_admin,         only: %i[deleted restore]
 
   # Two one-level BrowseTrees, one per reference-data list (Block 9 in
-  # docs/context-prompts/active/Cookbook_App.md). A recipe counts under
+  # docs/context-prompts/archive/Cookbook_App.md). A recipe counts under
   # each of its one or two Cuisines/Food Types.
   def browse_by_cuisine
     browse(title: "Browse Recipes By Cuisine", key: :cuisine_id, association: :cuisines,
@@ -89,7 +89,7 @@ class RecipesController < ApplicationController
   end
 
   # Unlike Chronicle, an edit leaves a published recipe published — see
-  # "DECISIONS (Block 5)" in docs/context-prompts/active/Cookbook_App.md.
+  # "DECISIONS (Block 5)" in docs/context-prompts/archive/Cookbook_App.md.
   def update
     previous_label = @recipe.to_toast_label
     if @recipe.update(recipe_params)

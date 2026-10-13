@@ -1,6 +1,6 @@
 # app/controllers/recipe_exports_controller.rb
 
-# Download Recipes (Block 11 in docs/context-prompts/active/Cookbook_App.md):
+# Download Recipes (Block 11 in docs/context-prompts/archive/Cookbook_App.md):
 # Filter Recipes' Basic/SQL filter with CSV and PDF-ZIP downloads, the
 # Recipe counterpart of BlogExportsController. Downloads keep the table's
 # sort order. No Full Export until Import Recipes exists.
