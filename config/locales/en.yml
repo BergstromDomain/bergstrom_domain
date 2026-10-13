@@ -29,3 +29,18 @@
 
 en:
   hello: "Hello world"
+  activerecord:
+    attributes:
+      # Nested ingredient errors read "Quantity can't be blank" rather than
+      # "Ingredient sections ingredients quantity can't be blank".
+      recipe/ingredient_sections/ingredients:
+        quantity: "Quantity"
+        name: "Ingredient"
+      recipe/ingredient_sections:
+        heading: "List heading"
+      # The body is labelled "Method" on the recipe form.
+      recipe:
+        body: "Method"
+        # A recipe has one or two of each, but errors read "Cuisine can't be blank".
+        cuisines: "Cuisine"
+        food_types: "Food Type"

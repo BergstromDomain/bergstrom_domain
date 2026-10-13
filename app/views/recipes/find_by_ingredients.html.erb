@@ -1,0 +1,63 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Find Recipes By Ingredients</h1>
+  </div>
+</div>
+
+<%# Without JavaScript the text box itself submits ("chicken, garlic" splits
+    on commas); with it, each ingredient becomes a chip and the results frame
+    reloads after every change. %>
+<%= form_with url: find_by_ingredients_recipes_path, method: :get,
+      data: { controller: "ingredient-chips", turbo_frame: "ingredient-results", turbo_action: "advance" },
+      html: { autocomplete: "off" } do %>
+  <div class="show-panel">
+    <div class="ingredient-chips" data-ingredient-chips-target="list" data-testid="ingredient-chips">
+      <% @search.terms.each do |term| %>
+        <%= render "recipes/ingredient_chip", term: term %>
+      <% end %>
+    </div>
+
+    <div class="form-field">
+      <label for="ingredient_entry" class="form-label">Ingredient</label>
+      <div class="ingredient-entry">
+        <%= text_field_tag "ingredients[]", nil, id: "ingredient_entry", class: "form-control",
+              placeholder: "Type an ingredient, then press Enter or a comma",
+              data: { "ingredient-chips-target": "input", action: "keydown->ingredient-chips#keydown input->ingredient-chips#input",
+                      testid: "ingredient-input" } %>
+        <%= submit_tag "Find Recipes", name: nil, class: "btn-primary",
+              data: { "ingredient-chips-target": "submit", testid: "find-recipes-button" } %>
+      </div>
+    </div>
+  </div>
+
+  <template data-ingredient-chips-target="template">
+    <%= render "recipes/ingredient_chip", term: "" %>
+  </template>
+<% end %>
+
+<%= turbo_frame_tag "ingredient-results", target: "_top" do %>
+  <% if @search.terms.empty? %>
+    <div class="empty-state" data-testid="ingredient-search-hint">
+      <p>Add an ingredient to start.</p>
+    </div>
+  <% else %>
+    <p class="ingredient-tally" data-testid="ingredient-tally">
+      <% @search.steps.each_with_index do |(term, count), index| %>
+        <% if index.positive? %><span class="ingredient-tally__arrow" aria-hidden="true">→</span><% end %>
+        <span data-testid="ingredient-tally-step"><%= term %> <strong><%= count %></strong></span>
+      <% end %>
+    </p>
+
+    <% if @recipes.present? %>
+      <div class="blog-cards" data-testid="ingredient-results-list">
+        <% @recipes.each do |recipe| %>
+          <%= render "recipes/browse_card", item: recipe, matched: @search.matched_names(recipe) %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state" data-testid="empty-state">
+        <p>No recipes contain all of these ingredients.</p>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

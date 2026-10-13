@@ -11,10 +11,10 @@ RSpec.describe "Preferences", type: :feature do
       expect(page).to have_selector("[data-testid='preferences-page']")
     end
 
-    it "Renders the 'Start Page' field with 'Home', 'Chronicle' and 'Occasions' options" do
+    it "Renders the 'Start Page' field with 'Home', 'Chronicle', 'Cookbook' and 'Occasions' options" do
       sign_in_as(uno)
       visit preferences_settings_path
-      expect(page).to have_select("Start Page", options: [ "Home", "Chronicle", "Occasions" ])
+      expect(page).to have_select("Start Page", options: [ "Home", "Chronicle", "Cookbook", "Occasions" ])
     end
 
     it "Renders the 'Default Visibility' checkboxes, all checked by default" do

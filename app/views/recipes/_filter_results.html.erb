@@ -1,0 +1,72 @@
+<% if @recipes.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="filter-results-table">
+      <thead>
+        <tr>
+          <th><%= recipe_filter_sort_link("cuisine") %></th>
+          <th><%= recipe_filter_sort_link("food_type") %></th>
+          <th><%= recipe_filter_sort_link("title") %></th>
+          <th><%= recipe_filter_sort_link("chef") %></th>
+          <th><%= recipe_filter_sort_link("created") %></th>
+          <th>Published</th>
+          <th><%= recipe_filter_sort_link("reactions") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @recipes.each do |recipe| %>
+          <tr data-testid="filter-recipe-row">
+            <td data-testid="filter-recipe-cuisine"><%= recipe_choice_names(recipe.cuisines) %></td>
+            <td data-testid="filter-recipe-food-type"><%= recipe_choice_names(recipe.food_types) %></td>
+            <td>
+              <div class="comment__header">
+                <% if recipe.recipe_image.attached? %>
+                  <%= image_tag recipe.recipe_image.variant(:thumbnail),
+                        alt: recipe.title,
+                        class: "table-thumbnail table-thumbnail--small" %>
+                <% else %>
+                  <%= render "shared/flag_badge", flag: recipe.cuisines.first.flag, badge: "utensils" %>
+                <% end %>
+                <%= recipe_link_returning_here(recipe, class: "data-table__name-link", data: { testid: "filter-recipe-title" }) %>
+              </div>
+            </td>
+            <td>
+              <div class="comment__header">
+                <% if recipe.user.profile_image.attached? %>
+                  <%= image_tag recipe.user.profile_image.variant(:thumbnail),
+                        alt: "#{recipe.user.first_name} #{recipe.user.last_name}",
+                        class: "table-thumbnail table-thumbnail--person table-thumbnail--small" %>
+                <% else %>
+                  <div class="table-thumbnail-icon table-thumbnail-icon--person table-thumbnail-icon--small">
+                    <%= lucide_icon("user", size: 16) %>
+                  </div>
+                <% end %>
+                <span data-testid="filter-recipe-chef"><%= recipe.user.first_name %> <%= recipe.user.last_name %></span>
+              </div>
+            </td>
+            <td data-testid="filter-recipe-created"><%= recipe.created_at.strftime("%d-%b-%Y") %></td>
+            <td data-testid="filter-recipe-published">
+              <% if recipe.published? %>
+                <%= lucide_icon("book-check", size: 16) %>
+              <% else %>
+                <%= lucide_icon("book-dashed", size: 16) %>
+              <% end %>
+            </td>
+            <td data-testid="filter-recipe-reactions">
+              <% if recipe.like_score %>
+                <%= lucide_icon(Like::FACES[recipe.like_score_face][:icon], size: 16,
+                      class: "like-face--#{recipe.like_score_face}") %>
+                <%= number_with_precision(recipe.like_score, precision: 1) %>
+              <% else %>
+                No reactions yet
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% elsif @filter_error.blank? %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No recipes match this filter.</p>
+  </div>
+<% end %>

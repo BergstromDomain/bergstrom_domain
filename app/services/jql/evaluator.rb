@@ -25,6 +25,12 @@ module Jql
       true
     end
 
+    # The fields a query compares — lets a caller load only the data those
+    # fields need before calling #matches?.
+    def fields(ast)
+      Set.new.tap { |found| each_comparison(ast) { |node| found << node.field } }
+    end
+
     def matches?(ast, record)
       case ast
       when Parser::And        then matches?(ast.left, record) && matches?(ast.right, record)
@@ -110,7 +116,7 @@ module Jql
 
       case type
       when :string
-        evaluate_string(node.operator, actual.to_s, node.value)
+        evaluate_strings(node.operator, Array(actual).map(&:to_s), node.value)
       when :date
         return false if actual.nil?
         compare(node.operator, actual.to_date, coerce_date(node))
@@ -121,6 +127,16 @@ module Jql
         return false if actual.nil?
         compare(node.operator, actual, node.value)
       end
+    end
+
+    # A text field may hold a list (a Recipe's one or two Cuisines): =, and
+    # CONTAINS match when any value does, != only when none equals it. An
+    # empty list behaves like a nil value ("").
+    def evaluate_strings(operator, values, value)
+      values = [ "" ] if values.empty?
+      return values.none? { |actual| evaluate_string("=", actual, value) } if operator == "!="
+
+      values.any? { |actual| evaluate_string(operator, actual, value) }
     end
 
     def evaluate_string(operator, actual, value)

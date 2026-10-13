@@ -4,7 +4,7 @@ class LikesController < ApplicationController
 
   def create
     unless Policy.new(current_user, @likeable).can_read?
-      redirect_to chronicle_path, alert: "Not authorised."
+      redirect_to likeable_home_path, alert: "Not authorised."
       return
     end
 
@@ -22,7 +22,7 @@ class LikesController < ApplicationController
   # actually destroyed.
   def destroy
     unless Policy.new(current_user, @likeable).can_read?
-      redirect_to chronicle_path, alert: "Not authorised."
+      redirect_to likeable_home_path, alert: "Not authorised."
       return
     end
 
@@ -32,11 +32,18 @@ class LikesController < ApplicationController
 
   private
 
-  # Only Chronicle is wired up so far — this stays blog-post-specific until
-  # another app (e.g. Cookbook's Recipe) adds its own nested :like route.
+  # Nested under whichever likeable route matched: blog_posts/:blog_post_id/like
+  # or recipes/:recipe_id/like.
+  LIKEABLES = { blog_post_id: BlogPost, recipe_id: Recipe }.freeze
+
   def set_likeable
-    @likeable = BlogPost.friendly.find(params[:blog_post_id])
+    key, model = LIKEABLES.find { |param, _| params.key?(param) }
+    @likeable = model.friendly.find(params[key])
   rescue ActiveRecord::RecordNotFound
     render file: "#{Rails.root}/public/404.html", status: :not_found
+  end
+
+  def likeable_home_path
+    @likeable.is_a?(Recipe) ? cookbook_path : chronicle_path
   end
 end

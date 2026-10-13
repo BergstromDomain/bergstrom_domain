@@ -109,6 +109,41 @@ RSpec.describe BrowseTree do
       expect(level.path.first.count).to eq(1)
       expect(level.items.to_a).to eq([ visible ])
     end
+
+    context "with a many-to-many first level (a Recipe's one or two Cuisines)" do
+      let!(:swedish) { create(:cuisine, name: "Swedish") }
+      let!(:italian) { create(:cuisine, name: "Italian") }
+      let!(:french)  { create(:cuisine, name: "French") }
+      let!(:lasagna) { create(:recipe, :published, user: owner, cuisines: [ swedish, italian ], created_at: 1.day.ago) }
+      let!(:pizza)   { create(:recipe, :published, user: owner, cuisines: [ italian ]) }
+      let(:cuisine_levels) do
+        [ BrowseTree::Level.new(key: :cuisine_id, association: :cuisines, records: Cuisine.order(:name)) ]
+      end
+
+      def tree(params = {})
+        described_class.new(scope: Recipe.visible_to_users(owner), levels: cuisine_levels, params: params)
+      end
+
+      it "Counts a recipe under each of its Cuisines, including zero counts" do
+        children = tree.children
+        expect(children.map { |node| [ node.label, node.count ] })
+          .to eq([ [ "French", 0 ], [ "Italian", 2 ], [ "Swedish", 1 ] ])
+        expect(tree.total_count).to eq(2)
+      end
+
+      it "Lists every recipe under a Cuisine once, newest first" do
+        leaf = tree(cuisine_id: italian.slug)
+        expect(leaf.path.first.count).to eq(2)
+        expect(leaf.items.to_a).to eq([ pizza, lasagna ])
+        expect(tree(cuisine_id: swedish.slug).items.to_a).to eq([ lasagna ])
+      end
+
+      it "Still only counts what the given scope allows" do
+        lasagna.update!(deleted_at: Time.current)
+        expect(tree.children.find { |node| node.label == "Italian" }.count).to eq(1)
+        expect(tree(cuisine_id: swedish.slug).items.to_a).to be_empty
+      end
+    end
   end
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────

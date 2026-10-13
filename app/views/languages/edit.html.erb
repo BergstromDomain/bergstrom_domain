@@ -1,0 +1,7 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title"><%= @language.name_was %></h1>
+  </div>
+</div>
+
+<%= render "form", language: @language, panel: "edit", submit_label: "Update Language", cancel_path: language_path(@language) %>

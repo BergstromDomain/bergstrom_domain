@@ -1,0 +1,184 @@
+<% content_for :head do %>
+  <%= stylesheet_link_tag "vendor/quill.snow" %>
+<% end %>
+
+<%= form_with model: recipe,
+      class: "resource-form resource-form--wide",
+      data: {
+        controller: "markdown-editor recipe-ingredients",
+        markdown_editor_convert_url_value: convert_format_recipes_path
+      } do |f| %>
+  <% if recipe.errors.any? %>
+    <div class="form-errors" data-testid="form-errors">
+      <p><%= pluralize(recipe.errors.count, "error") %> prevented this recipe from being saved:</p>
+      <ul>
+        <% recipe.errors.each do |error| %>
+          <li data-testid="field-error"><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# Title Frame %>
+  <div class="show-panel" data-testid="new-panel-title">
+    <div class="post-form-header">
+      <div class="show-panel__section post-form-header__title">
+        <h2 class="show-panel__heading">Title</h2>
+        <div class="form-group">
+          <%= f.label :title, class: "sr-only" %>
+          <%= f.text_field :title,
+                class: "form-control #{'form-control--error' if recipe.errors[:title].any?}",
+                data: { testid: "title-field" } %>
+          <% if recipe.errors[:title].any? %>
+            <span class="field-error" data-testid="field-error"><%= recipe.errors[:title].first %></span>
+          <% end %>
+        </div>
+
+        <h3 class="show-meta-cell__label">Description</h3>
+        <div class="form-group">
+          <%= f.label :description, class: "sr-only" %>
+          <%= f.text_area :description, rows: 3, class: "form-control", data: { testid: "description-field" } %>
+        </div>
+      </div>
+
+      <div class="show-panel__section post-form-header__image">
+        <h3 class="show-meta-cell__label">Recipe Image</h3>
+        <div class="form-group">
+          <%= f.label :recipe_image, class: "sr-only" %>
+          <% if recipe.recipe_image.attached? && recipe.recipe_image.persisted? %>
+            <%= image_tag recipe.recipe_image.variant(:thumbnail), alt: "Current image", class: "form-image-preview" %>
+            <p class="form-hint">Upload a new file to replace the current image.</p>
+          <% end %>
+          <%= f.file_field :recipe_image,
+                accept: "image/jpeg,image/png,image/webp",
+                class: "form-control",
+                data: { testid: "recipe-image-field" } %>
+          <% if recipe.errors[:recipe_image].any? %>
+            <span class="field-error" data-testid="field-error"><%= recipe.errors[:recipe_image].first %></span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Metadata Frame %>
+  <div class="show-panel recipe-form-metadata" data-testid="new-panel-metadata">
+    <%# One or two of each — the second is optional (Block 8 in
+        docs/context-prompts/active/Cookbook_App.md). %>
+    <% [ [ :cuisine, Cuisine, "Select a Cuisine" ],
+         [ :food_type, FoodType, "Select a Food Type" ] ].each do |singular, model, prompt| %>
+      <% label    = model.model_name.human.titleize %>
+      <% records  = model.order("LOWER(name) ASC") %>
+      <% chosen   = recipe.public_send(:"#{singular}_ids") %>
+      <% errors   = recipe.errors[singular.to_s.pluralize.to_sym] %>
+      <% name     = "recipe[#{singular}_ids][]" %>
+      <% testid   = singular.to_s.dasherize %>
+      <div class="show-panel__section">
+        <h3 class="show-meta-cell__label"><%= label %></h3>
+        <div class="form-group">
+          <%= label_tag "recipe_#{singular}_ids_0", label, class: "sr-only" %>
+          <%= select_tag name, options_from_collection_for_select(records, :id, :name, chosen[0]),
+                prompt: prompt, id: "recipe_#{singular}_ids_0",
+                class: "form-control #{'form-control--error' if errors.any?}",
+                data: { testid: "#{testid}-field" } %>
+          <%= label_tag "recipe_#{singular}_ids_1", "Second #{label}", class: "sr-only" %>
+          <%= select_tag name, options_from_collection_for_select(records, :id, :name, chosen[1]),
+                include_blank: "None", id: "recipe_#{singular}_ids_1",
+                class: "form-control recipe-form-second-choice",
+                data: { testid: "second-#{testid}-field" } %>
+          <% if errors.any? %>
+            <span class="field-error" data-testid="field-error"><%= errors.first %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Language</h3>
+      <div class="form-group">
+        <%= f.label :language_id, "Language", class: "sr-only" %>
+        <%= f.collection_select :language_id,
+              Language.order("LOWER(name) ASC"), :id, :name,
+              { prompt: "Select a Language" },
+              { class: "form-control #{'form-control--error' if recipe.errors[:language].any?}",
+                data: { testid: "language-field" } } %>
+        <% if recipe.errors[:language].any? %>
+          <span class="field-error" data-testid="field-error"><%= recipe.errors[:language].first %></span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Serves or Makes</h3>
+      <div class="recipe-form-portions">
+        <%= f.label :serves, class: "sr-only" %>
+        <%= f.number_field :serves, min: 1, step: 1, placeholder: "Serves",
+              class: "form-control #{'form-control--error' if recipe.errors[:serves].any?}",
+              data: { testid: "serves-field" } %>
+        <span class="recipe-form-portions__or">or</span>
+        <%= f.label :makes, class: "sr-only" %>
+        <%= f.number_field :makes, min: 1, step: 1, placeholder: "Makes",
+              class: "form-control #{'form-control--error' if recipe.errors[:makes].any?}",
+              data: { testid: "makes-field" } %>
+      </div>
+      <p class="form-hint">Serves 4, or Makes 24 when baking. If both are filled in, Makes is shown.</p>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Cook Time</h3>
+      <div class="form-group">
+        <%= f.label :cook_time, "Cook Time", class: "sr-only" %>
+        <%= f.text_field :cook_time, placeholder: "e.g. 1 hour 30 min", class: "form-control", data: { testid: "cook-time-field" } %>
+      </div>
+    </div>
+
+    <div class="show-panel__section">
+      <h3 class="show-meta-cell__label">Visibility</h3>
+      <div class="form-group">
+        <%= f.label :classification, "Classification", class: "sr-only" %>
+        <%= f.select :classification,
+              [ [ "Unrestricted — visible to everyone", "unrestricted" ],
+                [ "Contacts — visible to my contacts",  "contacts" ],
+                [ "Restricted — visible only to me",    "restricted" ] ],
+              {},
+              { class: "form-control", data: { testid: "classification-field" } } %>
+      </div>
+    </div>
+  </div>
+
+  <%# Ingredients Frame %>
+  <div class="show-panel" data-testid="new-panel-ingredients">
+    <h2 class="show-panel__heading">Ingredients</h2>
+
+    <div data-recipe-ingredients-target="sections">
+      <%= f.fields_for :ingredient_sections do |sf| %>
+        <%= render "ingredient_section", sf: sf %>
+      <% end %>
+    </div>
+
+    <template data-recipe-ingredients-target="sectionTemplate">
+      <%= f.fields_for :ingredient_sections, IngredientSection.new(ingredients: [ Ingredient.new ]), child_index: "NEW_SECTION" do |sf| %>
+        <%= render "ingredient_section", sf: sf %>
+      <% end %>
+    </template>
+
+    <button type="button" class="btn btn-secondary"
+            data-action="recipe-ingredients#addSection" data-testid="add-section-button">
+      <%= lucide_icon("list-plus", size: 16) %> Add Ingredient List
+    </button>
+  </div>
+
+  <%# Description Frame %>
+  <%= render "shared/markdown_editor", f: f, testid: "new-panel-body", heading: "Method" %>
+
+  <%# Action Frame %>
+  <div class="show-panel show-panel--actions" data-testid="new-panel-actions">
+    <%= link_to recipe.persisted? ? recipe_path(recipe) : cookbook_path, class: "btn btn-secondary" do %>
+      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary" data-testid="save-button">
+      <%= lucide_icon("save", size: 16) %> <%= recipe.persisted? ? "Update Recipe" : "Save Recipe" %>
+    </button>
+  </div>
+<% end %>

@@ -1,11 +1,11 @@
-# spec/views/blog_posts/_likes_breakdown.html.erb_spec.rb
+# spec/views/shared/_reactions_breakdown.html.erb_spec.rb
 require "rails_helper"
 
-RSpec.describe "blog_posts/_likes_breakdown", type: :view do
+RSpec.describe "shared/_reactions_breakdown", type: :view do
   let(:owner) { create(:user) }
 
   def render_breakdown(post)
-    render partial: "blog_posts/likes_breakdown", locals: { blog_post: post }
+    render partial: "shared/reactions_breakdown", locals: { likeable: post }
   end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────

@@ -7,8 +7,8 @@
 <%= form_with model: blog_post,
       class: "resource-form resource-form--wide",
       data: {
-        controller: "author-shuttle blog-post-editor",
-        blog_post_editor_convert_url_value: convert_format_blog_posts_path
+        controller: "author-shuttle markdown-editor",
+        markdown_editor_convert_url_value: convert_format_blog_posts_path
       } do |f| %>
   <% if blog_post.errors.any? %>
     <div class="form-errors" data-testid="form-errors">
@@ -148,31 +148,7 @@
   </div>
 
   <%# Blog Post Frame %>
-  <div class="show-panel" data-testid="new-panel-body">
-    <div class="editor-tabs" role="tablist">
-      <button type="button" class="editor-tab" role="tab"
-              data-blog-post-editor-target="rawTab"
-              data-action="blog-post-editor#switchToRaw"
-              data-testid="raw-tab">Raw</button>
-      <button type="button" class="editor-tab tab--active" role="tab"
-              data-blog-post-editor-target="formattedTab"
-              data-action="blog-post-editor#switchToFormatted"
-              data-testid="formatted-tab">Formatted</button>
-    </div>
-
-    <%= f.hidden_field :format, data: { "blog-post-editor-target": "format" } %>
-
-    <div data-blog-post-editor-target="rawPanel" hidden data-testid="raw-panel">
-      <%= f.label :body, "Body (Markdown)", class: "sr-only" %>
-      <%= f.text_area :body,
-            class: "form-control editor-panel",
-            data: { "blog-post-editor-target": "raw", testid: "body-field" } %>
-    </div>
-
-    <div data-blog-post-editor-target="formattedPanel" data-testid="formatted-panel">
-      <div class="editor-panel" data-blog-post-editor-target="editor" data-testid="quill-editor"></div>
-    </div>
-  </div>
+  <%= render "shared/markdown_editor", f: f, testid: "new-panel-body" %>
 
   <%# Action Frame %>
   <div class="show-panel show-panel--actions" data-testid="new-panel-actions">

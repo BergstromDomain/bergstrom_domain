@@ -403,6 +403,117 @@ RSpec.describe "Left Nav", type: :feature do
       end
     end
 
+    describe "Cookbook" do
+      context "When 'Gary Guest' visits the 'Cookbook' landing page" do
+        before { visit cookbook_path }
+
+        it "Shows the 'Views' section with a 'Cookbook' group and link" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-views-h2']")
+            expect(page).to have_selector("[data-testid='left-nav-cookbook-h3']", text: "Cookbook")
+            expect(page).to have_link("Cookbook", href: cookbook_path)
+          end
+        end
+
+        it "Does not show the Actions section" do
+          within("[data-testid='left-nav']") do
+            expect(page).not_to have_selector("[data-testid='left-nav-actions-h2']")
+          end
+        end
+
+        it "Shows the Documentation section with a How To group and User Guide link" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-documentation-h2']")
+            expect(page).to have_selector("[data-testid='left-nav-how-to-h3']")
+            expect(page).to have_link("User Guide", href: user_guide_path)
+          end
+        end
+
+        it "Lists Cookbook's own guide pages once they exist, instead of the single fallback link" do
+          cookbook_guide = create(:guide_page, title: "Cookbook Guide", app_section: "recipes")
+          visit cookbook_path
+          within("[data-testid='left-nav']") do
+            expect(page).to have_link("Cookbook Guide", href: guide_page_path(cookbook_guide))
+            expect(page).not_to have_link("User Guide", href: user_guide_path)
+          end
+        end
+
+        it "Shows a 'Recipes' group with the Browse, Filter and Find By Ingredients links, but no 'My Recipes' group" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-recipes-h3']", text: "Recipes")
+            expect(page).to have_link("Browse Recipes By Cuisine",   href: browse_by_cuisine_recipes_path)
+            expect(page).to have_link("Browse Recipes By Food Type", href: browse_by_food_type_recipes_path)
+            expect(page).to have_link("Filter Recipes",              href: filter_recipes_path)
+            expect(page).to have_link("Find Recipes By Ingredients", href: find_by_ingredients_recipes_path)
+            expect(page).not_to have_selector("[data-testid='left-nav-my-recipes-h3']")
+          end
+        end
+
+        it "Shows a 'Reference Data' group linking Cuisines, Food Types and Languages" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-reference-data-h3']", text: "Reference Data")
+            expect(page).to have_link("Cuisines",   href: cuisines_path)
+            expect(page).to have_link("Food Types", href: food_types_path)
+            expect(page).to have_link("Languages",  href: languages_path)
+          end
+        end
+      end
+
+      context "When 'Charlie Content Creator' visits the 'Cookbook' landing page" do
+        before do
+          sign_in_as(create(:user, :content_creator))
+          visit cookbook_path
+        end
+
+        it "Shows a 'My Recipes' group with My Published and My Draft Recipes" do
+          user = User.last
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-my-recipes-h3']", text: "My Recipes")
+            expect(page).to have_link("My Published Recipes",
+              href: filter_recipes_path(chef_id: user.id, published: "published"))
+            expect(page).to have_link("My Draft Recipes",
+              href: filter_recipes_path(chef_id: user.id, published: "draft"))
+          end
+        end
+
+        it "Shows Actions › New with 'Write A Recipe' but not the admin-only Add links" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
+            expect(page).to have_link("Write A Recipe", href: new_recipe_path)
+            expect(page).not_to have_link("Add A Cuisine")
+            expect(page).not_to have_link("Deleted Recipes")
+          end
+        end
+
+        it "Shows Actions › Import & Export with 'Download Recipes' only" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-import-export-h3']", text: "Import & Export")
+            expect(page).to have_link("Download Recipes", href: recipe_exports_path)
+            expect(page).not_to have_link("Import Recipes")
+          end
+        end
+      end
+
+      context "When 'Adam Admin' visits the 'Cookbook' landing page" do
+        before do
+          sign_in_as(create(:user, :admin))
+          visit cookbook_path
+        end
+
+        it "Shows Actions › New with the admin-only Add links" do
+          within("[data-testid='left-nav']") do
+            expect(page).to have_selector("[data-testid='left-nav-actions-h2']")
+            expect(page).to have_selector("[data-testid='left-nav-new-h3']", text: "New")
+            expect(page).to have_link("Write A Recipe",  href: new_recipe_path)
+            expect(page).to have_link("Add A Cuisine",   href: new_cuisine_path)
+            expect(page).to have_link("Add A Food Type", href: new_food_type_path)
+            expect(page).to have_link("Add A Language",  href: new_language_path)
+            expect(page).to have_link("Deleted Recipes", href: deleted_recipes_path)
+          end
+        end
+      end
+    end
+
     describe "Guide Pages" do
       context "When 'Gary Guest' visits the guide pages index" do
         before { visit guide_pages_path }

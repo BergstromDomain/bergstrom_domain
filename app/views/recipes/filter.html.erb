@@ -1,0 +1,20 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Filter Recipes</h1>
+  </div>
+</div>
+
+<%= form_with url: filter_recipes_path, method: :get, data: { controller: "filter-mode" } do %>
+  <%= render "recipes/filter_panels" %>
+
+  <div class="show-panel show-panel--actions">
+    <button type="submit" class="btn btn-primary" data-testid="apply-filters-button">
+      <%= lucide_icon("filter", size: 16) %> Apply Filters
+    </button>
+    <%= link_to filter_recipes_path, class: "btn btn-secondary", data: { testid: "clear-filters-link" } do %>
+      <%= lucide_icon("x", size: 16) %> Clear Filters
+    <% end %>
+  </div>
+<% end %>
+
+<%= render "recipes/filter_results" %>

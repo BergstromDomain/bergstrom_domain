@@ -203,6 +203,10 @@
         <%= lucide_icon("notepad-text", size: 15) %>
         <span>Chronicle Settings</span>
       <% end %>
+      <%= link_to cookbook_settings_path, class: "left-nav-link" do %>
+        <%= lucide_icon("chef-hat", size: 15) %>
+        <span>Cookbook Settings</span>
+      <% end %>
       <%= link_to occasions_settings_path, class: "left-nav-link" do %>
         <%= lucide_icon("calendar-range", size: 15) %>
         <span>Occasions Settings</span>
@@ -328,6 +332,159 @@
       <% blog_posts_guide_pages = guide_pages_for_section(:blog_posts) %>
       <% if blog_posts_guide_pages.any? %>
         <% blog_posts_guide_pages.each do |guide_page| %>
+          <%= link_to guide_page_path(guide_page), class: "left-nav-link", data: { testid: "left-nav-guide-page-link" } do %>
+            <%= lucide_icon("file-text", size: 15) %>
+            <span><%= guide_page.title %></span>
+          <% end %>
+        <% end %>
+      <% else %>
+        <%= link_to user_guide_path, class: "left-nav-link" do %>
+          <%= lucide_icon("book-open-check", size: 15) %>
+          <span>User Guide</span>
+        <% end %>
+      <% end %>
+      </div>
+    </div>
+
+  <% elsif @left_nav_section == :recipes %>
+
+    <%# ── Views ─────────────────────────────────────────────────────────── %>
+    <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('views') %>">
+      <h2 class="left-nav-h2" data-testid="left-nav-views-h2">
+        <%= lucide_icon("eye", size: 14) %> Views
+        <%= left_nav_section_toggle("views", "left-nav-views-h2") %>
+      </h2>
+
+      <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('views') %>>
+      <h3 class="left-nav-h3" data-testid="left-nav-cookbook-h3">Cookbook</h3>
+      <%= link_to cookbook_path, class: "left-nav-link" do %>
+        <%= lucide_icon("chef-hat", size: 15) %>
+        <span>Cookbook</span>
+      <% end %>
+
+      <h3 class="left-nav-h3" data-testid="left-nav-recipes-h3">Recipes</h3>
+      <%= link_to browse_by_cuisine_recipes_path, class: "left-nav-link" do %>
+        <%= lucide_icon("list-tree", size: 15) %>
+        <span>Browse Recipes By Cuisine</span>
+      <% end %>
+      <%= link_to browse_by_food_type_recipes_path, class: "left-nav-link" do %>
+        <%= lucide_icon("list-tree", size: 15) %>
+        <span>Browse Recipes By Food Type</span>
+      <% end %>
+      <%= link_to filter_recipes_path, class: "left-nav-link" do %>
+        <%= lucide_icon("list-filter", size: 15) %>
+        <span>Filter Recipes</span>
+      <% end %>
+      <%= link_to find_by_ingredients_recipes_path, class: "left-nav-link" do %>
+        <%= lucide_icon("carrot", size: 15) %>
+        <span>Find Recipes By Ingredients</span>
+      <% end %>
+
+      <% if current_user %>
+        <h3 class="left-nav-h3" data-testid="left-nav-my-recipes-h3">My Recipes</h3>
+        <%= link_to filter_recipes_path(chef_id: current_user.id, published: "published"),
+              class: "left-nav-link" do %>
+          <%= lucide_icon("file-check", size: 15) %>
+          <span>My Published Recipes</span>
+        <% end %>
+        <%= link_to filter_recipes_path(chef_id: current_user.id, published: "draft"),
+              class: "left-nav-link" do %>
+          <%= lucide_icon("pencil-line", size: 15) %>
+          <span>My Draft Recipes</span>
+        <% end %>
+      <% end %>
+
+      <h3 class="left-nav-h3" data-testid="left-nav-reference-data-h3">Reference Data</h3>
+      <%= link_to cuisines_path, class: "left-nav-link" do %>
+        <%= lucide_icon("utensils", size: 15) %>
+        <span>Cuisines</span>
+      <% end %>
+      <%= link_to food_types_path, class: "left-nav-link" do %>
+        <%= lucide_icon("soup", size: 15) %>
+        <span>Food Types</span>
+      <% end %>
+      <%= link_to languages_path, class: "left-nav-link" do %>
+        <%= lucide_icon("languages", size: 15) %>
+        <span>Languages</span>
+      <% end %>
+      </div>
+    </div>
+
+    <% if can_see_left_nav_actions? %>
+      <% recipe_policy = Policy.new(current_user, :recipes) %>
+      <hr class="left-nav-divider">
+
+      <%# ── Actions (Content Creator and above) ────────────────────────────── %>
+      <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('actions') %>">
+        <h2 class="left-nav-h2" data-testid="left-nav-actions-h2">
+          <%= lucide_icon("cog", size: 14) %> Actions
+          <%= left_nav_section_toggle("actions", "left-nav-actions-h2") %>
+        </h2>
+
+        <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('actions') %>>
+        <% if recipe_policy.can_create? || current_user.can_administer? %>
+          <h3 class="left-nav-h3" data-testid="left-nav-new-h3">
+            New
+          </h3>
+        <% end %>
+
+        <% if recipe_policy.can_create? %>
+          <%= link_to new_recipe_path, class: "left-nav-link" do %>
+            <%= lucide_icon("file-plus-2", size: 15) %>
+            <span>Write A Recipe</span>
+          <% end %>
+        <% end %>
+
+        <% if current_user.can_administer? %>
+          <%= link_to new_cuisine_path, class: "left-nav-link" do %>
+            <%= lucide_icon("utensils", size: 15) %>
+            <span>Add A Cuisine</span>
+          <% end %>
+          <%= link_to new_food_type_path, class: "left-nav-link" do %>
+            <%= lucide_icon("soup", size: 15) %>
+            <span>Add A Food Type</span>
+          <% end %>
+          <%= link_to new_language_path, class: "left-nav-link" do %>
+            <%= lucide_icon("languages", size: 15) %>
+            <span>Add A Language</span>
+          <% end %>
+          <%= link_to deleted_recipes_path, class: "left-nav-link" do %>
+            <%= lucide_icon("trash-2", size: 15) %>
+            <span>Deleted Recipes</span>
+          <% end %>
+        <% end %>
+
+        <% if current_user.can_export? %>
+          <%# ── Import & Export (Download only until Import Recipes) ─────── %>
+          <h3 class="left-nav-h3" data-testid="left-nav-import-export-h3">
+            Import &amp; Export
+          </h3>
+          <%= link_to recipe_exports_path, class: "left-nav-link" do %>
+            <%= lucide_icon("download", size: 15) %>
+            <span>Download Recipes</span>
+          <% end %>
+        <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <hr class="left-nav-divider">
+
+    <%# ── Documentation ──────────────────────────────────────────────────── %>
+    <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('documentation') %>">
+      <h2 class="left-nav-h2" data-testid="left-nav-documentation-h2">
+        <%= lucide_icon("book-open", size: 14) %> Documentation
+        <%= left_nav_section_toggle("documentation", "left-nav-documentation-h2") %>
+      </h2>
+
+      <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('documentation') %>>
+      <h3 class="left-nav-h3" data-testid="left-nav-how-to-h3">
+        How To
+      </h3>
+
+      <% recipes_guide_pages = guide_pages_for_section(:recipes) %>
+      <% if recipes_guide_pages.any? %>
+        <% recipes_guide_pages.each do |guide_page| %>
           <%= link_to guide_page_path(guide_page), class: "left-nav-link", data: { testid: "left-nav-guide-page-link" } do %>
             <%= lucide_icon("file-text", size: 15) %>
             <span><%= guide_page.title %></span>

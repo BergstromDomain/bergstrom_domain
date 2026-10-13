@@ -6,7 +6,7 @@ class CommentsController < ApplicationController
 
   def create
     unless Policy.new(current_user, @commentable).can_read?
-      redirect_to chronicle_path, alert: "Not authorised."
+      redirect_to commentable_home_path, alert: "Not authorised."
       return
     end
 
@@ -36,12 +36,19 @@ class CommentsController < ApplicationController
 
   private
 
-  # Only Chronicle is wired up so far — this stays blog-post-specific until
-  # another app (e.g. Cookbook's Recipe) adds its own nested :comment route.
+  # Nested under whichever commentable route matched: blog_posts/:blog_post_id/comments
+  # or recipes/:recipe_id/comments — mirrors LikesController::LIKEABLES.
+  COMMENTABLES = { blog_post_id: BlogPost, recipe_id: Recipe }.freeze
+
   def set_commentable
-    @commentable = BlogPost.friendly.find(params[:blog_post_id])
+    key, model = COMMENTABLES.find { |param, _| params.key?(param) }
+    @commentable = model.friendly.find(params[key])
   rescue ActiveRecord::RecordNotFound
     render file: "#{Rails.root}/public/404.html", status: :not_found
+  end
+
+  def commentable_home_path
+    @commentable.is_a?(Recipe) ? cookbook_path : chronicle_path
   end
 
   def set_comment

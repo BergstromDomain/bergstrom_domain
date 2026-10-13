@@ -1,0 +1,42 @@
+<%#
+  The "React to this ..." row for any Likeable. Guests see the same row,
+  highlighted to the aggregate face, but not clickable, and only when there's
+  an aggregate to show at all; signed-in users start unhighlighted (no
+  reaction is the default) and can pick or clear a reaction.
+  Locals: likeable, like_path (its nested `resource :like` path), noun ("post").
+%>
+<% highlighted_face = authenticated? ? likeable.current_user_face(current_user) : likeable.like_score_face %>
+<% if authenticated? || highlighted_face.present? %>
+  <div class="show-panel" data-testid="likes-panel">
+    <h2 class="show-panel__heading">React to this <%= noun %></h2>
+    <div class="likes-row">
+      <% Like::FACES.each_key do |face| %>
+        <% icon = Like::FACES[face][:icon] %>
+        <% active = face == highlighted_face %>
+        <% if authenticated? %>
+          <%= button_to like_path,
+                method: :post,
+                params: { face: face },
+                class: "like-button like-face--#{face} #{'like-button--active' if active}",
+                data: { testid: "like-#{face}", turbo: false } do %>
+            <%= lucide_icon(icon, size: 28) %>
+          <% end %>
+        <% else %>
+          <span class="like-button like-face--<%= face %> like-button--disabled<%= ' like-button--active' if active %>"
+                data-testid="like-<%= face %>">
+            <%= lucide_icon(icon, size: 28) %>
+          </span>
+        <% end %>
+      <% end %>
+      <% if authenticated? && highlighted_face.present? %>
+        <span class="btn-divider like-clear-divider">|</span>
+        <%= button_to like_path,
+              method: :delete,
+              class: "like-button like-button--clear",
+              data: { testid: "like-clear", turbo: false } do %>
+          <%= lucide_icon("circle-x", size: 28, class: "like-clear-icon") %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

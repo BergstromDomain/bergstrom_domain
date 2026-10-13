@@ -1,0 +1,65 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Deleted Recipes</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Deleted recipes are kept for 30 days before being permanently removed.
+  </p>
+</div>
+
+<% if @recipes.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="deleted-recipe-table">
+      <colgroup>
+        <col>
+        <col style="width: 14rem;">
+        <col style="width: 10rem;">
+        <col style="width: 10rem;">
+        <col style="width: 8rem;">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Chef</th>
+          <th>Deleted</th>
+          <th>Days remaining</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @recipes.each do |recipe| %>
+          <tr data-testid="deleted-recipe-row">
+            <td>
+              <%= link_to recipe.title,
+                    recipe_path(recipe),
+                    class: "data-table__name-link",
+                    data: { testid: "deleted-recipe-title" } %>
+            </td>
+            <td data-testid="deleted-recipe-chef">
+              <%= "#{recipe.user.first_name} #{recipe.user.last_name}" %>
+            </td>
+            <td data-testid="deleted-recipe-deleted-at">
+              <%= recipe.deleted_at.to_date.to_fs(:long) %>
+            </td>
+            <td data-testid="deleted-recipe-days-remaining">
+              <%= ((recipe.purge_at - Time.current) / 1.day).ceil %>
+            </td>
+            <td class="data-table__icon-cell">
+              <%= button_to restore_recipe_path(recipe),
+                    method: :post,
+                    class: "icon-button icon-button--success",
+                    title: "Restore #{recipe.title}",
+                    data: { testid: "restore-recipe-#{recipe.id}", turbo: false } do %>
+                <%= lucide_icon("undo-2", size: 18) %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No deleted recipes.</p>
+  </div>
+<% end %>

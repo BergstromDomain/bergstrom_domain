@@ -1,0 +1,59 @@
+<div class="blog-card" data-testid="browse-recipe-card">
+  <div class="blog-card__header">
+    <div class="blog-card__thumbnail">
+      <% if item.recipe_image.attached? %>
+        <%= image_tag item.recipe_image.variant(:thumbnail), alt: item.title %>
+      <% else %>
+        <span data-testid="browse-recipe-cuisine-image">
+          <%= render "shared/flag_badge", flag: item.cuisines.first.flag, badge: "utensils", large: true %>
+        </span>
+      <% end %>
+    </div>
+    <h2 class="blog-card__title">
+      <%= recipe_link_returning_here(item, data: { testid: "browse-recipe-title" }) %>
+    </h2>
+    <span class="recipe-title__language" title="<%= item.language.name %>" data-testid="browse-recipe-language">
+      <%= render "shared/flag_badge", flag: item.language.flag, badge: "book-open-check" %>
+    </span>
+  </div>
+
+  <div class="blog-card__meta blog-card__meta--split">
+    <span class="blog-card__meta-left" data-testid="browse-recipe-meta-left">
+      <strong>Filed Under:</strong>
+      <%= recipe_choice_names(item.cuisines) %> » <%= recipe_choice_names(item.food_types) %>
+    </span>
+    <span class="blog-card__meta-right" data-testid="browse-recipe-meta-right">
+      <span><strong>Chef:</strong> <span data-testid="browse-recipe-chef"><%= item.user.first_name %> <%= item.user.last_name %></span></span>
+      <span class="btn-divider">|</span>
+      <span><strong>Created:</strong> <span data-testid="browse-recipe-created"><%= item.created_at.strftime("%d-%b-%Y") %></span></span>
+      <% portions_label, portions = item.portions %>
+      <% if portions.present? %>
+        <span class="btn-divider">|</span>
+        <span data-testid="browse-recipe-portions"><strong><%= portions_label %>:</strong> <%= portions %></span>
+      <% end %>
+      <% if item.cook_time.present? %>
+        <span class="btn-divider">|</span>
+        <span><strong>Cook Time:</strong> <span data-testid="browse-recipe-cook-time"><%= item.cook_time %></span></span>
+      <% end %>
+      <span class="btn-divider">|</span>
+      <span>
+        <strong>Reactions:</strong>
+        <% if item.like_score %>
+          <%= lucide_icon(Like::FACES[item.like_score_face][:icon], size: 16,
+                class: "like-face--#{item.like_score_face}") %>
+          <span data-testid="browse-recipe-reactions"><%= number_with_precision(item.like_score, precision: 1) %></span>
+        <% else %>
+          <span data-testid="browse-recipe-reactions">No reactions yet</span>
+        <% end %>
+      </span>
+      <span class="btn-divider">|</span>
+      <span><strong>Comments:</strong> <span data-testid="browse-recipe-comments"><%= item.comments_count %></span></span>
+    </span>
+  </div>
+
+  <% if local_assigns[:matched] %>
+    <div class="blog-card__meta" data-testid="browse-recipe-matched">
+      <strong>Matched:</strong>&nbsp;<%= matched.join(" · ") %>
+    </div>
+  <% end %>
+</div>

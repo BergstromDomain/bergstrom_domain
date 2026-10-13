@@ -4,6 +4,7 @@ class BlogPostsController < ApplicationController
   include PdfDownloadable
   include BlogPostFilterable
   include Browsable
+  include FormatConvertible
 
   allow_unauthenticated_access only: %i[index show filter pdf]
   before_action :resume_session_if_present, only: %i[index show filter pdf]
@@ -113,18 +114,9 @@ class BlogPostsController < ApplicationController
     redirect_to deleted_blog_posts_path, notice: "Blog post restored."
   end
 
-  def convert_format
-    case params[:source]
-    when "markdown"
-      render json: { html: BlogPost.render_markdown(params[:content]) }
-    when "html"
-      render json: { markdown: ReverseMarkdown.convert(params[:content].to_s) }
-    else
-      head :bad_request
-    end
-  end
-
   private
+
+  def format_model = BlogPost
 
   # Chronicle's Browse drill-down: Category › Subject › Topic (see BrowseTree).
   def browse_levels

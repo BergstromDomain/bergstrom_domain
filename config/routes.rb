@@ -55,6 +55,8 @@ Rails.application.routes.draw do
   patch  "settings/preferences",         to: "settings#update_preferences"
   get    "settings/chronicle",           to: "settings#chronicle_settings",  as: :chronicle_settings
   patch  "settings/chronicle",           to: "settings#update_chronicle_settings"
+  get    "settings/cookbook",            to: "settings#cookbook_settings",   as: :cookbook_settings
+  patch  "settings/cookbook",            to: "settings#update_cookbook_settings"
   get    "settings/occasions",           to: "settings#occasions_settings",  as: :occasions_settings
   patch  "settings/occasions",           to: "settings#update_occasions_settings"
 
@@ -75,6 +77,7 @@ Rails.application.routes.draw do
   # Stub pages
   get "event_tracker", to: "pages#event_tracker", as: :event_tracker
   get "chronicle",     to: "pages#chronicle",     as: :chronicle
+  get "cookbook",      to: "pages#cookbook",      as: :cookbook
 
   # Chronicle export — declared before resources :blog_posts so these literal
   # paths win over the :id wildcard on GET /blog-posts/:id
@@ -104,6 +107,36 @@ Rails.application.routes.draw do
     end
   end
   resources :blog_categories, path: "blog-post-categories"
+
+  # Declared before resources :recipes so "export" isn't read as a recipe slug.
+  get "recipes/export",      to: "recipe_exports#index", as: :recipe_exports
+  get "recipes/export/csv",  to: "recipe_exports#csv",   as: :csv_recipe_exports
+  get "recipes/export/pdfs", to: "recipe_exports#pdfs",  as: :pdfs_recipe_exports
+
+  resources :recipes, only: %i[new create show edit update destroy] do
+    resource :like, only: %i[create destroy], controller: "likes"
+    # Update/destroy are the shallow comments/:id routes declared under blog_posts.
+    resources :comments, only: %i[create]
+    member do
+      get  :pdf
+      post :publish
+      post :unpublish
+      post :restore
+    end
+    collection do
+      get  :deleted
+      get  :filter
+      get  "browse/cuisine",   action: :browse_by_cuisine,   as: :browse_by_cuisine
+      get  "browse/food-type", action: :browse_by_food_type, as: :browse_by_food_type
+      get  "find-by-ingredients", action: :find_by_ingredients, as: :find_by_ingredients
+      post :convert_format
+    end
+  end
+
+  # Cookbook reference data
+  resources :cuisines
+  resources :food_types, path: "food-types"
+  resources :languages
 
   root "pages#home"
   get "about",      to: "pages#about"

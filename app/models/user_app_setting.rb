@@ -1,15 +1,18 @@
 # app/models/user_app_setting.rb
 class UserAppSetting < ApplicationRecord
   belongs_to :user
+  # Cookbook only — the Language a new Recipe starts with.
+  belongs_to :default_language, class_name: "Language", optional: true
 
   DISPLAY_NAMES = {
     "event_tracker" => "Occasions",
-    "blog_posts"    => "Chronicle"
+    "blog_posts"    => "Chronicle",
+    "recipes"       => "Cookbook"
   }.freeze
 
-  # Apps with a real, user-visible landing page today — Recipes/Photo Albums are enum
-  # placeholders only (see CLAUDE.md), so they're excluded until they actually ship.
-  LIVE_APPS = %w[event_tracker blog_posts].freeze
+  # Apps with a real, user-visible landing page today — Photo Albums is an enum
+  # placeholder only (see CLAUDE.md), so it's excluded until it actually ships.
+  LIVE_APPS = %w[event_tracker blog_posts recipes].freeze
 
   enum :app_name, {
     event_tracker: "event_tracker",
@@ -25,6 +28,11 @@ class UserAppSetting < ApplicationRecord
   }, validate: true
 
   validates :app_name, presence: true, uniqueness: { scope: :user_id }
+
+  # The saved default, else English; nil only if neither exists.
+  def effective_default_language
+    default_language || Language.find_by(code: "en")
+  end
 
   def self.display_name_for(app_name)
     DISPLAY_NAMES.fetch(app_name.to_s, app_name.to_s.humanize)

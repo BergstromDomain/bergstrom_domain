@@ -1,7 +1,8 @@
-// app/javascript/controllers/blog_post_editor_controller.js
+// app/javascript/controllers/markdown_editor_controller.js
 import { Controller } from "@hotwired/stimulus"
 import Quill from "quill"
 
+// The Raw/Formatted body editor shared by Chronicle and Cookbook forms.
 // `body` is stored as Markdown, always. The Raw textarea holds that
 // canonical value directly; the Formatted tab is a Quill instance that only
 // gets synced against it at tab-switch/submit boundaries (via the server-side

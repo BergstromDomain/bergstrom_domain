@@ -30,8 +30,12 @@ docs/reference-data/
 │   └── logos/                             (actual logo image files, referenced by
 │                                            filename from social_media_platforms.csv's
 │                                            "Logo Filename" column)
-└── chronicle/
-    └── blog_categories.csv
+├── chronicle/
+│   └── blog_categories.csv
+└── cookbook/
+    ├── cuisines.csv
+    ├── food_types.csv
+    └── languages.csv
 ```
 
 Each CSV opens directly in Excel/Numbers/Google Sheets/LibreOffice — no conversion needed, and
@@ -72,6 +76,13 @@ Platform already breaks that assumption).
 | Occasions | Event Types | `occasions/event_types.csv` | 7 |
 | Occasions | Social Media Platforms | `occasions/social_media_platforms.csv` | 11 (+ 11 logo files) |
 | Chronicle | Blog Categories | `chronicle/blog_categories.csv` | 25 |
+| Cookbook | Cuisines | `cookbook/cuisines.csv` | 18 |
+| Cookbook | Food Types | `cookbook/food_types.csv` | 14 |
+| Cookbook | Languages | `cookbook/languages.csv` | 5 |
+
+The Cookbook rows were added 2026-10-11 and are also seeded by `db/seeds/cookbook.rb` (which
+can be run on its own with `bin/rails runner db/seeds/cookbook.rb`). Keep the two in step when
+editing either.
 
 **Worth a look before PROD**: every Blog Category's description is the same templated
 `"Posts about <Name>"` — accurate today, but you may want real copy per category before this

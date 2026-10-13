@@ -147,6 +147,31 @@ RSpec.describe Policy do
       end
     end
 
+    context "Recipe drafts" do
+      let(:unrestricted_draft) { create(:recipe, :unrestricted, user: owner) }
+
+      it "Returns true for the owner, even though the recipe is unrestricted" do
+        expect(Policy.new(owner, unrestricted_draft).can_read?).to be true
+      end
+
+      it "Returns false for anyone else, even though the recipe is unrestricted" do
+        expect(Policy.new(app_user, unrestricted_draft).can_read?).to be false
+      end
+
+      it "Returns false for visitors" do
+        expect(Policy.new(nil, unrestricted_draft).can_read?).to be false
+      end
+
+      it "Returns true for an admin" do
+        expect(Policy.new(admin, unrestricted_draft).can_read?).to be true
+      end
+
+      it "Falls back to normal classification rules once published" do
+        unrestricted_draft.update_column(:published_at, Time.current)
+        expect(Policy.new(app_user, unrestricted_draft).can_read?).to be true
+      end
+    end
+
     context "A discarded blog post" do
       let(:discarded_post) do
         create(:blog_post, :unrestricted, :published, user: owner, deleted_at: Time.current)
@@ -226,6 +251,19 @@ RSpec.describe Policy do
         create(:app_permission, user: system_admin, app_name: "event_tracker", can_create: false)
         policy = Policy.new(system_admin, :event_tracker)
         expect(policy.can_create?).to be true
+      end
+
+      it "Applies a Cookbook override to Recipes and to every Cookbook reference-data type" do
+        create(:app_permission, user: owner, app_name: "recipes", can_create: false)
+
+        [ :recipes, build(:recipe), build(:cuisine), build(:food_type), build(:language) ].each do |resource|
+          expect(Policy.new(owner, resource).can_create?).to be(false), "expected #{resource.inspect} to use the recipes override"
+        end
+      end
+
+      it "Never applies a Cookbook override to another app" do
+        create(:app_permission, user: owner, app_name: "recipes", can_create: false)
+        expect(Policy.new(owner, build(:blog_post)).can_create?).to be true
       end
     end
   end

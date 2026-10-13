@@ -1,0 +1,39 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Download Recipes</h1>
+  </div>
+</div>
+
+<div class="show-panel" data-testid="export-panel">
+  <p>Use the filters below to select the recipes you're interested in and download them, in the
+    order shown. There are two supported formats:</p>
+  <ul>
+    <li>A CSV-file with each recipe's ingredients, and its method in Markdown format</li>
+    <li>A ZIP-file with each recipe included as a PDF</li>
+  </ul>
+</div>
+
+<%= form_with url: recipe_exports_path, method: :get, data: { controller: "filter-mode" } do %>
+  <%= render "recipes/filter_panels" %>
+
+  <div class="show-panel show-panel--actions" data-testid="download-action-panel">
+    <button type="submit" class="btn btn-primary" data-testid="apply-filters-button">
+      <%= lucide_icon("filter", size: 16) %> Apply Filters
+    </button>
+    <%= link_to recipe_exports_path, class: "btn btn-secondary", data: { testid: "clear-filters-link" } do %>
+      <%= lucide_icon("x", size: 16) %> Clear Filters
+    <% end %>
+    <span class="btn-divider">|</span>
+    <%= link_to pdfs_recipe_exports_path(request.query_parameters), class: "btn btn-primary",
+          data: { testid: "download-pdfs-link",
+                  turbo_confirm: "Download these #{@recipes.size} #{'recipe'.pluralize(@recipes.size)}?" } do %>
+      <%= lucide_icon("download", size: 16) %> Download PDFs
+    <% end %>
+    <%= link_to csv_recipe_exports_path(request.query_parameters), class: "btn btn-secondary",
+          data: { testid: "csv-export-link" } do %>
+      <%= lucide_icon("file-down", size: 16) %> Download CSV
+    <% end %>
+  </div>
+<% end %>
+
+<%= render "recipes/filter_results" %>

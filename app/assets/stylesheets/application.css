@@ -724,6 +724,57 @@ code, pre {
   text-align: center;
 }
 
+/* Recipe Read page (app/views/recipes/show.html.erb) */
+.recipe-title .page-title {
+  flex: 1;
+}
+
+/* A recipe's one or two Cuisines/Food Types on the Read page. */
+.recipe-meta-choice + .recipe-meta-choice::before {
+  content: "·";
+  margin: 0 var(--space-xs);
+  color: var(--color-text-secondary);
+}
+
+.recipe-title__language {
+  margin-left: auto;
+}
+
+.recipe-ingredient-section + .recipe-ingredient-section {
+  margin-top: var(--space-lg);
+}
+
+.recipe-ingredient-section__heading {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-xs);
+}
+
+.recipe-ingredients {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.recipe-ingredient {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: var(--space-md);
+  padding: var(--space-2xs) 0;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.recipe-ingredient__amount {
+  font-weight: var(--font-weight-semibold);
+  text-align: right;
+}
+
+.recipe-ingredient__comment {
+  color: var(--color-text-secondary);
+  font-style: italic;
+  margin-left: var(--space-xs);
+}
+
 .page-header__title-group {
   display: flex;
   align-items: center;
@@ -1147,6 +1198,91 @@ code, pre {
   .post-form-header__image {
     min-width: 0;
     width: 100%;
+  }
+}
+
+/* Recipe form (app/views/recipes/_form.html.erb) */
+.recipe-form-metadata {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  column-gap: var(--space-lg);
+  row-gap: var(--space-md);
+}
+
+/* Grid cells sit side by side, so the stacked-section top margin (zeroed
+   only on the first child) would push every cell but Cuisine down. */
+.recipe-form-metadata .show-panel__section {
+  margin-top: 0;
+}
+
+/* The optional second Cuisine/Food Type sits under the primary one. */
+.recipe-form-second-choice {
+  margin-top: var(--space-xs);
+}
+
+.recipe-form-portions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.recipe-form-portions .form-control {
+  max-width: 7rem;
+}
+
+.recipe-form-portions__or {
+  color: var(--color-text-secondary);
+}
+
+.ingredient-section {
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-md);
+}
+
+.ingredient-section__header {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.ingredient-section__header .form-control {
+  flex: 1;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* The last column is a fixed width, not auto: the header row's cell is
+   empty, so an auto column there would be narrower than the rows' remove
+   button and shift the Ingredient/Comment headers off their fields. */
+.ingredient-row {
+  display: grid;
+  grid-template-columns: 6rem 8rem minmax(10rem, 2fr) minmax(8rem, 2fr) 2.5rem;
+  gap: var(--space-sm);
+  align-items: center;
+  margin-bottom: var(--space-xs);
+}
+
+.ingredient-row__remove {
+  width: 2.5rem;
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.ingredient-row--labels {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 48rem) {
+  .ingredient-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ingredient-row--labels {
+    display: none;
   }
 }
 
@@ -1781,6 +1917,38 @@ textarea.form-control {
   color: var(--color-accent);
 }
 
+/* Cookbook Cuisine/Language: flag emoji + a small Lucide badge in its
+   bottom-right corner (app/views/shared/_flag_badge.html.erb). */
+.flag-badge {
+  position: relative;
+  display: inline-flex;
+  line-height: 1;
+}
+
+.flag-badge__flag {
+  font-size: 1.6rem;
+}
+
+.flag-badge__icon {
+  position: absolute;
+  right: -0.35em;
+  bottom: -0.3em;
+  display: flex;
+  padding: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-accent);
+}
+
+.flag-badge--large .flag-badge__flag {
+  font-size: 4rem;
+}
+
+.flag-badge--large .flag-badge__icon {
+  padding: 4px;
+}
+
 
 /* ==========================================================================
    14. Authentication Layout
@@ -2037,7 +2205,7 @@ textarea.form-control {
 }
 .form-check label {
   cursor: pointer;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-md);
   color: var(--color-text-primary);
 }
 
@@ -2923,3 +3091,55 @@ textarea.form-control {
   gap: var(--space-2xs);
 }
 
+
+/* ── Find Recipes By Ingredients ─────────────────────────────────────────── */
+.ingredient-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.ingredient-chips:has(.ingredient-chip) {
+  margin-bottom: var(--space-sm);
+}
+
+.ingredient-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 2px var(--space-xs) 2px var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: var(--font-size-sm);
+}
+
+.ingredient-chip__remove {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.ingredient-chip__remove:hover {
+  color: var(--color-text);
+}
+
+.ingredient-entry {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.ingredient-tally {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: var(--space-md) 0;
+}
+
+.ingredient-tally__arrow {
+  color: var(--color-text-secondary);
+}

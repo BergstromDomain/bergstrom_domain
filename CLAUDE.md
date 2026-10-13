@@ -4,13 +4,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-The Rails app behind bergstromdomain.com — a personal platform intended to host several
-sub-apps under one auth/permission system. Only **Event_Tracker** (people, events, event
-types) is implemented so far; **Blog_Posts**, **Recipes**, and **Photo_Album** exist today
-only as enum values / stub routes (`app_name` in `AppPermission`, `pages#blog_posts`,
-`pages#event_tracker`) reserved for future apps. Development is documented as a blog series
-(`docs/blog/`) written in strict Red → Green → Refactor TDD style — keep that workflow in
-mind when asked to add features: write/adjust the spec first.
+The Rails app behind bergstromdomain.com — a personal platform hosting several sub-apps
+under one auth/permission system. Each app has a technical name (the `app_name` value in
+`AppPermission`/`UserAppSetting`, the commit prefix) and a user-facing brand:
+- **Event_Tracker** → "Occasions" (people, events, event types): implemented.
+- **Blog_Posts** → "Chronicle" (blog posts, categories, comments, reactions): implemented.
+- **Recipes** → "Cookbook": in progress, built block by block per
+  `docs/context-prompts/active/Cookbook_App.md` (models, landing page, left nav and
+  Cuisine/Food Type/Language reference data, Cookbook Settings, Write, Read, Edit,
+  Publish, Delete and Comment on A Recipe, one or two Cuisines/Food Types per recipe,
+  Browse/Filter Recipes, and Find Recipes By Ingredients so far).
+- **Photo_Album**: reserved enum value only.
+
+Development is documented as a blog series (`docs/blog/`) written in strict Red → Green →
+Refactor TDD style — keep that workflow in mind when asked to add features: write/adjust the
+spec first.
 
 ## Commands
 
@@ -138,7 +146,7 @@ ACTIONS (h2, content-creator-and-above only)
                              (Blog Post, Recipe), Create for entities (Person, Event), Add for
                              reference data (Event Type)
   Import & Export (h3)    → nested here, not a standalone top-level section; omit if the app
-                             has nothing to import/export yet (e.g. Cookbook currently); Chronicle
+                             has nothing to import/export yet; Cookbook shows Download Recipes only; Chronicle
                              has this today (Download Blog Posts — export only, import pending)
 DOCUMENTATION (h2)
   How To (h3)
@@ -146,10 +154,10 @@ DOCUMENTATION (h2)
 ```
 
 **Page sizing** (New/Show/Edit): every resource is either "normal" data (Person, Event, Blog
-Post) or "reference" data (Event Type, Social Media Platform, Blog Category — the same set
-grouped under a left nav's "Reference Data" header, above). Normal-data pages render full
-width; reference-data pages render at a narrower, centered width, consistently across their
-New, Show, and Edit pages:
+Post) or "reference" data (Event Type, Social Media Platform, Blog Category, Cuisine, Food
+Type, Language — the same set grouped under a left nav's "Reference Data" header, above).
+Normal-data pages render full width; reference-data pages render at a narrower, centered
+width, consistently across their New, Show, and Edit pages:
 - New/Edit forms: `.resource-form` alone is the narrow (560px, centered) default, used by
   reference-data resources. Add `.resource-form--wide` for normal-data resources (`class:
   "resource-form resource-form--wide"` on the `form_with` call) to go full width.

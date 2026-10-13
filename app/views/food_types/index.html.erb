@@ -1,0 +1,47 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Food Types</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Food Types group Cookbook recipes by the kind of dish.
+  </p>
+</div>
+
+<% if @food_types.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="food-type-table">
+      <colgroup>
+        <col style="width: 3.5rem;">
+        <col style="width: 14rem;">
+        <col>
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Icon</th>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @food_types.each do |food_type| %>
+          <tr data-testid="food-type-row">
+            <td class="data-table__icon-cell" data-testid="food-type-icon">
+              <%= lucide_icon(food_type.icon, size: 22) %>
+            </td>
+            <td>
+              <%= link_to food_type.name, food_type_path(food_type),
+                    class: "data-table__name-link", data: { testid: "food-type-name" } %>
+            </td>
+            <td class="data-table__description" data-testid="food-type-description">
+              <%= food_type.description %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No food types have been added yet.</p>
+  </div>
+<% end %>

@@ -10,6 +10,7 @@ RSpec.describe UserAppSetting, type: :model do
     it { is_expected.to have_db_column(:app_name).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:start_page).of_type(:string) }
     it { is_expected.to have_db_column(:default_classification).of_type(:string).with_options(null: false, default: "restricted") }
+    it { is_expected.to have_db_column(:default_language_id).of_type(:integer) }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
@@ -17,6 +18,37 @@ RSpec.describe UserAppSetting, type: :model do
     it "belongs to a user" do
       setting = build(:user_app_setting)
       expect(setting.user).to be_a(User)
+    end
+  end
+
+  describe "Default Language" do
+    it { is_expected.to belong_to(:default_language).class_name("Language").optional }
+
+    # 1) Happy Path ──────────────────────────────────────────────────────────
+    it "uses the saved default Language" do
+      swedish = create(:language, name: "Swedish", code: "sv")
+      create(:language, name: "English", code: "en")
+      subject.default_language = swedish
+      expect(subject.effective_default_language).to eq(swedish)
+    end
+
+    # 2) Negative Path ───────────────────────────────────────────────────────
+    it "returns nil when nothing is saved and there is no English Language" do
+      expect(subject.effective_default_language).to be_nil
+    end
+
+    # 3) Alternative Path ────────────────────────────────────────────────────
+    it "falls back to English when nothing is saved" do
+      english = create(:language, name: "English", code: "en")
+      expect(subject.effective_default_language).to eq(english)
+    end
+
+    # 4) Edge Cases ──────────────────────────────────────────────────────────
+    it "clears the saved default when that Language is deleted" do
+      swedish = create(:language, name: "Swedish", code: "sv")
+      setting = create(:user_app_setting, app_name: "recipes", default_language: swedish)
+      swedish.destroy!
+      expect(setting.reload.default_language_id).to be_nil
     end
   end
 
@@ -30,15 +62,19 @@ RSpec.describe UserAppSetting, type: :model do
       expect(UserAppSetting.display_name_for("blog_posts")).to eq("Chronicle")
     end
 
+    it "returns 'Cookbook' for recipes" do
+      expect(UserAppSetting.display_name_for("recipes")).to eq("Cookbook")
+    end
+
     it "falls back to a humanized name for an app without a mapped display name" do
-      expect(UserAppSetting.display_name_for("recipes")).to eq("Recipes")
+      expect(UserAppSetting.display_name_for("photo_albums")).to eq("Photo albums")
     end
   end
 
   describe ".live_apps_by_display_name" do
     it "returns [display name, app_name] pairs sorted alphabetically by display name" do
       expect(UserAppSetting.live_apps_by_display_name).to eq(
-        [ [ "Chronicle", "blog_posts" ], [ "Occasions", "event_tracker" ] ]
+        [ [ "Chronicle", "blog_posts" ], [ "Cookbook", "recipes" ], [ "Occasions", "event_tracker" ] ]
       )
     end
   end

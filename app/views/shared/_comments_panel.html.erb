@@ -1,0 +1,20 @@
+<%# The comment threads under a Blog Post or Recipe. Locals: commentable. %>
+<div class="show-panel" data-testid="comments-panel">
+  <h2 class="show-panel__heading" data-testid="comments-count">
+    <%= pluralize(commentable.comments_count, "comment") %> in
+    <%= pluralize(commentable.comments.top_level.count, "thread") %>
+  </h2>
+
+  <% if authenticated? %>
+    <%= render "comments/form", commentable: commentable, comment: Comment.new %>
+  <% end %>
+
+  <div class="comments-list">
+    <% commentable.comments.threads_ordered.includes(:user, replies: :user).each do |thread| %>
+      <%= render "comments/comment", comment: thread, commentable: commentable %>
+      <% thread.replies.each do |reply| %>
+        <%= render "comments/comment", comment: reply, commentable: commentable, reply: true %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

@@ -105,6 +105,15 @@ RSpec.describe "Sign In", type: :feature do
       expect(page).to have_current_path(chronicle_path)
     end
 
+    it "Redirects to the Cookbook landing page when the user's Start Page is 'recipes'" do
+      user.update!(start_page: "recipes")
+      visit new_session_path
+      fill_in "Email address", with: "bergstrom@example.com"
+      fill_in "Password",      with: "password123"
+      click_button "Sign In"
+      expect(page).to have_current_path(cookbook_path)
+    end
+
     it "Redirects to the Chronicle sub-page set in Chronicle Settings" do
       user.update!(start_page: "blog_posts")
       user.app_settings_for("blog_posts").update!(start_page: "blog_categories")
@@ -113,6 +122,33 @@ RSpec.describe "Sign In", type: :feature do
       fill_in "Password",      with: "password123"
       click_button "Sign In"
       expect(page).to have_current_path(blog_categories_path)
+    end
+
+    it "Redirects to the Cookbook sub-page set in Cookbook Settings" do
+      user.update!(start_page: "recipes")
+      user.app_settings_for("recipes").update!(start_page: "cuisines")
+      visit new_session_path
+      fill_in "Email address", with: "bergstrom@example.com"
+      fill_in "Password",      with: "password123"
+      click_button "Sign In"
+      expect(page).to have_current_path(cuisines_path)
+    end
+
+    {
+      "browse_by_cuisine"   => :browse_by_cuisine_recipes_path,
+      "browse_by_food_type" => :browse_by_food_type_recipes_path,
+      "filter_recipes"      => :filter_recipes_path,
+      "find_by_ingredients" => :find_by_ingredients_recipes_path
+    }.each do |start_page, path_helper|
+      it "Redirects to the Cookbook '#{start_page}' Start Page" do
+        user.update!(start_page: "recipes")
+        user.app_settings_for("recipes").update!(start_page: start_page)
+        visit new_session_path
+        fill_in "Email address", with: "bergstrom@example.com"
+        fill_in "Password",      with: "password123"
+        click_button "Sign In"
+        expect(page).to have_current_path(public_send(path_helper))
+      end
     end
 
     it "Redirects to the Occasions sub-page set in Occasions Settings" do

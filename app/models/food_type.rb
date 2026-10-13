@@ -1,0 +1,31 @@
+# app/models/food_type.rb
+class FoodType < ApplicationRecord
+  extend FriendlyId
+  friendly_id :name, use: [ :slugged, :history ]
+
+  LUCIDE_VALID_ICONS = LucideRails::IconProvider.memory.keys.to_set.freeze
+
+  has_many :recipe_food_types
+  has_many :recipes, through: :recipe_food_types, dependent: :restrict_with_error
+
+  validates :name,        presence: true, uniqueness: { case_sensitive: false }
+  validates :description, presence: true
+  validates :icon,        presence: true, uniqueness: true
+  validate  :icon_must_exist
+
+  def should_generate_new_friendly_id?
+    name_changed? || super
+  end
+
+  # Identifying label used by Toastable — see docs/context-prompts/active/New_Feature_Toasts.md
+  def to_toast_label
+    name
+  end
+
+  private
+
+  def icon_must_exist
+    return if icon.blank?
+    errors.add(:icon, "is not a valid Lucide icon name") unless LUCIDE_VALID_ICONS.include?(icon)
+  end
+end
