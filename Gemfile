@@ -41,7 +41,10 @@ gem "kamal", require: false
 gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.1"
+# image_processing 2 no longer brings in a processor; Active Storage is set to :vips.
+# require: false — image_processing loads it on first use, so jobs without libvips can still boot the app
+gem "ruby-vips", require: false
 
 gem "friendly_id", "~> 5.5"
 gem "lucide-rails"

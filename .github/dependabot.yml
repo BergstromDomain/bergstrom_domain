@@ -1,12 +1,25 @@
 version: 2
 updates:
+# The "Main: build:" prefix makes Dependabot's commit messages pass the
+# commit-lint check; grouping gives one weekly PR per ecosystem instead of one
+# per dependency, so the Gemfile.lock changes never conflict with each other.
 - package-ecosystem: bundler
   directory: "/"
   schedule:
     interval: weekly
   open-pull-requests-limit: 10
+  commit-message:
+    prefix: "Main: build:"
+  groups:
+    ruby-gems:
+      patterns: ["*"]
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
     interval: weekly
   open-pull-requests-limit: 10
+  commit-message:
+    prefix: "Main: build:"
+  groups:
+    github-actions:
+      patterns: ["*"]
