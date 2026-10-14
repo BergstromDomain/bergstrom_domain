@@ -126,10 +126,11 @@ Tooling available on this machine today: Chrome (via Selenium), Ferrum, Node/npx
 * Non-JS (`rack_test`) failures have no browser, so no image is possible — save the HTML only.
 
 ## 2. User Guide images (flag: `GUIDE_SCREENSHOTS=1`)
-* Captures live in their own spec folder (e.g. `spec/guide_screenshots/<app>_spec.rb`),
-  tagged `guide_screenshot: true` and **excluded from normal runs** (`filter_run_excluding`
+* Captures live beside the app's feature specs (`spec/features/<app folder>/guide_images_spec.rb`
+  — a new top-level spec folder would have no RspecMetrics::AppMapper mapping), tagged
+  `guide_image: true` and **excluded from normal runs** (`filter_run_excluding`
   unless the flag is set), so the default suite and CI are unaffected.
-* Run: `GUIDE_SCREENSHOTS=1 bundle exec rspec spec/guide_screenshots` (optionally one app).
+* Run: `GUIDE_SCREENSHOTS=1 bundle exec rspec spec/features/recipes/guide_images_spec.rb`.
 * Each capture names its target by `data-testid` and its output file, e.g.
   `capture_guide_image "recipe-ingredients-panel", as: "cookbook/ingredients_panel"`.
 * Output: `docs/user-guide/<app>/images/<name>.png`, committed to git so the guide and its
@@ -187,16 +188,33 @@ Tooling available on this machine today: Chrome (via Selenium), Ferrum, Node/npx
   `capture_element(testid, path)` (element screenshot, small padding).
 * Fixed window size in `capybara.rb`; full-page screenshot in `failure_artifacts.rb`; HTML-only
   artifact for failing non-JS specs.
-* **Done (2026-10-14).** Notes: a 1400×900 headless window gives a 1400×757 page area; a page
-  taller than that gets a 15px scrollbar, so full-page captures are 1385px wide. Element and
-  full-page captures use Chrome's `Page.captureScreenshot` (via `execute_cdp`) for both.
+* **Done (2026-10-14).** Notes: a 1400×900 headless window gives a 1400×757 page area. Element
+  and full-page captures both use Chrome's `Page.captureScreenshot` (via `execute_cdp`).
   `FailureArtifacts.save` is now a plain method (testable, reused by the after-hook). The full
   suite passed unchanged at the new window size.
+* **Corrected in Block 2:** the app's layout is exactly one window high and scrolls inside
+  `<main>`/the left nav, so `captureBeyondViewport` captured nothing below the window (the
+  Block 1 specs had used a tall `<body>`, which the real layout never has). Captures now grow
+  the window (`Emulation.setDeviceMetricsOverride`) until every scrolling area and the target
+  element fit, then restore it; clips are rounded to whole pixels; captures wait for images.
+  The specs now use the real layout and check the image isn't blank / reaches the element's end.
 
 ## Block 2 — User Guide capture runner
-* `GUIDE_SCREENSHOTS` flag, `guide_screenshot` tag excluded by default, `spec/guide_screenshots/`.
-* Deterministic setup helper (persona, frozen time, seed data, test images, animations off).
+* `GUIDE_SCREENSHOTS` flag, `guide_image` tag excluded by default.
+* Deterministic setup (persona, frozen time, seed data, test images, animations off).
 * First capture set for one app (Cookbook) writing to `docs/user-guide/cookbook/images/`.
+* **Done (2026-10-14).** `spec/support/guide_images.rb` (`capture_guide_image`) +
+  `spec/features/recipes/guide_images_spec.rb` — 9 images: recipe header/details/ingredients,
+  the form's title/details/ingredients panels, Browse By Cuisine, the Filter panel, the left
+  nav. Photo: `docs/test-data/images/cookbook/recipes/lasagna.jpeg` (from the dev recipe).
+  Added `data-testid="recipe-header"` to the recipe page header.
+  Chrome's anti-aliasing can differ by a shade between runs, so an existing image is kept when
+  the new capture is within 2 shades of it — re-running on an unchanged screen leaves git clean
+  (checked over 3 runs).
+* **Found:** `.left-nav` is `height: 100vh` but starts below the 56px top bar, so its last
+  ~104px sit behind the footer and can't be scrolled into view (the Documentation › User Guide
+  links on a long nav). The guide spec sets the nav's height to auto for its image; the real
+  fix is a layout change, logged for a separate fix.
 
 ## Block 3 — Guide images in the app
 * Serve guide images (Propshaft asset path + render-time rewrite); CSS rule for guide images.
