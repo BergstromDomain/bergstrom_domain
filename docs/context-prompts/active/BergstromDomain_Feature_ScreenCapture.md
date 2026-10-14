@@ -145,15 +145,18 @@ Tooling available on this machine today: Chrome (via Selenium), Ferrum, Node/npx
   file that doesn't exist or has no alt text.
 
 ## 3. Feature evidence (flag: `EVIDENCE=1`)
-* Specs opt in with an `:evidence` tag (typically the new feature's happy-path specs).
+* Purpose: for me to review during manual testing — watch the happy path in the storyboard,
+  then manually test what it doesn't cover. Not evidence to keep in GitHub.
+* Specs opt in with a tag naming the app and feature, e.g. `evidence: "cookbook/write_a_recipe"`
+  (typically the new feature's happy-path specs). Without `EVIDENCE=1` they run as normal.
 * Run: `EVIDENCE=1 bundle exec rspec spec/features/<app>/<feature>_spec.rb`.
-* Output (decided): `docs/test-results/<app>/evidence/<feature>/<spec>/` — numbered PNGs + an
-  `index.html` storyboard (B1), committed next to the manual-testing rounds (`round-1.md`, …)
-  so evidence and findings sit together. `<app>` uses the same folder names as
-  `docs/user-guide/` (`occasions`, `chronicle`, `cookbook`). Storyboard only — no video for
-  now.
-* Size: each step is a **viewport** PNG (not full page) to keep commits small; re-running a
-  spec replaces its folder rather than adding to it.
+* Output (decided): `docs/test-results/<app>/evidence/<feature>/<example>/` — numbered PNGs + an
+  `index.html` storyboard (B1), beside the manual-testing rounds (`round-1.md`, …) but
+  **git-ignored** (and Docker-ignored), so they stay on my machine. `<app>` uses the same folder
+  names as `docs/user-guide/` (`occasions`, `chronicle`, `cookbook`). A feature-level
+  `index.html` lists its examples and results. Storyboard only — no video for now.
+* Size: each step is a **full-size viewport** PNG (nothing is committed, so no need to shrink);
+  re-running an example replaces its folder rather than adding to it.
 * Captions come from the Capybara action ("Click Save Recipe", "Fill in Title with …") so the
   storyboard reads like the test.
 * Edge cases: a failing evidence spec still writes its storyboard up to the failure; a spec
@@ -233,10 +236,22 @@ Tooling available on this machine today: Chrome (via Selenium), Ferrum, Node/npx
   × button, not a bin icon.
 
 ## Block 4 — Evidence storyboard
-* `EVIDENCE` flag, `:evidence` tag, Capybara action hooks, numbered PNGs + captions, `index.html`,
-  written to `docs/test-results/<app>/evidence/`.
-* Tag the happy-path specs of one recent feature (e.g. Cookbook's Write A Recipe) as the first
-  committed evidence set.
+* `EVIDENCE` flag, `evidence: "<app>/<feature>"` tag, Capybara action hooks, numbered PNGs +
+  captions, per-example and per-feature `index.html`, written to the git-ignored
+  `docs/test-results/<app>/evidence/`.
+* Tag the happy-path examples of `create_recipe_spec.rb` (Write A Recipe) as the first set.
+* **Done (2026-10-14).** `spec/support/evidence.rb`: steps are Capybara's session actions (visit,
+  click_*, fill_in, select, choose, check, uncheck, attach_file), `Element#click/set/select_option`,
+  `js_click`, and `evidence_step("…", element)` for steps Capybara can't see (fields set with
+  `execute_script`, as the Cookbook JS specs do for CI stability). A click inside a click
+  (click_button → find → click) is one step. Captions name an element by its label/aria-label,
+  then its text, then its testid. Each step waits for page loads/Turbo to settle; a named element is
+  scrolled into view. Output per example: `001.png…`, `index.html`, `summary.json`; per feature: an
+  `index.html` listing examples, results, step counts and when they were recorded. A failed step is
+  still recorded, captioned "(failed)". `ScreenCapture.capture_window` added for window-only
+  screenshots. `/docs/test-results/*/evidence/` is in `.gitignore` and `.dockerignore`.
+  Open: `EVIDENCE=1 bundle exec rspec spec/features/recipes/create_recipe_spec.rb`, then
+  `docs/test-results/cookbook/evidence/write_a_recipe/index.html` in a browser.
 
 ---
 
@@ -267,7 +282,9 @@ Tooling available on this machine today: Chrome (via Selenium), Ferrum, Node/npx
 * **Window size:** desktop only, 1400×900.
 * **Image format:** PNG.
 * **Video:** the storyboard (B1) is enough for now; real video moved to Phase 2.
-* **Evidence storage:** `docs/test-results/<app>/evidence/`, committed.
+* **Evidence storage:** `docs/test-results/<app>/evidence/`, git-ignored — the storyboards are
+  for reviewing during manual testing, not for keeping in GitHub (changed 2026-10-14, Block 4
+  gate). Full-size PNGs.
 
 # OPEN QUESTIONS
 * None outstanding — new ones get logged here during the blocks.

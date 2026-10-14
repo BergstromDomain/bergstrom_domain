@@ -70,6 +70,15 @@ RSpec.describe "Screen Capture", type: :feature do
       expect(blank?(path)).to be(false)
     end
 
+    it "Captures just the window, as a person would see it" do
+      visit contact_path
+      push_below_the_window("contact-panel")
+
+      path = capture_window(directory.join("window.png"))
+
+      expect(png_size(path)).to eq(page.evaluate_script("[window.innerWidth, window.innerHeight]"))
+    end
+
     it "Puts the window back to its normal size afterwards" do
       visit contact_path
       push_below_the_window("contact-panel")

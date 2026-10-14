@@ -43,6 +43,11 @@ module ScreenCapture
     end
   end
 
+  # Just the window, as a person would see it — for evidence storyboards.
+  def capture_window(path, session: Capybara.current_session)
+    write(path, chrome(session).execute_cdp("Page.captureScreenshot", format: "png")["data"])
+  end
+
   # Raises Capybara::ElementNotFound (after Capybara's usual wait) when no
   # visible element has the testid. The margin is trimmed where it would run
   # off the top or left of the page.

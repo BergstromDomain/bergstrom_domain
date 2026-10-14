@@ -38,3 +38,6 @@ config/master.key
 
 # Generated at build time by `bin/rails build_info:generate` — see BuildInfoService.
 config/build_info.yml
+
+# Evidence storyboards (spec/support/evidence.rb) — for manual testing, not kept
+/docs/test-results/*/evidence/

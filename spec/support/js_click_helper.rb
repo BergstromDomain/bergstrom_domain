@@ -19,10 +19,12 @@
 # fall back to Capybara's native `.click` for that case.
 module JsClickHelper
   def js_click(testid)
-    page.execute_script(<<~JS)
-      const el = document.querySelector('[data-testid="#{testid}"]')
-      el.focus()
-      el.click()
-    JS
+    Evidence.step(-> { "Click #{Evidence.describe(find("[data-testid='#{testid}']", match: :first, visible: :all))}" }) do
+      page.execute_script(<<~JS)
+        const el = document.querySelector('[data-testid="#{testid}"]')
+        el.focus()
+        el.click()
+      JS
+    end
   end
 end
