@@ -22,6 +22,8 @@ A recipe is a **Draft** until its chef publishes it. Drafts are visible only to 
 
 The left nav has the same shape as the other apps:
 
+![The Cookbook left nav for a signed-in Content Creator](images/left_nav.png)
+
 - **Views**
   - **Cookbook**: the Cookbook landing page.
   - **Recipes**: Browse Recipes By Cuisine, Browse Recipes By Food Type, Filter Recipes and Find Recipes By Ingredients. See *Finding Recipes*.

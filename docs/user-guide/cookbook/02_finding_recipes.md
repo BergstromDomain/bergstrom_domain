@@ -8,9 +8,25 @@ supports_content_creator: true
 
 There are four ways to find a recipe, all under **Recipes** in the left nav. Each only ever shows recipes you're allowed to see. When you open a recipe, its **Back** button returns you to the page you came from.
 
+## A Recipe's Page
+
+The top shows the recipe's image (or its Cuisine's flag), its title, the flag of the Language it's written in, and its description.
+
+![The top of a recipe's page: its image, title, Language flag and description](images/recipe_header.png)
+
+Below that are its details: Food Type and Cuisine (each links to its own page under Reference Data), Serves or Makes, Cook Time, the chef, and how many comments and reactions it has.
+
+![A recipe's details panel](images/recipe_details.png)
+
+Then come the ingredients, grouped under their lists' headings, followed by the Method.
+
+![A recipe's ingredients in three lists: Meat sauce, Cheese sauce and Assembly](images/recipe_ingredients.png)
+
 ## Browse Recipes By Cuisine or Food Type
 
 Lists every Cuisine (or Food Type) with the number of recipes in it, including those that have none yet. Choose one to see its recipes as cards, newest first.
+
+![Browse Recipes By Cuisine, listing French, Italian and Swedish with their recipe counts](images/browse_by_cuisine.png)
 
 A recipe can have up to two Cuisines and two Food Types, for example a Swedish lasagna filed under Swedish and Italian. It's counted, and shown, under each of them.
 
@@ -21,6 +37,8 @@ Each card shows the recipe's image (or its Cuisine's flag), its Language, where 
 Narrows the list with a table you can sort by clicking its column headers.
 
 **Basic** offers dropdowns for Cuisine, Food Type, Language, Chef, Created and Published. Each dropdown only lists values that your visible recipes actually use, and choices are combined with AND.
+
+![The Basic filter's dropdowns](images/filter_basic.png)
 
 **SQL** lets you write a query, for example:
 
