@@ -136,20 +136,24 @@ Tooling available on this machine today: Chrome (via Selenium), Ferrum, Node/npx
   images are reviewed in the same PR.
 * Guide Markdown references them relatively — `![The Ingredients panel](images/ingredients_panel.png)`
   — so the files also preview correctly on GitHub.
-* **Serving the images (the update the app needs):** recommended approach — add the guide image
-  folders to Propshaft's asset paths and, when rendering a `GuidePage`, rewrite
+* **Serving the images (the update the app needs) — decided: Rails serves them.** Add the guide
+  image folders to Propshaft's asset paths and, when rendering a `GuidePage`, rewrite
   `images/<name>.png` to its digested `/assets/...` URL. Images then deploy with the code and
   are cache-busted like any other asset, and no database or Active Storage step is involved.
-  Alternatives logged under Open Questions.
+* Desktop only, at a fixed 1400×900 window; PNG.
 * `GuidePageLoader` fails the load (all-or-nothing, like today) if a page references an image
   file that doesn't exist or has no alt text.
 
 ## 3. Feature evidence (flag: `EVIDENCE=1`)
 * Specs opt in with an `:evidence` tag (typically the new feature's happy-path specs).
 * Run: `EVIDENCE=1 bundle exec rspec spec/features/<app>/<feature>_spec.rb`.
-* Output: `tmp/evidence/<branch>/<spec>/` — numbered PNGs + `index.html` storyboard (B1); with
-  ffmpeg present, also `<spec>.mp4`. Not committed (size); attached to the PR by hand, or
-  uploaded as a CI artifact when a manually triggered workflow run sets the flag.
+* Output (decided): `docs/test-results/<app>/evidence/<feature>/<spec>/` — numbered PNGs + an
+  `index.html` storyboard (B1), committed next to the manual-testing rounds (`round-1.md`, …)
+  so evidence and findings sit together. `<app>` uses the same folder names as
+  `docs/user-guide/` (`occasions`, `chronicle`, `cookbook`). Storyboard only — no video for
+  now.
+* Size: each step is a **viewport** PNG (not full page) to keep commits small; re-running a
+  spec replaces its folder rather than adding to it.
 * Captions come from the Capybara action ("Click Save Recipe", "Fill in Title with …") so the
   storyboard reads like the test.
 * Edge cases: a failing evidence spec still writes its storyboard up to the failure; a spec
@@ -163,8 +167,6 @@ Tooling available on this machine today: Chrome (via Selenium), Ferrum, Node/npx
   * [ ] `spec/support/failure_artifacts.rb` — full-page screenshot, share the window-size
         setting and output helpers with the new capture code
   * [ ] `spec/support/capybara.rb` — fixed `--window-size` for `:chrome_headless`
-  * [ ] `.github/workflows/ci.yml` — optional `workflow_dispatch` input to run evidence specs
-        and upload `tmp/evidence` as an artifact
   * [ ] `app/models/guide_page.rb` / `GuidePagesHelper` — image path rewrite at render time
   * [ ] `app/services/guide_page_loader.rb` — missing-image / missing-alt validation
 * Rollout: incremental — failure images first (lowest risk), then guide images (one app first,
@@ -192,20 +194,15 @@ Tooling available on this machine today: Chrome (via Selenium), Ferrum, Node/npx
 * First capture set for one app (Cookbook) writing to `docs/user-guide/cookbook/images/`.
 
 ## Block 3 — Guide images in the app
-* Serve guide images (Propshaft path + render-time rewrite, or the option chosen in Open
-  Questions); CSS rule for guide images.
+* Serve guide images (Propshaft asset path + render-time rewrite); CSS rule for guide images.
 * Loader validation (missing file, missing alt); add images to one or two Cookbook guide pages
   and extend `guide_page_loader_spec.rb`.
 
 ## Block 4 — Evidence storyboard
-* `EVIDENCE` flag, `:evidence` tag, Capybara action hooks, numbered PNGs + captions, `index.html`.
-* Optional MP4/GIF via ffmpeg when available (skipped with a notice when not).
-* Optional CI `workflow_dispatch` input + `tmp/evidence` artifact.
-
-## Block 5 (only if needed) — Real video via Playwright
-* Spike first: run one Cookbook happy-path spec under `capybara-playwright-driver` with
-  `record_video_dir` and `slow_mo`; decide from the result whether to adopt it for `:evidence`
-  specs (and traces for failures).
+* `EVIDENCE` flag, `:evidence` tag, Capybara action hooks, numbered PNGs + captions, `index.html`,
+  written to `docs/test-results/<app>/evidence/`.
+* Tag the happy-path specs of one recent feature (e.g. Cookbook's Write A Recipe) as the first
+  committed evidence set.
 
 ---
 
@@ -221,22 +218,22 @@ Tooling available on this machine today: Chrome (via Selenium), Ferrum, Node/npx
 
 # DEFERRED / PHASE 2
 * `capybara-screenshot-diff` as an on-demand "stale guide images" report.
-* Playwright traces for failing CI specs (only if Block 5 is adopted).
+* Real video (B3 Playwright: `record_video_dir` + `slow_mo`, spiked on one spec first) — the
+  storyboard is enough for now. Playwright traces for failing CI specs would come with it.
+* MP4/GIF from storyboards via ffmpeg (not installed today).
+* Running evidence specs from CI (`workflow_dispatch` input + artifact).
 * Guide images for Occasions and Chronicle once Cookbook's set is reviewed.
 * Annotated guide images (arrows/highlights/numbered callouts drawn on the capture).
 * Image upload in the admin Guide Page form (for pages written in the app rather than in
   `docs/user-guide/`).
 
+# DECISIONS (2026-10-14)
+* **Serving guide images:** Rails serves them — Propshaft asset path + render-time rewrite
+  (rejected: copying into `public/`, Active Storage attachments).
+* **Window size:** desktop only, 1400×900.
+* **Image format:** PNG.
+* **Video:** the storyboard (B1) is enough for now; real video moved to Phase 2.
+* **Evidence storage:** `docs/test-results/<app>/evidence/`, committed.
+
 # OPEN QUESTIONS
-* **Serving guide images** — Propshaft asset path + render-time rewrite (recommended), copy
-  into `public/user-guide/` at load time (simplest, but un-digested and duplicated), or Active
-  Storage attachments on `GuidePage` created by the loader (works with uploads later, but puts
-  versioned docs in the database/storage volume)?
-* **Window size** for captures — desktop only (e.g. 1400×900), or also a phone-width set for
-  the guide?
-* **Image format** — PNG (lossless, larger) or WebP (smaller; libvips is already installed to
-  convert)?
-* **Video** — is the storyboard (B1) enough as evidence, or is real motion (B3 Playwright)
-  wanted from the start? If video: install ffmpeg locally (`sudo apt install ffmpeg`) and in CI?
-* **Evidence storage** — attach to the PR by hand, CI artifact only, or keep selected evidence
-  under `docs/test-results/<app>/` alongside the manual-testing rounds?
+* None outstanding — new ones get logged here during the blocks.
