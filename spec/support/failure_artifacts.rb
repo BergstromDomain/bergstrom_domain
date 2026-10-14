@@ -1,8 +1,9 @@
 # spec/support/failure_artifacts.rb
 
-# On a failing js: true example, saves a screenshot, the page HTML, the
-# browser console log and an event trace to tmp/screenshots — the folder CI's
-# "Keep screenshots from failed system tests" step uploads as an artifact.
+# On a failing js: true example, saves a full-page screenshot, the page HTML,
+# the browser console log and an event trace to tmp/screenshots — the folder
+# CI's "Keep screenshots from failed system tests" step uploads as an artifact.
+# A failing feature spec without a browser saves just the page HTML.
 # Without this, that artifact was always empty and CI-only JS failures could
 # only be guessed at.
 #
@@ -53,6 +54,25 @@ module FailureArtifacts
     browser.execute_cdp("Page.addScriptToEvaluateOnNewDocument", source: TRACE_SCRIPT)
     @installed[browser.object_id] = true
   end
+
+  # Returns the files written — none when no page was visited.
+  def self.save(session, name, directory: Rails.root.join("tmp/screenshots"))
+    html = session.html
+    return [] if html.blank?
+
+    FileUtils.mkdir_p(directory)
+    base = Pathname.new(directory).join(name.parameterize.first(100))
+    html_file = base.sub_ext(".html").tap { |file| file.write(html) }
+    return [ html_file ] unless session.driver.browser.respond_to?(:execute_cdp)
+
+    screenshot = ScreenCapture.capture_page(base.sub_ext(".png"), session: session)
+    logs = session.driver.browser.logs.get(:browser).map { |entry| "#{entry.level} #{entry.message}" }
+    trace = session.evaluate_script("window.__trace || []")
+    log_file = base.sub_ext(".log").tap do |file|
+      file.write(([ "path: #{session.current_path}" ] + logs + [ "", "trace:" ] + trace).join("\n"))
+    end
+    [ screenshot, html_file, log_file ]
+  end
 end
 
 RSpec.configure do |config|
@@ -62,21 +82,11 @@ RSpec.configure do |config|
     warn "failure_artifacts: could not install the event trace: #{e.message}"
   end
 
-  config.after(:each, js: true) do |example|
+  config.after(:each, type: :feature) do |example|
     next unless example.exception
 
-    dir = Rails.root.join("tmp/screenshots")
-    FileUtils.mkdir_p(dir)
-    base = dir.join(example.full_description.parameterize.first(100)).to_s
-
-    begin
-      page.save_screenshot("#{base}.png")
-      File.write("#{base}.html", page.html)
-      logs = page.driver.browser.logs.get(:browser).map { |entry| "#{entry.level} #{entry.message}" }
-      trace = page.evaluate_script("window.__trace || []")
-      File.write("#{base}.log", ([ "path: #{page.current_path}" ] + logs + [ "", "trace:" ] + trace).join("\n"))
-    rescue StandardError => e
-      warn "failure_artifacts: could not save artifacts for #{example.full_description}: #{e.message}"
-    end
+    FailureArtifacts.save(page, example.full_description)
+  rescue StandardError => e
+    warn "failure_artifacts: could not save artifacts for #{example.full_description}: #{e.message}"
   end
 end

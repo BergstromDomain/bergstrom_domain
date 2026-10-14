@@ -187,6 +187,11 @@ Tooling available on this machine today: Chrome (via Selenium), Ferrum, Node/npx
   `capture_element(testid, path)` (element screenshot, small padding).
 * Fixed window size in `capybara.rb`; full-page screenshot in `failure_artifacts.rb`; HTML-only
   artifact for failing non-JS specs.
+* **Done (2026-10-14).** Notes: a 1400×900 headless window gives a 1400×757 page area; a page
+  taller than that gets a 15px scrollbar, so full-page captures are 1385px wide. Element and
+  full-page captures use Chrome's `Page.captureScreenshot` (via `execute_cdp`) for both.
+  `FailureArtifacts.save` is now a plain method (testable, reused by the after-hook). The full
+  suite passed unchanged at the new window size.
 
 ## Block 2 — User Guide capture runner
 * `GUIDE_SCREENSHOTS` flag, `guide_screenshot` tag excluded by default, `spec/guide_screenshots/`.
