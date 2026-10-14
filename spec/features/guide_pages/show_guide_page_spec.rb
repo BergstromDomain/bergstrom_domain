@@ -96,6 +96,19 @@ RSpec.describe "Show Guide Page", type: :feature do
         expect(page).to have_selector(".btn-divider")
       end
     end
+
+    it "Shows a User Guide screenshot that fits the page", js: true do
+      screenshot = create(:guide_page, title: "Finding Your Way", app_section: "recipes",
+        body: "![The Cookbook left nav](/user-guide/images/cookbook/recipe_ingredients.png)")
+
+      visit guide_page_path(screenshot)
+
+      image = find("[data-testid='guide-page-body'] img[alt='The Cookbook left nav']")
+      expect(page).to have_selector("[data-testid='guide-page-body'] img[alt='The Cookbook left nav']")
+      expect(page.evaluate_script("arguments[0].complete && arguments[0].naturalWidth", image)).to be > 0
+      expect(page.evaluate_script("arguments[0].getBoundingClientRect().width <= arguments[0].parentElement.clientWidth", image))
+        .to be(true)
+    end
   end
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────

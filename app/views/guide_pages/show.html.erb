@@ -11,7 +11,7 @@
 
 <%# Main div — body %>
 <div class="show-panel" data-testid="show-panel-main">
-  <div class="show-panel__section" data-testid="guide-page-body">
+  <div class="show-panel__section guide-page-body" data-testid="guide-page-body">
     <%= sanitize @guide_page.rendered_body,
           tags:       GuidePage::RENDERED_BODY_ALLOWED_TAGS,
           attributes: GuidePage::RENDERED_BODY_ALLOWED_ATTRIBUTES %>

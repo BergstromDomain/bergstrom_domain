@@ -137,10 +137,9 @@ Tooling available on this machine today: Chrome (via Selenium), Ferrum, Node/npx
   images are reviewed in the same PR.
 * Guide Markdown references them relatively — `![The Ingredients panel](images/ingredients_panel.png)`
   — so the files also preview correctly on GitHub.
-* **Serving the images (the update the app needs) — decided: Rails serves them.** Add the guide
-  image folders to Propshaft's asset paths and, when rendering a `GuidePage`, rewrite
-  `images/<name>.png` to its digested `/assets/...` URL. Images then deploy with the code and
-  are cache-busted like any other asset, and no database or Active Storage step is involved.
+* **Serving the images (the update the app needs) — decided: Rails serves them**, through
+  `GuideImagesController` (see Block 3 for why not Propshaft). Images deploy with the code
+  (`docs/` is in the Docker image) and no database or Active Storage step is involved.
 * Desktop only, at a fixed 1400×900 window; PNG.
 * `GuidePageLoader` fails the load (all-or-nothing, like today) if a page references an image
   file that doesn't exist or has no alt text.
@@ -217,9 +216,21 @@ Tooling available on this machine today: Chrome (via Selenium), Ferrum, Node/npx
   fix is a layout change, logged for a separate fix.
 
 ## Block 3 — Guide images in the app
-* Serve guide images (Propshaft asset path + render-time rewrite); CSS rule for guide images.
+* Serve guide images; CSS rule for guide images.
 * Loader validation (missing file, missing alt); add images to one or two Cookbook guide pages
   and extend `guide_page_loader_spec.rb`.
+* **Done (2026-10-14), with a change agreed at the gate:** served by `GuideImagesController`
+  (`GET /user-guide/images/:app/:name.png`, public, cached with an ETag) instead of Propshaft —
+  adding `docs/user-guide` to the asset paths would also have published the raw `.md` files,
+  and an admin page's image folder can't be worked out at render time (admin pages sit in each
+  app's folder). `GuidePageLoader` rewrites `![Alt](images/x.png)` to that route at load time,
+  failing on a missing image, empty alt text or a name the route can't serve. The controller
+  picks the file from the list of existing images rather than building a path from the request.
+  The existing global `img { max-width: 100% }` already fits images to the page; `.guide-page-body
+  img` only adds spacing (captures already carry their own border and margin).
+* Images placed in Cookbook guide pages 01 (left nav), 02 (new "A Recipe's Page" section, Browse,
+  Filter) and 03 (the three form panels). Also corrected 03: an ingredient row is removed with its
+  × button, not a bin icon.
 
 ## Block 4 — Evidence storyboard
 * `EVIDENCE` flag, `:evidence` tag, Capybara action hooks, numbered PNGs + captions, `index.html`,

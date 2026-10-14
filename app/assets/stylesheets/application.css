@@ -3076,6 +3076,12 @@ textarea.form-control {
   margin-bottom: 0;
 }
 
+/* Screenshots (docs/user-guide/<app>/images) already carry their panel's
+   border and a margin of page background, so they only need spacing. */
+.guide-page-body img {
+  margin: var(--space-md) 0;
+}
+
 .guide-page-support-list {
   display: flex;
   flex-wrap: wrap;
