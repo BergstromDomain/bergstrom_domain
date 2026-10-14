@@ -22,6 +22,7 @@ RSpec.describe "Create Recipe", type: :feature do
       input.value = value
       input.dispatchEvent(new Event("input", { bubbles: true }))
     JS
+    evidence_step(-> { "Fill in #{Evidence.describe(field)} with #{Evidence.quote(value)}" }, field)
   end
 
   def choose(label, from:)
@@ -33,6 +34,7 @@ RSpec.describe "Create Recipe", type: :feature do
       select.value = [ ...select.options ].find((option) => option.text === label).value
       select.dispatchEvent(new Event("change", { bubbles: true }))
     JS
+    evidence_step("Select #{Evidence.quote(label)} from #{Evidence.quote(from)}", field)
   end
 
   def fill_required(title: "Pea Soup")
@@ -113,7 +115,9 @@ RSpec.describe "Create Recipe", type: :feature do
       expect(page).to have_current_path(new_recipe_path)
     end
 
-    context "With JavaScript", js: true do
+    # EVIDENCE=1 records these as storyboards for manual testing — see
+    # spec/support/evidence.rb.
+    context "With JavaScript", js: true, evidence: "cookbook/write_a_recipe" do
       # sign_in_as's redirect can still be in flight under Selenium, and a
       # `visit` straight after it can lose the race (left on "/") — settle on
       # the signed-in top nav first, as sign_in_and_settle does elsewhere.

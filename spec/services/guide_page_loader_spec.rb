@@ -16,6 +16,15 @@ RSpec.describe GuidePageLoader do
     described_class.new(directory).call
   end
 
+  def write_image(name)
+    directory.join("images").mkpath
+    directory.join("images", name).binwrite("\x89PNG\r\n\x1A\n".b)
+  end
+
+  def image_url(name)
+    "/user-guide/images/#{directory.basename}/#{name}"
+  end
+
   # 1) Happy path ─────────────────────────────────────────────────────────────
   describe "Happy path" do
     it "Creates a guide page from each Markdown file's front matter and body" do
@@ -41,6 +50,15 @@ RSpec.describe GuidePageLoader do
       expect(existing.reload).to have_attributes(title: "Cookbook Overview", body: "New text.")
       expect(result[:updated]).to eq([ "Cookbook Overview" ])
     end
+
+    it "Points an image in the page's images folder at the guide image route" do
+      write_image("left_nav.png")
+      write_page("01_overview.md", title: "Cookbook Overview", body: "Use the menu.\n\n![The Cookbook left nav](images/left_nav.png)")
+
+      load_pages
+
+      expect(GuidePage.first.body).to eq("Use the menu.\n\n![The Cookbook left nav](#{image_url('left_nav.png')})")
+    end
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
@@ -59,6 +77,27 @@ RSpec.describe GuidePageLoader do
       expect { load_pages }.to raise_error(GuidePageLoader::Error, /01_bad\.md.*App section/)
     end
 
+    it "Rejects an image that isn't in the images folder, naming the file and the image" do
+      write_page("01_overview.md", title: "Cookbook Overview", body: "![The left nav](images/left_nav.png)")
+
+      expect { load_pages }.to raise_error(GuidePageLoader::Error, %r{01_overview\.md.*images/left_nav\.png})
+      expect(GuidePage.count).to eq(0)
+    end
+
+    it "Rejects an image without alt text" do
+      write_image("left_nav.png")
+      write_page("01_overview.md", title: "Cookbook Overview", body: "![](images/left_nav.png)")
+
+      expect { load_pages }.to raise_error(GuidePageLoader::Error, /01_overview\.md.*alt text/)
+    end
+
+    it "Rejects an image name the guide image route can't serve" do
+      write_image("Left Nav.png")
+      write_page("01_overview.md", title: "Cookbook Overview", body: "![The left nav](images/Left Nav.png)")
+
+      expect { load_pages }.to raise_error(GuidePageLoader::Error, /lowercase/)
+    end
+
     it "Rejects a directory that doesn't exist" do
       expect { described_class.new(directory.join("missing")).call }.to raise_error(GuidePageLoader::Error, /missing/)
     end
@@ -72,6 +111,15 @@ RSpec.describe GuidePageLoader do
 
       expect { expect(load_pages).to eq(created: [], updated: [], unchanged: [ "Cookbook Overview" ]) }
         .not_to(change { GuidePage.first.updated_at })
+    end
+
+    it "Leaves images that point elsewhere as they are" do
+      body = "![A logo](/logo.png)\n\n![A photo](https://example.com/photo.png)"
+      write_page("01_overview.md", title: "Cookbook Overview", body: body)
+
+      load_pages
+
+      expect(GuidePage.first.body).to eq(body)
     end
 
     it "Defaults a missing support flag to false" do
@@ -89,6 +137,14 @@ RSpec.describe GuidePageLoader do
       directory.join("notes.txt").write("Not a page")
 
       expect(load_pages[:created]).to eq([ "Cookbook Overview" ])
+    end
+
+    it "Leaves a page with images untouched on a second load" do
+      write_image("left_nav.png")
+      write_page("01_overview.md", title: "Cookbook Overview", body: "![The left nav](images/left_nav.png)")
+      load_pages
+
+      expect(load_pages[:unchanged]).to eq([ "Cookbook Overview" ])
     end
 
     it "Keeps '---' inside the body" do

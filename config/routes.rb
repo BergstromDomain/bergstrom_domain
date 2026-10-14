@@ -62,6 +62,9 @@ Rails.application.routes.draw do
 
   get "user_guide", to: "pages#user_guide", as: :user_guide
   resources :guide_pages, path: "guide-pages"
+  # Screenshots shown in guide pages, served from docs/user-guide/<app>/images/
+  get "user-guide/images/:app/:name.png", to: "guide_images#show", as: :guide_image, format: false,
+    constraints: { app: /[a-z0-9_-]+/, name: /[a-z0-9_-]+/ }
 
   # People & Events — Filter/Download/Import (Occasions' equivalent of
   # Chronicle's Filter/Download/Import Blog Posts trio)

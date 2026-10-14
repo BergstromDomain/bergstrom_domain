@@ -7,11 +7,18 @@
 # is the Markdown body. Pages match on title, ignoring case, so a re-run
 # updates rather than duplicates. All-or-nothing: one bad file saves nothing.
 # Run via `bin/rails guide_pages:load[cookbook]`.
+#
+# Screenshots sit in the folder's images/ subfolder and are written
+# `![Alt text](images/name.png)`, so they also preview on GitHub. Loading
+# points them at the guide image route (GuideImagesController), after
+# checking each one exists and has alt text.
 class GuidePageLoader
   class Error < StandardError; end
 
   FRONT_MATTER = /\A---\s*\n(?<yaml>.*?)\n---\s*\n(?<body>.*)\z/m
   FLAGS = GuidePage::SUPPORT_COLUMNS.keys.map(&:to_s).freeze
+  IMAGE = %r{!\[(?<alt>[^\]]*)\]\(images/(?<name>[^)]+)\.png\)}
+  IMAGE_NAME = /\A[a-z0-9_-]+\z/
 
   def initialize(directory)
     @directory = Pathname.new(directory)
@@ -44,12 +51,24 @@ class GuidePageLoader
     page.assign_attributes(
       title:       attributes["title"],
       app_section: attributes["app_section"],
-      body:        match[:body].strip,
+      body:        link_images(match[:body].strip, file),
       **FLAGS.index_with { |flag| attributes.fetch(flag, false) }
     )
     page
   rescue Psych::SyntaxError => e
     raise Error, "#{file.basename}: #{e.message}"
+  end
+
+  def link_images(body, file)
+    body.gsub(IMAGE) do
+      alt, name = $~[:alt], $~[:name]
+      image = "images/#{name}.png"
+      raise Error, "#{file.basename}: #{image} needs alt text" if alt.blank?
+      raise Error, "#{file.basename}: #{image} — use lowercase letters, digits, - and _ in image names" unless name.match?(IMAGE_NAME)
+      raise Error, "#{file.basename}: #{image} isn't in #{@directory.join('images')}" unless @directory.join(image).file?
+
+      "![#{alt}](#{Rails.application.routes.url_helpers.guide_image_path(app: @directory.basename.to_s, name: name)})"
+    end
   end
 
   def save!(page, file)

@@ -3,11 +3,11 @@
 # SimpleCov — must be loaded first, before any application code
 require "simplecov"
 SimpleCov.start "rails" do
-  add_filter "/spec/"
-  add_filter "/config/"
-  add_filter "app/jobs/application_job.rb"
-  add_filter "app/mailers/application_mailer.rb"
-  add_filter "app/controllers/passwords_controller.rb"
+  skip "/spec/"
+  skip "/config/"
+  skip "app/jobs/application_job.rb"
+  skip "app/mailers/application_mailer.rb"
+  skip "app/controllers/passwords_controller.rb"
   minimum_coverage 90 if ENV["COVERAGE"]
 end
 

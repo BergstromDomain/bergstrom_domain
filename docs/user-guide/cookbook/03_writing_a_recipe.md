@@ -19,11 +19,17 @@ Content Creators and above can write recipes. Choose **Actions › New › Write
 - **Cook Time**: free text, e.g. "1 hour 30 min".
 - **Visibility**: Unrestricted, Contacts or Restricted. See *Cookbook Overview*.
 
+![The form's Title, Description and Recipe Image](images/recipe_form_title.png)
+
+![The form's Cuisine, Food Type, Language, Serves or Makes, Cook Time and Visibility](images/recipe_form_details.png)
+
 ### Ingredients
 
-Each ingredient has a **Quantity** and an **Ingredient** name, plus an optional **Measurement** (g, dl, tbsp) and **Comment** (softened, finely chopped). Use **Add Ingredient** for another row and the bin icon to remove one.
+Each ingredient has a **Quantity** and an **Ingredient** name, plus an optional **Measurement** (g, dl, tbsp) and **Comment** (softened, finely chopped). Use **Add Ingredient** for another row and its **×** button to remove one.
 
 Longer recipes can be split into several lists, each with its own heading. A lasagna might have "Meat Sauce", "White Sauce" and "Assembling". Use **Add Ingredient List** to start another and **Remove List** to delete one.
+
+![The Ingredients section with three lists: Meat sauce, Cheese sauce and Assembly](images/recipe_form_ingredients.png)
 
 ### Method
 
