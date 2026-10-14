@@ -11,6 +11,35 @@ RSpec.describe "Screen Capture", type: :feature do
     File.binread(path, 8, 16).unpack("N2")
   end
 
+  # A capture of something off-screen comes out as (nearly) one flat colour.
+  def blank?(path)
+    image = vips(path)
+    image.max - image.min < 16
+  end
+
+  # Whether the bottom rows of the capture are red — the red bottom border an
+  # example gave the element, so the capture reached the element's very end.
+  def red_at_the_bottom?(path)
+    image = vips(path)
+    red, green, blue = image.crop(0, image.height - 10, image.width, 10).bandsplit.first(3).map(&:avg)
+    red > 240 && green < 15 && blue < 15
+  end
+
+  def vips(path)
+    require "vips"
+    Vips::Image.new_from_file(path.to_s)
+  end
+
+  # The app's layout is one window high and scrolls inside <main>, so content
+  # added there (not to <body>) is what ends up below the window.
+  def push_below_the_window(testid, by: 1500)
+    page.execute_script(<<~JS)
+      const spacer = document.createElement("div")
+      spacer.style.height = "#{by}px"
+      document.querySelector('[data-testid="#{testid}"]').before(spacer)
+    JS
+  end
+
   # 1) Happy path ─────────────────────────────────────────────────────────────
   describe "Happy path", js: true do
     it "Runs the browser at the fixed 1400px desktop width" do
@@ -21,14 +50,13 @@ RSpec.describe "Screen Capture", type: :feature do
 
     it "Captures the whole page, including what is below the window" do
       visit contact_path
-      page.execute_script("document.body.style.minHeight = '2000px'")
-      page_width = page.evaluate_script("document.documentElement.clientWidth") # the window less its scrollbar
+      push_below_the_window("contact-panel")
 
       path = capture_page(directory.join("contact.png"))
 
       width, height = png_size(path)
-      expect(width).to eq(page_width)
-      expect(height).to be >= 2000
+      expect(width).to eq(ScreenCapture::WINDOW_SIZE.first)
+      expect(height).to be > 1500
     end
 
     it "Captures one element by its testid, with a margin around it" do
@@ -39,6 +67,17 @@ RSpec.describe "Screen Capture", type: :feature do
 
       margin = ScreenCapture::ELEMENT_MARGIN * 2
       expect(png_size(path)).to eq([ (box["width"] + margin).ceil, (box["height"] + margin).ceil ])
+      expect(blank?(path)).to be(false)
+    end
+
+    it "Puts the window back to its normal size afterwards" do
+      visit contact_path
+      push_below_the_window("contact-panel")
+      height = page.evaluate_script("window.innerHeight")
+
+      capture_page(directory.join("contact.png"))
+
+      expect(page.evaluate_script("window.innerHeight")).to eq(height)
     end
   end
 
@@ -64,16 +103,26 @@ RSpec.describe "Screen Capture", type: :feature do
   describe "Alternative path", js: true do
     it "Captures an element below the window without scrolling the page first" do
       visit contact_path
-      page.execute_script(<<~JS)
-        const spacer = document.createElement("div")
-        spacer.style.height = "1500px"
-        document.querySelector('[data-testid="contact-panel"]').before(spacer)
-      JS
+      push_below_the_window("contact-panel")
       box = page.evaluate_script("document.querySelector('[data-testid=\"contact-panel\"]').getBoundingClientRect().toJSON()")
 
       path = capture_element("contact-panel", directory.join("panel.png"), margin: 0)
 
       expect(png_size(path)).to eq([ box["width"].ceil, box["height"].ceil ])
+      expect(blank?(path)).to be(false)
+    end
+
+    it "Captures an element taller than the window in full" do
+      visit contact_path
+      page.execute_script(<<~JS)
+        const panel = document.querySelector('[data-testid="contact-panel"]')
+        panel.style.cssText += "; box-sizing: border-box; height: 2000px; border-bottom: 40px solid rgb(255, 0, 0)"
+      JS
+
+      path = capture_element("contact-panel", directory.join("panel.png"), margin: 0)
+
+      expect(png_size(path).last).to eq(2000)
+      expect(red_at_the_bottom?(path)).to be(true)
     end
 
     it "Creates missing folders on the way to the file" do
@@ -87,6 +136,22 @@ RSpec.describe "Screen Capture", type: :feature do
 
   # 4) Edge cases ─────────────────────────────────────────────────────────────
   describe "Edge cases", js: true do
+    it "Captures an element that runs past the window without making anything scroll" do
+      visit contact_path
+      page.execute_script(<<~JS)
+        const box = document.createElement("div")
+        box.dataset.testid = "fixed-box"
+        box.style.cssText = "position:fixed; top:600px; left:0; width:100px; height:400px; box-sizing:border-box; " +
+          "background:white; border-bottom:40px solid rgb(255, 0, 0)"
+        document.body.append(box)
+      JS
+
+      path = capture_element("fixed-box", directory.join("fixed.png"), margin: 0)
+
+      expect(png_size(path)).to eq([ 100, 400 ])
+      expect(red_at_the_bottom?(path)).to be(true)
+    end
+
     it "Keeps the margin inside the page for an element at the top-left corner" do
       visit contact_path
       page.execute_script(<<~JS)
