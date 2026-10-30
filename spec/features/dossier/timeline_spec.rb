@@ -19,7 +19,10 @@ RSpec.describe "Dossier Timeline", type: :feature do
 
       expect(page).to have_selector("[data-testid='timeline-gap']", text: "Gap · Jan 2018 – May 2018 · 5 months")
       within("[data-testid='engagement-card']", text: "Newer") do
-        expect(page).to have_selector("[data-testid='timeline-bench']", text: "Bench · Feb 2020 – Jun 2022 · 2+ years")
+        within("[data-testid='timeline-bench']") do
+          expect(page).to have_selector("[data-testid='timeline-bench-label']", exact_text: "Bench · 2+ years")
+          expect(page).to have_selector(".dossier-assignment-row__dates", exact_text: "Feb 2020 – Jun 2022")
+        end
       end
     end
   end
