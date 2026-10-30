@@ -1,0 +1,67 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title"><%= @profile.new_record? ? "New Profile" : "Edit Profile" %></h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Everything here is private. Phone, email and address never appear on your public portfolio page.
+  </p>
+</div>
+
+<%= form_with model: @profile, url: dossier_profile_path, method: :patch,
+      class: "resource-form resource-form--wide" do |f| %>
+  <% if @profile.errors.any? %>
+    <div class="form-errors" data-testid="form-errors">
+      <p><%= pluralize(@profile.errors.count, "error") %> prevented this profile from being saved:</p>
+      <ul>
+        <% @profile.errors.each do |error| %>
+          <li data-testid="field-error"><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# Main div — who you are %>
+  <div class="show-panel" data-testid="edit-panel-main">
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :display_name, label: "Display Name" %>
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :headline, label: "Headline",
+          hint: "One line under your name, e.g. Test Manager | ISTQB Certified." %>
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :location_id, label: "Location",
+          error_attribute: :location,
+          field: f.collection_select(:location_id, Dossier::Location.alphabetical, :id, :name,
+                                     { include_blank: "None" }, class: "form-control", data: { testid: "location-field" }) %>
+  </div>
+
+  <%# Summary div %>
+  <div class="show-panel" data-testid="edit-panel-summary">
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :summary, label: "Summary", text_area: true,
+          hint: "Terse form, without I or a name, e.g. \"Test manager with 25+ years…\". Used for every voice that has no version of its own." %>
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :summary_first_person,
+          label: "First-Person Summary", text_area: true, hint: "Optional." %>
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :summary_third_person,
+          label: "Third-Person Summary", text_area: true, hint: "Optional." %>
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :third_person_name, label: "Third-Person Name",
+          hint: "How third-person text refers to you, e.g. your first name." %>
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :pronouns, label: "Pronouns",
+          field: f.select(:pronouns, Dossier::Profile::PRONOUNS.invert, {}, class: "form-control", data: { testid: "pronouns-field" }) %>
+  </div>
+
+  <%# Contact div %>
+  <div class="show-panel" data-testid="edit-panel-contact">
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :email, label: "Email" %>
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :phone, label: "Phone" %>
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :website_url, label: "Website" %>
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :linkedin_url, label: "LinkedIn" %>
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :github_url, label: "GitHub" %>
+  </div>
+
+  <%# Actions div %>
+  <div class="show-panel show-panel--actions" data-testid="edit-panel-actions">
+    <%= link_to(@profile.new_record? ? dossier_path : dossier_profile_path, class: "btn btn-secondary") do %>
+      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary">
+      <%= lucide_icon("save", size: 16) %> Save Profile
+    </button>
+  </div>
+<% end %>

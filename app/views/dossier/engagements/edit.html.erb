@@ -1,0 +1,8 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Edit Engagement</h1>
+  </div>
+</div>
+
+<%= render "form", engagement: @engagement, panel: "edit", submit_label: "Update Engagement",
+      cancel_path: dossier_engagement_path(@engagement) %>

@@ -1,0 +1,8 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">New <%= singular_name %></h1>
+  </div>
+</div>
+
+<%= render "dossier/reference_data/form", record: @record, panel: "new",
+      submit_label: "Create #{singular_name}", cancel_path: polymorphic_path(model_class) %>

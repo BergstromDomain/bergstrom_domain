@@ -1,0 +1,57 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title" data-testid="reference-data-name"><%= @record.to_toast_label %></h1>
+  </div>
+</div>
+
+<div class="page-content--half">
+  <%# Main div — description %>
+  <% if @record.description.present? %>
+    <div class="show-panel" data-testid="show-panel-main">
+      <div class="show-panel__section">
+        <h2 class="show-panel__heading">Description</h2>
+        <p data-testid="reference-data-description"><%= @record.description %></p>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Metadata div %>
+  <div class="show-panel" data-testid="show-panel-metadata">
+    <div class="show-meta-row">
+      <% details(@record).each do |label, value, testid| %>
+        <div class="show-meta-cell">
+          <h3 class="show-meta-cell__label"><%= label %></h3>
+          <p class="show-meta-cell__value" data-testid="detail-<%= testid %>"><%= value.presence || "—" %></p>
+        </div>
+      <% end %>
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label">Last Updated</h3>
+        <p class="show-meta-cell__value"><%= @record.updated_at.to_date.to_fs(:long) %></p>
+      </div>
+    </div>
+  </div>
+
+  <%# Actions div %>
+  <div class="show-panel show-panel--actions" data-testid="show-panel-actions">
+    <%= link_to polymorphic_path(model_class), class: "btn btn-secondary" do %>
+      <%= lucide_icon("arrow-left", size: 16) %> Back
+    <% end %>
+
+    <% if @policy.can_update? %>
+      <span class="btn-divider">|</span>
+      <%= link_to polymorphic_path(@record, action: :edit), class: "btn btn-secondary" do %>
+        <%= lucide_icon("pencil", size: 16) %> Edit <%= singular_name %>
+      <% end %>
+    <% end %>
+
+    <% if @policy.can_delete? %>
+      <span class="btn-divider">|</span>
+      <%= button_to polymorphic_path(@record),
+            method: :delete,
+            class: "btn btn-danger",
+            data: { turbo_confirm: "Delete #{@record.to_toast_label}? This cannot be undone." } do %>
+        <%= lucide_icon("trash-2", size: 16) %> Delete <%= singular_name %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

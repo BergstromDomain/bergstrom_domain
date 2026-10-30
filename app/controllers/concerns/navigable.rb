@@ -30,6 +30,7 @@ module Navigable
     return :blog_posts if controller == "pages" && action == "chronicle"
     return :recipes    if controller == "pages" && action == "cookbook"
     return :dossier    if controller == "pages" && action == "dossier"
+    return :dossier    if controller_path.start_with?("dossier/")
 
     case controller
     when "events", "event_types", "people", "pages", "social_media_platforms",

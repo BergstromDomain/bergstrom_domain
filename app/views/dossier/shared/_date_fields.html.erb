@@ -1,0 +1,30 @@
+<%#
+  Month + optional day for one edge of a Dossier::Dated record.
+  Locals: f, record, edge (:start / :end), label ("Start" / "End"); optional hint.
+%>
+<div class="show-panel__section">
+  <h2 class="show-panel__heading"><%= label %></h2>
+  <div class="form-row">
+    <div class="form-group">
+      <%= f.label :"#{edge}_month", "#{label} Month" %>
+      <%= f.month_field :"#{edge}_month",
+            class: "form-control #{'form-control--error' if record.errors[:"#{edge}_month"].any?}",
+            data: { testid: "#{edge}-month-field" } %>
+      <% if record.errors[:"#{edge}_month"].any? %>
+        <span class="field-error" data-testid="field-error"><%= record.errors[:"#{edge}_month"].first %></span>
+      <% end %>
+    </div>
+    <div class="form-group">
+      <%= f.label :"#{edge}_day", "#{label} Day" %>
+      <%= f.number_field :"#{edge}_day", in: 1..31, placeholder: "Optional",
+            class: "form-control #{'form-control--error' if record.errors[:"#{edge}_day"].any?}",
+            data: { testid: "#{edge}-day-field" } %>
+      <% if record.errors[:"#{edge}_day"].any? %>
+        <span class="field-error" data-testid="field-error"><%= record.errors[:"#{edge}_day"].first %></span>
+      <% end %>
+    </div>
+  </div>
+  <% if local_assigns[:hint] %>
+    <p class="form-hint"><%= hint %></p>
+  <% end %>
+</div>

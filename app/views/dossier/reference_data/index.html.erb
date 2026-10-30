@@ -1,0 +1,42 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title"><%= plural_name %></h1>
+  </div>
+  <% if subtitle %>
+    <p class="page-header__subtitle page-header__subtitle--centered"><%= subtitle %></p>
+  <% end %>
+</div>
+
+<% if @records.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="reference-data-table">
+      <colgroup>
+        <col style="width: 18rem;">
+        <col>
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @records.each do |record| %>
+          <tr data-testid="reference-data-row">
+            <td>
+              <%= link_to record.to_toast_label, polymorphic_path(record),
+                    class: "data-table__name-link", data: { testid: "reference-data-name" } %>
+            </td>
+            <td class="data-table__description" data-testid="reference-data-description">
+              <%= record.description %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No <%= plural_name.downcase %> have been added yet.</p>
+  </div>
+<% end %>

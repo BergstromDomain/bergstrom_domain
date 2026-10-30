@@ -514,8 +514,113 @@
         <%= lucide_icon("briefcase-business", size: 15) %>
         <span>Dossier</span>
       <% end %>
+
+      <% if current_user && Policy.new(current_user, :dossier).can_create? %>
+        <h3 class="left-nav-h3" data-testid="left-nav-my-career-h3">My Career</h3>
+        <%= link_to dossier_profile_path, class: "left-nav-link" do %>
+          <%= lucide_icon("id-card", size: 15) %>
+          <span>Profile</span>
+        <% end %>
+        <%= link_to dossier_engagements_path, class: "left-nav-link" do %>
+          <%= lucide_icon("gantt-chart", size: 15) %>
+          <span>Timeline</span>
+        <% end %>
+      <% end %>
+
+      <h3 class="left-nav-h3" data-testid="left-nav-reference-data-h3">Reference Data</h3>
+      <%= link_to dossier_organisations_path, class: "left-nav-link" do %>
+        <%= lucide_icon("building-2", size: 15) %>
+        <span>Organisations</span>
+      <% end %>
+      <%= link_to dossier_industries_path, class: "left-nav-link" do %>
+        <%= lucide_icon("factory", size: 15) %>
+        <span>Industries</span>
+      <% end %>
+      <%= link_to dossier_roles_path, class: "left-nav-link" do %>
+        <%= lucide_icon("user-cog", size: 15) %>
+        <span>Roles</span>
+      <% end %>
+      <%= link_to dossier_employment_types_path, class: "left-nav-link" do %>
+        <%= lucide_icon("file-signature", size: 15) %>
+        <span>Employment Types</span>
+      <% end %>
+      <%= link_to dossier_locations_path, class: "left-nav-link" do %>
+        <%= lucide_icon("map-pin", size: 15) %>
+        <span>Locations</span>
+      <% end %>
+      <%= link_to dossier_skills_path, class: "left-nav-link" do %>
+        <%= lucide_icon("wrench", size: 15) %>
+        <span>Skills</span>
+      <% end %>
+      <%= link_to dossier_skill_categories_path, class: "left-nav-link" do %>
+        <%= lucide_icon("folder-tree", size: 15) %>
+        <span>Skill Categories</span>
+      <% end %>
       </div>
     </div>
+
+    <% if can_see_left_nav_actions? %>
+      <% dossier_policy = Policy.new(current_user, :dossier) %>
+      <hr class="left-nav-divider">
+
+      <%# ── Actions (Content Creator and above) ────────────────────────────── %>
+      <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('actions') %>">
+        <h2 class="left-nav-h2" data-testid="left-nav-actions-h2">
+          <%= lucide_icon("cog", size: 14) %> Actions
+          <%= left_nav_section_toggle("actions", "left-nav-actions-h2") %>
+        </h2>
+
+        <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('actions') %>>
+        <% if dossier_policy.can_create? || current_user.can_administer? %>
+          <h3 class="left-nav-h3" data-testid="left-nav-new-h3">
+            New
+          </h3>
+        <% end %>
+
+        <% if dossier_policy.can_create? %>
+          <%= link_to new_dossier_engagement_path, class: "left-nav-link" do %>
+            <%= lucide_icon("briefcase-business", size: 15) %>
+            <span>Create An Engagement</span>
+          <% end %>
+          <%= link_to new_dossier_assignment_path, class: "left-nav-link" do %>
+            <%= lucide_icon("building", size: 15) %>
+            <span>Create An Assignment</span>
+          <% end %>
+          <%= link_to new_dossier_organisation_path, class: "left-nav-link" do %>
+            <%= lucide_icon("building-2", size: 15) %>
+            <span>Add An Organisation</span>
+          <% end %>
+          <%= link_to new_dossier_skill_path, class: "left-nav-link" do %>
+            <%= lucide_icon("wrench", size: 15) %>
+            <span>Add A Skill</span>
+          <% end %>
+        <% end %>
+
+        <% if current_user.can_administer? %>
+          <%= link_to new_dossier_industry_path, class: "left-nav-link" do %>
+            <%= lucide_icon("factory", size: 15) %>
+            <span>Add An Industry</span>
+          <% end %>
+          <%= link_to new_dossier_role_path, class: "left-nav-link" do %>
+            <%= lucide_icon("user-cog", size: 15) %>
+            <span>Add A Role</span>
+          <% end %>
+          <%= link_to new_dossier_employment_type_path, class: "left-nav-link" do %>
+            <%= lucide_icon("file-signature", size: 15) %>
+            <span>Add An Employment Type</span>
+          <% end %>
+          <%= link_to new_dossier_location_path, class: "left-nav-link" do %>
+            <%= lucide_icon("map-pin", size: 15) %>
+            <span>Add A Location</span>
+          <% end %>
+          <%= link_to new_dossier_skill_category_path, class: "left-nav-link" do %>
+            <%= lucide_icon("folder-tree", size: 15) %>
+            <span>Add A Skill Category</span>
+          <% end %>
+        <% end %>
+        </div>
+      </div>
+    <% end %>
 
     <hr class="left-nav-divider">
 

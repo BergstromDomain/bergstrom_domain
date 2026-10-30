@@ -33,6 +33,9 @@ event_types = {
 # ── Cookbook reference data ─────────────────────────────────────────────────
 load Rails.root.join("db/seeds/cookbook.rb")
 
+# ── Dossier reference data ──────────────────────────────────────────────────
+load Rails.root.join("db/seeds/dossier.rb")
+
 # ── Named test personas (spec/support/authentication_helpers.rb) ────────────
 # Pat Pending and Gary Guest aren't included here — Pat has no content to own,
 # and Gary Guest is unauthenticated (no account at all).

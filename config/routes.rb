@@ -82,6 +82,12 @@ Rails.application.routes.draw do
   get "chronicle",     to: "pages#chronicle",     as: :chronicle
   get "cookbook",      to: "pages#cookbook",      as: :cookbook
   get "dossier",       to: "pages#dossier",       as: :dossier
+  namespace :dossier do
+    resource :profile, only: %i[show edit update]
+    resources :engagements
+    resources :assignments, except: :index
+    resources :employment_types, :industries, :locations, :organisations, :roles, :skill_categories, :skills
+  end
 
   # Chronicle export — declared before resources :blog_posts so these literal
   # paths win over the :id wildcard on GET /blog-posts/:id

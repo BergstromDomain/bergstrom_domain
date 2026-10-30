@@ -3149,3 +3149,52 @@ textarea.form-control {
 .ingredient-tally__arrow {
   color: var(--color-text-secondary);
 }
+
+/* ============================================================
+   Dossier
+   ============================================================ */
+
+/* Month + optional day side by side (Dossier date fields) */
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.form-row > .form-group {
+  flex: 1 1 12rem;
+}
+
+.dossier-assignment-list {
+  list-style: none;
+  margin: var(--space-sm) 0 0;
+  padding: 0;
+}
+
+.dossier-assignment-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-md);
+  padding: var(--space-xs) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.dossier-assignment-row__dates {
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.dossier-assignment-row--bench,
+.dossier-timeline-gap {
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.dossier-timeline-gap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: 0 0 var(--space-md);
+  padding-left: var(--space-md);
+}
