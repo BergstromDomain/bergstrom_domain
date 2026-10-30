@@ -3,6 +3,7 @@ class Dossier::Skill < ApplicationRecord
   include Dossier::NamedReferenceData
 
   belongs_to :skill_category
+  has_many :assignment_skills, dependent: :restrict_with_error
 
   before_validation :tidy_aliases
 

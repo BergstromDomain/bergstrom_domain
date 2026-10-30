@@ -57,7 +57,7 @@ class Dossier::Engagement < ApplicationRecord
     return unless permanent?
 
     assignments.create!(client: employer, start_on: start_on, start_precision: start_precision,
-                        end_on: end_on, end_precision: end_precision)
+                        end_on: end_on, end_precision: end_precision, **Dossier::TechStack::ALL_NA)
   end
 
   def sync_permanent_assignment

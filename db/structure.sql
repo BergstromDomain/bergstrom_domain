@@ -410,6 +410,40 @@ ALTER SEQUENCE public.cuisines_id_seq OWNED BY public.cuisines.id;
 
 
 --
+-- Name: dossier_assignment_skills; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_assignment_skills (
+    id bigint NOT NULL,
+    assignment_id bigint NOT NULL,
+    skill_id bigint NOT NULL,
+    stack_slot character varying,
+    "primary" boolean DEFAULT false NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_assignment_skills_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_assignment_skills_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_assignment_skills_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_assignment_skills_id_seq OWNED BY public.dossier_assignment_skills.id;
+
+
+--
 -- Name: dossier_assignments; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -429,7 +463,13 @@ CREATE TABLE public.dossier_assignments (
     classification character varying DEFAULT 'restricted'::character varying NOT NULL,
     "position" integer,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    system_under_test text NOT NULL,
+    operating_systems_na boolean DEFAULT false NOT NULL,
+    methodologies_na boolean DEFAULT false NOT NULL,
+    test_tools_na boolean DEFAULT false NOT NULL,
+    other_tools_na boolean DEFAULT false NOT NULL,
+    protocols_na boolean DEFAULT false NOT NULL
 );
 
 
@@ -1632,6 +1672,13 @@ ALTER TABLE ONLY public.cuisines ALTER COLUMN id SET DEFAULT nextval('public.cui
 
 
 --
+-- Name: dossier_assignment_skills id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_assignment_skills ALTER COLUMN id SET DEFAULT nextval('public.dossier_assignment_skills_id_seq'::regclass);
+
+
+--
 -- Name: dossier_assignments id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1949,6 +1996,14 @@ ALTER TABLE ONLY public.contacts
 
 ALTER TABLE ONLY public.cuisines
     ADD CONSTRAINT cuisines_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_assignment_skills dossier_assignment_skills_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_assignment_skills
+    ADD CONSTRAINT dossier_assignment_skills_pkey PRIMARY KEY (id);
 
 
 --
@@ -2360,6 +2415,27 @@ CREATE UNIQUE INDEX index_cuisines_on_name ON public.cuisines USING btree (name)
 --
 
 CREATE UNIQUE INDEX index_cuisines_on_slug ON public.cuisines USING btree (slug);
+
+
+--
+-- Name: index_dossier_assignment_skills_on_assignment_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_assignment_skills_on_assignment_id ON public.dossier_assignment_skills USING btree (assignment_id);
+
+
+--
+-- Name: index_dossier_assignment_skills_on_skill_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_assignment_skills_on_skill_id ON public.dossier_assignment_skills USING btree (skill_id);
+
+
+--
+-- Name: index_dossier_assignment_skills_uniqueness; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_assignment_skills_uniqueness ON public.dossier_assignment_skills USING btree (assignment_id, skill_id, stack_slot);
 
 
 --
@@ -3079,6 +3155,14 @@ ALTER TABLE ONLY public.dossier_assignments
 
 
 --
+-- Name: dossier_assignment_skills fk_rails_6eda3c125f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_assignment_skills
+    ADD CONSTRAINT fk_rails_6eda3c125f FOREIGN KEY (skill_id) REFERENCES public.dossier_skills(id);
+
+
+--
 -- Name: blog_post_authors fk_rails_70d1b5e3c1; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3311,6 +3395,14 @@ ALTER TABLE ONLY public.recipe_cuisines
 
 
 --
+-- Name: dossier_assignment_skills fk_rails_e6bc83a201; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_assignment_skills
+    ADD CONSTRAINT fk_rails_e6bc83a201 FOREIGN KEY (assignment_id) REFERENCES public.dossier_assignments(id);
+
+
+--
 -- Name: dossier_profiles fk_rails_e7c9b3aaae; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3341,6 +3433,7 @@ ALTER TABLE ONLY public.dossier_profiles
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261030062938'),
 ('20261030062152'),
 ('20261030061503'),
 ('20261030060542'),

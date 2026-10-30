@@ -67,5 +67,11 @@ FactoryBot.define do
     start_precision { "month" }
     end_on          { engagement.end_on }
     end_precision   { "month" }
+    system_under_test   { "N/A" }
+    operating_systems_na { true }
+    methodologies_na     { true }
+    test_tools_na        { true }
+    other_tools_na       { true }
+    protocols_na         { true }
   end
 end

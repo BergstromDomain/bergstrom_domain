@@ -6,6 +6,7 @@
 class Dossier::Assignment < ApplicationRecord
   include Classifiable
   include Dossier::Dated
+  include Dossier::TechStack
 
   belongs_to :engagement
   belongs_to :client,   class_name: "Dossier::Organisation"
