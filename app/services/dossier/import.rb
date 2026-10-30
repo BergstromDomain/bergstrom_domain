@@ -1,7 +1,7 @@
 # app/services/dossier/import.rb
 
 # Imports a Bridge CV master list (master_cv.yaml) into the user's Dossier:
-# Organisations, Skills, Profile, then Engagements › Assignments with their
+# Profile, Organisations, Skills, then Engagements › Assignments with their
 # Tech Stack. Fields that aren't CV data (vendors, notes, src, linkedin…) are
 # never read. A record that already exists is skipped, never updated, so a
 # re-import keeps edits made in the app.
@@ -60,9 +60,9 @@ class Dossier::Import
   end
 
   def import_all(data)
+    import_profile(data["profile"]) if data["profile"]
     Array(data["organisations"]).each { |row| import_organisation(row) }
     import_skills(data["skills"] || {})
-    import_profile(data["profile"]) if data["profile"]
     Array(data["engagements"]).each { |row| import_engagement(row) }
   end
 

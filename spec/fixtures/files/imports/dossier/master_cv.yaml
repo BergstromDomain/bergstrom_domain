@@ -1,0 +1,35 @@
+# A made-up Bridge CV master list in the same shape as the real (git-ignored) one.
+profile:
+  name: Alex Example
+  headline: Test Manager
+  location: Brisbane, Australia
+  terse_summary:
+    text: Test manager who tests things.
+
+organisations:
+  - { name: Acme Consulting, kind: employer }
+  - { name: Department of Examples, abbreviation: DOE, kind: client }
+
+skills:
+  Test Automation (O): [Robot Framework]
+
+engagements:
+  - employer: Acme Consulting
+    employment_type: Consultant
+    position: Test Consultant
+    start: 2019-01
+    end: current
+    assignments:
+      - client: Department of Examples
+        role: Test Lead
+        start: 2019-03
+        end: current
+        tech_stack:
+          operating_systems: Windows 11
+          methodology: Hybrid
+          system_under_test: Licensing system
+          test_tools: [Robot Framework]
+          other_tools: N/A
+          protocols: N/A
+        terse:
+          summary: Led testing of the licensing system.

@@ -618,6 +618,17 @@
             <span>Add A Skill Category</span>
           <% end %>
         <% end %>
+
+        <% if dossier_policy.can_create? %>
+          <%# ── Import & Export (Import only until the Block 7 export) ────── %>
+          <h3 class="left-nav-h3" data-testid="left-nav-import-export-h3">
+            Import &amp; Export
+          </h3>
+          <%= link_to new_dossier_import_path, class: "left-nav-link" do %>
+            <%= lucide_icon("upload", size: 15) %>
+            <span>Import Master CV</span>
+          <% end %>
+        <% end %>
         </div>
       </div>
     <% end %>
