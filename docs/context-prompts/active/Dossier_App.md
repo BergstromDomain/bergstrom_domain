@@ -83,6 +83,36 @@ Answers below are folded into the sections that follow; this is the summary.
   * Reference-data descriptions are optional (the seed CSVs have none).
   * Reference-data list and show pages are public, like Cookbook's.
 
+# DECISIONS FROM BLOCK 2 GATE (2026-10-30)
+* **Scope:** Block 2 imports what exists after Block 1 — Profile, Organisations, Skills,
+  Engagements, Assignments with their Tech Stack. Blocks 3 (Achievements) and 5 (Credentials) each
+  extend the importer for their own data.
+* **How:** a Dossier Import page — upload `master_cv.yaml`, dry-run preview, confirm. The file is
+  read in memory and never stored.
+* **Text:** Assignment summary = the `terse.summary`; verbatim originals stay in the YAML.
+* **Re-import:** a matched record is skipped and listed as "already exists" — a re-import never
+  overwrites edits made in the app. Matching: Organisation/Skill by name (Skill also by alias),
+  Engagement by employer + start date, Assignment by Engagement + client + start date + Role (one
+  client can have two Assignments starting the same month), Profile = one per user.
+* **Ignored:** everything that isn't CV data (`vendors`, `notes_user_*`, `unconfirmed`, `src`,
+  `linkedin*`, `conflicts`, `gaps`, `linkedin_alignment`, `bridge_cv`, …). Gaps come from the Timeline.
+* **Private:** imported records are `restricted` (as Occasions' import does).
+* **LinkedIn CSVs:** dropped — already merged into the master list.
+* **Steps:** 2a Import service · 2b Preview/confirm page · 2c real import into dev, browser-checked.
+* Made during 2a (flagged, not asked):
+  * All-or-nothing: the preview is the real import run inside a rolled-back transaction, so the
+    preview and the import can never disagree; any error blocks the whole import.
+  * Reference data stays Admin-only: the importer creates missing Organisations and Skills for
+    anyone, but Employment Types, Roles, Industries, Locations and Skill Categories only for an
+    Admin. For anyone else an unknown Employment Type is an error; an unknown Role, Industry or
+    Location is left empty, and an unknown Skill Category puts its Skills in "Uncategorised" —
+    each with a warning.
+  * Source tags on Skill and Skill Category names (`Provar (D)`, `Operating Systems (O)`) are
+    stripped; a Skill listed under two categories keeps the first.
+  * Profile: `terse_summary` → summary; the first `summaries` entry per voice → the first- and
+    third-person versions. Citizenship and security clearance have no fields yet.
+  * A permanent Engagement's auto-created Assignment takes the first listed Assignment's details.
+
 # APP DESCRIPTION
 
 Dossier is the **single source of truth** for a professional history. Nothing is ever deleted to
