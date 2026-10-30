@@ -19,6 +19,10 @@ RSpec.describe "Dossier Assignments", type: :feature do
     select "Test Lead", from: "Role"
     fill_in "Start Month", with: start_month
     fill_in "End Month", with: end_month
+    fill_in "System Under Test", with: "Ticketing platform"
+    %w[operating-systems methodologies test-tools other-tools protocols].each do |list|
+      find("[data-testid='#{list}-na-field']").check
+    end
   end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
@@ -52,10 +56,38 @@ RSpec.describe "Dossier Assignments", type: :feature do
       expect(page).to have_current_path(dossier_engagement_path(engagement))
       expect(page).to have_css("[data-testid='flash-success']", text: "Test Lead at Northwind Transport Authority has been successfully deleted")
     end
+
+    it "Saves the Tech Stack and shows it, with N/A for empty lists" do
+      create(:dossier_skill_category, name: "Uncategorised")
+      sign_in_as(charlie)
+      visit new_dossier_assignment_path(engagement_id: engagement.id)
+      fill_assignment
+      find("[data-testid='test-tools-na-field']").uncheck
+      fill_in "Test Tools", with: "Jira, Robot Framework"
+      click_button "Create Assignment"
+
+      within("[data-testid='tech-stack']") do
+        expect(page).to have_selector("[data-testid='tech-stack-system-under-test']", text: "Ticketing platform")
+        expect(page).to have_link("Jira")
+        expect(page).to have_link("Robot Framework")
+        expect(page).to have_selector("[data-testid='tech-stack-protocols']", text: "N/A")
+      end
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
+    it "Shows an error for a Tech Stack list that is neither filled nor N/A" do
+      sign_in_as(charlie)
+      visit new_dossier_assignment_path(engagement_id: engagement.id)
+      fill_assignment
+      find("[data-testid='protocols-na-field']").uncheck
+      click_button "Create Assignment"
+
+      expect(page).to have_content("Protocols needs at least one item, or tick N/A")
+      expect(Dossier::Assignment.count).to eq(0)
+    end
+
     it "Shows an error for dates outside the Engagement" do
       sign_in_as(charlie)
       visit new_dossier_assignment_path(engagement_id: engagement.id)

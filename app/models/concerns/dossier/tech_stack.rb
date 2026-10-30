@@ -18,6 +18,14 @@ module Dossier
       protocol:         :protocols
     }.freeze
 
+    LABELS = {
+      operating_systems: "Operating Systems",
+      methodologies:     "Methodology",
+      test_tools:        "Test Tools",
+      other_tools:       "Other Tools",
+      protocols:         "Protocols"
+    }.freeze
+
     ALL_NA = SLOTS.values.to_h { |plural| [ :"#{plural}_na", true ] }.merge(system_under_test: "N/A").freeze
 
     UNCATEGORISED = "Uncategorised"
@@ -32,6 +40,14 @@ module Dossier
       validate  :tech_stack_lists_are_complete
 
       before_validation :apply_tech_stack_text
+    end
+
+    class_methods do
+      # "Test Tools needs at least one item…", not "Test tools text needs…"
+      def human_attribute_name(attribute, options = {})
+        plural = attribute.to_s.delete_suffix("_text").to_sym
+        attribute.to_s.end_with?("_text") && LABELS.key?(plural) ? LABELS.fetch(plural) : super
+      end
     end
 
     SLOTS.each do |slot, plural|

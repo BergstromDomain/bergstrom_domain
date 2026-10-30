@@ -45,6 +45,36 @@
           hint: "Optional, terse form." %>
   </div>
 
+  <%# Tech Stack div — every list filled or N/A %>
+  <div class="show-panel" data-testid="<%= panel %>-panel-tech-stack">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Tech Stack</h2>
+      <p class="form-hint">
+        Every list needs at least one item, or N/A. Separate items with commas; new names become
+        Skills in the Uncategorised Skill Category.
+      </p>
+    </div>
+    <%= render "dossier/shared/field", f: f, record: assignment, attribute: :system_under_test, label: "System Under Test",
+          hint: "What was tested, e.g. Salesforce CRM replacing the legacy system. N/A if unknown." %>
+    <% Dossier::TechStack::LABELS.each do |plural, label| %>
+      <% errors = assignment.errors[:"#{plural}_text"] %>
+      <div class="show-panel__section">
+        <div class="form-group">
+          <%= f.label :"#{plural}_text", label, class: "show-panel__heading" %>
+          <%= f.text_field :"#{plural}_text",
+                class: "form-control #{'form-control--error' if errors.any?}",
+                data: { testid: "#{plural.to_s.dasherize}-field" } %>
+          <label class="form-check">
+            <%= f.check_box :"#{plural}_na", data: { testid: "#{plural.to_s.dasherize}-na-field" } %> N/A
+          </label>
+          <% if errors.any? %>
+            <span class="field-error" data-testid="field-error"><%= errors.first %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
   <%# Actions div %>
   <div class="show-panel show-panel--actions" data-testid="<%= panel %>-panel-actions">
     <%= link_to cancel_path, class: "btn btn-secondary" do %>
