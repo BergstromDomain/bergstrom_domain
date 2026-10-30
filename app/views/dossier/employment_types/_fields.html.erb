@@ -1,0 +1,4 @@
+<%= render "dossier/reference_data/field", f: f, record: record, attribute: :name, label: "Name" %>
+<%= render "dossier/reference_data/field", f: f, record: record, attribute: :permanent, label: "Permanent",
+      field: f.check_box(:permanent, data: { testid: "permanent-field" }),
+      hint: "Tick for permanent employment: its Engagement then gets one Assignment, with the employer as client." %>

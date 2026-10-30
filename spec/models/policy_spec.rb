@@ -292,6 +292,22 @@ RSpec.describe Policy do
         expect(Policy.new(owner, :dossier).can_create?).to be false
       end
 
+      it "Applies a Dossier override to every Dossier model" do
+        create(:app_permission, user: owner, app_name: "dossier", can_create: false)
+
+        [ build(:dossier_organisation), build(:dossier_skill), build(:dossier_industry) ].each do |resource|
+          expect(Policy.new(owner, resource).can_create?).to be(false), "expected #{resource.class} to use the dossier override"
+        end
+      end
+
+      it "Lets only admins update or delete Dossier reference data" do
+        organisation = create(:dossier_organisation)
+        expect(Policy.new(owner, organisation).can_update?).to be false
+        expect(Policy.new(owner, organisation).can_delete?).to be false
+        expect(Policy.new(admin, organisation).can_update?).to be true
+        expect(Policy.new(admin, organisation).can_delete?).to be true
+      end
+
       it "Never applies another app's override to Dossier" do
         create(:app_permission, user: owner, app_name: "recipes", can_create: false)
         expect(Policy.new(owner, :dossier).can_create?).to be true

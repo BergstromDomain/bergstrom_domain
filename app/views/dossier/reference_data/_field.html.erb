@@ -1,0 +1,28 @@
+<%#
+  One labelled form field with its inline error.
+  Locals: f, record, attribute, label; optional text_area (Boolean), hint,
+  error_attribute (where the errors live, if not on attribute), and
+  field (a block-free String of pre-rendered input HTML, for selects/checkboxes).
+%>
+<% error_attribute = local_assigns[:error_attribute] || attribute %>
+<% errors = record.errors[error_attribute] %>
+<div class="show-panel__section">
+  <h2 class="show-panel__heading"><%= label %></h2>
+  <div class="form-group">
+    <%= f.label attribute, label, class: "sr-only" %>
+    <% css = "form-control #{'form-control--error' if errors.any?}" %>
+    <% if local_assigns[:field] %>
+      <%= field %>
+    <% elsif local_assigns[:text_area] %>
+      <%= f.text_area attribute, class: css, rows: 4, data: { testid: "#{attribute.to_s.dasherize}-field" } %>
+    <% else %>
+      <%= f.text_field attribute, class: css, data: { testid: "#{attribute.to_s.dasherize}-field" } %>
+    <% end %>
+    <% if errors.any? %>
+      <span class="field-error" data-testid="field-error"><%= errors.first %></span>
+    <% end %>
+    <% if local_assigns[:hint] %>
+      <p class="form-hint"><%= hint %></p>
+    <% end %>
+  </div>
+</div>

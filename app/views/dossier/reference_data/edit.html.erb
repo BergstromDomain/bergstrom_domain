@@ -1,0 +1,8 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title"><%= @record.class.find(@record.id).to_toast_label %></h1>
+  </div>
+</div>
+
+<%= render "dossier/reference_data/form", record: @record, panel: "edit",
+      submit_label: "Update #{singular_name}", cancel_path: polymorphic_path(@record) %>
