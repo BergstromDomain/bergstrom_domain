@@ -410,6 +410,244 @@ ALTER SEQUENCE public.cuisines_id_seq OWNED BY public.cuisines.id;
 
 
 --
+-- Name: dossier_employment_types; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_employment_types (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    description text,
+    permanent boolean DEFAULT false NOT NULL,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_employment_types_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_employment_types_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_employment_types_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_employment_types_id_seq OWNED BY public.dossier_employment_types.id;
+
+
+--
+-- Name: dossier_industries; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_industries (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    description text,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_industries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_industries_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_industries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_industries_id_seq OWNED BY public.dossier_industries.id;
+
+
+--
+-- Name: dossier_locations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_locations (
+    id bigint NOT NULL,
+    city character varying NOT NULL,
+    country character varying NOT NULL,
+    description text,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_locations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_locations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_locations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_locations_id_seq OWNED BY public.dossier_locations.id;
+
+
+--
+-- Name: dossier_organisations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_organisations (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    abbreviation character varying,
+    industry_id bigint,
+    website_url character varying,
+    description text,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_organisations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_organisations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_organisations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_organisations_id_seq OWNED BY public.dossier_organisations.id;
+
+
+--
+-- Name: dossier_roles; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_roles (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    description text,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_roles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_roles_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_roles_id_seq OWNED BY public.dossier_roles.id;
+
+
+--
+-- Name: dossier_skill_categories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_skill_categories (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    description text,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_skill_categories_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_skill_categories_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_skill_categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_skill_categories_id_seq OWNED BY public.dossier_skill_categories.id;
+
+
+--
+-- Name: dossier_skills; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_skills (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    skill_category_id bigint NOT NULL,
+    aliases character varying[] DEFAULT '{}'::character varying[] NOT NULL,
+    description text,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_skills_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_skills_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_skills_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_skills_id_seq OWNED BY public.dossier_skills.id;
+
+
+--
 -- Name: event_mutes; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1265,6 +1503,55 @@ ALTER TABLE ONLY public.cuisines ALTER COLUMN id SET DEFAULT nextval('public.cui
 
 
 --
+-- Name: dossier_employment_types id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_employment_types ALTER COLUMN id SET DEFAULT nextval('public.dossier_employment_types_id_seq'::regclass);
+
+
+--
+-- Name: dossier_industries id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_industries ALTER COLUMN id SET DEFAULT nextval('public.dossier_industries_id_seq'::regclass);
+
+
+--
+-- Name: dossier_locations id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_locations ALTER COLUMN id SET DEFAULT nextval('public.dossier_locations_id_seq'::regclass);
+
+
+--
+-- Name: dossier_organisations id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_organisations ALTER COLUMN id SET DEFAULT nextval('public.dossier_organisations_id_seq'::regclass);
+
+
+--
+-- Name: dossier_roles id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_roles ALTER COLUMN id SET DEFAULT nextval('public.dossier_roles_id_seq'::regclass);
+
+
+--
+-- Name: dossier_skill_categories id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_skill_categories ALTER COLUMN id SET DEFAULT nextval('public.dossier_skill_categories_id_seq'::regclass);
+
+
+--
+-- Name: dossier_skills id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_skills ALTER COLUMN id SET DEFAULT nextval('public.dossier_skills_id_seq'::regclass);
+
+
+--
 -- Name: event_mutes id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1512,6 +1799,62 @@ ALTER TABLE ONLY public.contacts
 
 ALTER TABLE ONLY public.cuisines
     ADD CONSTRAINT cuisines_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_employment_types dossier_employment_types_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_employment_types
+    ADD CONSTRAINT dossier_employment_types_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_industries dossier_industries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_industries
+    ADD CONSTRAINT dossier_industries_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_locations dossier_locations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_locations
+    ADD CONSTRAINT dossier_locations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_organisations dossier_organisations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_organisations
+    ADD CONSTRAINT dossier_organisations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_roles dossier_roles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_roles
+    ADD CONSTRAINT dossier_roles_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_skill_categories dossier_skill_categories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_skill_categories
+    ADD CONSTRAINT dossier_skill_categories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_skills dossier_skills_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_skills
+    ADD CONSTRAINT dossier_skills_pkey PRIMARY KEY (id);
 
 
 --
@@ -1843,6 +2186,118 @@ CREATE UNIQUE INDEX index_cuisines_on_name ON public.cuisines USING btree (name)
 --
 
 CREATE UNIQUE INDEX index_cuisines_on_slug ON public.cuisines USING btree (slug);
+
+
+--
+-- Name: index_dossier_employment_types_on_lower_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_employment_types_on_lower_name ON public.dossier_employment_types USING btree (lower((name)::text));
+
+
+--
+-- Name: index_dossier_employment_types_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_employment_types_on_slug ON public.dossier_employment_types USING btree (slug);
+
+
+--
+-- Name: index_dossier_industries_on_lower_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_industries_on_lower_name ON public.dossier_industries USING btree (lower((name)::text));
+
+
+--
+-- Name: index_dossier_industries_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_industries_on_slug ON public.dossier_industries USING btree (slug);
+
+
+--
+-- Name: index_dossier_locations_on_lower_country_and_city; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_locations_on_lower_country_and_city ON public.dossier_locations USING btree (lower((country)::text), lower((city)::text));
+
+
+--
+-- Name: index_dossier_locations_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_locations_on_slug ON public.dossier_locations USING btree (slug);
+
+
+--
+-- Name: index_dossier_organisations_on_industry_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_organisations_on_industry_id ON public.dossier_organisations USING btree (industry_id);
+
+
+--
+-- Name: index_dossier_organisations_on_lower_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_organisations_on_lower_name ON public.dossier_organisations USING btree (lower((name)::text));
+
+
+--
+-- Name: index_dossier_organisations_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_organisations_on_slug ON public.dossier_organisations USING btree (slug);
+
+
+--
+-- Name: index_dossier_roles_on_lower_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_roles_on_lower_name ON public.dossier_roles USING btree (lower((name)::text));
+
+
+--
+-- Name: index_dossier_roles_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_roles_on_slug ON public.dossier_roles USING btree (slug);
+
+
+--
+-- Name: index_dossier_skill_categories_on_lower_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_skill_categories_on_lower_name ON public.dossier_skill_categories USING btree (lower((name)::text));
+
+
+--
+-- Name: index_dossier_skill_categories_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_skill_categories_on_slug ON public.dossier_skill_categories USING btree (slug);
+
+
+--
+-- Name: index_dossier_skills_on_lower_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_skills_on_lower_name ON public.dossier_skills USING btree (lower((name)::text));
+
+
+--
+-- Name: index_dossier_skills_on_skill_category_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_skills_on_skill_category_id ON public.dossier_skills USING btree (skill_category_id);
+
+
+--
+-- Name: index_dossier_skills_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_skills_on_slug ON public.dossier_skills USING btree (slug);
 
 
 --
@@ -2261,6 +2716,14 @@ ALTER TABLE ONLY public.comments
 
 
 --
+-- Name: dossier_skills fk_rails_073043f878; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_skills
+    ADD CONSTRAINT fk_rails_073043f878 FOREIGN KEY (skill_category_id) REFERENCES public.dossier_skill_categories(id);
+
+
+--
 -- Name: events fk_rails_0cb5590091; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2314,6 +2777,14 @@ ALTER TABLE ONLY public.recipe_food_types
 
 ALTER TABLE ONLY public.comments
     ADD CONSTRAINT fk_rails_31554e7034 FOREIGN KEY (parent_id) REFERENCES public.comments(id);
+
+
+--
+-- Name: dossier_organisations fk_rails_3df8f0251e; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_organisations
+    ADD CONSTRAINT fk_rails_3df8f0251e FOREIGN KEY (industry_id) REFERENCES public.dossier_industries(id);
 
 
 --
@@ -2539,6 +3010,7 @@ ALTER TABLE ONLY public.recipe_cuisines
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261030060542'),
 ('20261012080528'),
 ('20261011114916'),
 ('20261011114915'),

@@ -61,6 +61,28 @@ Answers below are folded into the sections that follow; this is the summary.
   CVs show it only when a variant switches it on. Items are Skills, so years per tool, OS,
   methodology or protocol come from the same calculation as other skills.
 
+# DECISIONS FROM BLOCK 1 GATE (2026-10-30)
+* **Namespace:** every Dossier model lives under `Dossier::` (tables `dossier_*`, URLs `/dossier/...`)
+  so generic names (Role, Location, Skill…) never collide with core or future apps. A model can
+  be promoted to the shared core later if another app needs it.
+* **Who creates reference data:** Content Creators can *create* Organisations and Skills (needed
+  for new employers/clients and Tech Stack tools on the fly); editing and deleting them, and all
+  other reference data, is Admin only.
+* **Permanent jobs:** Employment Type has a `permanent` checkbox; a permanent Engagement
+  auto-creates its Assignment. Never inferred from the type's name.
+* **Date precision:** every start/end date stores a date plus a `day`/`month` precision flag;
+  pages show "15 Mar 2019" or "Mar 2019" accordingly, CVs always month.
+* **Location:** separate `city` and `country`.
+* **No icons** on Dossier reference data (the CSVs' Icon column is dropped).
+* **One PR per block**, Block 1 built in steps 1a Reference data · 1b Profile · 1c Engagement +
+  Assignment · 1d Tech Stack · 1e Timeline.
+* Made during 1a (flagged, not asked):
+  * Organisation has no stored `kind`: whether it is an employer, client or issuer follows from
+    where it is used (one organisation can be all three). Organisation gains `abbreviation`
+    (full name with abbreviation in headings, abbreviation in running text — as on the Bridge CV).
+  * Reference-data descriptions are optional (the seed CSVs have none).
+  * Reference-data list and show pages are public, like Cookbook's.
+
 # APP DESCRIPTION
 
 Dossier is the **single source of truth** for a professional history. Nothing is ever deleted to
