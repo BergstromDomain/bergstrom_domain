@@ -499,6 +499,45 @@
       </div>
     </div>
 
+  <% elsif @left_nav_section == :dossier %>
+
+    <%# ── Views (later blocks add My Career, My CVs and Reference Data) ───── %>
+    <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('views') %>">
+      <h2 class="left-nav-h2" data-testid="left-nav-views-h2">
+        <%= lucide_icon("eye", size: 14) %> Views
+        <%= left_nav_section_toggle("views", "left-nav-views-h2") %>
+      </h2>
+
+      <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('views') %>>
+      <h3 class="left-nav-h3" data-testid="left-nav-dossier-h3">Dossier</h3>
+      <%= link_to dossier_path, class: "left-nav-link" do %>
+        <%= lucide_icon("briefcase-business", size: 15) %>
+        <span>Dossier</span>
+      <% end %>
+      </div>
+    </div>
+
+    <hr class="left-nav-divider">
+
+    <%# ── Documentation ──────────────────────────────────────────────────── %>
+    <div class="left-nav-section<%= ' left-nav-section--collapsed' if left_nav_section_collapsed?('documentation') %>">
+      <h2 class="left-nav-h2" data-testid="left-nav-documentation-h2">
+        <%= lucide_icon("book-open", size: 14) %> Documentation
+        <%= left_nav_section_toggle("documentation", "left-nav-documentation-h2") %>
+      </h2>
+
+      <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('documentation') %>>
+      <h3 class="left-nav-h3" data-testid="left-nav-how-to-h3">
+        How To
+      </h3>
+
+      <%= link_to user_guide_path, class: "left-nav-link" do %>
+        <%= lucide_icon("book-open-check", size: 15) %>
+        <span>User Guide</span>
+      <% end %>
+      </div>
+    </div>
+
   <% elsif @left_nav_section == :guide_pages %>
 
     <%# ── Views ─────────────────────────────────────────────────────────── %>

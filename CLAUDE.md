@@ -11,6 +11,9 @@ under one auth/permission system. Each app has a technical name (the `app_name` 
 - **Blog_Posts** → "Chronicle" (blog posts, categories, comments, reactions): implemented.
 - **Recipes** → "Cookbook" (recipes, cuisines, food types, languages): implemented, per
   `docs/context-prompts/archive/Cookbook_App.md`. Import Recipes is still pending.
+- **Dossier** → "Dossier" (CV master data: profile, engagements, assignments, achievements,
+  skills, credentials, CV variants): in progress, per `docs/context-prompts/active/Dossier_App.md`.
+  Block 0 (scaffold: landing page, Apps menu, `dossier` app name) is done.
 - **Photo_Album**: reserved enum value only.
 
 Development is documented as a blog series (`docs/blog/`) written in strict Red → Green →
@@ -63,7 +66,7 @@ PR — see Commit conventions below.
   restricted is owner/admin only.
 - `Policy` (`app/models/policy.rb`) is the single authorization gate — `can_read?/create?/update?/delete?`.
   It layers in `AppPermission`, a per-user-per-app override (`app_name` enum:
-  `event_tracker`/`blog_posts`/`recipes`/`photo_albums`) that lets an individual user's
+  `event_tracker`/`blog_posts`/`recipes`/`dossier`/`photo_albums`) that lets an individual user's
   create/update/delete rights be granted or revoked independently of their global role —
   this is how a `content_creator` could be restricted to one sub-app. Controllers instantiate
   `Policy.new(current_user, resource_or_app_symbol)` (a bare app symbol like `:event_tracker`
@@ -222,7 +225,7 @@ format:
 <App>:\t<type>:\t<description (min 10 chars)>
 ```
 
-Apps: `Main`, `Event_Tracker`, `Blog_Posts`, `Recipes`, `Photo_Album` (use the app the change
+Apps: `Main`, `Event_Tracker`, `Blog_Posts`, `Recipes`, `Dossier`, `Photo_Album` (use the app the change
 belongs to; `Main` for cross-cutting/infra work). Types: `feat`, `fix`, `refactor`, `test`,
 `chore`, `docs`, `style`, `perf`, `build`, `revert`. The hook regex (`[[:space:]]+`) between
 sections accepts a tab or one-or-more plain spaces; `.gitmessage` and the hook's help text

@@ -102,6 +102,7 @@ class Policy
     when Event, EventType, Person, SocialMediaPlatform, :event_tracker then "event_tracker"
     when BlogPost, BlogCategory, :blog_posts      then "blog_posts"
     when Recipe, Cuisine, FoodType, Language, :recipes then "recipes"
+    when :dossier                                 then "dossier"
     when :photo_albums                            then "photo_albums"
     end
   end

@@ -43,10 +43,15 @@ RSpec.describe "Top Nav", type: :feature do
         expect(page).to have_link("Cookbook", href: cookbook_path)
       end
 
-      it "Lists the apps alphabetically: 'Chronicle', 'Cookbook', 'Occasions'" do
+      it "Shows 'Dossier' link in the 'Apps' dropdown menu" do
+        click_button "Apps"
+        expect(page).to have_link("Dossier", href: dossier_path)
+      end
+
+      it "Lists the apps alphabetically: 'Chronicle', 'Cookbook', 'Dossier', 'Occasions'" do
         click_button "Apps"
         labels = all(".dropdown__item").map(&:text)
-        expect(labels & %w[Chronicle Cookbook Occasions]).to eq(%w[Chronicle Cookbook Occasions])
+        expect(labels & %w[Chronicle Cookbook Dossier Occasions]).to eq(%w[Chronicle Cookbook Dossier Occasions])
       end
 
       it "Lists 'Chronicle' before 'Occasions' in the 'Apps' dropdown menu (alphabetical order)" do

@@ -6,6 +6,7 @@ class AppPermission < ApplicationRecord
     event_tracker: "event_tracker",
     blog_posts:    "blog_posts",
     recipes:       "recipes",
+    dossier:       "dossier",
     photo_albums:  "photo_albums"
   }, validate: true
 

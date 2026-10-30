@@ -60,6 +60,13 @@ RSpec.describe "Left Nav session state", type: :request do
       expect(current_session.reload.left_nav_section).to eq("recipes")
     end
 
+    it "treats the Dossier landing page as its own section" do
+      sign_in_as(user)
+      get dossier_path
+
+      expect(current_session.reload.left_nav_section).to eq("dossier")
+    end
+
     it "keeps Cookbook's reference-data pages in the Cookbook section" do
       sign_in_as(user)
 
