@@ -1,0 +1,25 @@
+<div class="page-header page-header--centered">
+  <div class="page-header__top">
+    <h1 class="page-title">Dossier</h1>
+  </div>
+  <p class="page-header__subtitle">
+    Your whole career in one place, ready for any CV.
+  </p>
+</div>
+
+<%= render "shared/app_landing",
+      app_name: "Dossier",
+      hero_image: "dossier-hero.png",
+      about: [
+        { title: "Record It Once",
+          body: "Keep your whole professional history in one place: employers and " \
+                "clients, roles and dates, achievements, skills and the tools you " \
+                "used, and every degree, certificate and course." },
+        { title: "Tailor Without Losing Anything",
+          body: "Build a CV for each opportunity by choosing what to include, not by " \
+                "deleting text. Your master data stays complete, and years of " \
+                "experience are calculated from your dates." },
+        { title: "Private By Default",
+          body: "Everything you add is visible only to you. Phone, email and address " \
+                "never appear on your public portfolio page." }
+      ] %>

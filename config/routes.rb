@@ -81,6 +81,7 @@ Rails.application.routes.draw do
   get "event_tracker", to: "pages#event_tracker", as: :event_tracker
   get "chronicle",     to: "pages#chronicle",     as: :chronicle
   get "cookbook",      to: "pages#cookbook",      as: :cookbook
+  get "dossier",       to: "pages#dossier",       as: :dossier
 
   # Chronicle export — declared before resources :blog_posts so these literal
   # paths win over the :id wildcard on GET /blog-posts/:id

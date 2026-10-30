@@ -7,17 +7,20 @@ class UserAppSetting < ApplicationRecord
   DISPLAY_NAMES = {
     "event_tracker" => "Occasions",
     "blog_posts"    => "Chronicle",
-    "recipes"       => "Cookbook"
+    "recipes"       => "Cookbook",
+    "dossier"       => "Dossier"
   }.freeze
 
   # Apps with a real, user-visible landing page today — Photo Albums is an enum
   # placeholder only (see CLAUDE.md), so it's excluded until it actually ships.
+  # Dossier is left out until it has a per-user setting of its own.
   LIVE_APPS = %w[event_tracker blog_posts recipes].freeze
 
   enum :app_name, {
     event_tracker: "event_tracker",
     blog_posts:    "blog_posts",
     recipes:       "recipes",
+    dossier:       "dossier",
     photo_albums:  "photo_albums"
   }, validate: true
 

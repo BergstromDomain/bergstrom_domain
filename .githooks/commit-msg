@@ -4,7 +4,7 @@ COMMIT_MSG_FILE=$1
 COMMIT_MSG=$(head -n 1 "$COMMIT_MSG_FILE")
 
 # Allowed apps
-APPS="Main|Event_Tracker|Blog_Posts|Recipes|Photo_Album"
+APPS="Main|Event_Tracker|Blog_Posts|Recipes|Dossier|Photo_Album"
 
 # Allowed types
 TYPES="feat|fix|refactor|test|chore|docs|style|perf|build|revert"
@@ -24,7 +24,7 @@ if [[ ! $COMMIT_MSG =~ $REGEX ]]; then
   echo "Blog_Posts:	feat:	Add pagination to index page"
   echo ""
   echo "Allowed apps:"
-  echo "Main, Event_Tracker, Blog_Posts, Recipes, Photo_Album"
+  echo "Main, Event_Tracker, Blog_Posts, Recipes, Dossier, Photo_Album"
   echo ""
   echo "Allowed types:"
   echo "feat, fix, refactor, test, chore, docs, style, perf, build, revert"

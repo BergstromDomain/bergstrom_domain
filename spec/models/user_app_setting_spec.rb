@@ -66,6 +66,10 @@ RSpec.describe UserAppSetting, type: :model do
       expect(UserAppSetting.display_name_for("recipes")).to eq("Cookbook")
     end
 
+    it "returns 'Dossier' for dossier" do
+      expect(UserAppSetting.display_name_for("dossier")).to eq("Dossier")
+    end
+
     it "falls back to a humanized name for an app without a mapped display name" do
       expect(UserAppSetting.display_name_for("photo_albums")).to eq("Photo albums")
     end
@@ -76,6 +80,10 @@ RSpec.describe UserAppSetting, type: :model do
       expect(UserAppSetting.live_apps_by_display_name).to eq(
         [ [ "Chronicle", "blog_posts" ], [ "Cookbook", "recipes" ], [ "Occasions", "event_tracker" ] ]
       )
+    end
+
+    it "leaves out Dossier until it has a user setting of its own" do
+      expect(UserAppSetting.live_apps_by_display_name.map(&:last)).not_to include("dossier")
     end
   end
 
@@ -91,7 +99,7 @@ RSpec.describe UserAppSetting, type: :model do
         expect(UserAppSetting.new.default_classification).to eq("restricted")
       end
 
-      %w[event_tracker blog_posts recipes photo_albums].each do |name|
+      %w[event_tracker blog_posts recipes dossier photo_albums].each do |name|
         it "is valid with app_name '#{name}'" do
           subject.app_name = name
           expect(subject).to be_valid

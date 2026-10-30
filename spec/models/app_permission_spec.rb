@@ -32,7 +32,7 @@ RSpec.describe AppPermission, type: :model do
       end
 
       context "with each valid app_name" do
-        %w[event_tracker blog_posts recipes photo_albums].each do |name|
+        %w[event_tracker blog_posts recipes dossier photo_albums].each do |name|
           it "is valid with app_name '#{name}'" do
             subject.app_name = name
             expect(subject).to be_valid

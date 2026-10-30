@@ -266,6 +266,37 @@ RSpec.describe Policy do
         expect(Policy.new(owner, build(:blog_post)).can_create?).to be true
       end
     end
+
+    context "Dossier (Content Creator and above)" do
+      it "Returns false for a guest" do
+        expect(Policy.new(nil, :dossier).can_create?).to be false
+      end
+
+      it "Returns false for an app_user" do
+        expect(Policy.new(app_user, :dossier).can_create?).to be false
+      end
+
+      it "Returns true for a content_creator, an admin and a system_admin" do
+        [ owner, admin, system_admin ].each do |user|
+          expect(Policy.new(user, :dossier).can_create?).to be(true), user.role
+        end
+      end
+
+      it "Applies a Dossier override, granting an app_user" do
+        create(:app_permission, user: app_user, app_name: "dossier", can_create: true)
+        expect(Policy.new(app_user, :dossier).can_create?).to be true
+      end
+
+      it "Applies a Dossier override, revoking a content_creator" do
+        create(:app_permission, user: owner, app_name: "dossier", can_create: false)
+        expect(Policy.new(owner, :dossier).can_create?).to be false
+      end
+
+      it "Never applies another app's override to Dossier" do
+        create(:app_permission, user: owner, app_name: "recipes", can_create: false)
+        expect(Policy.new(owner, :dossier).can_create?).to be true
+      end
+    end
   end
 
   # ── can_update? ───────────────────────────────────────────────────────────
