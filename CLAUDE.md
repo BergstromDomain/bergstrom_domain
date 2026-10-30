@@ -13,7 +13,9 @@ under one auth/permission system. Each app has a technical name (the `app_name` 
   `docs/context-prompts/archive/Cookbook_App.md`. Import Recipes is still pending.
 - **Dossier** → "Dossier" (CV master data: profile, engagements, assignments, achievements,
   skills, credentials, CV variants): in progress, per `docs/context-prompts/active/Dossier_App.md`.
-  Block 0 (scaffold: landing page, Apps menu, `dossier` app name) is done.
+  Blocks 0–1 are done: scaffold, reference data, Profile, Engagements › Assignments with the
+  mandatory Tech Stack, and the Timeline. Models live under the `Dossier::` namespace (tables
+  `dossier_*`, URLs `/dossier/...`); reference-data pages share `Dossier::ReferenceDataController`.
 - **Photo_Album**: reserved enum value only.
 
 Development is documented as a blog series (`docs/blog/`) written in strict Red → Green →
