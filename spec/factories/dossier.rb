@@ -34,4 +34,9 @@ FactoryBot.define do
     sequence(:name) { |n| "Skill #{n}" }
     association :skill_category, factory: :dossier_skill_category
   end
+
+  factory :dossier_profile, class: "Dossier::Profile" do
+    association :user, factory: [ :user, :content_creator ]
+    display_name { "Alex Example" }
+  end
 end

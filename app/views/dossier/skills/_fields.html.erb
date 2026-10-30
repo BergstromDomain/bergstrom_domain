@@ -1,8 +1,8 @@
-<%= render "dossier/reference_data/field", f: f, record: record, attribute: :name, label: "Name" %>
-<%= render "dossier/reference_data/field", f: f, record: record, attribute: :skill_category_id, label: "Skill Category",
+<%= render "dossier/shared/field", f: f, record: record, attribute: :name, label: "Name" %>
+<%= render "dossier/shared/field", f: f, record: record, attribute: :skill_category_id, label: "Skill Category",
       error_attribute: :skill_category,
       field: f.collection_select(:skill_category_id, Dossier::SkillCategory.alphabetical, :id, :name,
                                  { include_blank: "Choose a Skill Category" }, class: "form-control",
                                  data: { testid: "skill-category-field" }) %>
-<%= render "dossier/reference_data/field", f: f, record: record, attribute: :aliases_text, label: "Aliases",
+<%= render "dossier/shared/field", f: f, record: record, attribute: :aliases_text, label: "Aliases",
       error_attribute: :aliases, hint: "Other spellings of this Skill, separated by commas." %>

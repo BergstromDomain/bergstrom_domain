@@ -83,6 +83,7 @@ Rails.application.routes.draw do
   get "cookbook",      to: "pages#cookbook",      as: :cookbook
   get "dossier",       to: "pages#dossier",       as: :dossier
   namespace :dossier do
+    resource :profile, only: %i[show edit update]
     resources :employment_types, :industries, :locations, :organisations, :roles, :skill_categories, :skills
   end
 

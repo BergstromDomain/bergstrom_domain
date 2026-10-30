@@ -515,6 +515,14 @@
         <span>Dossier</span>
       <% end %>
 
+      <% if current_user && Policy.new(current_user, :dossier).can_create? %>
+        <h3 class="left-nav-h3" data-testid="left-nav-my-career-h3">My Career</h3>
+        <%= link_to dossier_profile_path, class: "left-nav-link" do %>
+          <%= lucide_icon("id-card", size: 15) %>
+          <span>Profile</span>
+        <% end %>
+      <% end %>
+
       <h3 class="left-nav-h3" data-testid="left-nav-reference-data-h3">Reference Data</h3>
       <%= link_to dossier_organisations_path, class: "left-nav-link" do %>
         <%= lucide_icon("building-2", size: 15) %>

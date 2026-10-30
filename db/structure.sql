@@ -547,6 +547,51 @@ ALTER SEQUENCE public.dossier_organisations_id_seq OWNED BY public.dossier_organ
 
 
 --
+-- Name: dossier_profiles; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_profiles (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    display_name character varying NOT NULL,
+    headline character varying,
+    location_id bigint,
+    email character varying,
+    phone character varying,
+    website_url character varying,
+    linkedin_url character varying,
+    github_url character varying,
+    summary text,
+    summary_first_person text,
+    summary_third_person text,
+    third_person_name character varying,
+    pronouns character varying DEFAULT 'they'::character varying NOT NULL,
+    classification character varying DEFAULT 'restricted'::character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_profiles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_profiles_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_profiles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_profiles_id_seq OWNED BY public.dossier_profiles.id;
+
+
+--
 -- Name: dossier_roles; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1531,6 +1576,13 @@ ALTER TABLE ONLY public.dossier_organisations ALTER COLUMN id SET DEFAULT nextva
 
 
 --
+-- Name: dossier_profiles id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_profiles ALTER COLUMN id SET DEFAULT nextval('public.dossier_profiles_id_seq'::regclass);
+
+
+--
 -- Name: dossier_roles id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1831,6 +1883,14 @@ ALTER TABLE ONLY public.dossier_locations
 
 ALTER TABLE ONLY public.dossier_organisations
     ADD CONSTRAINT dossier_organisations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_profiles dossier_profiles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_profiles
+    ADD CONSTRAINT dossier_profiles_pkey PRIMARY KEY (id);
 
 
 --
@@ -2249,6 +2309,20 @@ CREATE UNIQUE INDEX index_dossier_organisations_on_lower_name ON public.dossier_
 --
 
 CREATE UNIQUE INDEX index_dossier_organisations_on_slug ON public.dossier_organisations USING btree (slug);
+
+
+--
+-- Name: index_dossier_profiles_on_location_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_profiles_on_location_id ON public.dossier_profiles USING btree (location_id);
+
+
+--
+-- Name: index_dossier_profiles_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_profiles_on_user_id ON public.dossier_profiles USING btree (user_id);
 
 
 --
@@ -3004,12 +3078,29 @@ ALTER TABLE ONLY public.recipe_cuisines
 
 
 --
+-- Name: dossier_profiles fk_rails_e7c9b3aaae; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_profiles
+    ADD CONSTRAINT fk_rails_e7c9b3aaae FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: dossier_profiles fk_rails_f79b597d86; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_profiles
+    ADD CONSTRAINT fk_rails_f79b597d86 FOREIGN KEY (location_id) REFERENCES public.dossier_locations(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261030061503'),
 ('20261030060542'),
 ('20261012080528'),
 ('20261011114916'),

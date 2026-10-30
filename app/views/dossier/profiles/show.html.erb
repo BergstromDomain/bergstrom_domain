@@ -1,0 +1,64 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title" data-testid="profile-display-name"><%= @profile.display_name %></h1>
+  </div>
+  <% if @profile.headline %>
+    <p class="page-header__subtitle page-header__subtitle--centered" data-testid="profile-headline"><%= @profile.headline %></p>
+  <% end %>
+</div>
+
+<%# Main div — summary in each voice %>
+<div class="show-panel" data-testid="show-panel-main">
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">Summary</h2>
+    <p data-testid="profile-summary"><%= @profile.summary || "—" %></p>
+  </div>
+  <% if @profile.summary_first_person %>
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">First-Person Summary</h2>
+      <p data-testid="profile-summary-first-person"><%= @profile.summary_first_person %></p>
+    </div>
+  <% end %>
+  <% if @profile.summary_third_person %>
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Third-Person Summary</h2>
+      <p data-testid="profile-summary-third-person"><%= @profile.summary_third_person %></p>
+    </div>
+  <% end %>
+</div>
+
+<%# Metadata div %>
+<div class="show-panel" data-testid="show-panel-metadata">
+  <div class="show-meta-row">
+    <% [ [ "Location", @profile.location&.name, "location" ],
+         [ "Email", @profile.email, "email" ],
+         [ "Phone", @profile.phone, "phone" ],
+         [ "Website", @profile.website_url, "website" ],
+         [ "LinkedIn", @profile.linkedin_url, "linkedin" ],
+         [ "GitHub", @profile.github_url, "github" ],
+         [ "Third-Person Name", @profile.third_person_name, "third-person-name" ],
+         [ "Pronouns", @profile.pronouns_label, "pronouns" ] ].each do |label, value, testid| %>
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label"><%= label %></h3>
+        <p class="show-meta-cell__value" data-testid="profile-<%= testid %>">
+          <% if value&.start_with?("http") %>
+            <%= link_to value, value, rel: "noopener", target: "_blank" %>
+          <% else %>
+            <%= value.presence || "—" %>
+          <% end %>
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%# Actions div %>
+<div class="show-panel show-panel--actions" data-testid="show-panel-actions">
+  <%= link_to dossier_path, class: "btn btn-secondary" do %>
+    <%= lucide_icon("arrow-left", size: 16) %> Back
+  <% end %>
+  <span class="btn-divider">|</span>
+  <%= link_to edit_dossier_profile_path, class: "btn btn-secondary" do %>
+    <%= lucide_icon("pencil", size: 16) %> Edit Profile
+  <% end %>
+</div>

@@ -13,7 +13,7 @@
 
   <div class="show-panel" data-testid="<%= panel %>-panel-main">
     <%= render "fields", f: f, record: record %>
-    <%= render "dossier/reference_data/field", f: f, record: record, attribute: :description,
+    <%= render "dossier/shared/field", f: f, record: record, attribute: :description,
           label: "Description", text_area: true %>
   </div>
 

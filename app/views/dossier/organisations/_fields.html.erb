@@ -1,8 +1,8 @@
-<%= render "dossier/reference_data/field", f: f, record: record, attribute: :name, label: "Name" %>
-<%= render "dossier/reference_data/field", f: f, record: record, attribute: :abbreviation, label: "Abbreviation",
+<%= render "dossier/shared/field", f: f, record: record, attribute: :name, label: "Name" %>
+<%= render "dossier/shared/field", f: f, record: record, attribute: :abbreviation, label: "Abbreviation",
       hint: "Optional, e.g. QH. Headings show the full name with the abbreviation; running text uses the abbreviation." %>
-<%= render "dossier/reference_data/field", f: f, record: record, attribute: :industry_id, label: "Industry",
+<%= render "dossier/shared/field", f: f, record: record, attribute: :industry_id, label: "Industry",
       error_attribute: :industry,
       field: f.collection_select(:industry_id, Dossier::Industry.alphabetical, :id, :name,
                                  { include_blank: "None" }, class: "form-control", data: { testid: "industry-field" }) %>
-<%= render "dossier/reference_data/field", f: f, record: record, attribute: :website_url, label: "Website" %>
+<%= render "dossier/shared/field", f: f, record: record, attribute: :website_url, label: "Website" %>
