@@ -374,6 +374,8 @@ Other export targets worth designing for from the start (same data, different re
 * CRUD with credential type, issuer, dates, expiry, verification URL, file uploads (PDF/image)
 * List grouped by type (Degrees › Certifications › Courses), expired ones flagged
 * Expiry warning (state-based Warning toast on show page, like Chronicle drafts)
+* Timeline bench/gap period pages (`/dossier/timeline/:from/:to`, added in Block 2) list the
+  courses and credentials completed during that period — training often happens on the bench
 
 ## Block 6 — Experience stats
 * `ExperienceCalculator` service — union of ranges, slices by employer/client/industry/role

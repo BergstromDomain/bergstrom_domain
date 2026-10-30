@@ -83,6 +83,18 @@ RSpec.describe Dossier::Timeline do
       expect(described_class.duration(Date.new(2020, 1, 1), Date.new(2021, 12, 31))).to eq("2+ years")
     end
 
+    it "Finds a bench or gap period by its dates, with the Engagement a bench belongs to" do
+      older = engagement("2015-01", "2017-12")
+      assignment(older, "2015-01", "2017-06")
+      engagement("2018-06", "2022-06")
+
+      bench = timeline.period(Date.new(2017, 7, 1), Date.new(2017, 12, 31))
+      gap   = timeline.period(Date.new(2018, 1, 1), Date.new(2018, 5, 31))
+      expect([ bench.kind, bench.engagement ]).to eq([ :bench, older ])
+      expect([ gap.kind, gap.engagement, gap.duration ]).to eq([ :gap, nil, "5 months" ])
+      expect(timeline.period(Date.new(2018, 1, 1), Date.new(2018, 4, 30))).to be_nil
+    end
+
     it "Is empty without Engagements" do
       expect(timeline.entries).to be_empty
     end

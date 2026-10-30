@@ -44,6 +44,17 @@ class Dossier::Timeline
     (engagement_entries + gap_entries).sort_by { |entry| [ entry.period.to, entry.period.from ] }.reverse
   end
 
+  # The bench or gap entry with exactly these dates (a bench knows its
+  # Engagement), or nil.
+  def period(from, to)
+    candidates = entries.flat_map do |entry|
+      next [ entry ] if entry.kind == :gap
+
+      entry.bench.map { |bench| Entry.new(kind: :bench, engagement: entry.engagement, bench: [], period: bench) }
+    end
+    candidates.find { |entry| entry.period.from == from && entry.period.to == to }
+  end
+
   private
 
   def period_for(dated)
