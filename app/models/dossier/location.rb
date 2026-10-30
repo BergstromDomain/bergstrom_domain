@@ -3,6 +3,9 @@ class Dossier::Location < ApplicationRecord
   extend FriendlyId
   friendly_id :name, use: [ :slugged, :history ]
 
+  has_many :assignments, dependent: :restrict_with_error
+  has_many :profiles, dependent: :nullify
+
   normalizes :city, :country, with: ->(value) { value.strip }
 
   validates :city,    presence: true

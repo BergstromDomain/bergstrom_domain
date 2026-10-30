@@ -6,6 +6,10 @@ class Dossier::Organisation < ApplicationRecord
   include Dossier::NamedReferenceData
 
   belongs_to :industry, optional: true
+  has_many :engagements, class_name: "Dossier::Engagement", foreign_key: :employer_id,
+                         dependent: :restrict_with_error, inverse_of: :employer
+  has_many :client_assignments, class_name: "Dossier::Assignment", foreign_key: :client_id,
+                                dependent: :restrict_with_error, inverse_of: :client
 
   normalizes :abbreviation, :website_url, with: ->(value) { value.strip.presence }
 

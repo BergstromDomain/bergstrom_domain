@@ -39,4 +39,33 @@ FactoryBot.define do
     association :user, factory: [ :user, :content_creator ]
     display_name { "Alex Example" }
   end
+
+  factory :dossier_engagement, class: "Dossier::Engagement" do
+    association :user, factory: [ :user, :content_creator ]
+    association :employer, factory: :dossier_organisation
+    association :employment_type, factory: :dossier_employment_type
+    position_title  { "Test Consultant" }
+    start_on        { Date.new(2019, 3, 1) }
+    start_precision { "month" }
+    end_on          { Date.new(2022, 6, 1) }
+    end_precision   { "month" }
+
+    trait :permanent do
+      association :employment_type, factory: [ :dossier_employment_type, :permanent ]
+    end
+
+    trait :current do
+      end_on { nil }
+    end
+  end
+
+  factory :dossier_assignment, class: "Dossier::Assignment" do
+    association :engagement, factory: :dossier_engagement
+    association :client, factory: :dossier_organisation
+    association :role, factory: :dossier_role
+    start_on        { engagement.start_on }
+    start_precision { "month" }
+    end_on          { engagement.end_on }
+    end_precision   { "month" }
+  end
 end

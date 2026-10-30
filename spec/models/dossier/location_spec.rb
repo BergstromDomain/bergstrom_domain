@@ -10,6 +10,12 @@ RSpec.describe Dossier::Location, type: :model do
     it { is_expected.to have_db_column(:slug).of_type(:string) }
   end
 
+  # ── Associations ──────────────────────────────────────────────────────────
+  describe "Associations" do
+    it { is_expected.to have_many(:assignments).dependent(:restrict_with_error) }
+    it { is_expected.to have_many(:profiles).dependent(:nullify) }
+  end
+
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     it "Is valid with a city and a country" do

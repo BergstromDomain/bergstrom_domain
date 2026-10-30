@@ -9,6 +9,11 @@ RSpec.describe Dossier::Role, type: :model do
     it { is_expected.to have_db_column(:slug).of_type(:string) }
   end
 
+  # ── Associations ──────────────────────────────────────────────────────────
+  describe "Associations" do
+    it { is_expected.to have_many(:assignments).dependent(:restrict_with_error) }
+  end
+
   it "Uses the dossier_ table prefix" do
     expect(described_class.table_name).to eq("dossier_roles")
   end

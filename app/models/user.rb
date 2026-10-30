@@ -9,6 +9,7 @@ class User < ApplicationRecord
   has_many :blog_posts
   has_many :recipes
   has_one  :dossier_profile, class_name: "Dossier::Profile", dependent: :destroy
+  has_many :dossier_engagements, class_name: "Dossier::Engagement", dependent: :destroy
   has_many :user_app_settings, dependent: :destroy
 
   has_many :person_mutes, dependent: :destroy

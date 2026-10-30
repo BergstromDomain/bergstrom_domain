@@ -15,6 +15,8 @@ RSpec.describe Dossier::Organisation, type: :model do
   # ── Associations ──────────────────────────────────────────────────────────
   describe "Associations" do
     it { is_expected.to belong_to(:industry).optional }
+    it { is_expected.to have_many(:engagements).dependent(:restrict_with_error) }
+    it { is_expected.to have_many(:client_assignments).dependent(:restrict_with_error) }
   end
 
   it_behaves_like "Dossier named reference data", :dossier_organisation

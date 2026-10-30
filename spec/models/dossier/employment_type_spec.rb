@@ -10,6 +10,11 @@ RSpec.describe Dossier::EmploymentType, type: :model do
     it { is_expected.to have_db_column(:slug).of_type(:string) }
   end
 
+  # ── Associations ──────────────────────────────────────────────────────────
+  describe "Associations" do
+    it { is_expected.to have_many(:engagements).dependent(:restrict_with_error) }
+  end
+
   it_behaves_like "Dossier named reference data", :dossier_employment_type
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
