@@ -8,8 +8,7 @@ class Dossier::EngagementsController < ApplicationController
   before_action :set_engagement, only: %i[show edit update destroy]
 
   def index
-    @engagements = current_user.dossier_engagements.kept.newest_first
-                               .includes(:employer, :employment_type, assignments: %i[client role])
+    @timeline = Dossier::Timeline.new(current_user.dossier_engagements.kept.includes(:employer))
   end
 
   def show

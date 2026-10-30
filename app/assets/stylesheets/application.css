@@ -3184,3 +3184,17 @@ textarea.form-control {
   color: var(--color-text-secondary);
   white-space: nowrap;
 }
+
+.dossier-assignment-row--bench,
+.dossier-timeline-gap {
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.dossier-timeline-gap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: 0 0 var(--space-md);
+  padding-left: var(--space-md);
+}
