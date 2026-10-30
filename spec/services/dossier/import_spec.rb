@@ -205,6 +205,8 @@ RSpec.describe Dossier::Import do
       expect(result.created).to be_empty
       expect(result.existing["Engagement"]).to eq([ "Test Consultant at Acme Consulting", "Test Engineer at Widget Works" ])
       expect(result.existing["Profile"]).to eq([ "Alex Example" ])
+      expect(result.existing["Organisation"]).to contain_exactly("Acme Consulting", "Department of Examples", "Widget Works")
+      expect(result.existing["Assignment"].size).to eq(3) # two share the label "Test Lead at Widget Works"
       expect(Dossier::Assignment.count).to eq(3)
     end
 
@@ -300,6 +302,16 @@ RSpec.describe Dossier::Import do
       widget = admin.dossier_engagements.find_by!(position_title: "Test Engineer")
       expect([ widget.start_precision, widget.end_precision ]).to eq(%w[day month])
       expect(admin.dossier_engagements.find_by!(position_title: "Test Consultant")).to be_current
+    end
+
+    it "Gives a permanent Engagement's own Assignment month precision when it lists only a month" do
+      text = yaml.sub("start: 2010-03-15\n        end: 2014-06", "start: 2010-04\n        end: 2014-06")
+
+      import(text: text).import!
+
+      first = admin.dossier_engagements.find_by!(position_title: "Test Engineer").assignments.order(:start_on).first
+      expect([ first.start_on, first.start_precision ]).to eq([ Date.new(2010, 4, 1), "month" ])
+      expect(import(text: text).preview.created).to be_empty
     end
   end
 end

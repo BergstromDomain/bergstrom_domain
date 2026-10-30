@@ -34,7 +34,7 @@ class Dossier::Import
 
   def run(commit:)
     @created, @existing, @warnings, @errors = {}, {}, [], []
-    @created_keys = Set.new
+    @created_keys, @existing_keys = Set.new, Set.new
     @skill_categories = {}
 
     if (data = parse)
@@ -45,7 +45,7 @@ class Dossier::Import
       end
     end
 
-    Result.new(created: @created, existing: @existing.transform_values(&:uniq), warnings: @warnings, errors: @errors)
+    Result.new(created: @created, existing: @existing, warnings: @warnings, errors: @errors)
   end
 
   def parse
@@ -183,19 +183,18 @@ class Dossier::Import
   end
 
   # "2019-03" is month precision, a YAML date is day precision, "current"
-  # (or nothing) is no end.
+  # (or nothing) is no end. The day is always set, so a reused permanent
+  # Assignment doesn't keep its Engagement's exact day.
   def date_attributes(row)
     %w[start end].each_with_object({}) do |edge, attributes|
       value = row[edge]
-      case value
-      when Date
-        attributes[:"#{edge}_month"] = value.strftime("%Y-%m")
-        attributes[:"#{edge}_day"]   = value.day.to_s
-      when nil, /\Acurrent\z/i
-        attributes[:"#{edge}_month"] = ""
-      else
-        attributes[:"#{edge}_month"] = value.to_s
+      month, day = case value
+      when Date then [ value.strftime("%Y-%m"), value.day.to_s ]
+      when nil, /\Acurrent\z/i then [ "", "" ]
+      else [ value.to_s, "" ]
       end
+      attributes[:"#{edge}_month"] = month
+      attributes[:"#{edge}_day"]   = day
     end
   end
 
@@ -265,8 +264,12 @@ class Dossier::Import
     record
   end
 
-  # Records this import created itself aren't "already there".
+  # Listed once per record (an Organisation can be named many times), and
+  # records this import created itself aren't "already there".
   def note_existing(kind, label, record)
-    (@existing[kind] ||= []) << label unless @created_keys.include?([ record.class.name, record.id ])
+    key = [ record.class.name, record.id ]
+    return if @created_keys.include?(key) || !@existing_keys.add?(key)
+
+    (@existing[kind] ||= []) << label
   end
 end
