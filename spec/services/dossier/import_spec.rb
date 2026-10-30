@@ -48,6 +48,7 @@ RSpec.describe Dossier::Import do
             role: Test Lead
             start: 2019-03
             end: current
+            project: Licensing Upgrade
             summary: The verbatim original summary.
             vendors: [Secret Vendor]
             tech_stack:
@@ -127,6 +128,7 @@ RSpec.describe Dossier::Import do
                                             system_under_test: "Licensing system", classification: "restricted",
                                             other_tools_na: true, protocols_na: true)
       expect(assignment.client.name).to eq("Department of Examples")
+      expect(assignment.project).to eq("Licensing Upgrade")
       expect(assignment.operating_systems_text).to eq("Windows 10, Windows 11")
       expect(assignment.methodologies_text).to eq("Hybrid")
       expect(assignment.test_tools_text).to eq("Robot Framework, Jira")

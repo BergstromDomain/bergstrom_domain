@@ -178,7 +178,8 @@ class Dossier::Import
       return note_existing("Assignment", existing.to_toast_label, existing)
     end
 
-    assignment.assign_attributes(summary: row.dig("terse", "summary"), **tech_stack_attributes(row["tech_stack"] || {}))
+    assignment.assign_attributes(project: row["project"], summary: row.dig("terse", "summary"),
+                                 **tech_stack_attributes(row["tech_stack"] || {}))
     save(assignment, "Assignment")
   end
 

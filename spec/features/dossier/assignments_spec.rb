@@ -34,12 +34,14 @@ RSpec.describe "Dossier Assignments", type: :feature do
       fill_assignment
       select "Brisbane, Australia", from: "Location"
       check "Remote"
+      fill_in "Project", with: "Ticketing Upgrade"
       click_button "Create Assignment"
 
       expect(page).to have_selector("h1.page-title", text: "Test Lead at Northwind Transport Authority")
       expect(page).to have_css("[data-testid='flash-success']", text: "Test Lead at Northwind Transport Authority has been successfully created")
       expect(page).to have_selector("[data-testid='assignment-client']", text: "Northwind Transport Authority (NTA)")
       expect(page).to have_selector("[data-testid='assignment-location']", text: "Brisbane, Australia (remote)")
+      expect(page).to have_selector("[data-testid='assignment-project']", text: "Ticketing Upgrade")
     end
 
     it "Updates and deletes an Assignment" do

@@ -23,6 +23,10 @@
       <p class="show-meta-cell__value" data-testid="assignment-client"><%= @assignment.client.label %></p>
     </div>
     <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Project</h3>
+      <p class="show-meta-cell__value" data-testid="assignment-project"><%= @assignment.project || "—" %></p>
+    </div>
+    <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Role</h3>
       <p class="show-meta-cell__value" data-testid="assignment-role"><%= @assignment.role_name %></p>
     </div>

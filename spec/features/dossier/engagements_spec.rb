@@ -40,7 +40,7 @@ RSpec.describe "Dossier Engagements", type: :feature do
 
       within("[data-testid='engagement-assignments']") do
         expect(page).to have_selector("[data-testid='assignment-row']", count: 1)
-        expect(page).to have_content("Test Manager at Consultancy A")
+        expect(page).to have_content("Consultancy A - Test Manager")
       end
     end
 

@@ -15,6 +15,7 @@ RSpec.describe Dossier::Assignment, type: :model do
     it { is_expected.to have_db_column(:start_on).of_type(:date).with_options(null: false) }
     it { is_expected.to have_db_column(:end_on).of_type(:date) }
     it { is_expected.to have_db_column(:summary).of_type(:text) }
+    it { is_expected.to have_db_column(:project).of_type(:string) }
     it { is_expected.to have_db_column(:classification).of_type(:string).with_options(null: false, default: "restricted") }
     it { is_expected.to have_db_column(:position).of_type(:integer) }
   end
@@ -40,6 +41,12 @@ RSpec.describe Dossier::Assignment, type: :model do
                                               role: build(:dossier_role, name: "Test Manager"),
                                               client: build(:dossier_organisation, name: "Northwind"))
       expect(assignment.to_toast_label).to eq("Test Manager at Northwind")
+    end
+
+    it "Is headed 'Client - Project' on the Timeline" do
+      assignment = build(:dossier_assignment, engagement: engagement, project: "  Market Services ",
+                                              client: build(:dossier_organisation, name: "Northwind"))
+      expect(assignment.heading).to eq("Northwind - Market Services")
     end
   end
 
@@ -72,6 +79,14 @@ RSpec.describe Dossier::Assignment, type: :model do
 
   # 3) Alternative Path ───────────────────────────────────────────────────────
   describe "Alternative Path" do
+    it "Is headed 'Client - Role' when it has no Project" do
+      assignment = build(:dossier_assignment, engagement: engagement, project: " ",
+                                              role: build(:dossier_role, name: "Test Manager"),
+                                              client: build(:dossier_organisation, name: "Northwind"))
+      expect(assignment.project).to be_nil
+      expect(assignment.heading).to eq("Northwind - Test Manager")
+    end
+
     it "Uses the Engagement's position title when it has no Role" do
       assignment = build(:dossier_assignment, engagement: engagement, role: nil,
                                               client: build(:dossier_organisation, name: "Northwind"))

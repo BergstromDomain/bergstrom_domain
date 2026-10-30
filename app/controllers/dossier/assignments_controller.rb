@@ -70,7 +70,7 @@ class Dossier::AssignmentsController < ApplicationController
 
   def assignment_params
     params.require(:dossier_assignment).permit(
-      :client_id, :role_id, :location_id, :remote,
+      :client_id, :project, :role_id, :location_id, :remote,
       :start_month, :start_day, :end_month, :end_day, :summary, :system_under_test,
       *Dossier::TechStack::SLOTS.values.flat_map { |plural| [ :"#{plural}_text", :"#{plural}_na" ] }
     )

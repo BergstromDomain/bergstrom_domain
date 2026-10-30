@@ -13,12 +13,14 @@ RSpec.describe "Dossier Timeline", type: :feature do
     it "Shows the gap between two Engagements and bench time inside one" do
       engagement("Older", "2015-01", "2017-12")
       newer = engagement("Newer", "2018-06", "2022-06")
-      create(:dossier_assignment, engagement: newer, start_month: "2018-06", end_month: "2020-01")
+      create(:dossier_assignment, engagement: newer, start_month: "2018-06", end_month: "2020-01",
+                                  client: create(:dossier_organisation, name: "APA Group"), project: "Market Services")
       sign_in_as(charlie)
       visit dossier_engagements_path
 
       expect(page).to have_selector("[data-testid='timeline-gap']", text: "Gap · Jan 2018 – May 2018 · 5 months")
       within("[data-testid='engagement-card']", text: "Newer") do
+        expect(page).to have_selector("[data-testid='assignment-row']", text: "APA Group - Market Services")
         within("[data-testid='timeline-bench']") do
           expect(page).to have_selector("[data-testid='timeline-bench-label']", exact_text: "Bench · 2+ years")
           expect(page).to have_selector(".dossier-assignment-row__dates", exact_text: "Feb 2020 – Jun 2022")
