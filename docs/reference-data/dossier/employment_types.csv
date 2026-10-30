@@ -1,5 +1,5 @@
-Name,Icon,Description
-Permanent Employment,,
-Temp,,
-Consultant,,
-Contractor,,
+Name,Permanent,Description
+Permanent Employment,Yes,
+Temp,No,
+Consultant,No,
+Contractor,No,
