@@ -7,7 +7,7 @@ if [[ -z "$COMMITS" ]]; then
   echo "✅ No new commits to validate"
   exit 0
 fi
-APPS="Main|Event_Tracker|Blog_Posts|Recipes|Photo_Album"
+APPS="Main|Event_Tracker|Blog_Posts|Recipes|Dossier|Photo_Album"
 TYPES="feat|fix|refactor|test|chore|docs|style|perf|build|revert"
 REGEX="^(${APPS}):[[:space:]]+(${TYPES}):[[:space:]]+(.{10,})$"
 while read -r COMMIT; do
