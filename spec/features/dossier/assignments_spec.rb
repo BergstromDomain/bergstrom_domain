@@ -72,6 +72,8 @@ RSpec.describe "Dossier Assignments", type: :feature do
         expect(page).to have_selector("[data-testid='tech-stack-system-under-test']", text: "Ticketing platform")
         expect(page).to have_link("Jira")
         expect(page).to have_link("Robot Framework")
+        # One flex item, so the cell's flex gap can't open a space before each comma.
+        expect(page).to have_selector("[data-testid='tech-stack-test-tools'] > span", exact_text: "Jira, Robot Framework")
         expect(page).to have_selector("[data-testid='tech-stack-protocols']", text: "N/A")
       end
     end

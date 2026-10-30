@@ -66,7 +66,8 @@
           <% if @assignment.public_send(:"#{plural}_na") %>
             N/A
           <% else %>
-            <%= safe_join(@assignment.skills_in(slot).map { |skill| link_to(skill.name, dossier_skill_path(skill)) }, ", ") %>
+            <%# One span: the cell is a flex row, whose gap would land before each comma. %>
+            <span><%= safe_join(@assignment.skills_in(slot).map { |skill| link_to(skill.name, dossier_skill_path(skill)) }, ", ") %></span>
           <% end %>
         </p>
       </div>

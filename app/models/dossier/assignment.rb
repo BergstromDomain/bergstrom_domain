@@ -23,9 +23,10 @@ class Dossier::Assignment < ApplicationRecord
     role&.name || engagement&.position_title
   end
 
-  # "Client - Project" (or "Client - Role"), to tell one client's Assignments apart.
+  # "Client - Project" (just the client without one), to tell one client's
+  # Assignments apart.
   def heading
-    "#{client&.name} - #{project || role_name}"
+    [ client&.name, project ].compact.join(" - ")
   end
 
   def fits_within?(outer)

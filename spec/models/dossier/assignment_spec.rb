@@ -79,12 +79,12 @@ RSpec.describe Dossier::Assignment, type: :model do
 
   # 3) Alternative Path ───────────────────────────────────────────────────────
   describe "Alternative Path" do
-    it "Is headed 'Client - Role' when it has no Project" do
+    it "Is headed by the client alone when it has no Project" do
       assignment = build(:dossier_assignment, engagement: engagement, project: " ",
                                               role: build(:dossier_role, name: "Test Manager"),
                                               client: build(:dossier_organisation, name: "Northwind"))
       expect(assignment.project).to be_nil
-      expect(assignment.heading).to eq("Northwind - Test Manager")
+      expect(assignment.heading).to eq("Northwind")
     end
 
     it "Uses the Engagement's position title when it has no Role" do
