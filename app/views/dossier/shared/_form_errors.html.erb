@@ -1,0 +1,11 @@
+<%# Locals: record, noun (e.g. "engagement") %>
+<% if record.errors.any? %>
+  <div class="form-errors" data-testid="form-errors">
+    <p><%= pluralize(record.errors.count, "error") %> prevented this <%= noun %> from being saved:</p>
+    <ul>
+      <% record.errors.each do |error| %>
+        <li data-testid="field-error"><%= error.full_message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

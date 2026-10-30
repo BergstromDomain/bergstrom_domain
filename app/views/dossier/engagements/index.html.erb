@@ -1,0 +1,31 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Timeline</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Your Engagements, newest first, with the Assignments under each.
+  </p>
+</div>
+
+<% if @engagements.any? %>
+  <% @engagements.each do |engagement| %>
+    <div class="show-panel" data-testid="engagement-card">
+      <div class="show-panel__section">
+        <h2 class="show-panel__heading" data-testid="engagement-title">
+          <%= link_to engagement.to_toast_label, dossier_engagement_path(engagement), class: "data-table__name-link" %>
+        </h2>
+        <p><%= engagement.employment_type.name %> · <%= engagement.date_range %></p>
+        <% assignments = engagement.assignments.sort_by { |a| [ a.end_on ? 0 : 1, a.end_on || Date.current, a.start_on ] }.reverse %>
+        <% if assignments.any? %>
+          <ul class="dossier-assignment-list">
+            <%= render partial: "dossier/assignments/row", collection: assignments, as: :assignment %>
+          </ul>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No Engagements yet. <%= link_to "Create An Engagement", new_dossier_engagement_path %> to start your Timeline.</p>
+  </div>
+<% end %>

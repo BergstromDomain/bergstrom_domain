@@ -1,0 +1,8 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">New Engagement</h1>
+  </div>
+</div>
+
+<%= render "form", engagement: @engagement, panel: "new", submit_label: "Create Engagement",
+      cancel_path: dossier_engagements_path %>

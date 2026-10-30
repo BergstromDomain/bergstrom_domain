@@ -1,0 +1,8 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Edit Assignment</h1>
+  </div>
+</div>
+
+<%= render "form", assignment: @assignment, panel: "edit", submit_label: "Update Assignment",
+      cancel_path: dossier_assignment_path(@assignment) %>

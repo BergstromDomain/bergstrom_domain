@@ -84,6 +84,8 @@ Rails.application.routes.draw do
   get "dossier",       to: "pages#dossier",       as: :dossier
   namespace :dossier do
     resource :profile, only: %i[show edit update]
+    resources :engagements
+    resources :assignments, except: :index
     resources :employment_types, :industries, :locations, :organisations, :roles, :skill_categories, :skills
   end
 

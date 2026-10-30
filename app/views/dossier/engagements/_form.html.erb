@@ -1,0 +1,49 @@
+<%# Locals: engagement, panel ("new"/"edit"), submit_label, cancel_path %>
+<%= form_with model: engagement, class: "resource-form resource-form--wide" do |f| %>
+  <%= render "dossier/shared/form_errors", record: engagement, noun: "engagement" %>
+
+  <%# Main div — who employed or contracted you %>
+  <div class="show-panel" data-testid="<%= panel %>-panel-main">
+    <%= render "dossier/shared/field", f: f, record: engagement, attribute: :employer_id, label: "Employer",
+          error_attribute: :employer,
+          field: f.collection_select(:employer_id, Dossier::Organisation.alphabetical, :id, :name,
+                                     { include_blank: "Choose the employer or agency" }, class: "form-control",
+                                     data: { testid: "employer-field" }),
+          hint: safe_join([ "The employer, or the agency you were engaged through. Not listed? ",
+                            link_to("Add An Organisation", new_dossier_organisation_path, target: "_blank", rel: "noopener"),
+                            " in a new tab, then reload this page." ]) %>
+    <%= render "dossier/shared/field", f: f, record: engagement, attribute: :employment_type_id, label: "Employment Type",
+          error_attribute: :employment_type,
+          field: f.collection_select(:employment_type_id, Dossier::EmploymentType.alphabetical, :id, :name,
+                                     { include_blank: "Choose an employment type" }, class: "form-control",
+                                     data: { testid: "employment-type-field" }),
+          hint: "A permanent type gives this Engagement one Assignment automatically, with the employer as client." %>
+    <%= render "dossier/shared/field", f: f, record: engagement, attribute: :position_title, label: "Position Title",
+          hint: "Your job title at the employer or agency." %>
+  </div>
+
+  <%# Dates div %>
+  <div class="show-panel" data-testid="<%= panel %>-panel-dates">
+    <%= render "dossier/shared/date_fields", f: f, record: engagement, edge: :start, label: "Start",
+          hint: "Add the day only if you know it; CVs always show the month." %>
+    <%= render "dossier/shared/date_fields", f: f, record: engagement, edge: :end, label: "End",
+          hint: "Leave empty if this is your current job." %>
+  </div>
+
+  <%# Summary div %>
+  <div class="show-panel" data-testid="<%= panel %>-panel-summary">
+    <%= render "dossier/shared/field", f: f, record: engagement, attribute: :summary, label: "Summary", text_area: true,
+          hint: "Optional, terse form." %>
+  </div>
+
+  <%# Actions div %>
+  <div class="show-panel show-panel--actions" data-testid="<%= panel %>-panel-actions">
+    <%= link_to cancel_path, class: "btn btn-secondary" do %>
+      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary">
+      <%= lucide_icon("save", size: 16) %> <%= submit_label %>
+    </button>
+  </div>
+<% end %>

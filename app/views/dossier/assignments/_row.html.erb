@@ -1,0 +1,5 @@
+<%# Locals: assignment %>
+<li class="dossier-assignment-row" data-testid="assignment-row">
+  <%= link_to assignment.to_toast_label, dossier_assignment_path(assignment), class: "data-table__name-link" %>
+  <span class="dossier-assignment-row__dates"><%= assignment.date_range %></span>
+</li>

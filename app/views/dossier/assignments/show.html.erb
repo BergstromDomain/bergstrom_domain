@@ -1,0 +1,70 @@
+<% policy = Policy.new(current_user, @assignment) %>
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title"><%= @assignment.to_toast_label %></h1>
+  </div>
+</div>
+
+<%# Main div — summary %>
+<% if @assignment.summary %>
+  <div class="show-panel" data-testid="show-panel-main">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Summary</h2>
+      <p data-testid="assignment-summary"><%= @assignment.summary %></p>
+    </div>
+  </div>
+<% end %>
+
+<%# Metadata div %>
+<div class="show-panel" data-testid="show-panel-metadata">
+  <div class="show-meta-row">
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Client</h3>
+      <p class="show-meta-cell__value" data-testid="assignment-client"><%= @assignment.client.label %></p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Role</h3>
+      <p class="show-meta-cell__value" data-testid="assignment-role"><%= @assignment.role_name %></p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Dates</h3>
+      <p class="show-meta-cell__value" data-testid="assignment-dates"><%= @assignment.date_range %></p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Location</h3>
+      <p class="show-meta-cell__value" data-testid="assignment-location">
+        <%= [ @assignment.location&.name, ("(remote)" if @assignment.remote?) ].compact.join(" ").presence || "—" %>
+      </p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Engagement</h3>
+      <p class="show-meta-cell__value" data-testid="assignment-engagement">
+        <%= link_to @assignment.engagement.to_toast_label, dossier_engagement_path(@assignment.engagement) %>
+      </p>
+    </div>
+  </div>
+</div>
+
+<%# Actions div %>
+<div class="show-panel show-panel--actions" data-testid="show-panel-actions">
+  <%= link_to dossier_engagement_path(@assignment.engagement), class: "btn btn-secondary" do %>
+    <%= lucide_icon("arrow-left", size: 16) %> Back
+  <% end %>
+
+  <% if policy.can_update? %>
+    <span class="btn-divider">|</span>
+    <%= link_to edit_dossier_assignment_path(@assignment), class: "btn btn-secondary" do %>
+      <%= lucide_icon("pencil", size: 16) %> Edit Assignment
+    <% end %>
+  <% end %>
+
+  <% if policy.can_delete? %>
+    <span class="btn-divider">|</span>
+    <%= button_to dossier_assignment_path(@assignment),
+          method: :delete,
+          class: "btn btn-danger",
+          data: { turbo_confirm: "Delete #{@assignment.to_toast_label}? This cannot be undone." } do %>
+      <%= lucide_icon("trash-2", size: 16) %> Delete Assignment
+    <% end %>
+  <% end %>
+</div>

@@ -521,6 +521,10 @@
           <%= lucide_icon("id-card", size: 15) %>
           <span>Profile</span>
         <% end %>
+        <%= link_to dossier_engagements_path, class: "left-nav-link" do %>
+          <%= lucide_icon("gantt-chart", size: 15) %>
+          <span>Timeline</span>
+        <% end %>
       <% end %>
 
       <h3 class="left-nav-h3" data-testid="left-nav-reference-data-h3">Reference Data</h3>
@@ -574,6 +578,14 @@
         <% end %>
 
         <% if dossier_policy.can_create? %>
+          <%= link_to new_dossier_engagement_path, class: "left-nav-link" do %>
+            <%= lucide_icon("briefcase-business", size: 15) %>
+            <span>Create An Engagement</span>
+          <% end %>
+          <%= link_to new_dossier_assignment_path, class: "left-nav-link" do %>
+            <%= lucide_icon("building", size: 15) %>
+            <span>Create An Assignment</span>
+          <% end %>
           <%= link_to new_dossier_organisation_path, class: "left-nav-link" do %>
             <%= lucide_icon("building-2", size: 15) %>
             <span>Add An Organisation</span>

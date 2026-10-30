@@ -1,0 +1,8 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">New Assignment</h1>
+  </div>
+</div>
+
+<%= render "form", assignment: @assignment, panel: "new", submit_label: "Create Assignment",
+      cancel_path: @assignment.engagement ? dossier_engagement_path(@assignment.engagement) : dossier_engagements_path %>
