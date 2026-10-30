@@ -94,6 +94,17 @@ RSpec.describe "Eager loading", type: :request do
 
       expect(response).to have_http_status(:ok)
     end
+
+    it "Loads the Dossier Timeline without N+1 queries" do
+      2.times do
+        engagement = create(:dossier_engagement, user: adam)
+        create_list(:dossier_assignment, 2, engagement: engagement)
+      end
+
+      without_n_plus_one_queries { get dossier_engagements_path }
+
+      expect(response).to have_http_status(:ok)
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
@@ -150,6 +161,18 @@ RSpec.describe "Eager loading", type: :request do
       create_list(:blog_post, 2, :unrestricted, :published)
 
       without_n_plus_one_queries { get filter_blog_posts_path }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads the Dossier Timeline without N+1 queries when Assignments have no Role" do
+      2.times do
+        engagement = create(:dossier_engagement, user: adam)
+        create_list(:dossier_assignment, 2, engagement: engagement, role: nil)
+      end
+      sign_in_as(adam)
+
+      without_n_plus_one_queries { get dossier_engagements_path }
 
       expect(response).to have_http_status(:ok)
     end

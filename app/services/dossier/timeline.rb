@@ -29,7 +29,9 @@ class Dossier::Timeline
   end
 
   def initialize(engagements, today: Date.current)
-    @engagements = engagements.includes(:employment_type, assignments: [ :client, :role, :engagement ]).to_a
+    # No :engagement preload: has_many :assignments sets the inverse, which
+    # role_name's position-title fallback uses.
+    @engagements = engagements.includes(:employment_type, assignments: %i[client role]).to_a
     @today = today
   end
 
