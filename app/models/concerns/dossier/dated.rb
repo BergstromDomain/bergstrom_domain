@@ -55,8 +55,9 @@ module Dossier
     def formatted_start = format_dossier_date(start_on, start_precision)
     def formatted_end   = end_on ? format_dossier_date(end_on, end_precision) : "Present"
 
+    # A range within one month (or day) shows it once: "Jul 2025".
     def date_range
-      "#{formatted_start} – #{formatted_end}"
+      formatted_start == formatted_end ? formatted_start : "#{formatted_start} – #{formatted_end}"
     end
 
     private

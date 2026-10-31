@@ -7,7 +7,7 @@
 # the whole month, and a current one runs to today.
 class Dossier::Timeline
   Period = Data.define(:from, :to) do
-    def date_range = "#{from.strftime('%b %Y')} – #{to.strftime('%b %Y')}"
+    def date_range = [ from, to ].map { |date| date.strftime("%b %Y") }.uniq.join(" – ")
     def duration   = Dossier::Timeline.duration(from, to)
   end
 

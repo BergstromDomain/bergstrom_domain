@@ -77,6 +77,12 @@ RSpec.describe Dossier::Timeline do
       expect(timeline.entries.find { |e| e.kind == :gap }.date_range).to eq("Jan 2016 – Dec 2016")
     end
 
+    it "Shows a one-month gap as just that month" do
+      engagement("2010-01", "2015-12")
+      engagement("2016-02", "2018-12")
+      expect(timeline.entries.find { |e| e.kind == :gap }.date_range).to eq("Jan 2016")
+    end
+
     it "Formats durations: under a month, months, then whole years" do
       expect(described_class.duration(Date.new(2020, 1, 1), Date.new(2020, 1, 10))).to eq("Under a month")
       expect(described_class.duration(Date.new(2020, 1, 1), Date.new(2020, 1, 31))).to eq("1 month")

@@ -141,6 +141,12 @@ RSpec.describe Dossier::Engagement, type: :model do
       expect(engagement.effective_end).to eq(Date.new(2019, 3, 31))
     end
 
+    it "Shows a range within one month, or one day, just once" do
+      expect(build(:dossier_engagement, start_month: "2025-07", end_month: "2025-07").date_range).to eq("Jul 2025")
+      expect(build(:dossier_engagement, start_month: "2025-07", start_day: "4", end_month: "2025-07", end_day: "4").date_range).to eq("4 Jul 2025")
+      expect(build(:dossier_engagement, start_month: "2025-07", start_day: "4", end_month: "2025-07").date_range).to eq("4 Jul 2025 – Jul 2025")
+    end
+
     it "Allows a one-day engagement" do
       expect(build(:dossier_engagement, start_month: "2019-03", start_day: "15", end_month: "2019-03", end_day: "15")).to be_valid
     end

@@ -3188,7 +3188,15 @@ textarea.form-control {
 .dossier-assignment-row--bench,
 .dossier-timeline-gap {
   color: var(--color-text-secondary);
-  font-style: italic;
+}
+
+/* Bench time: a tinted strip with a dashed edge, so it reads as time between
+   Assignments rather than another Assignment. */
+.dossier-assignment-row--bench {
+  padding-left: var(--space-sm);
+  padding-right: var(--space-sm);
+  background-color: var(--color-surface-raised);
+  border-left: 3px dashed var(--color-text-secondary);
 }
 
 .dossier-assignment-row--bench a,
