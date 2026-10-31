@@ -17,8 +17,8 @@ RSpec.describe "Dossier Assignments", type: :feature do
   def fill_assignment(start_month: "2019-04", end_month: "2020-01")
     select "Northwind Transport Authority", from: "Client"
     select "Test Lead", from: "Role"
-    fill_in "Start Month", with: start_month
-    fill_in "End Month", with: end_month
+    fill_in_dossier_month "Start", with: start_month
+    fill_in_dossier_month "End", with: end_month
     fill_in "System Under Test", with: "Ticketing platform"
     %w[operating-systems methodologies test-tools other-tools protocols].each do |list|
       find("[data-testid='#{list}-na-field']").check
@@ -34,12 +34,14 @@ RSpec.describe "Dossier Assignments", type: :feature do
       fill_assignment
       select "Brisbane, Australia", from: "Location"
       check "Remote"
+      fill_in "Project", with: "Ticketing Upgrade"
       click_button "Create Assignment"
 
       expect(page).to have_selector("h1.page-title", text: "Test Lead at Northwind Transport Authority")
       expect(page).to have_css("[data-testid='flash-success']", text: "Test Lead at Northwind Transport Authority has been successfully created")
       expect(page).to have_selector("[data-testid='assignment-client']", text: "Northwind Transport Authority (NTA)")
       expect(page).to have_selector("[data-testid='assignment-location']", text: "Brisbane, Australia (remote)")
+      expect(page).to have_selector("[data-testid='assignment-project']", text: "Ticketing Upgrade")
     end
 
     it "Updates and deletes an Assignment" do
@@ -48,7 +50,7 @@ RSpec.describe "Dossier Assignments", type: :feature do
       sign_in_as(charlie)
       visit dossier_assignment_path(assignment)
       click_link "Edit Assignment"
-      fill_in "End Month", with: "2020-06"
+      fill_in_dossier_month "End", with: "2020-06"
       click_button "Update Assignment"
       expect(page).to have_selector("[data-testid='assignment-dates']", text: "Apr 2019 – Jun 2020")
 
@@ -70,6 +72,8 @@ RSpec.describe "Dossier Assignments", type: :feature do
         expect(page).to have_selector("[data-testid='tech-stack-system-under-test']", text: "Ticketing platform")
         expect(page).to have_link("Jira")
         expect(page).to have_link("Robot Framework")
+        # One flex item, so the cell's flex gap can't open a space before each comma.
+        expect(page).to have_selector("[data-testid='tech-stack-test-tools'] > span", exact_text: "Jira, Robot Framework")
         expect(page).to have_selector("[data-testid='tech-stack-protocols']", text: "N/A")
       end
     end

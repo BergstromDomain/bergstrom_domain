@@ -469,7 +469,8 @@ CREATE TABLE public.dossier_assignments (
     methodologies_na boolean DEFAULT false NOT NULL,
     test_tools_na boolean DEFAULT false NOT NULL,
     other_tools_na boolean DEFAULT false NOT NULL,
-    protocols_na boolean DEFAULT false NOT NULL
+    protocols_na boolean DEFAULT false NOT NULL,
+    project character varying
 );
 
 
@@ -3433,6 +3434,7 @@ ALTER TABLE ONLY public.dossier_profiles
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261031090000'),
 ('20261030062938'),
 ('20261030062152'),
 ('20261030061503'),

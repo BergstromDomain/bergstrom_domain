@@ -7,7 +7,7 @@
 # the whole month, and a current one runs to today.
 class Dossier::Timeline
   Period = Data.define(:from, :to) do
-    def date_range = "#{from.strftime('%b %Y')} – #{to.strftime('%b %Y')}"
+    def date_range = [ from, to ].map { |date| date.strftime("%b %Y") }.uniq.join(" – ")
     def duration   = Dossier::Timeline.duration(from, to)
   end
 
@@ -28,8 +28,14 @@ class Dossier::Timeline
     "#{years}+ #{'year'.pluralize(years)}"
   end
 
+  # One Engagement's bench time, for its own page.
+  def self.bench_for(engagement, today: Date.current)
+    new(Dossier::Engagement.none, today: today).bench_for(engagement)
+  end
+
   def initialize(engagements, today: Date.current)
-    @engagements = engagements.includes(:employment_type, assignments: [ :client, :role, :engagement ]).to_a
+    # Rows show "Client - Project", so Roles aren't loaded.
+    @engagements = engagements.includes(:employment_type, assignments: :client).to_a
     @today = today
   end
 
@@ -42,6 +48,24 @@ class Dossier::Timeline
     (engagement_entries + gap_entries).sort_by { |entry| [ entry.period.to, entry.period.from ] }.reverse
   end
 
+  # The bench or gap entry with exactly these dates (a bench knows its
+  # Engagement), or nil.
+  def period(from, to)
+    candidates = entries.flat_map do |entry|
+      next [ entry ] if entry.kind == :gap
+
+      entry.bench.map { |bench| Entry.new(kind: :bench, engagement: entry.engagement, bench: [], period: bench) }
+    end
+    candidates.find { |entry| entry.period.from == from && entry.period.to == to }
+  end
+
+  def bench_for(engagement)
+    outer = period_for(engagement)
+    covered = merge(engagement.assignments.map { |a| period_for(a) })
+    edges = [ Period.new(from: outer.from, to: outer.from - 1) ] + covered + [ Period.new(from: outer.to + 1, to: outer.to) ]
+    holes(edges)
+  end
+
   private
 
   def period_for(dated)
@@ -50,13 +74,6 @@ class Dossier::Timeline
 
   def gaps
     holes(merge(@engagements.map { |e| period_for(e) }))
-  end
-
-  def bench_for(engagement)
-    outer = period_for(engagement)
-    covered = merge(engagement.assignments.map { |a| period_for(a) })
-    edges = [ Period.new(from: outer.from, to: outer.from - 1) ] + covered + [ Period.new(from: outer.to + 1, to: outer.to) ]
-    holes(edges)
   end
 
   # Merge overlapping or touching periods (sorted by start).

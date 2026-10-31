@@ -12,31 +12,24 @@
   <% entries.each do |entry| %>
     <% if entry.kind == :gap %>
       <p class="dossier-timeline-gap" data-testid="timeline-gap">
-        <%= lucide_icon("clock", size: 14) %> Gap · <%= entry.date_range %> · <%= entry.duration %>
+        <span class="dossier-timeline-gap__label">
+          <%= lucide_icon("clock", size: 14) %>
+          <%= link_to "Gap · #{entry.duration}", period_path_for(entry.period), data: { testid: "timeline-gap-label" } %>
+        </span>
+        <span class="dossier-assignment-row__dates"><%= entry.date_range %></span>
       </p>
     <% else %>
       <% engagement = entry.engagement %>
       <div class="show-panel" data-testid="engagement-card">
         <div class="show-panel__section">
-          <h2 class="show-panel__heading" data-testid="engagement-title">
+          <h2 class="show-panel__heading dossier-timeline-card__title" data-testid="engagement-title">
             <%= link_to engagement.to_toast_label, dossier_engagement_path(engagement), class: "data-table__name-link" %>
           </h2>
-          <p><%= engagement.employment_type.name %> · <%= engagement.date_range %></p>
-          <% rows = engagement.assignments.map { |a| [ a.effective_end || Date.current, a ] } +
-                    entry.bench.map { |period| [ period.to, period ] } %>
-          <% if rows.any? %>
-            <ul class="dossier-assignment-list">
-              <% rows.sort_by(&:first).reverse_each do |_, row| %>
-                <% if row.is_a?(Dossier::Assignment) %>
-                  <%= render "dossier/assignments/row", assignment: row %>
-                <% else %>
-                  <li class="dossier-assignment-row dossier-assignment-row--bench" data-testid="timeline-bench">
-                    <span>Bench · <%= row.date_range %> · <%= row.duration %></span>
-                  </li>
-                <% end %>
-              <% end %>
-            </ul>
-          <% end %>
+          <p class="dossier-timeline-card__meta">
+            <span data-testid="engagement-type"><%= engagement.employment_type.name %></span>
+            <span class="dossier-assignment-row__dates" data-testid="engagement-dates"><%= engagement.date_range %></span>
+          </p>
+          <%= render "dossier/engagements/assignment_list", engagement: engagement, bench: entry.bench %>
         </div>
       </div>
     <% end %>

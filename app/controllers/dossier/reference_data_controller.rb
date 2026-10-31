@@ -17,7 +17,7 @@ class Dossier::ReferenceDataController < ApplicationController
 
   class_attribute :content_creators_can_create, default: false
 
-  helper_method :model_class, :singular_name, :plural_name, :subtitle, :details
+  helper_method :model_class, :singular_name, :plural_name, :subtitle, :details, :index_groups
 
   def index
     @records = model_class.alphabetical
@@ -80,6 +80,9 @@ class Dossier::ReferenceDataController < ApplicationController
 
   # [label, value, testid] rows for the show page, after the name.
   def details(_record) = []
+
+  # [heading, records] pairs for the index; a nil heading shows no subheader.
+  def index_groups = [ [ nil, @records ] ]
 
   # ── Shared ────────────────────────────────────────────────────────────────
   def singular_name = model_class.model_name.human.titleize

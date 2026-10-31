@@ -1,0 +1,84 @@
+<% kinds = (@result.created.keys + @result.existing.keys).uniq %>
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Import Preview</h1>
+  </div>
+</div>
+
+<% if @result.errors.any? %>
+  <div class="show-panel" data-testid="import-errors">
+    <h2 class="show-panel__heading">Errors</h2>
+    <p>Nothing can be imported until these are fixed in the file.</p>
+    <ul>
+      <% @result.errors.each do |error| %>
+        <li data-testid="import-error"><%= error %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<% if @result.warnings.any? %>
+  <div class="show-panel" data-testid="import-warnings">
+    <h2 class="show-panel__heading">Warnings</h2>
+    <ul>
+      <% @result.warnings.each do |warning| %>
+        <li data-testid="import-warning"><%= warning %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<% if kinds.any? %>
+  <div class="show-panel" data-testid="import-counts">
+    <h2 class="show-panel__heading">What The File Contains</h2>
+    <div class="data-table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Record</th>
+            <th>New</th>
+            <th>Already Exists</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% kinds.each do |kind| %>
+            <% created, existing = @result.created.fetch(kind, []), @result.existing.fetch(kind, []) %>
+            <tr data-testid="import-count-row">
+              <td><%= kind.pluralize %></td>
+              <td>
+                <% if created.any? %>
+                  <details>
+                    <summary><%= created.size %> new</summary>
+                    <ul><% created.each do |label| %><li><%= label %></li><% end %></ul>
+                  </details>
+                <% end %>
+              </td>
+              <td>
+                <% if existing.any? %>
+                  <details>
+                    <summary><%= existing.size %> already <%= existing.size == 1 ? "exists" : "exist" %></summary>
+                    <ul><% existing.each do |label| %><li><%= label %></li><% end %></ul>
+                  </details>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>
+
+<%= form_with url: dossier_import_path, method: :post, data: { turbo: false } do |f| %>
+  <%= hidden_field_tag :yaml, @text %>
+  <div class="show-panel show-panel--actions">
+    <%= link_to "Back", new_dossier_import_path, class: "btn btn-secondary" %>
+    <% if @result.ok? && @result.created.any? %>
+      <button type="submit" class="btn btn-primary" data-testid="import-button">
+        <%= lucide_icon("upload", size: 16) %> Import
+      </button>
+    <% elsif @result.ok? %>
+      <p data-testid="import-nothing-new">Nothing new to import.</p>
+    <% end %>
+  </div>
+<% end %>

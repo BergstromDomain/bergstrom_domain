@@ -84,6 +84,11 @@ Rails.application.routes.draw do
   get "dossier",       to: "pages#dossier",       as: :dossier
   namespace :dossier do
     resource :profile, only: %i[show edit update]
+    resource :import, only: %i[new create] do
+      post :preview
+    end
+    get "timeline/:from/:to", to: "periods#show", as: :period,
+                              constraints: { from: /\d{4}-\d{2}-\d{2}/, to: /\d{4}-\d{2}-\d{2}/ }
     resources :engagements
     resources :assignments, except: :index
     resources :employment_types, :industries, :locations, :organisations, :roles, :skill_categories, :skills

@@ -42,9 +42,8 @@
   <div class="show-panel__section">
     <h2 class="show-panel__heading">Assignments</h2>
     <% if @engagement.assignments.any? %>
-      <ul class="dossier-assignment-list">
-        <%= render partial: "dossier/assignments/row", collection: @engagement.assignments.newest_first, as: :assignment %>
-      </ul>
+      <%= render "dossier/engagements/assignment_list", engagement: @engagement,
+                 bench: Dossier::Timeline.bench_for(@engagement) %>
     <% else %>
       <p>No Assignments yet.</p>
     <% end %>

@@ -23,6 +23,10 @@
       <p class="show-meta-cell__value" data-testid="assignment-client"><%= @assignment.client.label %></p>
     </div>
     <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Project</h3>
+      <p class="show-meta-cell__value" data-testid="assignment-project"><%= @assignment.project || "—" %></p>
+    </div>
+    <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Role</h3>
       <p class="show-meta-cell__value" data-testid="assignment-role"><%= @assignment.role_name %></p>
     </div>
@@ -62,7 +66,8 @@
           <% if @assignment.public_send(:"#{plural}_na") %>
             N/A
           <% else %>
-            <%= safe_join(@assignment.skills_in(slot).map { |skill| link_to(skill.name, dossier_skill_path(skill)) }, ", ") %>
+            <%# One span: the cell is a flex row, whose gap would land before each comma. %>
+            <span><%= safe_join(@assignment.skills_in(slot).map { |skill| link_to(skill.name, dossier_skill_path(skill)) }, ", ") %></span>
           <% end %>
         </p>
       </div>
