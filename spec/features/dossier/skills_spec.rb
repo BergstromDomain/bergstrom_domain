@@ -11,7 +11,7 @@ RSpec.describe "Dossier Skills", type: :feature do
   let(:record_name) { "Selenium" }
   let!(:test_tools) { create(:dossier_skill_category, name: "Test Tools") }
 
-  def sortable_attributes(text) = { name: text }
+  def sortable_attributes(text) = { name: text, skill_category: test_tools }
   def fill_name(text) = fill_in("Name", with: text)
 
   def fill_valid_form
@@ -31,6 +31,17 @@ RSpec.describe "Dossier Skills", type: :feature do
 
       expect(page).to have_selector("[data-testid='detail-skill-category']", text: "Test Tools")
       expect(page).to have_selector("[data-testid='detail-aliases']", text: "Selenium WebDriver, WebDriver")
+    end
+
+    it "Lists Skills under their Skill Categories, both alphabetically" do
+      methods = create(:dossier_skill_category, name: "Methodologies")
+      create(:dossier_skill, name: "Selenium", skill_category: test_tools)
+      create(:dossier_skill, name: "Cypress", skill_category: test_tools)
+      create(:dossier_skill, name: "Scrum", skill_category: methods)
+      visit index_path
+
+      expect(all("[data-testid='reference-data-group']").map(&:text)).to eq([ "Methodologies (1)", "Test Tools (2)" ])
+      expect(all("[data-testid='reference-data-name']").map(&:text)).to eq(%w[Scrum Cypress Selenium])
     end
   end
 end

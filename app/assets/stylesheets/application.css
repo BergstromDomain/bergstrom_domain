@@ -3228,3 +3228,63 @@ textarea.form-control {
   justify-content: space-between;
   gap: var(--space-xs) var(--space-md);
 }
+
+/* Index subheaders: one per group (e.g. Skills under their Skill Category). */
+.data-table .data-table__group th {
+  padding-top: var(--space-md);
+  font-size: var(--font-size-md);
+  color: var(--color-accent);
+  text-transform: none;
+  letter-spacing: normal;
+  background-color: var(--color-surface-raised);
+  border-top: 1px solid var(--color-border);
+}
+
+.data-table__group-count {
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-secondary);
+}
+
+/* A second meta row in the same panel (e.g. the Profile's links). */
+.show-meta-row--stacked {
+  margin-top: var(--space-lg);
+}
+
+/* Info icon with an explanation on hover or keyboard focus. */
+.info-tip {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+  margin-left: var(--space-2xs);
+  color: var(--color-text-secondary);
+  cursor: help;
+}
+
+.info-tip:hover,
+.info-tip:focus-visible {
+  color: var(--color-accent);
+}
+
+.info-tip__text {
+  display: none;
+  position: absolute;
+  top: calc(100% + var(--space-2xs));
+  left: 0;
+  z-index: 20;
+  width: min(28rem, 80vw);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 12%);
+}
+
+.info-tip:hover .info-tip__text,
+.info-tip:focus .info-tip__text,
+.info-tip:focus-within .info-tip__text {
+  display: block;
+}

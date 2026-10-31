@@ -20,19 +20,26 @@
           <th>Description</th>
         </tr>
       </thead>
-      <tbody>
-        <% @records.each do |record| %>
-          <tr data-testid="reference-data-row">
-            <td>
-              <%= link_to record.to_toast_label, polymorphic_path(record),
-                    class: "data-table__name-link", data: { testid: "reference-data-name" } %>
-            </td>
-            <td class="data-table__description" data-testid="reference-data-description">
-              <%= record.description %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
+      <% index_groups.each do |heading, records| %>
+        <tbody>
+          <% if heading %>
+            <tr class="data-table__group" data-testid="reference-data-group">
+              <th colspan="2"><%= heading %> <span class="data-table__group-count">(<%= records.size %>)</span></th>
+            </tr>
+          <% end %>
+          <% records.each do |record| %>
+            <tr data-testid="reference-data-row">
+              <td>
+                <%= link_to record.to_toast_label, polymorphic_path(record),
+                      class: "data-table__name-link", data: { testid: "reference-data-name" } %>
+              </td>
+              <td class="data-table__description" data-testid="reference-data-description">
+                <%= record.description %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      <% end %>
     </table>
   </div>
 <% else %>

@@ -81,6 +81,28 @@ RSpec.describe "Dossier Profile", type: :feature do
       expect(page).to have_selector("[data-testid='profile-pronouns']", text: "She/Her")
     end
 
+    it "Explains the three summaries in an info tip, on the Profile and its form" do
+      create(:dossier_profile, user: charlie, display_name: "Charlie Content Creator")
+      sign_in_as(charlie)
+      visit dossier_profile_path
+      expect(page).to have_selector("[data-testid='profile-summary-info']", text: "First-Person Summary speaks as you", visible: :all)
+
+      click_link "Edit Profile"
+      expect(page).to have_selector("[data-testid='summary-info']", visible: :all)
+    end
+
+    it "Puts the Website, LinkedIn and GitHub links on their own row" do
+      create(:dossier_profile, user: charlie, display_name: "Charlie Content Creator",
+                               website_url: "https://example.com", github_url: "https://github.com/example")
+      sign_in_as(charlie)
+      visit dossier_profile_path
+
+      rows = all("[data-testid='profile-meta-row']")
+      expect(rows.size).to eq(2)
+      expect(rows.last.all(".show-meta-cell__label").map(&:text)).to eq(%w[Website LinkedIn GitHub])
+      expect(rows.last).to have_link("https://github.com/example")
+    end
+
     it "Is reachable from the left nav's My Career group" do
       sign_in_as(charlie)
       visit dossier_path
