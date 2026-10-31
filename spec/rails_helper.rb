@@ -38,6 +38,7 @@ RSpec.configure do |config|
   config.include AuthenticationHelpers, type: :feature
   config.include RequestAuthenticationHelpers, type: :request
   config.include JsClickHelper, type: :feature
+  config.include DossierDateHelper, type: :feature
 
   # Database Cleaner
   config.before(:suite) { DatabaseCleaner.clean_with(:truncation) }

@@ -17,7 +17,13 @@
           field: f.collection_select(:employment_type_id, Dossier::EmploymentType.alphabetical, :id, :name,
                                      { include_blank: "Choose an employment type" }, class: "form-control",
                                      data: { testid: "employment-type-field" }),
-          hint: "A permanent type gives this Engagement one Assignment automatically, with the employer as client." %>
+          hint: safe_join([ "A permanent type gives this Engagement one Assignment automatically, with the employer as client. Not listed? ",
+                            (if current_user.can_administer?
+                               safe_join([ link_to("Add An Employment Type", new_dossier_employment_type_path, target: "_blank", rel: "noopener"),
+                                           " in a new tab, then reload this page." ])
+                             else
+                               "Ask an Admin to add it."
+                             end) ]) %>
     <%= render "dossier/shared/field", f: f, record: engagement, attribute: :position_title, label: "Position Title",
           hint: "Your job title at the employer or agency." %>
   </div>

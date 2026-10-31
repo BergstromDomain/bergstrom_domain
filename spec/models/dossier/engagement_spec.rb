@@ -91,6 +91,14 @@ RSpec.describe Dossier::Engagement, type: :model do
       expect(engagement.errors[:start_day]).to include("is not a day in that month")
     end
 
+    it "Is invalid with a month that doesn't exist, or a year without a month" do
+      [ { start_month: "2019-13" }, { start_year: "2019", start_month_number: "" }, { start_year: "19", start_month_number: "5" } ].each do |dates|
+        engagement = build(:dossier_engagement, **dates)
+        expect(engagement).not_to be_valid
+        expect(engagement.errors[:start_month]).to include("needs a four-digit year and a month, e.g. 2019 and May")
+      end
+    end
+
     it "Is invalid when a date change would leave an Assignment outside it" do
       engagement = create(:dossier_engagement, start_month: "2019-03", end_month: "2022-06")
       create(:dossier_assignment, engagement: engagement, start_month: "2019-03", end_month: "2020-01")
@@ -106,6 +114,12 @@ RSpec.describe Dossier::Engagement, type: :model do
       engagement = build(:dossier_engagement, :current, start_month: "2024-08")
       expect(engagement).to be_current
       expect(engagement.date_range).to eq("Aug 2024 – Present")
+    end
+
+    it "Takes a month as a year and a month number, as the form sends them" do
+      engagement = build(:dossier_engagement, start_year: "2019", start_month_number: "5")
+      expect(engagement.start_on).to eq(Date.new(2019, 5, 1))
+      expect([ engagement.start_month, engagement.start_year, engagement.start_month_number ]).to eq([ "2019-05", "2019", "5" ])
     end
 
     it "Moves a permanent job's Assignment along with its dates" do

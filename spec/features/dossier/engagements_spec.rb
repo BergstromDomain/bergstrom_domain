@@ -15,8 +15,8 @@ RSpec.describe "Dossier Engagements", type: :feature do
     select "Consultancy A", from: "Employer"
     select type, from: "Employment Type"
     fill_in "Position Title", with: position
-    fill_in "Start Month", with: start_month
-    fill_in "End Month", with: end_month
+    fill_in_dossier_month "Start", with: start_month
+    fill_in_dossier_month "End", with: end_month
   end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
@@ -126,6 +126,30 @@ RSpec.describe "Dossier Engagements", type: :feature do
       expect(page).to have_selector("[data-testid='engagement-dates']", text: "15 Mar 2019 – Present")
     end
 
+    it "Takes the month from a list, so a year and \"May\" make a valid date" do
+      sign_in_as(charlie)
+      visit new_dossier_engagement_path
+      fill_engagement(end_month: "")
+      fill_in "Start Year", with: "2019"
+      select "May", from: "Start Month"
+      click_button "Create Engagement"
+
+      expect(page).to have_selector("[data-testid='engagement-dates']", text: "May 2019 – Present")
+    end
+
+    it "Links an Admin to Add An Employment Type" do
+      sign_in_as(admin)
+      visit new_dossier_engagement_path
+      expect(page).to have_link("Add An Employment Type", href: new_dossier_employment_type_path)
+    end
+
+    it "Asks a Content Creator to ask an Admin for a missing Employment Type" do
+      sign_in_as(charlie)
+      visit new_dossier_engagement_path
+      expect(page).not_to have_link("Add An Employment Type")
+      expect(page).to have_content("Not listed? Ask an Admin to add it.")
+    end
+
     it "Lets an admin read another user's Engagement" do
       engagement = create(:dossier_engagement, user: chris, position_title: "Test Lead", employer: consultancy)
       sign_in_as(admin)
@@ -145,6 +169,16 @@ RSpec.describe "Dossier Engagements", type: :feature do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
+    it "Shows an error for a year without a month" do
+      sign_in_as(charlie)
+      visit new_dossier_engagement_path
+      fill_engagement(end_month: "")
+      select "Choose a month", from: "Start Month"
+      click_button "Create Engagement"
+
+      expect(page).to have_content("Start month needs a four-digit year and a month, e.g. 2019 and May")
+    end
+
     it "Shows an error for a day that isn't in the month" do
       sign_in_as(charlie)
       visit new_dossier_engagement_path

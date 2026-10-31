@@ -17,8 +17,8 @@ RSpec.describe "Dossier Assignments", type: :feature do
   def fill_assignment(start_month: "2019-04", end_month: "2020-01")
     select "Northwind Transport Authority", from: "Client"
     select "Test Lead", from: "Role"
-    fill_in "Start Month", with: start_month
-    fill_in "End Month", with: end_month
+    fill_in_dossier_month "Start", with: start_month
+    fill_in_dossier_month "End", with: end_month
     fill_in "System Under Test", with: "Ticketing platform"
     %w[operating-systems methodologies test-tools other-tools protocols].each do |list|
       find("[data-testid='#{list}-na-field']").check
@@ -50,7 +50,7 @@ RSpec.describe "Dossier Assignments", type: :feature do
       sign_in_as(charlie)
       visit dossier_assignment_path(assignment)
       click_link "Edit Assignment"
-      fill_in "End Month", with: "2020-06"
+      fill_in_dossier_month "End", with: "2020-06"
       click_button "Update Assignment"
       expect(page).to have_selector("[data-testid='assignment-dates']", text: "Apr 2019 – Jun 2020")
 
