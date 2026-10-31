@@ -571,13 +571,10 @@
         </h2>
 
         <div class="left-nav-section__body"<%= ' aria-hidden="true"'.html_safe if left_nav_section_collapsed?('actions') %>>
-        <% if dossier_policy.can_create? || current_user.can_administer? %>
+        <% if dossier_policy.can_create? %>
           <h3 class="left-nav-h3" data-testid="left-nav-new-h3">
             New
           </h3>
-        <% end %>
-
-        <% if dossier_policy.can_create? %>
           <%= link_to new_dossier_engagement_path, class: "left-nav-link" do %>
             <%= lucide_icon("briefcase-business", size: 15) %>
             <span>Create An Engagement</span>
@@ -597,6 +594,9 @@
         <% end %>
 
         <% if current_user.can_administer? %>
+          <h3 class="left-nav-h3" data-testid="left-nav-actions-reference-data-h3">
+            Reference Data
+          </h3>
           <%= link_to new_dossier_industry_path, class: "left-nav-link" do %>
             <%= lucide_icon("factory", size: 15) %>
             <span>Add An Industry</span>
@@ -605,13 +605,13 @@
             <%= lucide_icon("user-cog", size: 15) %>
             <span>Add A Role</span>
           <% end %>
-          <%= link_to new_dossier_employment_type_path, class: "left-nav-link" do %>
-            <%= lucide_icon("file-signature", size: 15) %>
-            <span>Add An Employment Type</span>
-          <% end %>
           <%= link_to new_dossier_location_path, class: "left-nav-link" do %>
             <%= lucide_icon("map-pin", size: 15) %>
             <span>Add A Location</span>
+          <% end %>
+          <%= link_to new_dossier_employment_type_path, class: "left-nav-link" do %>
+            <%= lucide_icon("file-signature", size: 15) %>
+            <span>Add An Employment Type</span>
           <% end %>
           <%= link_to new_dossier_skill_category_path, class: "left-nav-link" do %>
             <%= lucide_icon("folder-tree", size: 15) %>
