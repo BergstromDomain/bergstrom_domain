@@ -26,7 +26,7 @@ class Dossier::Assignment < ApplicationRecord
   # "Client - Project" (just the client without one), to tell one client's
   # Assignments apart.
   def heading
-    [ client&.name, project ].compact.join(" - ")
+    [ client&.short_name, project ].compact.join(" - ")
   end
 
   def fits_within?(outer)

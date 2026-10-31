@@ -87,6 +87,12 @@ RSpec.describe Dossier::Assignment, type: :model do
       expect(assignment.heading).to eq("Northwind")
     end
 
+    it "Heads the row with the client's abbreviation when it has one" do
+      assignment = build(:dossier_assignment, project: "Digital Licencing",
+                                              client: build(:dossier_organisation, name: "Northwind Transport Authority", abbreviation: "NTA"))
+      expect(assignment.heading).to eq("NTA - Digital Licencing")
+    end
+
     it "Uses the Engagement's position title when it has no Role" do
       assignment = build(:dossier_assignment, engagement: engagement, role: nil,
                                               client: build(:dossier_organisation, name: "Northwind"))

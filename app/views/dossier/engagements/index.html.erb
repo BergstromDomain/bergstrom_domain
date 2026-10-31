@@ -29,22 +29,7 @@
             <span data-testid="engagement-type"><%= engagement.employment_type.name %></span>
             <span class="dossier-assignment-row__dates" data-testid="engagement-dates"><%= engagement.date_range %></span>
           </p>
-          <% rows = engagement.assignments.map { |a| [ a.effective_end || Date.current, a ] } +
-                    entry.bench.map { |period| [ period.to, period ] } %>
-          <% if rows.any? %>
-            <ul class="dossier-assignment-list">
-              <% rows.sort_by(&:first).reverse_each do |_, row| %>
-                <% if row.is_a?(Dossier::Assignment) %>
-                  <%= render "dossier/assignments/row", assignment: row %>
-                <% else %>
-                  <li class="dossier-assignment-row dossier-assignment-row--bench" data-testid="timeline-bench">
-                    <%= link_to "Bench · #{row.duration}", period_path_for(row), data: { testid: "timeline-bench-label" } %>
-                    <span class="dossier-assignment-row__dates"><%= row.date_range %></span>
-                  </li>
-                <% end %>
-              <% end %>
-            </ul>
-          <% end %>
+          <%= render "dossier/engagements/assignment_list", engagement: engagement, bench: entry.bench %>
         </div>
       </div>
     <% end %>

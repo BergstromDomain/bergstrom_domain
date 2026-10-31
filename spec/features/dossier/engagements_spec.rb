@@ -116,6 +116,21 @@ RSpec.describe "Dossier Engagements", type: :feature do
 
   # 3) Alternative Paths ───────────────────────────────────────────────────────
   describe "Alternative Paths" do
+    it "Shows bench time among the Assignments, as on the Timeline" do
+      engagement = create(:dossier_engagement, user: charlie, employer: consultancy, start_month: "2019-01", end_month: "2019-12")
+      create(:dossier_assignment, engagement: engagement, client: consultancy, start_month: "2019-01", end_month: "2019-06")
+      create(:dossier_assignment, engagement: engagement, client: consultancy, start_month: "2019-08", end_month: "2019-12")
+      sign_in_as(charlie)
+      visit dossier_engagement_path(engagement)
+
+      within("[data-testid='engagement-assignments']") do
+        rows = all("[data-testid='assignment-row'], [data-testid='timeline-bench']")
+        expect(rows.map { |row| row["data-testid"] }).to eq(%w[assignment-row timeline-bench assignment-row])
+        expect(page).to have_link("Bench · 1 month")
+        expect(page).to have_selector("[data-testid='timeline-bench']", text: "Jul 2019")
+      end
+    end
+
     it "Takes an exact start day and no end for a current job" do
       sign_in_as(charlie)
       visit new_dossier_engagement_path
