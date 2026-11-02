@@ -75,6 +75,50 @@
   </div>
 </div>
 
+<%# Achievements div — the CV bullet points, in order %>
+<div class="show-panel" id="achievements" data-testid="assignment-achievements">
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">Achievements</h2>
+    <% achievements = @assignment.achievements %>
+    <% if achievements.any? %>
+      <ol class="dossier-achievement-list">
+        <% achievements.each_with_index do |achievement, index| %>
+          <li class="dossier-achievement" data-testid="achievement-row">
+            <div class="dossier-achievement__body">
+              <%= link_to achievement.text, dossier_achievement_path(achievement), data: { testid: "achievement-link" } %>
+              <p class="dossier-achievement__meta">
+                <span data-testid="achievement-row-importance">Importance <%= achievement.importance %></span>
+                <% if achievement.impact %>
+                  <span data-testid="achievement-row-impact">· <%= achievement.impact %></span>
+                <% end %>
+                <% if achievement.current_skills.any? %>
+                  <span data-testid="achievement-row-skills">· <%= achievement.current_skills.map(&:name).join(", ") %></span>
+                <% end %>
+              </p>
+            </div>
+            <% if policy.can_update? %>
+              <span class="dossier-achievement__moves">
+                <%= button_to move_dossier_achievement_path(achievement, direction: "up"), method: :patch,
+                      class: "icon-button", title: "Move up", disabled: index.zero?,
+                      data: { testid: "achievement-move-up" } do %>
+                  <%= lucide_icon("arrow-up", size: 16) %>
+                <% end %>
+                <%= button_to move_dossier_achievement_path(achievement, direction: "down"), method: :patch,
+                      class: "icon-button", title: "Move down", disabled: index == achievements.size - 1,
+                      data: { testid: "achievement-move-down" } do %>
+                  <%= lucide_icon("arrow-down", size: 16) %>
+                <% end %>
+              </span>
+            <% end %>
+          </li>
+        <% end %>
+      </ol>
+    <% else %>
+      <p data-testid="achievements-empty">No Achievements yet.</p>
+    <% end %>
+  </div>
+</div>
+
 <%# Actions div %>
 <div class="show-panel show-panel--actions" data-testid="show-panel-actions">
   <%= link_to dossier_engagement_path(@assignment.engagement), class: "btn btn-secondary" do %>
@@ -82,6 +126,10 @@
   <% end %>
 
   <% if policy.can_update? %>
+    <span class="btn-divider">|</span>
+    <%= link_to new_dossier_achievement_path(assignment_id: @assignment.id), class: "btn btn-primary-action" do %>
+      <%= lucide_icon("plus", size: 16) %> Add Achievement
+    <% end %>
     <span class="btn-divider">|</span>
     <%= link_to edit_dossier_assignment_path(@assignment), class: "btn btn-secondary" do %>
       <%= lucide_icon("pencil", size: 16) %> Edit Assignment

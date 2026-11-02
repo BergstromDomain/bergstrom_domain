@@ -74,4 +74,9 @@ FactoryBot.define do
     other_tools_na       { true }
     protocols_na         { true }
   end
+
+  factory :dossier_achievement, class: "Dossier::Achievement" do
+    association :assignment, factory: :dossier_assignment
+    sequence(:text) { |n| "Ran daily defect triage for release #{n}" }
+  end
 end

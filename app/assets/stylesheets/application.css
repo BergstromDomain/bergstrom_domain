@@ -3296,3 +3296,40 @@ textarea.form-control {
 .info-tip:focus-within .info-tip__text {
   display: block;
 }
+
+/* Achievements on the Assignment page: numbered bullets, Up/Down on the right. */
+.dossier-achievement-list {
+  margin: 0;
+  padding-left: var(--space-lg);
+}
+
+.dossier-achievement {
+  padding: var(--space-xs) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.dossier-achievement > * {
+  vertical-align: top;
+}
+
+.dossier-achievement__body {
+  display: inline-block;
+  width: calc(100% - 4rem);
+}
+
+.dossier-achievement__meta {
+  margin-top: var(--space-2xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.dossier-achievement__moves {
+  float: right;
+  display: inline-flex;
+  gap: var(--space-xs);
+}
+
+.dossier-achievement__moves .icon-button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}

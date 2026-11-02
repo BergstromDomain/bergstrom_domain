@@ -12,6 +12,9 @@ class Dossier::Assignment < ApplicationRecord
   belongs_to :client,   class_name: "Dossier::Organisation"
   belongs_to :role,     optional: true
   belongs_to :location, optional: true
+  # Deleted Achievements go too, so all_achievements does the destroying.
+  has_many   :all_achievements, class_name: "Dossier::Achievement", dependent: :destroy
+  has_many   :achievements, -> { kept.in_order }, inverse_of: :assignment
 
   normalizes :summary, :project, with: ->(value) { value.strip.presence }
 

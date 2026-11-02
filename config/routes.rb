@@ -91,6 +91,9 @@ Rails.application.routes.draw do
                               constraints: { from: /\d{4}-\d{2}-\d{2}/, to: /\d{4}-\d{2}-\d{2}/ }
     resources :engagements
     resources :assignments, except: :index
+    resources :achievements, except: :index do
+      patch :move, on: :member
+    end
     resources :employment_types, :industries, :locations, :organisations, :roles, :skill_categories, :skills
   end
 

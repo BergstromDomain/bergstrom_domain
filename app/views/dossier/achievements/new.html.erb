@@ -1,0 +1,8 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">New Achievement</h1>
+  </div>
+</div>
+
+<%= render "form", achievement: @achievement, panel: "new", submit_label: "Create Achievement",
+      cancel_path: @achievement.assignment ? dossier_assignment_path(@achievement.assignment) : dossier_engagements_path %>

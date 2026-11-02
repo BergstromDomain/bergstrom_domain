@@ -65,7 +65,7 @@ class Dossier::AssignmentsController < ApplicationController
   end
 
   def set_assignment
-    @assignment = Dossier::Assignment.includes(assignment_skills: :skill).find(params[:id])
+    @assignment = Dossier::Assignment.includes(assignment_skills: :skill, achievements: { achievement_skills: :skill }).find(params[:id])
   end
 
   def assignment_params

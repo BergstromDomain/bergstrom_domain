@@ -21,3 +21,7 @@ production:
     class: PurgeDeletedRecipesJob
     queue: default
     schedule: every day at 3am
+  purge_deleted_dossier_achievements:
+    class: PurgeDeletedDossierAchievementsJob
+    queue: default
+    schedule: every day at 3am

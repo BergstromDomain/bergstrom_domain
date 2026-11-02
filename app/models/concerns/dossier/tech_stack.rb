@@ -76,7 +76,7 @@ module Dossier
       new_skills = {}
       tech_stack_text.each do |slot, text|
         names = text.split(",").map(&:strip).compact_blank.uniq(&:downcase)
-        wanted = names.map { |name| Dossier::Skill.find_by_name_or_alias(name) || (new_skills[name.downcase] ||= new_skill(name)) }.uniq
+        wanted = names.map { |name| Dossier::Skill.find_by_name_or_alias(name) || (new_skills[name.downcase] ||= Dossier::Skill.new_uncategorised(name)) }.uniq
 
         current = assignment_skills.reject(&:marked_for_destruction?).select { |as| as.stack_slot == slot.to_s }
         current.each { |as| as.mark_for_destruction unless wanted.include?(as.skill) }
@@ -85,10 +85,6 @@ module Dossier
         end
       end
       tech_stack_text.clear
-    end
-
-    def new_skill(name)
-      Dossier::Skill.new(name: name, skill_category: Dossier::SkillCategory.find_or_create_by!(name: UNCATEGORISED))
     end
 
     def tech_stack_lists_are_complete

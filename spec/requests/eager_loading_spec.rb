@@ -105,6 +105,17 @@ RSpec.describe "Eager loading", type: :request do
 
       expect(response).to have_http_status(:ok)
     end
+
+    it "Loads an Assignment's Achievements and their Skills without N+1 queries" do
+      assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam),
+                                               test_tools_na: false, test_tools_text: "Jira")
+      create(:dossier_achievement, assignment: assignment, skills_text: "Jira, Excel")
+      create(:dossier_achievement, assignment: assignment, skills_text: "Selenium")
+
+      without_n_plus_one_queries { get dossier_assignment_path(assignment) }
+
+      expect(response).to have_http_status(:ok)
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────

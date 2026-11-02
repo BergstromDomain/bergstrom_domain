@@ -4,6 +4,7 @@ class Dossier::Skill < ApplicationRecord
 
   belongs_to :skill_category
   has_many :assignment_skills, dependent: :restrict_with_error
+  has_many :achievement_skills, dependent: :restrict_with_error
 
   before_validation :tidy_aliases
 
@@ -15,6 +16,12 @@ class Dossier::Skill < ApplicationRecord
     return if text.empty?
 
     find_by("LOWER(name) = :text OR :text = ANY (SELECT LOWER(a) FROM unnest(aliases) AS a)", text: text)
+  end
+
+  # An unsaved Skill for a name typed in a Tech Stack or Achievement, to be
+  # filed properly later.
+  def self.new_uncategorised(name)
+    new(name: name, skill_category: Dossier::SkillCategory.find_or_create_by!(name: Dossier::TechStack::UNCATEGORISED))
   end
 
   def aliases_text

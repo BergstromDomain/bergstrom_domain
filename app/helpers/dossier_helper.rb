@@ -14,4 +14,10 @@ module DossierHelper
       tag.strong("Third-Person Summary"), " uses your Third-Person Name, \"Alex leads…\", for bios and introductions."
     ])
   end
+
+  # "5 (highest)" … "3 (default)" … "1 (lowest)".
+  def importance_label(importance)
+    note = { 5 => "highest", 3 => "default", 1 => "lowest" }[importance]
+    note ? "#{importance} (#{note})" : importance.to_s
+  end
 end
