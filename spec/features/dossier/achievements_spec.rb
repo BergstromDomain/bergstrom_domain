@@ -67,6 +67,44 @@ RSpec.describe "Dossier Achievements", type: :feature do
       all("[data-testid='achievement-move-down']").first.click
       expect(texts).to eq(%w[Third First Second])
     end
+    it "Lists every Achievement by Engagement › Assignment on My Career › Achievements" do
+      older = create(:dossier_engagement, user: charlie, employer: northwind, position_title: "Test Lead",
+                                          start_month: "2015-01", end_month: "2018-12")
+      older_assignment = create(:dossier_assignment, engagement: older, client: northwind, project: "Rail")
+      create(:dossier_assignment, engagement: older, client: northwind, project: "Nothing To Say")
+      create(:dossier_achievement, assignment: older_assignment, text: "Automated the rail regression suite.")
+      create(:dossier_achievement, assignment: assignment, text: "Ran daily defect triage.")
+      create(:dossier_achievement, assignment: assignment, text: "Coordinated UAT.")
+      sign_in_as(charlie)
+      visit dossier_path
+      within("[data-testid='left-nav']") { click_link "Achievements" }
+
+      expect(all("[data-testid='achievements-engagement-title']").map(&:text))
+        .to eq([ "Test Manager at Northwind Transport Authority", "Test Lead at Northwind Transport Authority" ])
+      expect(all("[data-testid='achievements-assignment-title']").map(&:text)).to eq([ "NTA - Ticketing", "NTA - Rail" ])
+      expect(texts).to eq([ "Ran daily defect triage.", "Coordinated UAT.", "Automated the rail regression suite." ])
+      expect(page).not_to have_selector("[data-testid='achievement-move-up']")
+    end
+
+    it "Restores a deleted Achievement to its old place" do
+      first = create(:dossier_achievement, assignment: assignment, text: "First")
+      create(:dossier_achievement, assignment: assignment, text: "Second")
+      first.soft_delete!
+      sign_in_as(charlie)
+      visit dossier_path
+      within("[data-testid='left-nav']") { click_link "Deleted Achievements" }
+
+      within("[data-testid='deleted-achievement-row']") do
+        expect(page).to have_selector("[data-testid='deleted-achievement-text']", text: "First")
+        expect(page).to have_selector("[data-testid='deleted-achievement-days-remaining']", text: "30")
+      end
+      find("[data-testid='restore-achievement-#{first.id}']").click
+
+      expect(page).to have_css("[data-testid='flash-success']", text: "First has been successfully restored")
+      expect(page).to have_selector("[data-testid='empty-state']", text: "No deleted Achievements.")
+      visit dossier_assignment_path(assignment)
+      expect(texts).to eq(%w[First Second])
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
@@ -87,6 +125,25 @@ RSpec.describe "Dossier Achievements", type: :feature do
       expect(page).to have_current_path(dossier_path)
     end
 
+    it "Lists and restores only your own deleted Achievements" do
+      achievement = create(:dossier_achievement, assignment: assignment, text: "Charlie's bullet")
+      achievement.soft_delete!
+      sign_in_as(chris)
+      visit deleted_dossier_achievements_path
+      expect(page).to have_selector("[data-testid='empty-state']")
+
+      page.driver.submit :post, restore_dossier_achievement_path(achievement), {}
+      expect(page).to have_current_path(dossier_engagements_path)
+      expect(achievement.reload.deleted_at).to be_present
+    end
+
+    it "Shows an empty Achievements page with a prompt" do
+      sign_in_as(charlie)
+      visit dossier_achievements_path
+      expect(page).to have_selector("[data-testid='empty-state']")
+      expect(page).to have_link("Write An Achievement", href: new_dossier_achievement_path)
+    end
+
     it "Hides another Content Creator's Achievement, and offers only your own Assignments" do
       achievement = create(:dossier_achievement, assignment: assignment)
       sign_in_as(chris)
@@ -100,6 +157,13 @@ RSpec.describe "Dossier Achievements", type: :feature do
 
   # 3) Alternative Paths ───────────────────────────────────────────────────────
   describe "Alternative Paths" do
+    it "Is reachable from the left nav's Write An Achievement" do
+      sign_in_as(charlie)
+      visit dossier_path
+      within("[data-testid='left-nav']") { click_link "Write An Achievement" }
+      expect(page).to have_current_path(new_dossier_achievement_path)
+    end
+
     it "Writes an Achievement choosing the Assignment, grouped by Engagement" do
       sign_in_as(charlie)
       visit new_dossier_achievement_path

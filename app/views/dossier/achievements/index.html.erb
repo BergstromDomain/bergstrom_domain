@@ -1,0 +1,42 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Achievements</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Your CV bullet points, grouped by Engagement and Assignment, newest first.
+  </p>
+</div>
+
+<% groups = @engagements.filter_map do |engagement|
+     assignments = engagement.assignments.select { |a| a.achievements.any? }
+                                         .sort_by { |a| [ a.effective_end || Date.current, a.start_on ] }.reverse
+     [ engagement, assignments ] if assignments.any?
+   end %>
+<% if groups.any? %>
+  <% groups.each do |engagement, assignments| %>
+    <div class="show-panel" data-testid="achievements-engagement">
+      <div class="show-panel__section">
+        <h2 class="show-panel__heading dossier-timeline-card__title" data-testid="achievements-engagement-title">
+          <%= link_to engagement.to_toast_label, dossier_engagement_path(engagement), class: "data-table__name-link" %>
+        </h2>
+        <% assignments.each do |assignment| %>
+          <div class="dossier-achievement-group" data-testid="achievements-assignment">
+            <h3 class="dossier-achievement-group__title">
+              <%= link_to assignment.heading, dossier_assignment_path(assignment, anchor: "achievements"),
+                    data: { testid: "achievements-assignment-title" } %>
+              <span class="dossier-assignment-row__dates"><%= assignment.date_range %></span>
+            </h3>
+            <ol class="dossier-achievement-list">
+              <%= render partial: "dossier/achievements/row", collection: assignment.achievements, as: :achievement,
+                         locals: { moves: nil } %>
+            </ol>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No Achievements yet. <%= link_to "Write An Achievement", new_dossier_achievement_path %> to start.</p>
+  </div>
+<% end %>

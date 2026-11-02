@@ -3333,3 +3333,22 @@ textarea.form-control {
   opacity: 0.3;
   cursor: default;
 }
+
+/* Achievements page: one group per Assignment inside its Engagement's card. */
+.dossier-achievement-group {
+  margin-top: var(--space-md);
+}
+
+.dossier-achievement-group__title {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-md);
+  margin-bottom: var(--space-xs);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.dossier-achievement-group__title .dossier-assignment-row__dates {
+  font-weight: var(--font-weight-normal);
+}

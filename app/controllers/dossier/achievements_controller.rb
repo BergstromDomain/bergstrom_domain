@@ -3,13 +3,25 @@
 # Achievements under the signed-in user's Assignments. New takes an optional
 # assignment_id to preselect the Assignment (from its "Add Achievement"
 # button). Creating returns to the Assignment, ready for the next bullet.
-# Deleting is soft.
+# Deleting is soft: Deleted lists the user's own, and Restore puts one back
+# in its old place.
 class Dossier::AchievementsController < ApplicationController
   include Navigable
-  before_action :require_dossier_access, only: %i[new create]
-  before_action :set_achievement, only: %i[show edit update destroy move]
+  before_action :require_dossier_access, only: %i[index deleted new create]
+  before_action :set_achievement, only: %i[show edit update destroy move restore]
 
   helper_method :assignment_choices
+
+  # Every Achievement, grouped by Engagement › Assignment, newest first.
+  def index
+    @engagements = current_user.dossier_engagements.kept.newest_first
+                               .includes(:employer, assignments: [ :client, { achievements: { achievement_skills: :skill } } ])
+  end
+
+  def deleted
+    @achievements = Dossier::Achievement.discarded.where(user: current_user)
+                                        .includes(assignment: :client).order(deleted_at: :desc)
+  end
 
   def show
     redirect_to dossier_engagements_path, alert: "Not authorised." unless Policy.new(current_user, @achievement).can_read?
@@ -61,6 +73,16 @@ class Dossier::AchievementsController < ApplicationController
     if Policy.new(current_user, @achievement).can_update?
       @achievement.move!(params[:direction])
       redirect_to dossier_assignment_path(@achievement.assignment, anchor: "achievements")
+    else
+      redirect_to dossier_engagements_path, alert: "Not authorised."
+    end
+  end
+
+  def restore
+    if Policy.new(current_user, @achievement).can_update?
+      @achievement.restore!
+      flash[:success] = "#{@achievement.to_toast_label} has been successfully restored"
+      redirect_to deleted_dossier_achievements_path
     else
       redirect_to dossier_engagements_path, alert: "Not authorised."
     end

@@ -1,0 +1,57 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Deleted Achievements</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Deleted Achievements are kept for 30 days before being permanently removed. Restoring puts one back in its old place.
+  </p>
+</div>
+
+<% if @achievements.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="deleted-achievement-table">
+      <colgroup>
+        <col>
+        <col style="width: 18rem;">
+        <col style="width: 10rem;">
+        <col style="width: 10rem;">
+        <col style="width: 5rem;">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Achievement</th>
+          <th>Assignment</th>
+          <th>Deleted</th>
+          <th>Days remaining</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @achievements.each do |achievement| %>
+          <tr data-testid="deleted-achievement-row">
+            <td data-testid="deleted-achievement-text"><%= achievement.text %></td>
+            <td>
+              <%= link_to achievement.assignment.heading, dossier_assignment_path(achievement.assignment),
+                    data: { testid: "deleted-achievement-assignment" } %>
+            </td>
+            <td data-testid="deleted-achievement-deleted-at"><%= achievement.deleted_at.to_date.to_fs(:long) %></td>
+            <td data-testid="deleted-achievement-days-remaining"><%= ((achievement.purge_at - Time.current) / 1.day).ceil %></td>
+            <td class="data-table__icon-cell">
+              <%= button_to restore_dossier_achievement_path(achievement),
+                    method: :post,
+                    class: "icon-button icon-button--success",
+                    title: "Restore #{achievement.to_toast_label}",
+                    data: { testid: "restore-achievement-#{achievement.id}" } do %>
+                <%= lucide_icon("undo-2", size: 18) %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No deleted Achievements.</p>
+  </div>
+<% end %>
