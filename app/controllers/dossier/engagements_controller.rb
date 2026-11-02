@@ -68,7 +68,7 @@ class Dossier::EngagementsController < ApplicationController
   def engagement_params
     params.require(:dossier_engagement).permit(
       :employer_id, :employment_type_id, :position_title,
-      :start_month, :start_day, :end_month, :end_day, :summary
+      :start_year, :start_month_number, :start_day, :end_year, :end_month_number, :end_day, :summary
     )
   end
 end

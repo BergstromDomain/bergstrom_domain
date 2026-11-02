@@ -1,9 +1,11 @@
 # app/models/concerns/dossier/dated.rb
 
 # A start/end date pair where each date is either exact ("day") or known only
-# to the month ("month", stored as the 1st). Forms set them through
+# to the month ("month", stored as the 1st). Code sets them through
 # start_month/start_day and end_month/end_day ("2019-03" + optional "15");
-# no end means current. Month-precision ends count as the whole month.
+# forms send the year and month separately (start_year + start_month_number),
+# which make up start_month. No end means current. Month-precision ends count
+# as the whole month.
 module Dossier
   module Dated
     extend ActiveSupport::Concern
@@ -25,8 +27,19 @@ module Dossier
         date_input(edge).fetch(:day) { public_send(:"#{edge}_on")&.day&.to_s if public_send(:"#{edge}_precision") == "day" }.presence
       end
 
-      define_method(:"#{edge}_month=") { |value| set_date_input(edge, :month, value.to_s.strip) }
+      define_method(:"#{edge}_month=") do |value|
+        date_input(edge).except!(:year, :month_number)
+        set_date_input(edge, :month, value.to_s.strip)
+      end
       define_method(:"#{edge}_day=")   { |value| set_date_input(edge, :day,   value.to_s.strip) }
+
+      define_method(:"#{edge}_year")         { date_input(edge).fetch(:year) { month_part(edge, 1) } }
+      define_method(:"#{edge}_month_number") do
+        date_input(edge).fetch(:month_number) { month_part(edge, 2) }&.delete_prefix("0")
+      end
+
+      define_method(:"#{edge}_year=")         { |value| set_month_part(edge, :year, value) }
+      define_method(:"#{edge}_month_number=") { |value| set_month_part(edge, :month_number, value) }
     end
 
     def current?
@@ -42,8 +55,9 @@ module Dossier
     def formatted_start = format_dossier_date(start_on, start_precision)
     def formatted_end   = end_on ? format_dossier_date(end_on, end_precision) : "Present"
 
+    # A range within one month (or day) shows it once: "Jul 2025".
     def date_range
-      "#{formatted_start} – #{formatted_end}"
+      formatted_start == formatted_end ? formatted_start : "#{formatted_start} – #{formatted_end}"
     end
 
     private
@@ -61,6 +75,20 @@ module Dossier
       apply_date_input(edge)
     end
 
+    def month_part(edge, index)
+      public_send(:"#{edge}_month").to_s[MONTH_FORMAT, index]
+    end
+
+    # Year and month together make up the month; both empty means no date.
+    def set_month_part(edge, part, value)
+      date_input(edge)[:year] = public_send(:"#{edge}_year").to_s
+      date_input(edge)[:month_number] = public_send(:"#{edge}_month_number").to_s
+      date_input(edge)[part] = value.to_s.strip
+      year, number = date_input(edge).values_at(:year, :month_number)
+      month = year.empty? && number.empty? ? "" : "#{year}-#{number.rjust(2, '0')}"
+      set_date_input(edge, :month, month)
+    end
+
     def apply_date_input(edge)
       month, day = public_send(:"#{edge}_month"), public_send(:"#{edge}_day")
       (@bad_date ||= {}).delete(edge)
@@ -68,14 +96,14 @@ module Dossier
       if month.blank?
         self[:"#{edge}_on"] = nil
         self[:"#{edge}_precision"] = "month"
-      elsif (match = MONTH_FORMAT.match(month))
+      elsif (match = MONTH_FORMAT.match(month)) && Date.valid_date?(match[1].to_i, match[2].to_i, 1)
         year, month_number = match[1].to_i, match[2].to_i
         if day.present? && Date.valid_date?(year, month_number, day.to_i)
           self[:"#{edge}_on"] = Date.new(year, month_number, day.to_i)
           self[:"#{edge}_precision"] = "day"
         else
           @bad_date[edge] = :day if day.present?
-          self[:"#{edge}_on"] = Date.valid_date?(year, month_number, 1) ? Date.new(year, month_number, 1) : nil
+          self[:"#{edge}_on"] = Date.new(year, month_number, 1)
           self[:"#{edge}_precision"] = "month"
         end
       else
@@ -86,7 +114,7 @@ module Dossier
 
     def dates_are_valid
       (@bad_date || {}).each do |edge, part|
-        message = part == :day ? "is not a day in that month" : "is not a valid month"
+        message = part == :day ? "is not a day in that month" : "needs a four-digit year and a month, e.g. 2019 and May"
         errors.add(:"#{edge}_#{part}", message)
       end
       errors.add(:start_month, :blank) if start_on.nil? && @bad_date&.dig(:start).nil?

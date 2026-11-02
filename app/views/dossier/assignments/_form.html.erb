@@ -24,6 +24,8 @@
                                      { include_blank: "Same as position title" }, class: "form-control",
                                      data: { testid: "role-field" }),
           hint: "What you did for the client." %>
+    <%= render "dossier/shared/field", f: f, record: assignment, attribute: :project, label: "Project",
+          hint: "Optional — tells several Assignments for one client apart on the Timeline." %>
   </div>
 
   <%# Dates div %>

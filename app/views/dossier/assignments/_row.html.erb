@@ -1,7 +1,7 @@
 <%# Locals: assignment %>
 <li class="dossier-assignment-row" data-testid="assignment-row">
   <span>
-    <%= link_to assignment.to_toast_label, dossier_assignment_path(assignment), class: "data-table__name-link" %>
+    <%= link_to assignment.heading, dossier_assignment_path(assignment), class: "data-table__name-link" %>
     <% if assignment.tech_stack_blank? %>
       <span class="badge badge--pending" data-testid="tech-stack-incomplete"
             title="Every Tech Stack list is N/A and there's no System Under Test">Tech Stack Incomplete</span>

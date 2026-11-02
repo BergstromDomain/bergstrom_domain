@@ -34,6 +34,7 @@
   <%# Summary div %>
   <div class="show-panel" data-testid="edit-panel-summary">
     <%= render "dossier/shared/field", f: f, record: @profile, attribute: :summary, label: "Summary", text_area: true,
+          info: profile_summaries_info,
           hint: "Terse form, without I or a name, e.g. \"Test manager with 25+ years…\". Used for every voice that has no version of its own." %>
     <%= render "dossier/shared/field", f: f, record: @profile, attribute: :summary_first_person,
           label: "First-Person Summary", text_area: true, hint: "Optional." %>

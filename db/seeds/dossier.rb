@@ -15,7 +15,7 @@
   Dossier::EmploymentType.find_or_create_by!(name: name) { |t| t.permanent = permanent }
 end
 
-%w[Telecoms Finance Government Hospitality].each do |name|
+%w[Telecom Finance Government Hospitality].each do |name|
   Dossier::Industry.find_or_create_by!(name: name)
 end
 

@@ -4,6 +4,7 @@ require "rails_helper"
 RSpec.describe "Dossier", type: :feature do
   let(:uno)     { create(:user) }
   let(:charlie) { create(:user, :content_creator) }
+  let(:adam)    { create(:user, :admin) }
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
@@ -62,6 +63,31 @@ RSpec.describe "Dossier", type: :feature do
       click_button "Apps"
       click_link "Dossier"
       expect(page).to have_current_path(dossier_path)
+    end
+
+    it "Groups an Admin's Actions into New and Reference Data" do
+      sign_in_as(adam)
+      visit dossier_path
+      within("[data-testid='left-nav']") do
+        links = all(".left-nav-h3, .left-nav-link span").map(&:text)
+        new_at = links.index("New")
+        reference_at = links.rindex("Reference Data")
+        expect(links[new_at + 1..new_at + 4]).to eq([ "Create An Engagement", "Create An Assignment", "Add An Organisation", "Add A Skill" ])
+        expect(links[reference_at + 1..reference_at + 5]).to eq(
+          [ "Add An Industry", "Add A Role", "Add A Location", "Add An Employment Type", "Add A Skill Category" ]
+        )
+      end
+    end
+
+    it "Shows a Content Creator the New Actions but no Reference Data Actions" do
+      sign_in_as(charlie)
+      visit dossier_path
+      within("[data-testid='left-nav']") do
+        expect(page).to have_selector("[data-testid='left-nav-new-h3']")
+        expect(page).to have_link("Add A Skill")
+        expect(page).not_to have_selector("[data-testid='left-nav-actions-reference-data-h3']")
+        expect(page).not_to have_link("Add An Industry")
+      end
     end
 
     it "Is reachable by a signed-in Content Creator" do

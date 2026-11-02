@@ -13,14 +13,51 @@ RSpec.describe "Dossier Timeline", type: :feature do
     it "Shows the gap between two Engagements and bench time inside one" do
       engagement("Older", "2015-01", "2017-12")
       newer = engagement("Newer", "2018-06", "2022-06")
-      create(:dossier_assignment, engagement: newer, start_month: "2018-06", end_month: "2020-01")
+      create(:dossier_assignment, engagement: newer, start_month: "2018-06", end_month: "2020-01",
+                                  client: create(:dossier_organisation, name: "APA Group"), project: "Market Services")
       sign_in_as(charlie)
       visit dossier_engagements_path
 
-      expect(page).to have_selector("[data-testid='timeline-gap']", text: "Gap · Jan 2018 – May 2018 · 5 months")
-      within("[data-testid='engagement-card']", text: "Newer") do
-        expect(page).to have_selector("[data-testid='timeline-bench']", text: "Bench · Feb 2020 – Jun 2022 · 2+ years")
+      within("[data-testid='timeline-gap']") do
+        expect(page).to have_selector("[data-testid='timeline-gap-label']", exact_text: "Gap · 5 months")
+        expect(page).to have_selector(".dossier-assignment-row__dates", exact_text: "Jan 2018 – May 2018")
       end
+      within("[data-testid='engagement-card']", text: "Newer") do
+        expect(page).to have_selector("[data-testid='engagement-type']", exact_text: newer.employment_type.name)
+        expect(page).to have_selector("[data-testid='engagement-dates']", exact_text: "Jun 2018 – Jun 2022")
+        expect(page).to have_selector("[data-testid='assignment-row']", text: "APA Group - Market Services")
+        within("[data-testid='timeline-bench']") do
+          expect(page).to have_selector("[data-testid='timeline-bench-label']", exact_text: "Bench · 2+ years")
+          expect(page).to have_selector(".dossier-assignment-row__dates", exact_text: "Feb 2020 – Jun 2022")
+        end
+      end
+    end
+
+    it "Opens a bench period, showing the Engagement it falls in" do
+      newer = engagement("Newer", "2018-06", "2022-06")
+      create(:dossier_assignment, engagement: newer, start_month: "2018-06", end_month: "2020-01")
+      sign_in_as(charlie)
+      visit dossier_engagements_path
+      click_link "Bench · 2+ years"
+
+      expect(page).to have_selector("h1.page-title", text: "Bench")
+      expect(page).to have_selector("[data-testid='period-dates']", text: "Feb 2020 – Jun 2022")
+      expect(page).to have_selector("[data-testid='period-duration']", text: "2+ years")
+      expect(page).to have_link(newer.to_toast_label, href: dossier_engagement_path(newer))
+      click_link "Back"
+      expect(page).to have_current_path(dossier_engagements_path)
+    end
+
+    it "Opens a gap period" do
+      engagement("Older", "2015-01", "2017-12")
+      engagement("Newer", "2018-06", "2022-06")
+      sign_in_as(charlie)
+      visit dossier_engagements_path
+      click_link "Gap · 5 months"
+
+      expect(page).to have_selector("h1.page-title", text: "Gap")
+      expect(page).to have_selector("[data-testid='period-dates']", text: "Jan 2018 – May 2018")
+      expect(page).not_to have_selector("[data-testid='period-engagement']")
     end
   end
 
@@ -35,6 +72,15 @@ RSpec.describe "Dossier Timeline", type: :feature do
 
       expect(page).not_to have_content("Middle")
       expect(page).to have_selector("[data-testid='timeline-gap']", text: "Jan 2018 – May 2018")
+    end
+
+    it "Turns away a period that isn't on the Timeline" do
+      engagement("Older", "2015-01", "2017-12")
+      sign_in_as(charlie)
+      visit dossier_period_path(from: "2018-01-01", to: "2018-05-31")
+
+      expect(page).to have_current_path(dossier_engagements_path)
+      expect(page).to have_content("That period isn't on your Timeline.")
     end
   end
 

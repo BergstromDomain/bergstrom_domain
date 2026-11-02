@@ -1,0 +1,8 @@
+<%#
+  An info icon that explains something on hover or keyboard focus.
+  Locals: text (String or safe HTML), testid.
+%>
+<span class="info-tip" tabindex="0" role="note" aria-label="More information" data-testid="<%= testid %>">
+  <%= lucide_icon("info", size: 16) %>
+  <span class="info-tip__text"><%= text %></span>
+</span>

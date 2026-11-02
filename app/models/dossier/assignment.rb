@@ -1,7 +1,7 @@
 # app/models/dossier/assignment.rb
 
-# Where the work was done: client, role, dates and location, within its
-# Engagement's dates. user_id mirrors the Engagement's owner (for Policy and
+# Where the work was done: client, project, role, dates and location, within
+# its Engagement's dates. user_id mirrors the Engagement's owner (for Policy and
 # Classifiable). With no Role, the Engagement's position title stands in.
 class Dossier::Assignment < ApplicationRecord
   include Classifiable
@@ -13,7 +13,7 @@ class Dossier::Assignment < ApplicationRecord
   belongs_to :role,     optional: true
   belongs_to :location, optional: true
 
-  normalizes :summary, with: ->(value) { value.strip.presence }
+  normalizes :summary, :project, with: ->(value) { value.strip.presence }
 
   before_validation { self.user_id = engagement&.user_id }
 
@@ -21,6 +21,12 @@ class Dossier::Assignment < ApplicationRecord
 
   def role_name
     role&.name || engagement&.position_title
+  end
+
+  # "Client - Project" (just the client without one), to tell one client's
+  # Assignments apart.
+  def heading
+    [ client&.short_name, project ].compact.join(" - ")
   end
 
   def fits_within?(outer)

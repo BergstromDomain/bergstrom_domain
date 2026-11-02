@@ -1,0 +1,43 @@
+<% bench = @entry.kind == :bench %>
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title"><%= bench ? "Bench" : "Gap" %></h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    <%= bench ? "Time within an Engagement that no Assignment covers." : "Time between Engagements." %>
+  </p>
+</div>
+
+<%# Metadata div %>
+<div class="show-panel" data-testid="show-panel-metadata">
+  <div class="show-meta-row">
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Dates</h3>
+      <p class="show-meta-cell__value" data-testid="period-dates"><%= @entry.date_range %></p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Duration</h3>
+      <p class="show-meta-cell__value" data-testid="period-duration"><%= @entry.duration %></p>
+    </div>
+    <% if bench %>
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label">Engagement</h3>
+        <p class="show-meta-cell__value" data-testid="period-engagement">
+          <%= link_to @entry.engagement.to_toast_label, dossier_engagement_path(@entry.engagement) %>
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%# Courses div — filled in by Block 5 (Credentials) %>
+<div class="show-panel" data-testid="show-panel-courses">
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">Courses And Credentials</h2>
+    <p>The courses and credentials you completed during this time will be listed here.</p>
+  </div>
+</div>
+
+<div class="show-panel show-panel--actions">
+  <%= link_to "Back", dossier_engagements_path, class: "btn btn-secondary" %>
+</div>

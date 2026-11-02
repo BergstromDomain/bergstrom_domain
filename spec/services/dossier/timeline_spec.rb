@@ -77,10 +77,28 @@ RSpec.describe Dossier::Timeline do
       expect(timeline.entries.find { |e| e.kind == :gap }.date_range).to eq("Jan 2016 – Dec 2016")
     end
 
+    it "Shows a one-month gap as just that month" do
+      engagement("2010-01", "2015-12")
+      engagement("2016-02", "2018-12")
+      expect(timeline.entries.find { |e| e.kind == :gap }.date_range).to eq("Jan 2016")
+    end
+
     it "Formats durations: under a month, months, then whole years" do
       expect(described_class.duration(Date.new(2020, 1, 1), Date.new(2020, 1, 10))).to eq("Under a month")
       expect(described_class.duration(Date.new(2020, 1, 1), Date.new(2020, 1, 31))).to eq("1 month")
       expect(described_class.duration(Date.new(2020, 1, 1), Date.new(2021, 12, 31))).to eq("2+ years")
+    end
+
+    it "Finds a bench or gap period by its dates, with the Engagement a bench belongs to" do
+      older = engagement("2015-01", "2017-12")
+      assignment(older, "2015-01", "2017-06")
+      engagement("2018-06", "2022-06")
+
+      bench = timeline.period(Date.new(2017, 7, 1), Date.new(2017, 12, 31))
+      gap   = timeline.period(Date.new(2018, 1, 1), Date.new(2018, 5, 31))
+      expect([ bench.kind, bench.engagement ]).to eq([ :bench, older ])
+      expect([ gap.kind, gap.engagement, gap.duration ]).to eq([ :gap, nil, "5 months" ])
+      expect(timeline.period(Date.new(2018, 1, 1), Date.new(2018, 4, 30))).to be_nil
     end
 
     it "Is empty without Engagements" do

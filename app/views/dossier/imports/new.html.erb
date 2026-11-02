@@ -1,0 +1,26 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Import Master CV</h1>
+  </div>
+</div>
+
+<div class="show-panel" data-testid="import-panel">
+  <p>Upload a Bridge CV master list (<code>master_cv.yaml</code>) to fill in your Profile, Engagements
+    and Assignments with their Tech Stack, plus any Organisations and Skills they need. You'll see a
+    preview first — nothing is saved until you confirm, and the file itself is never stored.</p>
+  <p>Anything that already exists is skipped, never overwritten, so it's safe to import the same file
+    again after adding to it. Imported records are private to you.</p>
+
+  <%= form_with url: preview_dossier_import_path, method: :post, data: { turbo: false }, html: { multipart: true } do |f| %>
+    <div class="form-group">
+      <%= f.label :file, "Master CV file", class: "sr-only" %>
+      <%= f.file_field :file, accept: ".yaml,.yml", class: "form-control", data: { testid: "import-file-input" } %>
+    </div>
+
+    <div class="show-panel show-panel--actions">
+      <button type="submit" class="btn btn-primary" data-testid="preview-import-button">
+        <%= lucide_icon("eye", size: 16) %> Preview Import
+      </button>
+    </div>
+  <% end %>
+</div>
