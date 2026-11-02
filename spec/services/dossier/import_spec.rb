@@ -61,7 +61,10 @@ RSpec.describe Dossier::Import do
               unconfirmed: [Guessed Tool]
             terse:
               summary: Led testing of the licensing system.
-              achievements: [Did a thing]
+              achievements:
+                - Did a thing
+                - "  Did another thing  "
+                - ""
       - employer: Widget Works
         employment_type: Permanent Employment
         position: Test Engineer
@@ -144,6 +147,15 @@ RSpec.describe Dossier::Import do
       )
       expect(result.created["Organisation"]).to include("Department of Examples")
       expect(result.created["Assignment"].size).to eq(3)
+      expect(result.created["Achievement"]).to eq([ "Did a thing", "Did another thing" ])
+    end
+
+    it "Imports each Assignment's terse achievements in file order, restricted, at importance 3" do
+      import.import!
+
+      assignment = admin.dossier_engagements.find_by!(position_title: "Test Consultant").assignments.sole
+      expect(assignment.achievements.map(&:text)).to eq([ "Did a thing", "Did another thing" ])
+      expect(assignment.achievements).to all(have_attributes(importance: 3, classification: "restricted", user_id: admin.id))
     end
   end
 
@@ -209,7 +221,20 @@ RSpec.describe Dossier::Import do
       expect(result.existing["Profile"]).to eq([ "Alex Example" ])
       expect(result.existing["Organisation"]).to contain_exactly("Acme Consulting", "Department of Examples", "Widget Works")
       expect(result.existing["Assignment"].size).to eq(3) # two share the label "Test Lead at Widget Works"
+      expect(result.existing["Achievement"]).to eq([ "Did a thing", "Did another thing" ])
       expect(Dossier::Assignment.count).to eq(3)
+      expect(Dossier::Achievement.count).to eq(2)
+    end
+
+    it "Adds new achievements to an Assignment that already exists" do
+      import.import!
+      longer = yaml.sub(/^( *)- Did a thing\n/) { "#{$&}#{$1}- Did a third thing\n" }
+
+      result = import(text: longer).import!
+
+      expect(result.created).to eq("Achievement" => [ "Did a third thing" ])
+      assignment = admin.dossier_engagements.find_by!(position_title: "Test Consultant").assignments.sole
+      expect(assignment.achievements.map(&:text)).to eq([ "Did a thing", "Did another thing", "Did a third thing" ])
     end
 
     it "Keeps edits made in the app on a re-import" do
@@ -289,6 +314,25 @@ RSpec.describe Dossier::Import do
 
       engagement = admin.dossier_engagements.find_by!(position_title: "Test Consultant")
       expect(engagement.assignments.map(&:role_name)).to contain_exactly("Test Lead", "Test Manager")
+    end
+
+    it "Doesn't bring back an achievement deleted in the app" do
+      import.import!
+      Dossier::Achievement.find_by!(text: "Did a thing").soft_delete!
+
+      result = import.import!
+
+      expect(result.created).to be_empty
+      expect(Dossier::Achievement.kept.pluck(:text)).to eq([ "Did another thing" ])
+    end
+
+    it "Matches an achievement by its exact text only" do
+      import.import!
+      Dossier::Achievement.find_by!(text: "Did a thing").update!(text: "Did a thing, reworded")
+
+      result = import.import!
+
+      expect(result.created).to eq("Achievement" => [ "Did a thing" ])
     end
 
     it "Imports a file with only some sections" do

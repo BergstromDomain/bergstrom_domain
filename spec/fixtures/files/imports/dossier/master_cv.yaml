@@ -33,3 +33,6 @@ engagements:
           protocols: N/A
         terse:
           summary: Led testing of the licensing system.
+          achievements:
+            - Cut regression testing from five days to one.
+            - Set up the team's first automated smoke tests.

@@ -2,7 +2,7 @@
 
 # Imports a Bridge CV master list (master_cv.yaml) into the user's Dossier:
 # Profile, Organisations, Skills, then Engagements › Assignments with their
-# Tech Stack. Fields that aren't CV data (vendors, notes, src, linkedin…) are
+# Tech Stack and terse achievements. Fields that aren't CV data (vendors, notes, src, linkedin…) are
 # never read. A record that already exists is skipped, never updated, so a
 # re-import keeps edits made in the app.
 #
@@ -175,12 +175,27 @@ class Dossier::Import
     # Role is part of the match: one client can have two Assignments starting the same month.
     match = { client: assignment.client, start_on: assignment.start_on, role: assignment.role }
     if reusable.nil? && (existing = engagement.assignments.find_by(match))
-      return note_existing("Assignment", existing.to_toast_label, existing)
+      note_existing("Assignment", existing.to_toast_label, existing)
+      assignment = existing
+    else
+      assignment.assign_attributes(project: row["project"], summary: row.dig("terse", "summary"),
+                                   **tech_stack_attributes(row["tech_stack"] || {}))
+      return unless save(assignment, "Assignment")
     end
 
-    assignment.assign_attributes(project: row["project"], summary: row.dig("terse", "summary"),
-                                 **tech_stack_attributes(row["tech_stack"] || {}))
-    save(assignment, "Assignment")
+    import_achievements(assignment, row.dig("terse", "achievements"))
+  end
+
+  # Matched by exact text, deleted ones included, so an existing Assignment
+  # still gets new ones and a deleted one stays deleted.
+  def import_achievements(assignment, texts)
+    Array(texts).map { |text| text.to_s.strip }.reject(&:empty?).each do |text|
+      if (existing = assignment.all_achievements.find_by(text: text))
+        note_existing("Achievement", existing.to_toast_label, existing)
+      else
+        save(assignment.all_achievements.build(text: text, importance: 3, classification: :restricted), "Achievement")
+      end
+    end
   end
 
   # "2019-03" is month precision, a YAML date is day precision, "current"
