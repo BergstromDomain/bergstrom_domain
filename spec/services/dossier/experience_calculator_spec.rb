@@ -76,6 +76,22 @@ RSpec.describe Dossier::ExperienceCalculator do
       expect(excel.months).to eq(24)
     end
 
+    it "Counts personal projects' time apart from professional years" do
+      hobby = create(:dossier_engagement, :personal, user: user, start_month: "2016-01", end_month: "2019-12")
+      assignment("2015-01", "2016-12", **tools("Jira, Rails"))
+      assignment("2016-01", "2019-12", engagement: hobby, **tools("Rails, Sass"))
+
+      rails = experience("Rails")
+      expect([ rails.duration, rails.personal_duration ]).to eq([ "2+ years", "4+ years" ])
+      expect(rails.last_used).to eq("Dec 2019")
+      sass = experience("Sass")
+      expect([ sass.months, sass.personal_duration ]).to eq([ nil, "4+ years" ])
+      expect(experience("Jira").personal_months).to be_nil
+      # Professional years sort first (Sass's 4 personal years come last);
+      # personal years break the Jira/Rails tie.
+      expect(calculator.skills.map { |e| e.skill.name }).to eq(%w[Rails Jira Sass])
+    end
+
     it "Shows a current Assignment as last used Present, counted up to today" do
       current = create(:dossier_engagement, :current, user: user, start_month: "2026-05")
       assignment("2026-05", "", engagement: current, **tools("Jira"))

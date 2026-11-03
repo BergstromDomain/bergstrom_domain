@@ -10,8 +10,14 @@
     <div class="show-meta-row">
       <div class="show-meta-cell">
         <h3 class="show-meta-cell__label">Years</h3>
-        <p class="show-meta-cell__value" data-testid="skill-experience-duration"><%= @experience.duration %></p>
+        <p class="show-meta-cell__value" data-testid="skill-experience-duration"><%= @experience.duration || "—" %></p>
       </div>
+      <% if @experience.personal_duration %>
+        <div class="show-meta-cell">
+          <h3 class="show-meta-cell__label">Personal</h3>
+          <p class="show-meta-cell__value" data-testid="skill-experience-personal-duration"><%= @experience.personal_duration %></p>
+        </div>
+      <% end %>
       <div class="show-meta-cell">
         <h3 class="show-meta-cell__label">Last Used</h3>
         <p class="show-meta-cell__value" data-testid="skill-experience-last-used"><%= @experience.last_used %></p>

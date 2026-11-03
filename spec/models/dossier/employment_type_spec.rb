@@ -7,6 +7,7 @@ RSpec.describe Dossier::EmploymentType, type: :model do
     it { is_expected.to have_db_column(:name).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:description).of_type(:text) }
     it { is_expected.to have_db_column(:permanent).of_type(:boolean).with_options(null: false, default: false) }
+    it { is_expected.to have_db_column(:personal).of_type(:boolean).with_options(null: false, default: false) }
     it { is_expected.to have_db_column(:slug).of_type(:string) }
   end
 
@@ -22,6 +23,10 @@ RSpec.describe Dossier::EmploymentType, type: :model do
     it "Is not permanent by default" do
       expect(described_class.new.permanent).to be(false)
     end
+
+    it "Is not personal by default" do
+      expect(described_class.new.personal).to be(false)
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
@@ -31,12 +36,23 @@ RSpec.describe Dossier::EmploymentType, type: :model do
       expect(record).not_to be_valid
       expect(record.errors[:permanent]).to be_present
     end
+
+    it "Is invalid with a nil personal flag" do
+      record = build(:dossier_employment_type, personal: nil)
+      expect(record).not_to be_valid
+      expect(record.errors[:personal]).to be_present
+    end
   end
 
   # 3) Alternative Path ───────────────────────────────────────────────────────
   describe "Alternative Path" do
     it "Can be marked permanent" do
       expect(create(:dossier_employment_type, :permanent).permanent).to be(true)
+    end
+
+    it "Makes its Engagements personal" do
+      expect(build(:dossier_engagement, :personal)).to be_personal
+      expect(build(:dossier_engagement)).not_to be_personal
     end
   end
 

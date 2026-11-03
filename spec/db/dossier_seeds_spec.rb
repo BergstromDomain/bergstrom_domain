@@ -13,7 +13,7 @@ RSpec.describe "db/seeds/dossier.rb" do
   describe "Happy Path" do
     it "Creates the starting Employment Types, Industries, Locations, Roles and Skill Categories" do
       load_seeds
-      expect(counts).to eq([ 4, 4, 3, 9, 1 ])
+      expect(counts).to eq([ 5, 4, 3, 9, 1 ])
       expect(Dossier::Location.find_by!(city: "Brisbane")).to have_attributes(country: "Australia")
     end
   end
@@ -40,6 +40,11 @@ RSpec.describe "db/seeds/dossier.rb" do
     it "Marks only Permanent Employment as permanent" do
       load_seeds
       expect(Dossier::EmploymentType.where(permanent: true).pluck(:name)).to eq([ "Permanent Employment" ])
+    end
+
+    it "Marks only Personal Project as personal" do
+      load_seeds
+      expect(Dossier::EmploymentType.where(personal: true).pluck(:name)).to eq([ "Personal Project" ])
     end
 
     it "Includes the Uncategorised Skill Category that imported and on-the-fly Skills start in" do

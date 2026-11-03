@@ -31,6 +31,10 @@ class Dossier::Engagement < ApplicationRecord
     employment_type&.permanent?
   end
 
+  def personal?
+    employment_type&.personal? || false
+  end
+
   def soft_delete!
     update_columns(deleted_at: Time.current)
   end

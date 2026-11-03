@@ -3,10 +3,11 @@ class Dossier::EmploymentTypesController < Dossier::ReferenceDataController
   private
 
   def model_class          = Dossier::EmploymentType
-  def permitted_attributes = %i[name description permanent]
-  def subtitle             = "How an employer engaged you. A permanent type gives its Engagement one Assignment automatically."
+  def permitted_attributes = %i[name description permanent personal]
+  def subtitle             = "How an employer engaged you. A permanent type gives its Engagement one Assignment automatically; a personal type is for your own projects."
 
   def details(record)
-    [ [ "Permanent", record.permanent? ? "Yes" : "No", "permanent" ] ]
+    [ [ "Permanent", record.permanent? ? "Yes" : "No", "permanent" ],
+      [ "Personal",  record.personal? ? "Yes" : "No", "personal" ] ]
   end
 end

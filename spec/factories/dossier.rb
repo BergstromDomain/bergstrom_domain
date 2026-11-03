@@ -19,6 +19,10 @@ FactoryBot.define do
     trait :permanent do
       permanent { true }
     end
+
+    trait :personal do
+      personal { true }
+    end
   end
 
   factory :dossier_location, class: "Dossier::Location" do
@@ -56,6 +60,10 @@ FactoryBot.define do
 
     trait :current do
       end_on { nil }
+    end
+
+    trait :personal do
+      association :employment_type, factory: [ :dossier_employment_type, :personal ]
     end
   end
 

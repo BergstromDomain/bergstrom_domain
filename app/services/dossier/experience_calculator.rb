@@ -3,13 +3,17 @@
 # A user's experience per Skill, from their kept Engagements' Assignments. An
 # Assignment uses a Skill when it's in its Tech Stack or tagged on one of its
 # kept Achievements. Years are the union of those Assignments' dates (a
-# current one runs to today), so overlaps never count twice. Block 6 adds
-# slices by employer, client and industry.
+# current one runs to today), so overlaps never count twice. Personal
+# Engagements' (hobby projects') time is counted apart and never adds to
+# professional years. Block 6 adds slices by employer, client and industry.
 class Dossier::ExperienceCalculator
   # slots: Tech Stack slot (or :achievement) => Assignments, newest first.
-  SkillExperience = Data.define(:skill, :assignments, :slots, :achievements, :months, :last_on) do
-    def duration  = Dossier::Timeline.duration_of(months)
-    def current?  = last_on.nil?
+  # months / personal_months: nil when the Skill has no professional / personal
+  # Assignment.
+  SkillExperience = Data.define(:skill, :assignments, :slots, :achievements, :months, :personal_months, :last_on) do
+    def duration          = months && Dossier::Timeline.duration_of(months)
+    def personal_duration = personal_months && Dossier::Timeline.duration_of(personal_months)
+    def current?          = last_on.nil?
     def last_used = current? ? "Present" : last_on.strftime("%b %Y")
   end
 
@@ -18,10 +22,10 @@ class Dossier::ExperienceCalculator
     @today = today
   end
 
-  # Most months first, then by name.
+  # Most professional months first, then most personal months, then by name.
   def skills
     @skills ||= uses.map { |skill, use| build(skill, use) }
-                    .sort_by { |experience| [ -experience.months, experience.skill.name.downcase ] }
+                    .sort_by { |e| [ -(e.months || -1), -(e.personal_months || -1), e.skill.name.downcase ] }
   end
 
   def for_skill(skill)
@@ -32,7 +36,8 @@ class Dossier::ExperienceCalculator
 
   def assignments
     Dossier::Assignment.where(engagement_id: @user.dossier_engagements.kept.select(:id))
-                       .includes(assignment_skills: :skill, achievements: { achievement_skills: :skill })
+                       .includes(engagement: :employment_type, assignment_skills: :skill,
+                                 achievements: { achievement_skills: :skill })
   end
 
   def uses
@@ -63,12 +68,19 @@ class Dossier::ExperienceCalculator
                        .reject { |_, list| list.empty? }
                        .transform_values { |list| newest_first(list) }
 
-    periods = assignments.map { |a| Dossier::Timeline::Period.new(from: a.start_on, to: a.effective_end || @today) }
-    days = Dossier::Timeline.merge(periods).sum { |period| period.to - period.from + 1 }
+    personal, professional = assignments.partition { |a| a.engagement.personal? }
     last_on = assignments.any?(&:current?) ? nil : assignments.map(&:effective_end).max
 
     SkillExperience.new(skill: skill, assignments: newest_first(assignments), slots: slots,
-                        achievements: use[:achievements], months: Dossier::Timeline.months(days), last_on: last_on)
+                        achievements: use[:achievements], months: months(professional),
+                        personal_months: months(personal), last_on: last_on)
+  end
+
+  def months(assignments)
+    return if assignments.empty?
+
+    periods = assignments.map { |a| Dossier::Timeline::Period.new(from: a.start_on, to: a.effective_end || @today) }
+    Dossier::Timeline.months(Dossier::Timeline.merge(periods).sum { |period| period.to - period.from + 1 })
   end
 
   def newest_first(assignments)

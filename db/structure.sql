@@ -574,7 +574,8 @@ CREATE TABLE public.dossier_employment_types (
     permanent boolean DEFAULT false NOT NULL,
     slug character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    personal boolean DEFAULT false NOT NULL
 );
 
 
@@ -3608,6 +3609,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261104090000'),
 ('20261103090000'),
 ('20261102090000'),
 ('20261031090000'),

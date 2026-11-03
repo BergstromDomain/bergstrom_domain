@@ -3,7 +3,7 @@
     <h1 class="page-title">Skills</h1>
   </div>
   <p class="page-header__subtitle page-header__subtitle--centered">
-    Every Skill in your Tech Stacks and Achievements, with your years of experience, most first.
+    Every Skill in your Tech Stacks and Achievements, with your years of experience, most first. Personal projects are counted separately.
   </p>
 </div>
 
@@ -21,6 +21,7 @@
               <tr>
                 <th>Skill</th>
                 <th>Years</th>
+                <th>Personal</th>
                 <th>Last Used</th>
                 <th class="text-center">Assignments</th>
               </tr>
@@ -29,7 +30,8 @@
               <% experiences.each do |experience| %>
                 <tr data-testid="my-skill-row">
                   <td><%= link_to experience.skill.name, dossier_skill_path(experience.skill), class: "data-table__name-link" %></td>
-                  <td><%= experience.duration %></td>
+                  <td data-testid="my-skill-years"><%= experience.duration || "—" %></td>
+                  <td data-testid="my-skill-personal"><%= experience.personal_duration || "—" %></td>
                   <td><%= experience.last_used %></td>
                   <td class="text-center"><%= experience.assignments.size %></td>
                 </tr>

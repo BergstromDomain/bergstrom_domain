@@ -74,6 +74,20 @@ RSpec.describe "Dossier Timeline", type: :feature do
       expect(page).to have_selector("[data-testid='timeline-gap']", text: "Jan 2018 – May 2018")
     end
 
+    it "Marks a personal Engagement and doesn't let it fill a gap or show bench time" do
+      engagement("Older", "2015-01", "2017-12")
+      engagement("Hobby App", "2018-01", "2018-05", employment_type: create(:dossier_employment_type, :personal))
+      engagement("Newer", "2018-06", "2022-06")
+      sign_in_as(charlie)
+      visit dossier_engagements_path
+
+      within("[data-testid='engagement-card']", text: "Hobby App") do
+        expect(page).to have_selector("[data-testid='engagement-personal']", text: "Personal")
+        expect(page).not_to have_selector("[data-testid='timeline-bench']")
+      end
+      expect(page).to have_selector("[data-testid='timeline-gap']", text: "Jan 2018 – May 2018")
+    end
+
     it "Turns away a period that isn't on the Timeline" do
       engagement("Older", "2015-01", "2017-12")
       sign_in_as(charlie)
