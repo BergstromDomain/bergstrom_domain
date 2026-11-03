@@ -214,11 +214,12 @@ class Dossier::Import
     end
   end
 
-  # Each list is an array, a comma-separated string or "N/A".
+  # Each list is an array, a comma-separated string or "N/A", under its
+  # plural or singular name (methodology, system_under_test).
   def tech_stack_attributes(stack)
-    attributes = { system_under_test: stack["system_under_test"].to_s }
-    Dossier::TechStack::SLOTS.each_value do |plural|
-      value = stack.fetch(plural.to_s) { stack[plural.to_s.singularize] }
+    attributes = {}
+    Dossier::TechStack::SLOTS.each do |slot, plural|
+      value = stack.fetch(plural.to_s) { stack[slot.to_s] }
       text = Array(value).join(", ")
       na = text.strip.casecmp?(NA)
       attributes[:"#{plural}_na"]   = na

@@ -103,7 +103,7 @@ RSpec.describe "Dossier Timeline", type: :feature do
       first = engagement("First", "2015-01", "2017-12")
       second = engagement("Second", "2018-01", "2022-06")
       create(:dossier_assignment, engagement: first)
-      create(:dossier_assignment, engagement: second, system_under_test: "Ticketing platform")
+      create(:dossier_assignment, engagement: second, systems_under_test_na: false, systems_under_test_text: "Ticketing platform")
       sign_in_as(charlie)
       visit dossier_engagements_path
 

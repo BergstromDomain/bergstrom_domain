@@ -31,9 +31,15 @@ RSpec.describe "Dossier Achievements", type: :feature do
 
       expect(page).to have_current_path(dossier_assignment_path(assignment))
       expect(page).to have_css("[data-testid='flash-success']", text: "Ran daily defect triage to prioritise UAT defects. has been successfully created")
+      within("[data-testid='assignment-achievements'] thead") do
+        expect(page.all("th").map(&:text)).to eq(%w[Achievements Importance Sort])
+      end
       within("[data-testid='achievement-row']") do
         expect(page).to have_link("Ran daily defect triage to prioritise UAT defects.")
-        expect(page).to have_content("Importance 5 · 40% fewer production defects · Jira, Excel")
+        expect(page).to have_selector("[data-testid='achievement-row-importance']", exact_text: "5")
+        expect(page).to have_content("Impact: 40% fewer production defects · Skills: Jira, Excel")
+        expect(page).to have_selector("strong", text: "Impact:")
+        expect(page).to have_link("Jira")
       end
     end
 

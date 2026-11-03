@@ -20,7 +20,7 @@
   <div class="show-meta-row">
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Client</h3>
-      <p class="show-meta-cell__value" data-testid="assignment-client"><%= @assignment.client.label %></p>
+      <p class="show-meta-cell__value" data-testid="assignment-client"><%= link_to @assignment.client.label, dossier_organisation_path(@assignment.client) %></p>
     </div>
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Project</h3>
@@ -28,7 +28,9 @@
     </div>
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Role</h3>
-      <p class="show-meta-cell__value" data-testid="assignment-role"><%= @assignment.role_name %></p>
+      <p class="show-meta-cell__value" data-testid="assignment-role">
+        <%= @assignment.role ? link_to(@assignment.role_name, dossier_role_path(@assignment.role)) : @assignment.role_name %>
+      </p>
     </div>
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Dates</h3>
@@ -37,7 +39,11 @@
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Location</h3>
       <p class="show-meta-cell__value" data-testid="assignment-location">
-        <%= [ @assignment.location&.name, ("(remote)" if @assignment.remote?) ].compact.join(" ").presence || "—" %>
+        <% if @assignment.location %>
+          <%= link_to @assignment.location.name, dossier_location_path(@assignment.location) %><%= " (remote)" if @assignment.remote? %>
+        <% else %>
+          <%= @assignment.remote? ? "(remote)" : "—" %>
+        <% end %>
       </p>
     </div>
     <div class="show-meta-cell">
@@ -55,10 +61,6 @@
     <h2 class="show-panel__heading">Tech Stack</h2>
   </div>
   <div class="show-meta-row">
-    <div class="show-meta-cell">
-      <h3 class="show-meta-cell__label">System Under Test</h3>
-      <p class="show-meta-cell__value" data-testid="tech-stack-system-under-test"><%= @assignment.system_under_test %></p>
-    </div>
     <% Dossier::TechStack::SLOTS.each do |slot, plural| %>
       <div class="show-meta-cell">
         <h3 class="show-meta-cell__label"><%= Dossier::TechStack::LABELS.fetch(plural) %></h3>
@@ -81,12 +83,7 @@
     <h2 class="show-panel__heading">Achievements</h2>
     <% achievements = @assignment.achievements %>
     <% if achievements.any? %>
-      <ol class="dossier-achievement-list">
-        <% achievements.each_with_index do |achievement, index| %>
-          <%= render "dossier/achievements/row", achievement: achievement,
-                     moves: (policy.can_update? ? { first: index.zero?, last: index == achievements.size - 1 } : nil) %>
-        <% end %>
-      </ol>
+      <%= render "dossier/achievements/table", achievements: achievements, sortable: policy.can_update? %>
     <% else %>
       <p data-testid="achievements-empty">No Achievements yet.</p>
     <% end %>

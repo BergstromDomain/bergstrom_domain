@@ -128,7 +128,7 @@ RSpec.describe Dossier::Import do
       assignment = engagement.assignments.sole
       expect(assignment).to have_attributes(role: test_lead, start_on: Date.new(2019, 3, 1), end_on: nil,
                                             summary: "Led testing of the licensing system.",
-                                            system_under_test: "Licensing system", classification: "restricted",
+                                            systems_under_test_text: "Licensing system", classification: "restricted",
                                             other_tools_na: true, protocols_na: true)
       expect(assignment.client.name).to eq("Department of Examples")
       expect(assignment.project).to eq("Licensing Upgrade")

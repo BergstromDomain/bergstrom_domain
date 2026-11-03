@@ -19,4 +19,6 @@ class Dossier::SkillsController < Dossier::ReferenceDataController
     [ [ "Skill Category", record.skill_category.name, "skill-category" ],
       [ "Aliases",        record.aliases_text.presence, "aliases" ] ]
   end
+
+  def assignments_for(record, assignments) = assignments.where(id: record.assignment_skills.select(:assignment_id))
 end

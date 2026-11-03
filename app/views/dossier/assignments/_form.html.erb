@@ -56,8 +56,6 @@
         Skills in the Uncategorised Skill Category.
       </p>
     </div>
-    <%= render "dossier/shared/field", f: f, record: assignment, attribute: :system_under_test, label: "System Under Test",
-          hint: "What was tested, e.g. Salesforce CRM replacing the legacy system. N/A if unknown." %>
     <% Dossier::TechStack::LABELS.each do |plural, label| %>
       <% errors = assignment.errors[:"#{plural}_text"] %>
       <div class="show-panel__section">

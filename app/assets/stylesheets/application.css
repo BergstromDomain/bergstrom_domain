@@ -3297,24 +3297,23 @@ textarea.form-control {
   display: block;
 }
 
-/* Achievements on the Assignment page: numbered bullets, Up/Down on the right. */
-.dossier-achievement-list {
-  margin: 0;
-  padding-left: var(--space-lg);
+/* Achievements: a bulleted table, with importance and Up/Down in narrow
+   columns on the right. */
+.dossier-achievement-table th:not(:first-child),
+.dossier-achievement-table td:not(:first-child) {
+  width: 1%;
+  white-space: nowrap;
 }
 
-.dossier-achievement {
-  padding: var(--space-xs) 0;
-  border-top: 1px solid var(--color-border);
+.dossier-achievement-table td.dossier-achievement__body {
+  position: relative;
+  padding-left: calc(var(--space-md) + 1em);
 }
 
-.dossier-achievement > * {
-  vertical-align: top;
-}
-
-.dossier-achievement__body {
-  display: inline-block;
-  width: calc(100% - 4rem);
+.dossier-achievement__body::before {
+  content: "•";
+  position: absolute;
+  left: var(--space-md);
 }
 
 .dossier-achievement__meta {
@@ -3323,10 +3322,13 @@ textarea.form-control {
   color: var(--color-text-secondary);
 }
 
-.dossier-achievement__moves {
-  float: right;
-  display: inline-flex;
-  gap: var(--space-xs);
+.dossier-achievement__meta strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.dossier-achievement__moves form {
+  display: inline-block;
 }
 
 .dossier-achievement__moves .icon-button:disabled {

@@ -6,7 +6,9 @@
 # Skills, which Content Creators need for their own Engagements and Tech Stacks).
 #
 # Views live in app/views/dossier/reference_data/; a subclass only adds a
-# _fields partial (the form) and #details (the show page's extra rows).
+# _fields partial (the form), #details (the show page's extra rows) and,
+# where Assignments use the record, #assignments_for (the signed-in user's
+# own Assignments listed on the show page).
 class Dossier::ReferenceDataController < ApplicationController
   include Navigable
   allow_unauthenticated_access only: %i[index show]
@@ -24,6 +26,7 @@ class Dossier::ReferenceDataController < ApplicationController
   end
 
   def show
+    @assignments = related_assignments
   end
 
   def new
@@ -84,6 +87,10 @@ class Dossier::ReferenceDataController < ApplicationController
   # [heading, records] pairs for the index; a nil heading shows no subheader.
   def index_groups = [ [ nil, @records ] ]
 
+  # Narrows the given Assignments to those using record; nil when
+  # Assignments don't use this kind of record.
+  def assignments_for(_record, _assignments) = nil
+
   # ── Shared ────────────────────────────────────────────────────────────────
   def singular_name = model_class.model_name.human.titleize
   def plural_name   = singular_name.pluralize
@@ -104,6 +111,15 @@ class Dossier::ReferenceDataController < ApplicationController
 
   def set_record
     @record = model_class.friendly.find(params[:id])
+  end
+
+  # Only the signed-in user's own, so a public page never lists anyone's
+  # (restricted) Assignments; nil when there are none.
+  def related_assignments
+    return unless current_user
+
+    mine = Dossier::Assignment.where(engagement_id: current_user.dossier_engagements.kept.select(:id))
+    assignments_for(@record, mine)&.includes(:client)&.newest_first&.to_a.presence
   end
 
   def set_policy

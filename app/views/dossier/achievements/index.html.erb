@@ -26,10 +26,7 @@
                     data: { testid: "achievements-assignment-title" } %>
               <span class="dossier-assignment-row__dates"><%= assignment.date_range %></span>
             </h3>
-            <ol class="dossier-achievement-list">
-              <%= render partial: "dossier/achievements/row", collection: assignment.achievements, as: :achievement,
-                         locals: { moves: nil } %>
-            </ol>
+            <%= render "dossier/achievements/table", achievements: assignment.achievements, sortable: false %>
           </div>
         <% end %>
       </div>

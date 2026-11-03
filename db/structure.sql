@@ -534,13 +534,13 @@ CREATE TABLE public.dossier_assignments (
     "position" integer,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    system_under_test text NOT NULL,
     operating_systems_na boolean DEFAULT false NOT NULL,
     methodologies_na boolean DEFAULT false NOT NULL,
     test_tools_na boolean DEFAULT false NOT NULL,
     other_tools_na boolean DEFAULT false NOT NULL,
     protocols_na boolean DEFAULT false NOT NULL,
-    project character varying
+    project character varying,
+    systems_under_test_na boolean DEFAULT false NOT NULL
 );
 
 
@@ -3608,6 +3608,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261103090000'),
 ('20261102090000'),
 ('20261031090000'),
 ('20261030062938'),
