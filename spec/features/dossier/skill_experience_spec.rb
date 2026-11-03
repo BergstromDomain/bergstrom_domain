@@ -95,6 +95,7 @@ RSpec.describe "Dossier Skill experience", type: :feature do
   describe "Alternative Path" do
     it "Collapses a Skill Category on My Career › Skills", js: true do
       sign_in_as(charlie)
+      expect(page).to have_css("[data-testid='user-thumbnail-dropdown']", wait: 10)
       visit dossier_my_skills_path
 
       category = "[data-testid='my-skills-category']:has([data-testid='my-skills-toggle-#{test_tools.id}'])"
