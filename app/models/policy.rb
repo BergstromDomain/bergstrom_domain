@@ -11,9 +11,10 @@ class Policy
     # A soft-deleted post is hidden from everyone but admins, regardless of
     # draft/published/classification — checked first since it overrides both
     # of the branches below.
-    if @resource.respond_to?(:deleted_at) && @resource.deleted_at.present?
-      return !!can_administer?
-    end
+    # hidden? also covers a record deleted with its parent (an Achievement
+    # under a deleted Engagement).
+    deleted = @resource.respond_to?(:hidden?) ? @resource.hidden? : @resource.respond_to?(:deleted_at) && @resource.deleted_at.present?
+    return !!can_administer? if deleted
 
     # A draft BlogPost or Recipe is visible only to its authors/owner and
     # admins, regardless of classification — Classifiable's normal rules only

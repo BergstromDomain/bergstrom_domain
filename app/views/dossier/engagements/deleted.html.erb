@@ -1,0 +1,55 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Deleted Engagements</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Deleted Engagements are kept for 30 days before being permanently removed. Restoring one brings back its
+    Assignments and their Achievements too.
+  </p>
+</div>
+
+<% if @engagements.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="deleted-engagement-table">
+      <colgroup>
+        <col>
+        <col style="width: 14rem;">
+        <col style="width: 10rem;">
+        <col style="width: 10rem;">
+        <col style="width: 5rem;">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Engagement</th>
+          <th>Dates</th>
+          <th>Deleted</th>
+          <th>Days remaining</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @engagements.each do |engagement| %>
+          <tr data-testid="deleted-engagement-row">
+            <td data-testid="deleted-engagement-label"><%= engagement.to_toast_label %></td>
+            <td><%= engagement.date_range %></td>
+            <td data-testid="deleted-engagement-deleted-at"><%= engagement.deleted_at.to_date.to_fs(:long) %></td>
+            <td data-testid="deleted-engagement-days-remaining"><%= ((engagement.purge_at - Time.current) / 1.day).ceil %></td>
+            <td class="data-table__icon-cell">
+              <%= button_to restore_dossier_engagement_path(engagement),
+                    method: :post,
+                    class: "icon-button icon-button--success",
+                    title: "Restore #{engagement.to_toast_label}",
+                    data: { testid: "restore-engagement-#{engagement.id}" } do %>
+                <%= lucide_icon("undo-2", size: 18) %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No deleted Engagements.</p>
+  </div>
+<% end %>

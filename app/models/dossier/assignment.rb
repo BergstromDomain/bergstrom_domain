@@ -36,6 +36,12 @@ class Dossier::Assignment < ApplicationRecord
     start_on >= outer.start_on && (outer.end_on.nil? || (end_on && effective_end <= outer.effective_end))
   end
 
+  # An Assignment is deleted with its Engagement (it has no soft delete of its
+  # own), so Policy hides it from everyone but Admins until it's restored.
+  def deleted_at
+    engagement&.deleted_at
+  end
+
   def to_toast_label
     "#{role_name} at #{client&.name}"
   end

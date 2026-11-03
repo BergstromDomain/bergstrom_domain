@@ -1,14 +1,19 @@
 # app/controllers/dossier/engagements_controller.rb
 
-# The signed-in user's Engagements. Delete is a soft delete (deleted_at);
-# restoring and the 30-day purge come with Achievements in Block 3.
+# The signed-in user's Engagements. Delete is a soft delete (deleted_at) that
+# hides the Engagement's Assignments and Achievements too; Deleted lists the
+# user's own and Restore brings one back with everything under it.
 class Dossier::EngagementsController < ApplicationController
   include Navigable
-  before_action :require_dossier_access, only: %i[index new create]
-  before_action :set_engagement, only: %i[show edit update destroy]
+  before_action :require_dossier_access, only: %i[index deleted new create]
+  before_action :set_engagement, only: %i[show edit update destroy restore]
 
   def index
     @timeline = Dossier::Timeline.new(current_user.dossier_engagements.kept.includes(:employer))
+  end
+
+  def deleted
+    @engagements = current_user.dossier_engagements.discarded.includes(:employer).order(deleted_at: :desc)
   end
 
   def show
@@ -53,6 +58,16 @@ class Dossier::EngagementsController < ApplicationController
     @engagement.soft_delete!
     toast_deleted(@engagement)
     redirect_to dossier_engagements_path
+  end
+
+  def restore
+    if Policy.new(current_user, @engagement).can_update?
+      @engagement.restore!
+      flash[:success] = "#{@engagement.to_toast_label} has been successfully restored"
+      redirect_to deleted_dossier_engagements_path
+    else
+      redirect_to dossier_engagements_path, alert: "Not authorised."
+    end
   end
 
   private

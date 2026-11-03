@@ -77,6 +77,26 @@ RSpec.describe "Dossier Engagements", type: :feature do
       expect(page).not_to have_selector("[data-testid='engagement-title']")
       expect(engagement.reload.deleted_at).to be_present
     end
+
+    it "Restores a deleted Engagement from Deleted Engagements, with its Assignments" do
+      engagement = create(:dossier_engagement, user: charlie, position_title: "Test Lead", employer: consultancy)
+      assignment = create(:dossier_assignment, engagement: engagement)
+      engagement.soft_delete!
+      sign_in_as(charlie)
+      visit dossier_path
+      within("[data-testid='left-nav']") { click_link "Deleted Engagements" }
+
+      within("[data-testid='deleted-engagement-row']") do
+        expect(page).to have_selector("[data-testid='deleted-engagement-label']", text: "Test Lead at Consultancy A")
+        expect(page).to have_selector("[data-testid='deleted-engagement-days-remaining']", text: "30")
+        find("[data-testid='restore-engagement-#{engagement.id}']").click
+      end
+
+      expect(page).to have_css("[data-testid='flash-success']", text: "Test Lead at Consultancy A has been successfully restored")
+      expect(page).to have_selector("[data-testid='empty-state']")
+      visit dossier_assignment_path(assignment)
+      expect(page).to have_current_path(dossier_assignment_path(assignment))
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
@@ -111,6 +131,42 @@ RSpec.describe "Dossier Engagements", type: :feature do
 
       visit dossier_engagements_path
       expect(page).not_to have_selector("[data-testid='engagement-title']")
+    end
+  end
+
+  describe "Negative Path (deleted)" do
+    it "Hides a deleted Engagement's Assignments and Achievements from their owner" do
+      engagement = create(:dossier_engagement, user: charlie)
+      assignment = create(:dossier_assignment, engagement: engagement)
+      achievement = create(:dossier_achievement, assignment: assignment)
+      engagement.soft_delete!
+      sign_in_as(charlie)
+
+      visit dossier_assignment_path(assignment)
+      expect(page).to have_current_path(dossier_engagements_path)
+      visit dossier_achievement_path(achievement)
+      expect(page).to have_current_path(dossier_engagements_path)
+    end
+
+    it "Lists and restores only your own deleted Engagements" do
+      engagement = create(:dossier_engagement, user: charlie, position_title: "Test Lead", employer: consultancy)
+      engagement.soft_delete!
+      sign_in_as(chris)
+      visit deleted_dossier_engagements_path
+      expect(page).to have_selector("[data-testid='empty-state']")
+
+      page.driver.submit :post, restore_dossier_engagement_path(engagement), {}
+      expect(engagement.reload.deleted_at).to be_present
+    end
+
+    it "Leaves a deleted Engagement's deleted Achievements off Deleted Achievements" do
+      engagement = create(:dossier_engagement, user: charlie)
+      create(:dossier_achievement, assignment: create(:dossier_assignment, engagement: engagement), text: "Hidden bullet.")
+        .soft_delete!
+      engagement.soft_delete!
+      sign_in_as(charlie)
+      visit deleted_dossier_achievements_path
+      expect(page).not_to have_content("Hidden bullet.")
     end
   end
 

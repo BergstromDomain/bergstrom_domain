@@ -66,6 +66,25 @@ RSpec.describe Dossier::Engagement, type: :model do
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Soft delete" do
+    it "Hides its Assignments and their Achievements until restored, purging 30 days after" do
+      engagement = create(:dossier_engagement)
+      assignment = create(:dossier_assignment, engagement: engagement)
+      achievement = create(:dossier_achievement, assignment: assignment)
+
+      engagement.soft_delete!
+      expect(described_class.discarded).to eq([ engagement ])
+      expect(engagement.purge_at).to eq(engagement.deleted_at + 30.days)
+      expect(assignment.reload.deleted_at).to eq(engagement.deleted_at)
+      expect(achievement.reload.hidden?).to be(true)
+
+      engagement.restore!
+      expect(described_class.kept).to eq([ engagement ])
+      expect(assignment.reload.deleted_at).to be_nil
+      expect(achievement.reload.hidden?).to be(false)
+    end
+  end
+
   describe "Negative Path" do
     it "Is invalid without a position title" do
       engagement = build(:dossier_engagement, position_title: " ")

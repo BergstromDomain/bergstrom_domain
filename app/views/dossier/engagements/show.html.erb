@@ -72,7 +72,7 @@
     <%= button_to dossier_engagement_path(@engagement),
           method: :delete,
           class: "btn btn-danger",
-          data: { turbo_confirm: "Delete #{@engagement.to_toast_label} and its Assignments?" } do %>
+          data: { turbo_confirm: "Delete #{@engagement.to_toast_label} and its Assignments? You can restore them for 30 days." } do %>
       <%= lucide_icon("trash-2", size: 16) %> Delete Engagement
     <% end %>
   <% end %>
