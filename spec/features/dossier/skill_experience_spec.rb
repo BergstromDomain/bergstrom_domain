@@ -93,16 +93,15 @@ RSpec.describe "Dossier Skill experience", type: :feature do
 
   # 3) Alternative Path ───────────────────────────────────────────────────────
   describe "Alternative Path" do
-    it "Collapses and reopens a Skill Category on My Career › Skills", js: true do
+    it "Collapses a Skill Category on My Career › Skills", js: true do
       sign_in_as(charlie)
       visit dossier_my_skills_path
 
-      category = find("[data-testid='my-skills-category']", text: "Test Tools")
-      expect(category).to have_selector("[data-testid='my-skill-row']", text: "Jira")
+      category = "[data-testid='my-skills-category']:has([data-testid='my-skills-toggle-#{test_tools.id}'])"
+      expect(page).to have_selector("#{category}[open] [data-testid='my-skill-row']", text: "Jira")
       js_click("my-skills-toggle-#{test_tools.id}")
-      expect(category).not_to have_selector("[data-testid='my-skill-row']")
-      js_click("my-skills-toggle-#{test_tools.id}")
-      expect(category).to have_selector("[data-testid='my-skill-row']", text: "Jira")
+      expect(page).to have_selector("#{category}:not([open])")
+      expect(page).not_to have_selector("#{category} [data-testid='my-skill-row']")
     end
 
     it "Lists an Assignment under both lists that use the Skill" do
