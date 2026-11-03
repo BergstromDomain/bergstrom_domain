@@ -89,6 +89,7 @@ Rails.application.routes.draw do
     end
     get "timeline/:from/:to", to: "periods#show", as: :period,
                               constraints: { from: /\d{4}-\d{2}-\d{2}/, to: /\d{4}-\d{2}-\d{2}/ }
+    get "my-skills", to: "my_skills#index", as: :my_skills
     resources :engagements
     resources :assignments, except: :index
     resources :achievements do

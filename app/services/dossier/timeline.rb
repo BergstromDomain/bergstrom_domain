@@ -19,13 +19,27 @@ class Dossier::Timeline
   DAYS_PER_MONTH = 365.25 / 12
 
   # Q-D11: under 1 year "N months", otherwise "N+ years" (floor).
-  def self.duration(from, to)
-    months = ((to - from + 1) / DAYS_PER_MONTH).round
+  def self.duration(from, to) = duration_of(months(to - from + 1))
+
+  def self.months(days) = (days / DAYS_PER_MONTH).round
+
+  def self.duration_of(months)
     return "Under a month" if months < 1
     return "#{months} #{'month'.pluralize(months)}" if months < 12
 
     years = months / 12
     "#{years}+ #{'year'.pluralize(years)}"
+  end
+
+  # Merge overlapping or touching periods.
+  def self.merge(periods)
+    periods.sort_by(&:from).each_with_object([]) do |period, merged|
+      if merged.any? && period.from <= merged.last.to + 1
+        merged[-1] = Period.new(from: merged.last.from, to: [ merged.last.to, period.to ].max)
+      else
+        merged << period
+      end
+    end
   end
 
   # One Engagement's bench time, for its own page.
@@ -61,7 +75,7 @@ class Dossier::Timeline
 
   def bench_for(engagement)
     outer = period_for(engagement)
-    covered = merge(engagement.assignments.map { |a| period_for(a) })
+    covered = self.class.merge(engagement.assignments.map { |a| period_for(a) })
     edges = [ Period.new(from: outer.from, to: outer.from - 1) ] + covered + [ Period.new(from: outer.to + 1, to: outer.to) ]
     holes(edges)
   end
@@ -73,18 +87,7 @@ class Dossier::Timeline
   end
 
   def gaps
-    holes(merge(@engagements.map { |e| period_for(e) }))
-  end
-
-  # Merge overlapping or touching periods (sorted by start).
-  def merge(periods)
-    periods.sort_by(&:from).each_with_object([]) do |period, merged|
-      if merged.any? && period.from <= merged.last.to + 1
-        merged[-1] = Period.new(from: merged.last.from, to: [ merged.last.to, period.to ].max)
-      else
-        merged << period
-      end
-    end
+    holes(self.class.merge(@engagements.map { |e| period_for(e) }))
   end
 
   # The stretches between consecutive merged periods.

@@ -19,7 +19,7 @@ class Dossier::ReferenceDataController < ApplicationController
 
   class_attribute :content_creators_can_create, default: false
 
-  helper_method :model_class, :singular_name, :plural_name, :subtitle, :details, :index_groups
+  helper_method :model_class, :singular_name, :plural_name, :subtitle, :details, :index_groups, :show_panels
 
   def index
     @records = model_class.alphabetical
@@ -86,6 +86,9 @@ class Dossier::ReferenceDataController < ApplicationController
 
   # [heading, records] pairs for the index; a nil heading shows no subheader.
   def index_groups = [ [ nil, @records ] ]
+
+  # A partial with extra show-page panels, before the actions; nil for none.
+  def show_panels = nil
 
   # Narrows the given Assignments to those using record; nil when
   # Assignments don't use this kind of record.

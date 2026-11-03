@@ -2,11 +2,22 @@
 class Dossier::SkillsController < Dossier::ReferenceDataController
   self.content_creators_can_create = true
 
+  # The signed-in user's own experience with the Skill (nil for a visitor or
+  # a Skill they haven't used).
+  def show
+    super
+    return unless current_user
+
+    @experience = Dossier::ExperienceCalculator.new(current_user).for_skill(@record)
+    ActiveRecord::Associations::Preloader.new(records: @experience.assignments, associations: :client).call if @experience
+  end
+
   private
 
   def model_class          = Dossier::Skill
   def permitted_attributes = %i[name skill_category_id aliases_text description]
   def subtitle             = "Tools, methods, platforms and protocols. Aliases catch other spellings of the same Skill."
+  def show_panels          = "dossier/skills/experience"
 
   # Grouped under their Skill Categories, alphabetically.
   def index_groups
@@ -19,6 +30,4 @@ class Dossier::SkillsController < Dossier::ReferenceDataController
     [ [ "Skill Category", record.skill_category.name, "skill-category" ],
       [ "Aliases",        record.aliases_text.presence, "aliases" ] ]
   end
-
-  def assignments_for(record, assignments) = assignments.where(id: record.assignment_skills.select(:assignment_id))
 end

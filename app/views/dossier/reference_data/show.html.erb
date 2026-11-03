@@ -43,6 +43,8 @@
     </div>
   <% end %>
 
+  <%= render show_panels if show_panels %>
+
   <%# Actions div %>
   <div class="show-panel show-panel--actions" data-testid="show-panel-actions">
     <%= link_to polymorphic_path(model_class), class: "btn btn-secondary" do %>
