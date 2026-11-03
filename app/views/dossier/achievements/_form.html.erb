@@ -1,0 +1,44 @@
+<%# Locals: achievement, panel ("new"/"edit"), submit_label, cancel_path %>
+<%= form_with model: achievement, class: "resource-form resource-form--wide" do |f| %>
+  <%= render "dossier/shared/form_errors", record: achievement, noun: "achievement" %>
+
+  <%# Main div — the bullet point %>
+  <div class="show-panel" data-testid="<%= panel %>-panel-main">
+    <% if achievement.new_record? %>
+      <% choices = assignment_choices.group_by(&:engagement).to_h do |engagement, assignments|
+           [ engagement.to_toast_label, assignments.map { |a| [ "#{a.heading} (#{a.date_range})", a.id ] } ]
+         end %>
+      <%= render "dossier/shared/field", f: f, record: achievement, attribute: :assignment_id, label: "Assignment",
+            error_attribute: :assignment,
+            field: f.select(:assignment_id, grouped_options_for_select(choices, achievement.assignment_id),
+                            { include_blank: "Choose an Assignment" }, class: "form-control",
+                            data: { testid: "assignment-field" }) %>
+    <% end %>
+    <%= render "dossier/shared/field", f: f, record: achievement, attribute: :text, label: "Achievement", text_area: true,
+          hint: "One bullet point, terse form, without I: \"Ran daily defect triage to prioritise UAT defects.\"" %>
+    <%= render "dossier/shared/field", f: f, record: achievement, attribute: :impact, label: "Impact",
+          hint: "Optional, a measurable result, e.g. \"40% fewer production defects\"." %>
+  </div>
+
+  <%# Details div %>
+  <div class="show-panel" data-testid="<%= panel %>-panel-details">
+    <%= render "dossier/shared/field", f: f, record: achievement, attribute: :importance, label: "Importance",
+          field: f.select(:importance, Dossier::Achievement::IMPORTANCE.to_a.reverse.map { |i| [ importance_label(i), i ] },
+                          {}, class: "form-control", data: { testid: "importance-field" }),
+          hint: "How strongly this belongs on a CV; CVs pick the most important bullets first." %>
+    <%= render "dossier/shared/field", f: f, record: achievement, attribute: :skills_text, label: "Skills",
+          error_attribute: :achievement_skills,
+          hint: "Optional. Separate Skills with commas; new names become Skills in the Uncategorised Skill Category." %>
+  </div>
+
+  <%# Actions div %>
+  <div class="show-panel show-panel--actions" data-testid="<%= panel %>-panel-actions">
+    <%= link_to cancel_path, class: "btn btn-secondary" do %>
+      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary">
+      <%= lucide_icon("save", size: 16) %> <%= submit_label %>
+    </button>
+  </div>
+<% end %>

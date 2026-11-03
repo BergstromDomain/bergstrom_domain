@@ -29,6 +29,7 @@ RSpec.describe "Dossier Import", type: :feature do
       expect(page).to have_selector("h1", text: "Import Preview")
       expect(count_row("Engagement")).to have_text("1 new")
       expect(count_row("Organisation")).to have_text("2 new")
+      expect(count_row("Achievement")).to have_text("2 new")
       expect(Dossier::Engagement.count).to eq(0)
 
       click_button "Import"
@@ -36,7 +37,10 @@ RSpec.describe "Dossier Import", type: :feature do
       expect(page).to have_current_path(dossier_engagements_path)
       expect(page).to have_css("[data-testid='flash-success']", text: "Master CV imported: 1 Profile, 2 Organisations")
       expect(page).to have_selector("[data-testid='engagement-card']", text: "Test Consultant")
-      expect(charlie.dossier_engagements.sole.assignments.sole.summary).to eq("Led testing of the licensing system.")
+      assignment = charlie.dossier_engagements.sole.assignments.sole
+      expect(assignment.summary).to eq("Led testing of the licensing system.")
+      expect(assignment.achievements.map(&:text)).to eq([ "Cut regression testing from five days to one.",
+                                                          "Set up the team's first automated smoke tests." ])
     end
   end
 

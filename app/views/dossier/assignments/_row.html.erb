@@ -4,7 +4,7 @@
     <%= link_to assignment.heading, dossier_assignment_path(assignment), class: "data-table__name-link" %>
     <% if assignment.tech_stack_blank? %>
       <span class="badge badge--pending" data-testid="tech-stack-incomplete"
-            title="Every Tech Stack list is N/A and there's no System Under Test">Tech Stack Incomplete</span>
+            title="Every Tech Stack list is N/A">Tech Stack Incomplete</span>
     <% end %>
   </span>
   <span class="dossier-assignment-row__dates"><%= assignment.date_range %></span>

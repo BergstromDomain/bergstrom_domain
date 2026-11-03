@@ -31,6 +31,18 @@
     </div>
   </div>
 
+  <%# Assignments div — the signed-in user's own Assignments using this record %>
+  <% if @assignments %>
+    <div class="show-panel" data-testid="related-assignments">
+      <div class="show-panel__section">
+        <h2 class="show-panel__heading">Your Assignments</h2>
+        <ul class="dossier-assignment-list">
+          <%= render partial: "dossier/assignments/row", collection: @assignments, as: :assignment %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
   <%# Actions div %>
   <div class="show-panel show-panel--actions" data-testid="show-panel-actions">
     <%= link_to polymorphic_path(model_class), class: "btn btn-secondary" do %>

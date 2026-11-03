@@ -1,15 +1,16 @@
 # spec/models/dossier/tech_stack_spec.rb
 require "rails_helper"
 
-# Dossier::TechStack on Dossier::Assignment: System Under Test plus five Skill
-# lists, each filled or marked N/A (never both, never neither).
+# Dossier::TechStack on Dossier::Assignment: six Skill lists, System Under
+# Test first, each filled or marked N/A (never both, never neither).
 RSpec.describe "Dossier Assignment Tech Stack", type: :model do
   let!(:uncategorised) { create(:dossier_skill_category, name: "Uncategorised") }
   let(:tools)          { create(:dossier_skill_category, name: "Test Tools") }
   let(:engagement)     { create(:dossier_engagement) }
 
   def assignment(**attributes)
-    build(:dossier_assignment, engagement: engagement, system_under_test: "Salesforce CRM", **attributes)
+    build(:dossier_assignment, engagement: engagement, systems_under_test_na: false,
+                                **{ systems_under_test_text: "Salesforce CRM" }.merge(attributes))
   end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
@@ -27,6 +28,14 @@ RSpec.describe "Dossier Assignment Tech Stack", type: :model do
       expect(record.reload.test_tools_text).to eq("Jira, Selenium")
     end
 
+    it "Saves the System Under Test as Skills, like the other lists" do
+      record = assignment(systems_under_test_text: "Energy Components, SSRS reports")
+      record.save!
+
+      expect(record.skills_in(:system_under_test).map(&:name)).to eq([ "Energy Components", "SSRS reports" ])
+      expect(record.reload.systems_under_test_text).to eq("Energy Components, SSRS reports")
+    end
+
     it "Creates unknown Skills in the Uncategorised Skill Category" do
       record = assignment(protocols_na: false, protocols_text: "HL7")
       record.save!
@@ -36,10 +45,10 @@ RSpec.describe "Dossier Assignment Tech Stack", type: :model do
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
-    it "Is invalid without a System Under Test" do
-      record = assignment(system_under_test: " ")
+    it "Is invalid without a System Under Test or N/A" do
+      record = assignment(systems_under_test_text: " ")
       expect(record).not_to be_valid
-      expect(record.errors[:system_under_test]).to include("can't be blank")
+      expect(record.errors.full_messages).to include("System Under Test needs at least one item, or tick N/A")
     end
 
     it "Is invalid with a list that is neither filled nor N/A" do
@@ -77,13 +86,13 @@ RSpec.describe "Dossier Assignment Tech Stack", type: :model do
       record = assignment(test_tools_na: false, test_tools_text: "Excel", other_tools_na: false, other_tools_text: "Excel")
       record.save!
       expect(Dossier::Skill.where(name: "Excel").count).to eq(1)
-      expect(record.assignment_skills.count).to eq(2)
+      expect(record.assignment_skills.joins(:skill).where(skill: { name: "Excel" }).count).to eq(2)
     end
 
     it "Gives a permanent job's automatic Assignment an all-N/A Tech Stack" do
       engagement = create(:dossier_engagement, :permanent)
       record = engagement.assignments.first
-      expect(record.system_under_test).to eq("N/A")
+      expect(record.systems_under_test_na).to be(true)
       expect(record).to be_tech_stack_blank
     end
   end
@@ -96,9 +105,9 @@ RSpec.describe "Dossier Assignment Tech Stack", type: :model do
       expect(record.reload.test_tools_text).to eq("Jira")
     end
 
-    it "Is tech-stack-blank only when every list is N/A and the System Under Test is N/A" do
-      expect(assignment(system_under_test: "N/A")).to be_tech_stack_blank
-      expect(assignment(system_under_test: "Salesforce CRM")).not_to be_tech_stack_blank
+    it "Is tech-stack-blank only when every list is N/A, the System Under Test included" do
+      expect(assignment(systems_under_test_na: true, systems_under_test_text: "")).to be_tech_stack_blank
+      expect(assignment).not_to be_tech_stack_blank
     end
   end
 end

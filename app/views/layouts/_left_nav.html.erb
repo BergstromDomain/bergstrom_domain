@@ -525,6 +525,10 @@
           <%= lucide_icon("gantt-chart", size: 15) %>
           <span>Timeline</span>
         <% end %>
+        <%= link_to dossier_achievements_path, class: "left-nav-link" do %>
+          <%= lucide_icon("trophy", size: 15) %>
+          <span>Achievements</span>
+        <% end %>
       <% end %>
 
       <h3 class="left-nav-h3" data-testid="left-nav-reference-data-h3">Reference Data</h3>
@@ -583,6 +587,10 @@
             <%= lucide_icon("building", size: 15) %>
             <span>Create An Assignment</span>
           <% end %>
+          <%= link_to new_dossier_achievement_path, class: "left-nav-link" do %>
+            <%= lucide_icon("trophy", size: 15) %>
+            <span>Write An Achievement</span>
+          <% end %>
           <%= link_to new_dossier_organisation_path, class: "left-nav-link" do %>
             <%= lucide_icon("building-2", size: 15) %>
             <span>Add An Organisation</span>
@@ -590,6 +598,10 @@
           <%= link_to new_dossier_skill_path, class: "left-nav-link" do %>
             <%= lucide_icon("wrench", size: 15) %>
             <span>Add A Skill</span>
+          <% end %>
+          <%= link_to deleted_dossier_achievements_path, class: "left-nav-link" do %>
+            <%= lucide_icon("trash-2", size: 15) %>
+            <span>Deleted Achievements</span>
           <% end %>
         <% end %>
 

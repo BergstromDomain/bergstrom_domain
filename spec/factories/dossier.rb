@@ -67,11 +67,16 @@ FactoryBot.define do
     start_precision { "month" }
     end_on          { engagement.end_on }
     end_precision   { "month" }
-    system_under_test   { "N/A" }
+    systems_under_test_na { true }
     operating_systems_na { true }
     methodologies_na     { true }
     test_tools_na        { true }
     other_tools_na       { true }
     protocols_na         { true }
+  end
+
+  factory :dossier_achievement, class: "Dossier::Achievement" do
+    association :assignment, factory: :dossier_assignment
+    sequence(:text) { |n| "Ran daily defect triage for release #{n}" }
   end
 end

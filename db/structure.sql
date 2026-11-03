@@ -410,6 +410,76 @@ ALTER SEQUENCE public.cuisines_id_seq OWNED BY public.cuisines.id;
 
 
 --
+-- Name: dossier_achievement_skills; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_achievement_skills (
+    id bigint NOT NULL,
+    achievement_id bigint NOT NULL,
+    skill_id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_achievement_skills_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_achievement_skills_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_achievement_skills_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_achievement_skills_id_seq OWNED BY public.dossier_achievement_skills.id;
+
+
+--
+-- Name: dossier_achievements; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_achievements (
+    id bigint NOT NULL,
+    assignment_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    text text NOT NULL,
+    impact character varying,
+    importance integer DEFAULT 3 NOT NULL,
+    "position" integer NOT NULL,
+    classification character varying DEFAULT 'restricted'::character varying NOT NULL,
+    deleted_at timestamp(6) without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_achievements_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_achievements_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_achievements_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_achievements_id_seq OWNED BY public.dossier_achievements.id;
+
+
+--
 -- Name: dossier_assignment_skills; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -464,13 +534,13 @@ CREATE TABLE public.dossier_assignments (
     "position" integer,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    system_under_test text NOT NULL,
     operating_systems_na boolean DEFAULT false NOT NULL,
     methodologies_na boolean DEFAULT false NOT NULL,
     test_tools_na boolean DEFAULT false NOT NULL,
     other_tools_na boolean DEFAULT false NOT NULL,
     protocols_na boolean DEFAULT false NOT NULL,
-    project character varying
+    project character varying,
+    systems_under_test_na boolean DEFAULT false NOT NULL
 );
 
 
@@ -1673,6 +1743,20 @@ ALTER TABLE ONLY public.cuisines ALTER COLUMN id SET DEFAULT nextval('public.cui
 
 
 --
+-- Name: dossier_achievement_skills id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_achievement_skills ALTER COLUMN id SET DEFAULT nextval('public.dossier_achievement_skills_id_seq'::regclass);
+
+
+--
+-- Name: dossier_achievements id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_achievements ALTER COLUMN id SET DEFAULT nextval('public.dossier_achievements_id_seq'::regclass);
+
+
+--
 -- Name: dossier_assignment_skills id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2000,6 +2084,22 @@ ALTER TABLE ONLY public.cuisines
 
 
 --
+-- Name: dossier_achievement_skills dossier_achievement_skills_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_achievement_skills
+    ADD CONSTRAINT dossier_achievement_skills_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_achievements dossier_achievements_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_achievements
+    ADD CONSTRAINT dossier_achievements_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: dossier_assignment_skills dossier_assignment_skills_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2272,6 +2372,13 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: idx_on_achievement_id_skill_id_e49d09dc5c; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_on_achievement_id_skill_id_e49d09dc5c ON public.dossier_achievement_skills USING btree (achievement_id, skill_id);
+
+
+--
 -- Name: index_action_text_rich_texts_uniqueness; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2416,6 +2523,41 @@ CREATE UNIQUE INDEX index_cuisines_on_name ON public.cuisines USING btree (name)
 --
 
 CREATE UNIQUE INDEX index_cuisines_on_slug ON public.cuisines USING btree (slug);
+
+
+--
+-- Name: index_dossier_achievement_skills_on_achievement_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_achievement_skills_on_achievement_id ON public.dossier_achievement_skills USING btree (achievement_id);
+
+
+--
+-- Name: index_dossier_achievement_skills_on_skill_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_achievement_skills_on_skill_id ON public.dossier_achievement_skills USING btree (skill_id);
+
+
+--
+-- Name: index_dossier_achievements_on_assignment_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_achievements_on_assignment_id ON public.dossier_achievements USING btree (assignment_id);
+
+
+--
+-- Name: index_dossier_achievements_on_assignment_id_and_position; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_achievements_on_assignment_id_and_position ON public.dossier_achievements USING btree (assignment_id, "position");
+
+
+--
+-- Name: index_dossier_achievements_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_achievements_on_user_id ON public.dossier_achievements USING btree (user_id);
 
 
 --
@@ -3036,6 +3178,14 @@ ALTER TABLE ONLY public.person_social_media_accounts
 
 
 --
+-- Name: dossier_achievements fk_rails_03106214dc; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_achievements
+    ADD CONSTRAINT fk_rails_03106214dc FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: comments fk_rails_03de2dc08c; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3145,6 +3295,14 @@ ALTER TABLE ONLY public.recipe_cuisines
 
 ALTER TABLE ONLY public.event_mutes
     ADD CONSTRAINT fk_rails_4e19c316c3 FOREIGN KEY (event_id) REFERENCES public.events(id);
+
+
+--
+-- Name: dossier_achievement_skills fk_rails_58c1b5c0e9; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_achievement_skills
+    ADD CONSTRAINT fk_rails_58c1b5c0e9 FOREIGN KEY (achievement_id) REFERENCES public.dossier_achievements(id);
 
 
 --
@@ -3412,6 +3570,14 @@ ALTER TABLE ONLY public.dossier_profiles
 
 
 --
+-- Name: dossier_achievements fk_rails_ecf7306736; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_achievements
+    ADD CONSTRAINT fk_rails_ecf7306736 FOREIGN KEY (assignment_id) REFERENCES public.dossier_assignments(id);
+
+
+--
 -- Name: dossier_assignments fk_rails_f467ade37e; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3428,12 +3594,22 @@ ALTER TABLE ONLY public.dossier_profiles
 
 
 --
+-- Name: dossier_achievement_skills fk_rails_f9578f34ed; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_achievement_skills
+    ADD CONSTRAINT fk_rails_f9578f34ed FOREIGN KEY (skill_id) REFERENCES public.dossier_skills(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261103090000'),
+('20261102090000'),
 ('20261031090000'),
 ('20261030062938'),
 ('20261030062152'),

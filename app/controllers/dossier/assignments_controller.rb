@@ -65,13 +65,13 @@ class Dossier::AssignmentsController < ApplicationController
   end
 
   def set_assignment
-    @assignment = Dossier::Assignment.includes(assignment_skills: :skill).find(params[:id])
+    @assignment = Dossier::Assignment.includes(assignment_skills: :skill, achievements: { achievement_skills: :skill }).find(params[:id])
   end
 
   def assignment_params
     params.require(:dossier_assignment).permit(
       :client_id, :project, :role_id, :location_id, :remote,
-      :start_year, :start_month_number, :start_day, :end_year, :end_month_number, :end_day, :summary, :system_under_test,
+      :start_year, :start_month_number, :start_day, :end_year, :end_month_number, :end_day, :summary,
       *Dossier::TechStack::SLOTS.values.flat_map { |plural| [ :"#{plural}_text", :"#{plural}_na" ] }
     )
   end

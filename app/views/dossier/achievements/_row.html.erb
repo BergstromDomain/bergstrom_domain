@@ -1,0 +1,37 @@
+<%#
+  One Achievement in the bulleted table (see _table): its text with impact
+  and Skills, then importance. Locals: achievement; moves (nil, or
+  { first:, last: } to show Up/Down).
+%>
+<tr class="dossier-achievement" data-testid="achievement-row">
+  <td class="dossier-achievement__body">
+    <%= link_to achievement.text, dossier_achievement_path(achievement), data: { testid: "achievement-link" } %>
+    <% if achievement.impact || achievement.current_skills.any? %>
+      <p class="dossier-achievement__meta">
+        <% if achievement.impact %>
+          <span data-testid="achievement-row-impact"><strong>Impact:</strong> <%= achievement.impact %></span>
+        <% end %>
+        <% if achievement.impact && achievement.current_skills.any? %>·<% end %>
+        <% if achievement.current_skills.any? %>
+          <span data-testid="achievement-row-skills"><strong>Skills:</strong>
+            <%= safe_join(achievement.current_skills.map { |skill| link_to(skill.name, dossier_skill_path(skill)) }, ", ") %></span>
+        <% end %>
+      </p>
+    <% end %>
+  </td>
+  <td class="text-center" data-testid="achievement-row-importance"><%= achievement.importance %></td>
+  <% if moves %>
+    <td class="dossier-achievement__moves">
+      <%= button_to move_dossier_achievement_path(achievement, direction: "up"), method: :patch,
+            class: "icon-button", title: "Move up", disabled: moves[:first],
+            data: { testid: "achievement-move-up" } do %>
+        <%= lucide_icon("arrow-up", size: 16) %>
+      <% end %>
+      <%= button_to move_dossier_achievement_path(achievement, direction: "down"), method: :patch,
+            class: "icon-button", title: "Move down", disabled: moves[:last],
+            data: { testid: "achievement-move-down" } do %>
+        <%= lucide_icon("arrow-down", size: 16) %>
+      <% end %>
+    </td>
+  <% end %>
+</tr>

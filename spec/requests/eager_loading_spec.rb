@@ -105,6 +105,40 @@ RSpec.describe "Eager loading", type: :request do
 
       expect(response).to have_http_status(:ok)
     end
+
+    it "Loads an Assignment's Achievements and their Skills without N+1 queries" do
+      assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam),
+                                               test_tools_na: false, test_tools_text: "Jira")
+      create(:dossier_achievement, assignment: assignment, skills_text: "Jira, Excel")
+      create(:dossier_achievement, assignment: assignment, skills_text: "Selenium")
+
+      without_n_plus_one_queries { get dossier_assignment_path(assignment) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads the Achievements page without N+1 queries" do
+      2.times do
+        assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam))
+        create(:dossier_achievement, assignment: assignment, skills_text: "Jira")
+        create(:dossier_achievement, assignment: assignment, skills_text: "Excel")
+      end
+
+      without_n_plus_one_queries { get dossier_achievements_path }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads Deleted Achievements without N+1 queries" do
+      2.times do
+        assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam))
+        create(:dossier_achievement, assignment: assignment).soft_delete!
+      end
+
+      without_n_plus_one_queries { get deleted_dossier_achievements_path }
+
+      expect(response).to have_http_status(:ok)
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────

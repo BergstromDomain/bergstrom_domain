@@ -362,6 +362,26 @@ Other export targets worth designing for from the start (same data, different re
 * Tags/skills, importance rating
 * Soft delete + restore
 
+### DECISIONS FROM BLOCK 3 GATE (2026-11-02)
+* **Scope:** every Achievement belongs to one Assignment. General Achievements (no Assignment)
+  wait for CV Variants.
+* **Fields:** `text` (terse form), optional `impact`, `importance` 1–5 (default 3), `position`,
+  `classification` (Private by default), Skills tagged through a join.
+* **Skill tags:** Skills only, no free tags; typed as comma-separated text, unknown names become
+  Skills in "Uncategorised" (as the Tech Stack does).
+* **Ordering:** Up/Down buttons on the Assignment page in v1; drag and drop later.
+* **Deleting:** soft delete; a Deleted Achievements page restores them; purged after 30 days
+  (like Recipes).
+* **Where shown:** the Assignment page lists its Achievements in order; My Career › Achievements
+  lists them all, grouped by Engagement › Assignment. The Timeline is unchanged.
+* **Navigation:** Actions › New › "Write An Achievement" (choose the Assignment first); "Add
+  Achievement" button on the Assignment page.
+* **Toast label:** the first ~60 characters of the text.
+* **Import:** reads each Assignment's `terse.achievements` only; existing Assignments still get
+  theirs; matched by Assignment + exact text and skipped if there; importance 3, YAML order.
+* **Steps:** 3a model + Assignment page; 3b Achievements page, Write An Achievement,
+  Deleted/Restore; 3c import + real dev import.
+
 ## Block 4 — Skill insights
 *(The Skill model, CRUD and Tech Stack are built in Block 1.)*
 * Computed years per skill shown on the Skill show page

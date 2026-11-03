@@ -69,13 +69,17 @@ RSpec.describe "Dossier Assignments", type: :feature do
       click_button "Create Assignment"
 
       within("[data-testid='tech-stack']") do
-        expect(page).to have_selector("[data-testid='tech-stack-system-under-test']", text: "Ticketing platform")
+        expect(page).to have_selector("[data-testid='tech-stack-systems-under-test']", text: "Ticketing platform")
+        expect(page).to have_link("Ticketing platform")
         expect(page).to have_link("Jira")
         expect(page).to have_link("Robot Framework")
         # One flex item, so the cell's flex gap can't open a space before each comma.
         expect(page).to have_selector("[data-testid='tech-stack-test-tools'] > span", exact_text: "Jira, Robot Framework")
         expect(page).to have_selector("[data-testid='tech-stack-protocols']", text: "N/A")
+        click_link "Ticketing platform"
       end
+      expect(page).to have_selector("[data-testid='reference-data-name']", text: "Ticketing platform")
+      expect(page).to have_selector("[data-testid='related-assignments']", text: "NTA")
     end
   end
 
@@ -138,10 +142,42 @@ RSpec.describe "Dossier Assignments", type: :feature do
 
       expect(page).to have_selector("h1.page-title", text: "Test Consultant at Northwind Transport Authority")
     end
+    it "Links the Client, Role and Location to pages listing your Assignments with them" do
+      assignment = create(:dossier_assignment, engagement: engagement, client: northwind, role: test_lead,
+                                               location: brisbane, project: "Ticketing")
+      create(:dossier_assignment, engagement: create(:dossier_engagement, user: chris), client: northwind,
+                                  role: test_lead, location: brisbane, project: "Chris's Project")
+      sign_in_as(charlie)
+
+      { "Test Lead" => dossier_role_path(test_lead),
+        "Northwind Transport Authority (NTA)" => dossier_organisation_path(northwind),
+        "Brisbane, Australia" => dossier_location_path(brisbane) }.each do |link, path|
+        visit dossier_assignment_path(assignment)
+        click_link link
+        expect(page).to have_current_path(path)
+        within("[data-testid='related-assignments']") do
+          expect(page).to have_link("NTA - Ticketing", href: dossier_assignment_path(assignment))
+          expect(page).not_to have_content("Chris's Project")
+        end
+      end
+    end
   end
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
+    it "Shows a Role used by no Assignment of yours without the list" do
+      sign_in_as(charlie)
+      visit dossier_role_path(test_lead)
+      expect(page).not_to have_selector("[data-testid='related-assignments']")
+    end
+
+    it "Shows a visitor a Role without anyone's Assignments" do
+      create(:dossier_assignment, engagement: engagement, client: northwind, role: test_lead)
+      visit dossier_role_path(test_lead)
+      expect(page).to have_selector("[data-testid='reference-data-name']", text: "Test Lead")
+      expect(page).not_to have_selector("[data-testid='related-assignments']")
+    end
+
     it "Leaves deleted Engagements out of the picker" do
       engagement.soft_delete!
       sign_in_as(charlie)

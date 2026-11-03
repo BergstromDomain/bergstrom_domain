@@ -20,7 +20,7 @@
   <div class="show-meta-row">
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Client</h3>
-      <p class="show-meta-cell__value" data-testid="assignment-client"><%= @assignment.client.label %></p>
+      <p class="show-meta-cell__value" data-testid="assignment-client"><%= link_to @assignment.client.label, dossier_organisation_path(@assignment.client) %></p>
     </div>
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Project</h3>
@@ -28,7 +28,9 @@
     </div>
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Role</h3>
-      <p class="show-meta-cell__value" data-testid="assignment-role"><%= @assignment.role_name %></p>
+      <p class="show-meta-cell__value" data-testid="assignment-role">
+        <%= @assignment.role ? link_to(@assignment.role_name, dossier_role_path(@assignment.role)) : @assignment.role_name %>
+      </p>
     </div>
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Dates</h3>
@@ -37,7 +39,11 @@
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Location</h3>
       <p class="show-meta-cell__value" data-testid="assignment-location">
-        <%= [ @assignment.location&.name, ("(remote)" if @assignment.remote?) ].compact.join(" ").presence || "—" %>
+        <% if @assignment.location %>
+          <%= link_to @assignment.location.name, dossier_location_path(@assignment.location) %><%= " (remote)" if @assignment.remote? %>
+        <% else %>
+          <%= @assignment.remote? ? "(remote)" : "—" %>
+        <% end %>
       </p>
     </div>
     <div class="show-meta-cell">
@@ -55,10 +61,6 @@
     <h2 class="show-panel__heading">Tech Stack</h2>
   </div>
   <div class="show-meta-row">
-    <div class="show-meta-cell">
-      <h3 class="show-meta-cell__label">System Under Test</h3>
-      <p class="show-meta-cell__value" data-testid="tech-stack-system-under-test"><%= @assignment.system_under_test %></p>
-    </div>
     <% Dossier::TechStack::SLOTS.each do |slot, plural| %>
       <div class="show-meta-cell">
         <h3 class="show-meta-cell__label"><%= Dossier::TechStack::LABELS.fetch(plural) %></h3>
@@ -75,6 +77,19 @@
   </div>
 </div>
 
+<%# Achievements div — the CV bullet points, in order %>
+<div class="show-panel" id="achievements" data-testid="assignment-achievements">
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">Achievements</h2>
+    <% achievements = @assignment.achievements %>
+    <% if achievements.any? %>
+      <%= render "dossier/achievements/table", achievements: achievements, sortable: policy.can_update? %>
+    <% else %>
+      <p data-testid="achievements-empty">No Achievements yet.</p>
+    <% end %>
+  </div>
+</div>
+
 <%# Actions div %>
 <div class="show-panel show-panel--actions" data-testid="show-panel-actions">
   <%= link_to dossier_engagement_path(@assignment.engagement), class: "btn btn-secondary" do %>
@@ -82,6 +97,10 @@
   <% end %>
 
   <% if policy.can_update? %>
+    <span class="btn-divider">|</span>
+    <%= link_to new_dossier_achievement_path(assignment_id: @assignment.id), class: "btn btn-primary-action" do %>
+      <%= lucide_icon("plus", size: 16) %> Add Achievement
+    <% end %>
     <span class="btn-divider">|</span>
     <%= link_to edit_dossier_assignment_path(@assignment), class: "btn btn-secondary" do %>
       <%= lucide_icon("pencil", size: 16) %> Edit Assignment

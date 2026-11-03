@@ -14,4 +14,6 @@ class Dossier::OrganisationsController < Dossier::ReferenceDataController
       [ "Industry",     record.industry&.name, "industry" ],
       [ "Website",      website, "website" ] ]
   end
+
+  def assignments_for(record, assignments) = assignments.where(client: record)
 end

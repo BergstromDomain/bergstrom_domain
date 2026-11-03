@@ -1,0 +1,21 @@
+<%#
+  Achievements as a bulleted table: text with impact and Skills, importance,
+  and (when sortable) Up/Down. Locals: achievements; sortable.
+%>
+<div class="data-table-wrapper">
+  <table class="data-table dossier-achievement-table">
+    <thead>
+      <tr>
+        <th>Achievements</th>
+        <th class="text-center">Importance</th>
+        <% if sortable %><th class="text-center">Sort</th><% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% achievements.each_with_index do |achievement, index| %>
+        <%= render "dossier/achievements/row", achievement: achievement,
+                   moves: (sortable ? { first: index.zero?, last: index == achievements.size - 1 } : nil) %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

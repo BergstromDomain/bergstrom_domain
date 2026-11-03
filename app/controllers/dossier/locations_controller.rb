@@ -9,4 +9,6 @@ class Dossier::LocationsController < Dossier::ReferenceDataController
   def details(record)
     [ [ "City", record.city, "city" ], [ "Country", record.country, "country" ] ]
   end
+
+  def assignments_for(record, assignments) = assignments.where(location: record)
 end
