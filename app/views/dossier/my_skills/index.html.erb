@@ -9,11 +9,14 @@
 
 <% if @groups.any? %>
   <% @groups.each do |category, experiences| %>
-    <div class="show-panel" data-testid="my-skills-category">
-      <div class="show-panel__section">
+    <details class="show-panel dossier-skill-group" open data-testid="my-skills-category">
+      <summary class="dossier-skill-group__summary" data-testid="my-skills-toggle-<%= category.id %>">
         <h2 class="show-panel__heading"><%= category.name %></h2>
+        <span class="dossier-skill-group__count"><%= pluralize(experiences.size, "Skill") %></span>
+      </summary>
+      <div class="show-panel__section">
         <div class="data-table-wrapper">
-          <table class="data-table">
+          <table class="data-table dossier-skill-table">
             <thead>
               <tr>
                 <th>Skill</th>
@@ -35,7 +38,7 @@
           </table>
         </div>
       </div>
-    </div>
+    </details>
   <% end %>
 <% else %>
   <div class="empty-state" data-testid="empty-state">

@@ -3354,3 +3354,47 @@ textarea.form-control {
 .dossier-achievement-group__title .dossier-assignment-row__dates {
   font-weight: var(--font-weight-normal);
 }
+
+/* My Career › Skills: one collapsible panel per Skill Category. The tables
+   share fixed column widths so the columns line up from panel to panel. */
+.dossier-skill-group__summary {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  cursor: pointer;
+}
+
+.dossier-skill-group__summary .show-panel__heading {
+  margin-bottom: 0;
+}
+
+.dossier-skill-group__count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.dossier-skill-table {
+  table-layout: fixed;
+}
+
+.dossier-skill-table th {
+  color: var(--color-text-primary);
+}
+
+.dossier-skill-table th:nth-child(1) { width: 40%; }
+.dossier-skill-table th:nth-child(2) { width: 20%; }
+.dossier-skill-table th:nth-child(3) { width: 20%; }
+.dossier-skill-table th:nth-child(4) { width: 20%; }
+
+.dossier-skill-group__summary::before {
+  content: "▸";
+  color: var(--color-text-secondary);
+}
+
+.dossier-skill-group[open] > .dossier-skill-group__summary::before {
+  content: "▾";
+}
+
+.dossier-skill-group__summary::-webkit-details-marker {
+  display: none;
+}
