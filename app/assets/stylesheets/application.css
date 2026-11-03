@@ -1162,7 +1162,7 @@ code, pre {
 /* Default (narrow) width for New/Edit forms — used by reference-data
    resources (Event Type, Social Media Platform, Blog Category). */
 .resource-form {
-  max-width: 560px;
+  max-width: 1120px;
   margin: 0 auto;
 }
 
@@ -1699,7 +1699,7 @@ textarea.form-control {
    forms. "Normal" resources (Person, Event, Blog Post) render their
    panels unwrapped, at full width — the default. */
 .page-content--half {
-  max-width: 560px;
+  max-width: 1120px;
   margin: 0 auto;
 }
 
