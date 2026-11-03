@@ -99,7 +99,13 @@ Rails.application.routes.draw do
         post  :restore
       end
     end
-    resources :employment_types, :industries, :locations, :organisations, :roles, :skill_categories, :skills
+    resources :employment_types, :industries, :locations, :organisations, :roles, :skill_categories
+    resources :skills do
+      member do
+        get  :merge
+        post :merge, action: :perform_merge
+      end
+    end
   end
 
   # Chronicle export — declared before resources :blog_posts so these literal

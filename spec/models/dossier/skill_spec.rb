@@ -31,6 +31,20 @@ RSpec.describe Dossier::Skill, type: :model do
       expect(described_class.find_by_name_or_alias("selenium webdriver")).to eq(skill)
       expect(described_class.find_by_name_or_alias("SELENIUM")).to eq(skill)
     end
+
+    it "Merges into another Skill: links move, its names become aliases, it's deleted" do
+      ec = create(:dossier_skill, name: "Energy Components", aliases_text: "EC")
+      old = create(:dossier_skill, name: "Energy Component", aliases_text: "EC Upgrade")
+      assignment = create(:dossier_assignment, other_tools_na: false, other_tools_text: "Energy Component")
+      achievement = create(:dossier_achievement, skills_text: "Energy Component")
+
+      old.merge_into!(ec)
+
+      expect(described_class.exists?(old.id)).to be(false)
+      expect(ec.reload.aliases).to eq([ "EC", "Energy Component", "EC Upgrade" ])
+      expect(assignment.reload.other_tools_text).to eq("Energy Components")
+      expect(achievement.reload.skills_text).to eq("Energy Components")
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
@@ -54,12 +68,24 @@ RSpec.describe Dossier::Skill, type: :model do
       expect(skill).not_to be_valid
       expect(skill.errors[:name]).to include("is already an alias of Selenium")
     end
+
+    it "Won't merge into itself" do
+      skill = create(:dossier_skill)
+      expect { skill.merge_into!(skill) }.to raise_error(ArgumentError, "A Skill can't be merged into itself")
+      expect(described_class.exists?(skill.id)).to be(true)
+    end
   end
 
   # 3) Alternative Path ───────────────────────────────────────────────────────
   describe "Alternative Path" do
     it "Is valid with no aliases" do
       expect(build(:dossier_skill, aliases_text: "")).to be_valid
+    end
+
+    it "Keeps its description when the kept Skill has none" do
+      kept = create(:dossier_skill, description: nil)
+      create(:dossier_skill, description: "A test tool.").merge_into!(kept)
+      expect(kept.reload.description).to eq("A test tool.")
     end
   end
 
@@ -68,6 +94,20 @@ RSpec.describe Dossier::Skill, type: :model do
     it "Drops blank, duplicate and own-name aliases" do
       skill = create(:dossier_skill, name: "Jira", aliases_text: " , JIRA Software, jira software, Jira,")
       expect(skill.aliases).to eq([ "JIRA Software" ])
+    end
+
+    it "Drops a link the kept Skill already has when merging, keeping the other lists' links" do
+      kept = create(:dossier_skill, name: "Excel")
+      old = create(:dossier_skill, name: "MS Excel")
+      assignment = create(:dossier_assignment, test_tools_na: false, test_tools_text: "Excel, MS Excel",
+                                               other_tools_na: false, other_tools_text: "MS Excel")
+      create(:dossier_achievement, assignment: assignment, skills_text: "Excel, MS Excel")
+
+      old.merge_into!(kept)
+
+      expect(assignment.reload.test_tools_text).to eq("Excel")
+      expect(assignment.other_tools_text).to eq("Excel")
+      expect(Dossier::AchievementSkill.where(skill: kept).count).to eq(1)
     end
 
     it "Returns nil for a blank lookup" do

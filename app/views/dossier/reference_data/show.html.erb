@@ -58,6 +58,8 @@
       <% end %>
     <% end %>
 
+    <%= render show_actions if show_actions %>
+
     <% if @policy.can_delete? %>
       <span class="btn-divider">|</span>
       <%= button_to polymorphic_path(@record),

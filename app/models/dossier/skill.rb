@@ -24,6 +24,22 @@ class Dossier::Skill < ApplicationRecord
     new(name: name, skill_category: Dossier::SkillCategory.find_or_create_by!(name: Dossier::TechStack::UNCATEGORISED))
   end
 
+  # Folds a duplicate into target: Tech Stack and Achievement links move
+  # across (dropping any target already has), this Skill's name and aliases
+  # become target's aliases, and this Skill is deleted.
+  def merge_into!(target)
+    raise ArgumentError, "A Skill can't be merged into itself" if target == self
+
+    transaction do
+      move_links(assignment_skills, target, :assignment_id, :stack_slot)
+      move_links(achievement_skills, target, :achievement_id)
+      names = [ name, *aliases ]
+      target.description ||= description
+      destroy!
+      target.update!(aliases: target.aliases + names)
+    end
+  end
+
   def aliases_text
     aliases.join(", ")
   end
@@ -33,6 +49,14 @@ class Dossier::Skill < ApplicationRecord
   end
 
   private
+
+  def move_links(links, target, *keys)
+    links.each do |link|
+      taken = links.klass.exists?(link.slice(*keys).merge(skill_id: target.id))
+      taken ? link.destroy! : link.update!(skill: target)
+    end
+    links.reset
+  end
 
   def tidy_aliases
     own_name = name.to_s.strip.downcase
