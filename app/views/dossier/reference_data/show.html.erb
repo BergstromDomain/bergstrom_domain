@@ -43,6 +43,8 @@
     </div>
   <% end %>
 
+  <%= render show_panels if show_panels %>
+
   <%# Actions div %>
   <div class="show-panel show-panel--actions" data-testid="show-panel-actions">
     <%= link_to polymorphic_path(model_class), class: "btn btn-secondary" do %>
@@ -55,6 +57,8 @@
         <%= lucide_icon("pencil", size: 16) %> Edit <%= singular_name %>
       <% end %>
     <% end %>
+
+    <%= render show_actions if show_actions %>
 
     <% if @policy.can_delete? %>
       <span class="btn-divider">|</span>

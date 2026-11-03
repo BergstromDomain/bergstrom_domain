@@ -26,6 +26,10 @@ module Toastable
     flash[:success] = "#{record.to_toast_label} has been successfully unpublished"
   end
 
+  def toast_merged(label, into:)
+    flash[:success] = "#{label} has been successfully merged into #{into.to_toast_label}"
+  end
+
   def toast_error(record, prefix: nil)
     message = record.errors.full_messages.to_sentence
     flash[:error] = prefix ? "#{prefix}: #{message}" : message

@@ -25,3 +25,7 @@ production:
     class: PurgeDeletedDossierAchievementsJob
     queue: default
     schedule: every day at 3am
+  purge_deleted_dossier_engagements:
+    class: PurgeDeletedDossierEngagementsJob
+    queue: default
+    schedule: every day at 3am

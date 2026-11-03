@@ -15,6 +15,17 @@ module DossierHelper
     ])
   end
 
+  # Where a Skill was used on an Assignment, in display order: the Tech Stack
+  # lists, then other uses, then Achievement tags only.
+  SKILL_USES = Dossier::TechStack::SLOTS.keys + %i[other achievement]
+
+  def skill_use_label(use)
+    plural = Dossier::TechStack::SLOTS[use]
+    return Dossier::TechStack::LABELS.fetch(plural) if plural
+
+    use == :achievement ? "Tagged On Achievements" : "Other"
+  end
+
   # "5 (highest)" … "3 (default)" … "1 (lowest)".
   def importance_label(importance)
     note = { 5 => "highest", 3 => "default", 1 => "lowest" }[importance]

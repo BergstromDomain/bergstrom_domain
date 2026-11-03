@@ -89,7 +89,11 @@ Rails.application.routes.draw do
     end
     get "timeline/:from/:to", to: "periods#show", as: :period,
                               constraints: { from: /\d{4}-\d{2}-\d{2}/, to: /\d{4}-\d{2}-\d{2}/ }
-    resources :engagements
+    get "my-skills", to: "my_skills#index", as: :my_skills
+    resources :engagements do
+      get  :deleted, on: :collection
+      post :restore, on: :member
+    end
     resources :assignments, except: :index
     resources :achievements do
       get :deleted, on: :collection
@@ -98,7 +102,13 @@ Rails.application.routes.draw do
         post  :restore
       end
     end
-    resources :employment_types, :industries, :locations, :organisations, :roles, :skill_categories, :skills
+    resources :employment_types, :industries, :locations, :organisations, :roles, :skill_categories
+    resources :skills do
+      member do
+        get  :merge
+        post :merge, action: :perform_merge
+      end
+    end
   end
 
   # Chronicle export — declared before resources :blog_posts so these literal

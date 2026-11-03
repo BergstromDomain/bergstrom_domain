@@ -1,0 +1,54 @@
+<%#
+  The signed-in user's own experience with this Skill (@experience, nil for
+  a visitor or a Skill they haven't used).
+%>
+<% if @experience %>
+  <div class="show-panel" data-testid="skill-experience">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Your Experience</h2>
+    </div>
+    <div class="show-meta-row">
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label">Years</h3>
+        <p class="show-meta-cell__value" data-testid="skill-experience-duration"><%= @experience.duration %></p>
+      </div>
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label">Last Used</h3>
+        <p class="show-meta-cell__value" data-testid="skill-experience-last-used"><%= @experience.last_used %></p>
+      </div>
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label">Assignments</h3>
+        <p class="show-meta-cell__value" data-testid="skill-experience-assignments"><%= @experience.assignments.size %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="show-panel" data-testid="related-assignments">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Your Assignments</h2>
+      <% @experience.slots.sort_by { |use, _| DossierHelper::SKILL_USES.index(use) }.each do |use, assignments| %>
+        <div class="dossier-achievement-group" data-testid="skill-slot-group">
+          <h3 class="dossier-achievement-group__title"><%= skill_use_label(use) %></h3>
+          <ul class="dossier-assignment-list">
+            <%= render partial: "dossier/assignments/row", collection: assignments, as: :assignment %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @experience.achievements.any? %>
+    <div class="show-panel" data-testid="skill-achievements">
+      <div class="show-panel__section">
+        <h2 class="show-panel__heading">Your Achievements</h2>
+        <ul class="dossier-assignment-list">
+          <% @experience.achievements.each do |achievement| %>
+            <li class="dossier-assignment-row">
+              <%= link_to achievement.text, dossier_achievement_path(achievement) %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+<% end %>

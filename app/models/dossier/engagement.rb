@@ -2,10 +2,14 @@
 
 # Who employed or contracted you: employer (or agency), employment type and
 # position title. A permanent job gets one Assignment automatically, with the
-# employer as client, kept in step with the Engagement's dates.
+# employer as client, kept in step with the Engagement's dates. Deleting is
+# soft and hides its Assignments and their Achievements too;
+# PurgeDeletedDossierEngagementsJob removes it after DELETION_RETENTION_PERIOD.
 class Dossier::Engagement < ApplicationRecord
   include Classifiable
   include Dossier::Dated
+
+  DELETION_RETENTION_PERIOD = 30.days
 
   belongs_to :employer, class_name: "Dossier::Organisation"
   belongs_to :employment_type
@@ -20,7 +24,8 @@ class Dossier::Engagement < ApplicationRecord
   after_create :create_permanent_assignment
   after_update :sync_permanent_assignment
 
-  scope :kept, -> { where(deleted_at: nil) }
+  scope :kept,      -> { where(deleted_at: nil) }
+  scope :discarded, -> { where.not(deleted_at: nil) }
 
   def permanent?
     employment_type&.permanent?
@@ -32,6 +37,10 @@ class Dossier::Engagement < ApplicationRecord
 
   def restore!
     update_columns(deleted_at: nil)
+  end
+
+  def purge_at
+    deleted_at + DELETION_RETENTION_PERIOD if deleted_at
   end
 
   def to_toast_label

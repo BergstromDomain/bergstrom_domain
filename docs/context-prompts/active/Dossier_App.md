@@ -390,6 +390,33 @@ Other export targets worth designing for from the start (same data, different re
 * Merge duplicate Skills (e.g. two spellings created on the fly or by the import): repoint the
   joins, keep the old name as an alias
 
+### DECISIONS FROM BLOCK 4 GATE (2026-11-03)
+* **Done since Block 3:** System Under Test is a sixth Tech Stack Skill list (stack_slot
+  `system_under_test`, its own N/A flag); Skill, Role, Organisation and Location pages list the
+  signed-in user's own Assignments.
+* **Using a Skill:** an Assignment uses a Skill when it's in its Tech Stack or tagged on one of its
+  Achievements.
+* **Whose data:** only the signed-in user's own. Skill pages stay public; a visitor sees the Skill
+  and its description, nothing more.
+* **Skill page:** a Your Experience panel (years, last used "Present"/"Oct 2015", Assignment
+  count), then Your Assignments grouped by Tech Stack list (one Assignment can sit in two), then
+  Your Achievements tagged with the Skill.
+* **My Career › Skills:** every Skill the user has used, grouped by Skill Category, with years,
+  last used and Assignment count, most years first.
+* **Merge Skills:** Admin only. "Merge Into…" on the Skill page picks the Skill to keep, behind a
+  confirm; Tech Stack and Achievement links move across (duplicates dropped), the old name and its
+  aliases become aliases of the kept Skill, the old Skill is deleted; toast "X has been merged
+  into Y".
+* **Calculator:** `Dossier::ExperienceCalculator` with the Skill slice only; Block 6 adds the
+  other slices. Reuses `Timeline.duration`.
+* **Not now:** proficiency (wait for CV Variants); the `primary` flag on AssignmentSkill stays
+  unused.
+* **Deleted Engagements** (carried over from Block 3): a Deleted Engagements page with Restore
+  and a 30-day purge job, like Achievements. A deleted Engagement hides its Assignments and their
+  Achievements until restored.
+* **Steps:** 4a calculator, Skill page, My Career › Skills; 4b Merge Skills; 4c Deleted
+  Engagements.
+
 ## Block 5 — Credentials & certificates
 * CRUD with credential type, issuer, dates, expiry, verification URL, file uploads (PDF/image)
 * List grouped by type (Degrees › Certifications › Courses), expired ones flagged
