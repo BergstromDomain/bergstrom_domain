@@ -19,6 +19,18 @@ RSpec.describe "Dossier Master CV downloads", type: :request do
       expect(response.headers["Content-Disposition"]).to include("attachment", "Alex_Example_CV_2026-11-05.pdf")
       expect(response.body.byteslice(0, 5)).to eq("%PDF-")
     end
+
+    it "Downloads the master CV as a Word file named after the display name and date" do
+      create(:dossier_profile, user: charlie, display_name: "Alex Example", headline: "Test Lead")
+      sign_in_as(charlie)
+
+      travel_to(Date.new(2026, 11, 5)) { get docx_dossier_master_cv_path }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.media_type).to eq("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+      expect(response.headers["Content-Disposition"]).to include("attachment", "Alex_Example_CV_2026-11-05.docx")
+      expect(docx_paragraphs(response.body).first(2)).to eq([ [ "Title", "Alex Example" ], [ "Subtitle", "Test Lead" ] ])
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
@@ -32,9 +44,11 @@ RSpec.describe "Dossier Master CV downloads", type: :request do
     it "Turns away an App User" do
       sign_in_as(create(:user))
 
-      get pdf_dossier_master_cv_path
+      [ pdf_dossier_master_cv_path, docx_dossier_master_cv_path ].each do |path|
+        get path
 
-      expect(response).to redirect_to(dossier_path)
+        expect(response).to redirect_to(dossier_path)
+      end
     end
   end
 
@@ -43,10 +57,12 @@ RSpec.describe "Dossier Master CV downloads", type: :request do
     it "Asks for a Profile first when there isn't one" do
       sign_in_as(charlie)
 
-      get pdf_dossier_master_cv_path
+      [ pdf_dossier_master_cv_path, docx_dossier_master_cv_path ].each do |path|
+        get path
 
-      expect(response).to redirect_to(edit_dossier_profile_path)
-      expect(flash[:alert]).to eq("Create your Profile first — the CV starts from it.")
+        expect(response).to redirect_to(edit_dossier_profile_path)
+        expect(flash[:alert]).to eq("Create your Profile first — the CV starts from it.")
+      end
     end
   end
 

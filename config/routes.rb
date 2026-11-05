@@ -86,6 +86,7 @@ Rails.application.routes.draw do
     resource :profile, only: %i[show edit update]
     resource :master_cv, only: [] do
       get :pdf
+      get :docx
     end
     resource :import, only: %i[new create] do
       post :preview

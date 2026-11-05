@@ -6,12 +6,19 @@
 class Dossier::MasterCvsController < ApplicationController
   include Navigable
   include PdfDownloadable
+
+  DOCX_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
   before_action :require_dossier_access
   before_action :set_cv
 
   def pdf
     send_data render_pdf(template: "dossier/master_cvs/cv", assigns: { cv: @cv }, footer: @cv.header.name),
               filename: @cv.filename("pdf"), type: "application/pdf", disposition: "attachment"
+  end
+
+  def docx
+    send_data Dossier::CvDocx.new(@cv).render, filename: @cv.filename("docx"), type: DOCX_TYPE, disposition: "attachment"
   end
 
   private
