@@ -90,7 +90,9 @@ Rails.application.routes.draw do
     get "timeline/:from/:to", to: "periods#show", as: :period,
                               constraints: { from: /\d{4}-\d{2}-\d{2}/, to: /\d{4}-\d{2}-\d{2}/ }
     get "my-skills", to: "my_skills#index", as: :my_skills
-    resources :credentials, path: "training"
+    resources :credentials do
+      resources :files, only: :show, controller: "credential_files"
+    end
     resources :engagements do
       get  :deleted, on: :collection
       post :restore, on: :member
@@ -103,7 +105,7 @@ Rails.application.routes.draw do
         post  :restore
       end
     end
-    resources :employment_types, :industries, :locations, :organisations, :roles, :skill_categories
+    resources :credential_types, :employment_types, :industries, :locations, :organisations, :roles, :skill_categories
     resources :skills do
       member do
         get  :merge

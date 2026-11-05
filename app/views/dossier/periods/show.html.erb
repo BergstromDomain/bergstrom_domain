@@ -30,11 +30,15 @@
   </div>
 </div>
 
-<%# Courses div — filled in by Block 5 (Credentials) %>
+<%# Courses div — Credentials of any type completed during this time %>
 <div class="show-panel" data-testid="show-panel-courses">
   <div class="show-panel__section">
     <h2 class="show-panel__heading">Courses And Credentials</h2>
-    <p>The courses and credentials you completed during this time will be listed here.</p>
+    <% if @credentials.any? %>
+      <%= render "dossier/credentials/list", credentials: @credentials %>
+    <% else %>
+      <p data-testid="period-credentials-empty">You completed no courses or credentials during this time.</p>
+    <% end %>
   </div>
 </div>
 

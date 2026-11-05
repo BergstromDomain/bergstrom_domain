@@ -535,7 +535,7 @@
         <% end %>
         <%= link_to dossier_credentials_path, class: "left-nav-link" do %>
           <%= lucide_icon("graduation-cap", size: 15) %>
-          <span>Training</span>
+          <span>Credentials</span>
         <% end %>
       <% end %>
 
@@ -567,6 +567,10 @@
       <%= link_to dossier_skill_categories_path, class: "left-nav-link" do %>
         <%= lucide_icon("folder-tree", size: 15) %>
         <span>Skill Categories</span>
+      <% end %>
+      <%= link_to dossier_credential_types_path, class: "left-nav-link" do %>
+        <%= lucide_icon("award", size: 15) %>
+        <span>Credential Types</span>
       <% end %>
       </div>
     </div>
@@ -601,7 +605,7 @@
           <% end %>
           <%= link_to new_dossier_credential_path, class: "left-nav-link" do %>
             <%= lucide_icon("graduation-cap", size: 15) %>
-            <span>Add Training</span>
+            <span>Add A Credential</span>
           <% end %>
           <%= link_to new_dossier_organisation_path, class: "left-nav-link" do %>
             <%= lucide_icon("building-2", size: 15) %>
@@ -644,6 +648,10 @@
           <%= link_to new_dossier_skill_category_path, class: "left-nav-link" do %>
             <%= lucide_icon("folder-tree", size: 15) %>
             <span>Add A Skill Category</span>
+          <% end %>
+          <%= link_to new_dossier_credential_type_path, class: "left-nav-link" do %>
+            <%= lucide_icon("award", size: 15) %>
+            <span>Add A Credential Type</span>
           <% end %>
         <% end %>
 

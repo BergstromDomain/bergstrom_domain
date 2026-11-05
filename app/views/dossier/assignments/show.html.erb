@@ -91,7 +91,7 @@
 </div>
 
 <%# Training div %>
-<%= render "dossier/credentials/panel", credentials: @assignment.credentials.newest_first.includes(:provider) %>
+<%= render "dossier/credentials/panel", credentials: @assignment.credentials.training.newest_first.includes(:provider) %>
 
 <%# Actions div %>
 <div class="show-panel show-panel--actions" data-testid="show-panel-actions">

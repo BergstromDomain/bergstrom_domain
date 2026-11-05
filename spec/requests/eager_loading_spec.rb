@@ -166,12 +166,13 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it "Loads My Career › Training without N+1 queries" do
+    it "Loads My Career › Credentials without N+1 queries" do
       2.times do
         assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam))
         create(:dossier_credential, user: adam, provider: create(:dossier_organisation), assignment: assignment,
                                     skills_text: "Jira, Excel")
         create(:dossier_credential, user: adam, engagement: create(:dossier_engagement, user: adam), skills_text: "Scrum")
+        create(:dossier_credential, :certification, user: adam, provider: create(:dossier_organisation))
       end
 
       without_n_plus_one_queries { get dossier_credentials_path }
@@ -179,7 +180,7 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it "Loads an Organisation's Training without N+1 queries" do
+    it "Loads an Organisation's Credentials without N+1 queries" do
       ni = create(:dossier_organisation, name: "National Instruments")
       create_list(:dossier_credential, 2, user: adam, provider: ni)
 

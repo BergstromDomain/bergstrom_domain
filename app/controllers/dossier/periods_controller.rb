@@ -1,8 +1,8 @@
 # app/controllers/dossier/periods_controller.rb
 
 # One bench or gap period from the Timeline. Periods aren't stored — they're
-# found again from the user's Engagements by their exact dates. Block 5 lists
-# the courses and credentials completed during one here.
+# found again from the user's Engagements by their exact dates. Lists the
+# user's Credentials (of any type) completed during the period.
 class Dossier::PeriodsController < ApplicationController
   include Navigable
   before_action :require_dossier_access
@@ -10,7 +10,10 @@ class Dossier::PeriodsController < ApplicationController
   def show
     timeline = Dossier::Timeline.new(current_user.dossier_engagements.kept.includes(:employer))
     @entry = timeline.period(Date.iso8601(params[:from]), Date.iso8601(params[:to]))
-    not_on_timeline unless @entry
+    return not_on_timeline unless @entry
+
+    @credentials = current_user.dossier_credentials.kept.includes(:provider)
+                               .completed_during(@entry.period.from, @entry.period.to)
   rescue Date::Error
     not_on_timeline
   end

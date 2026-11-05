@@ -1,8 +1,9 @@
 # app/controllers/dossier/credentials_controller.rb
 
-# The signed-in user's Training (courses), at /dossier/training. New takes an
-# optional engagement_id or assignment_id to preselect where the course sits
-# (from those pages' "Add Training" buttons), and creating returns there.
+# The signed-in user's Credentials (degrees, certifications, courses…), at
+# /dossier/credentials, grouped by Credential Type. New takes an optional
+# engagement_id or assignment_id to preselect where it sits (from those pages'
+# "Add Training" buttons), and creating returns there.
 class Dossier::CredentialsController < ApplicationController
   include Navigable
   before_action :require_dossier_access, only: %i[index new create]
@@ -11,8 +12,10 @@ class Dossier::CredentialsController < ApplicationController
   helper_method :engagement_choices, :assignment_choices
 
   def index
-    @credentials = current_user.dossier_credentials.training.kept.newest_first
-                               .includes(:provider, { engagement: :employer }, assignment: :client, credential_skills: :skill)
+    credentials = current_user.dossier_credentials.kept.newest_first
+                              .includes(:credential_type, :provider, { engagement: :employer },
+                                        assignment: :client, credential_skills: :skill)
+    @groups = credentials.group_by(&:credential_type).sort_by { |type, _| [ type.position, type.name.downcase ] }
   end
 
   def show
@@ -21,6 +24,7 @@ class Dossier::CredentialsController < ApplicationController
 
   def new
     @credential = current_user.dossier_credentials.build(
+      credential_type: Dossier::CredentialType.where(training: true).in_order.first,
       engagement: engagement_choices.find_by(id: params[:engagement_id]),
       assignment: assignment_choices.find_by(id: params[:assignment_id])
     )
@@ -96,11 +100,15 @@ class Dossier::CredentialsController < ApplicationController
   end
 
   def set_credential
-    @credential = Dossier::Credential.includes(credential_skills: :skill).find(params[:id])
+    @credential = Dossier::Credential.includes(credential_skills: :skill, files_attachments: :blob).find(params[:id])
   end
 
   def credential_params
-    params.require(:dossier_credential).permit(:title, :provider_id, :start_year, :start_month_number, :start_day,
-                                               :end_year, :end_month_number, :end_day, :hours, :skills_text, :description)
+    params.require(:dossier_credential).permit(:credential_type_id, :title, :provider_id,
+                                               :start_year, :start_month_number, :start_day,
+                                               :end_year, :end_month_number, :end_day,
+                                               :expires_year, :expires_month_number, :expires_day,
+                                               :certificate_number, :verification_url,
+                                               :hours, :skills_text, :description, files: [])
   end
 end

@@ -5,6 +5,15 @@ module DossierHelper
     dossier_period_path(from: period.from.iso8601, to: period.to.iso8601)
   end
 
+  # A link opening url in a new tab, but only for http(s): anything else is
+  # shown as plain text, so a javascript: URL can never become an href.
+  def external_link(url)
+    return "—" if url.blank?
+    return ERB::Util.html_escape(url) unless url.match?(%r{\Ahttps?://}i)
+
+    link_to url, url, target: "_blank", rel: "noopener"
+  end
+
   # What the Profile's three summaries are for, for an info tip.
   def profile_summaries_info
     safe_join([

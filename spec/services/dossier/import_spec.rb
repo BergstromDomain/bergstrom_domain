@@ -87,6 +87,35 @@ RSpec.describe Dossier::Import do
 
   def import(as: admin, text: yaml) = described_class.new(as, text)
 
+  let!(:degree_type) { create(:dossier_credential_type, name: "Degree", position: 1) }
+  let!(:certification_type) { create(:dossier_credential_type, name: "Certification", position: 3) }
+  let!(:course_type) { create(:dossier_credential_type, :training, name: "Course", position: 4) }
+
+  # Only types that exist, so a non-admin's import isn't stopped by Workshop.
+  let(:known_credentials_yaml) { credentials_yaml.sub("type: Workshop", "type: Course") }
+
+  let(:credentials_yaml) { <<~YAML }
+    credentials:
+      education:
+        - { title: Master of Science degree in Engineering Physics, issuer: "KTH, Royal Institute of Technology", location: "Stockholm, Sweden", year: 2001, studies_completed: 2000, note: "private" }
+        - { title: "Master Thesis: Algorithms for decoding Multichannel Television Sound", issuer: "KTH, Royal Institute of Technology", supervised_at: San Diego State University, year: 2000, approved: 2001 }
+        - { title: Exchange semester, issuer: San Diego State University, year: 1999 }
+      education_linkedin:
+        - { school: "Blackebergs gymnasium", start: 1990, end: 1992, degree: "High school" }
+      certifications:
+        - { title: ISTQB Foundation Certificate in Software Testing, issuer: Swedish Software Testing Board, date: 2009-08, licence: SSTBFCE-176004 }
+        - { title: Certified ScrumMaster, issuer: Scrum Alliance, date: 2010-02, years: [2010, 2017] }
+      training:
+        - { title: Getting Started with DevOps, issuer: LinkedIn Learning, year: 2022, completed: 2022-11-15 }
+        - { title: LabVIEW Basic I, issuer: National Instruments, year: 2002 }
+        - { title: Presentation Technique, issuer: "?", year: "?" }
+        - { title: "Anthropic Academy courses", issuer: Anthropic, status: in progress, due: 2026-11 }
+        - { title: Agile Testing Workshop, issuer: "?", year: 2010, type: Workshop }
+    linkedin_learning:
+      completed:
+        - { title: "Scrum: The Basics", type: course, completed: 2018-09-10 }
+  YAML
+
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     it "Imports the Profile from the terse summary and the first summary per voice" do
@@ -150,6 +179,38 @@ RSpec.describe Dossier::Import do
       expect(result.created["Achievement"]).to eq([ "Did a thing", "Did another thing" ])
     end
 
+    it "Imports education, certifications and training as restricted Credentials of their type" do
+      result = import(as: user, text: known_credentials_yaml).import!
+
+      expect(result).to be_ok
+      msc = user.dossier_credentials.find_by!(title: "Master of Science degree in Engineering Physics")
+      expect(msc).to have_attributes(credential_type: degree_type, start_on: Date.new(2001, 1, 1), start_precision: "year",
+                                     end_on: Date.new(2001, 1, 1), end_precision: "year", classification: "restricted")
+      expect(msc.provider.name).to eq("KTH, Royal Institute of Technology")
+      istqb = user.dossier_credentials.find_by!(title: "ISTQB Foundation Certificate in Software Testing")
+      expect(istqb).to have_attributes(credential_type: certification_type, end_on: Date.new(2009, 8, 1),
+                                       end_precision: "month", certificate_number: "SSTBFCE-176004")
+      devops = user.dossier_credentials.find_by!(title: "Getting Started with DevOps")
+      expect(devops).to have_attributes(credential_type: course_type, end_on: Date.new(2022, 11, 15), end_precision: "day")
+      expect(user.dossier_credentials.find_by!(title: "LabVIEW Basic I").dates).to eq("2002")
+      expect(result.created["Credential"]).to include("Certified ScrumMaster", "Exchange semester")
+    end
+
+    it "Folds the thesis into its degree's description and imports the exchange semester as a Course" do
+      import(as: user, text: known_credentials_yaml).import!
+
+      expect(user.dossier_credentials.find_by!(title: "Master of Science degree in Engineering Physics").description)
+        .to eq("Thesis: Algorithms for decoding Multichannel Television Sound, supervised at San Diego State University (2000).")
+      expect(user.dossier_credentials.where("title LIKE ?", "%Thesis%")).to be_empty
+      expect(user.dossier_credentials.find_by!(title: "Exchange semester").credential_type).to eq(course_type)
+    end
+
+    it "Notes a Certification's renewals in its description" do
+      import(as: user, text: known_credentials_yaml).import!
+
+      expect(user.dossier_credentials.find_by!(title: "Certified ScrumMaster").description).to eq("Renewed 2017.")
+    end
+
     it "Imports each Assignment's terse achievements in file order, restricted, at importance 3" do
       import.import!
 
@@ -179,7 +240,22 @@ RSpec.describe Dossier::Import do
     end
 
     it "Rejects YAML that isn't a master list" do
-      expect(import(text: "- just\n- a list\n").preview.errors).to eq([ "Not a master list: expected profile, organisations, skills or engagements" ])
+      expect(import(text: "- just\n- a list\n").preview.errors)
+        .to eq([ "Not a master list: expected profile, organisations, skills, engagements or credentials" ])
+    end
+
+    it "Skips a Credential without a usable date, with a warning" do
+      result = import(as: user, text: known_credentials_yaml).import!
+
+      expect(result.warnings).to include("Credential Presentation Technique: no year or date — skipped",
+                                         "Credential Anthropic Academy courses: no year or date — skipped")
+      expect(user.dossier_credentials.find_by(title: "Presentation Technique")).to be_nil
+    end
+
+    it "Stops a non-admin from creating an unknown Credential Type" do
+      result = import(as: user, text: credentials_yaml).preview
+
+      expect(result.errors).to eq([ "Credential Agile Testing Workshop: unknown Credential Type 'Workshop' — ask an Admin to add it" ])
     end
 
     it "Imports nothing when any record is invalid" do
@@ -244,6 +320,26 @@ RSpec.describe Dossier::Import do
       import.import!
 
       expect(Dossier::Organisation.find_by!(name: "Department of Examples").description).to eq("Edited.")
+    end
+
+    it "Skips Credentials that already exist, matched by title, and keeps their edits" do
+      text = known_credentials_yaml
+      import(as: user, text: text).import!
+      user.dossier_credentials.find_by!(title: "LabVIEW Basic I").update!(description: "Edited in the app")
+
+      result = import(as: user, text: text.sub("LabVIEW Basic I", "labview basic i")).import!
+
+      expect(result.created).to be_empty
+      expect(result.existing["Credential"]).to include("LabVIEW Basic I")
+      expect(user.dossier_credentials.find_by!(title: "LabVIEW Basic I").description).to eq("Edited in the app")
+    end
+
+    it "Lets a row name its own type, and an Admin create a missing one" do
+      result = import(text: credentials_yaml).import!
+
+      expect(result).to be_ok
+      expect(admin.dossier_credentials.find_by!(title: "Agile Testing Workshop").credential_type.name).to eq("Workshop")
+      expect(result.created["Credential Type"]).to eq([ "Workshop" ])
     end
 
     it "Gives a permanent Engagement's own Assignment the first listed details" do
@@ -333,6 +429,14 @@ RSpec.describe Dossier::Import do
       result = import.import!
 
       expect(result.created).to eq("Achievement" => [ "Did a thing" ])
+    end
+
+    it "Leaves out LinkedIn's education and learning lists, and an issuer of '?'" do
+      import(text: credentials_yaml).import!
+
+      expect(admin.dossier_credentials.pluck(:title)).not_to include("Blackebergs gymnasium", "Scrum: The Basics")
+      expect(admin.dossier_credentials.find_by!(title: "Agile Testing Workshop").provider).to be_nil
+      expect(Dossier::Organisation.find_by(name: "?")).to be_nil
     end
 
     it "Imports a file with only some sections" do
