@@ -2,21 +2,29 @@
 
 # Imports a Bridge CV master list (master_cv.yaml) into the user's Dossier:
 # Profile, Organisations, Skills, then Engagements › Assignments with their
-# Tech Stack and terse achievements. Fields that aren't CV data (vendors, notes, src, linkedin…) are
-# never read. A record that already exists is skipped, never updated, so a
+# Tech Stack and terse achievements, then Credentials (education,
+# certifications, training). Fields that aren't CV data (vendors, notes, src,
+# linkedin…) are never read. A record that already exists is skipped, never updated, so a
 # re-import keeps edits made in the app.
 #
 # All or nothing: #preview runs the whole import and rolls it back, so the
 # preview and #import! can't disagree; any error rolls #import! back too.
 # Admin-only reference data (Employment Types, Roles, Industries, Locations,
-# Skill Categories) is created only for an Admin — anyone else gets an error
+# Skill Categories, Credential Types) is created only for an Admin — anyone else gets an error
 # (required) or a warning (optional) instead.
 class Dossier::Import
   Result = Struct.new(:created, :existing, :warnings, :errors, keyword_init: true) do
     def ok? = errors.empty?
   end
 
-  SECTIONS = %w[profile organisations skills engagements].freeze
+  SECTIONS = %w[profile organisations skills engagements credentials].freeze
+
+  # The Credential Type each credentials list imports as, unless a row names
+  # its own (type:). An education row that isn't a degree (an exchange
+  # semester) is a Course; a thesis goes in its degree's description.
+  CREDENTIAL_LISTS = { "education" => "Degree", "certifications" => "Certification", "training" => "Course" }.freeze
+  DEGREE_TITLE = /degree|bachelor|master of|diploma|doctor|ph\.?d/i
+  THESIS_TITLE = /\A(?:\w+ )?thesis\b/i
   NA = "N/A"
 
   # The master list tags items with their source CV: "Provar (D)", "Test Tools (P tools)".
@@ -52,7 +60,7 @@ class Dossier::Import
     data = YAML.safe_load(@text.to_s, permitted_classes: [ Date ], aliases: true)
     return data if data.is_a?(Hash) && data.keys.intersect?(SECTIONS)
 
-    @errors << "Not a master list: expected profile, organisations, skills or engagements"
+    @errors << "Not a master list: expected profile, organisations, skills, engagements or credentials"
     nil
   rescue Psych::Exception => e
     @errors << "Not a valid YAML file: #{e.message}"
@@ -64,6 +72,7 @@ class Dossier::Import
     Array(data["organisations"]).each { |row| import_organisation(row) }
     import_skills(data["skills"] || {})
     Array(data["engagements"]).each { |row| import_engagement(row) }
+    import_credentials(data["credentials"]) if data["credentials"].is_a?(Hash)
   end
 
   # ── Organisations ────────────────────────────────────────────────────────
@@ -196,6 +205,72 @@ class Dossier::Import
         save(assignment.all_achievements.build(text: text, importance: 3, classification: :restricted), "Achievement")
       end
     end
+  end
+
+  # ── Credentials ──────────────────────────────────────────────────────────
+
+  def import_credentials(lists)
+    CREDENTIAL_LISTS.each do |list, default_type|
+      degree = nil
+      Array(lists[list]).each do |row|
+        title = row["title"].to_s.strip
+        next if title.empty?
+
+        if list == "education" && title.match?(THESIS_TITLE)
+          add_thesis(degree, title, row)
+        else
+          type = row["type"] || (list == "education" && !title.match?(DEGREE_TITLE) ? "Course" : default_type)
+          credential = import_credential(title, type, row)
+          degree = credential if list == "education" && type == "Degree"
+        end
+      end
+    end
+  end
+
+  # Returns the new Credential, or nil when it already exists or was skipped.
+  def import_credential(title, type_name, row)
+    if (existing = @user.dossier_credentials.find_by("LOWER(title) = ?", title.downcase))
+      return note_existing("Credential", existing.title, existing) && nil
+    end
+
+    unless (date = credential_date(row))
+      @warnings << "Credential #{title}: no year or date — skipped"
+      return
+    end
+
+    type = reference(Dossier::CredentialType, type_name, on: "Credential #{title}", required: true)
+    return unless type
+
+    renewals = Array(row["years"]).map(&:to_s) - [ date[0, 4] ]
+    save(Dossier::Credential.new(
+      user: @user, credential_type: type, title: title, classification: :restricted,
+      provider: (organisation(row["issuer"]) unless row["issuer"].to_s.strip == "?"),
+      certificate_number: row["licence"], description: ("Renewed #{renewals.join(', ')}." if renewals.any?),
+      start_month: date, end_month: date, start_day: credential_day(row), end_day: credential_day(row)
+    ), "Credential", title)
+  end
+
+  # completed (an exact date), then date ("2009-08"), then year ("2001").
+  def credential_date(row)
+    value = row["completed"] || row["date"] || row["year"]
+    value = value.strftime("%Y-%m") if value.is_a?(Date)
+    value.to_s.strip if value.to_s.strip.match?(/\A\d{4}(-\d{2})?\z/)
+  end
+
+  def credential_day(row) = row["completed"].is_a?(Date) ? row["completed"].day.to_s : ""
+
+  # Only a degree this import created gets the thesis: an existing one keeps
+  # its edits.
+  def add_thesis(degree, title, row)
+    unless degree
+      @warnings << "#{title}: no new degree before it to add it to — skipped"
+      return
+    end
+
+    text = title.split(":", 2).last.strip
+    text += ", supervised at #{row['supervised_at']}" if row["supervised_at"].present?
+    text += " (#{row['year']})" if row["year"].present?
+    degree.update!(description: [ degree.description, "Thesis: #{text}." ].compact.join("\n\n"))
   end
 
   # "2019-03" is month precision, a YAML date is day precision, "current"
