@@ -13,17 +13,24 @@ class PdfRenderingService
   # about pagination itself. `header_template` is set to an empty span to
   # suppress Chrome's own default header (date/title/url), since only a
   # footer was asked for.
-  FOOTER_TEMPLATE = <<~HTML
-    <div style="width: 100%; font-size: 8px; color: #6b6460; text-align: center;
-                font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;">
-      BergstromDomain &middot; Page <span class="pageNumber"></span> of <span class="totalPages"></span>
-    </div>
-  HTML
+  DEFAULT_FOOTER = "BergstromDomain".freeze
   EMPTY_HEADER_TEMPLATE = "<span></span>".freeze
 
-  def initialize(html, format: :A4)
+  # The footer HTML for one PDF: "<text> · Page X of Y". A Dossier CV puts the
+  # person's name there instead of "BergstromDomain".
+  def self.footer_template(text)
+    <<~HTML
+      <div style="width: 100%; font-size: 8px; color: #6b6460; text-align: center;
+                  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;">
+        #{ERB::Util.html_escape(text)} &middot; Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+      </div>
+    HTML
+  end
+
+  def initialize(html, format: :A4, footer: DEFAULT_FOOTER)
     @html   = html
     @format = format
+    @footer = footer
   end
 
   def render
@@ -35,7 +42,7 @@ class PdfRenderingService
     page.pdf(format: @format, encoding: :binary,
               display_header_footer: true,
               header_template:       EMPTY_HEADER_TEMPLATE,
-              footer_template:       FOOTER_TEMPLATE,
+              footer_template:       self.class.footer_template(@footer),
               margin_bottom:         0.5)
   ensure
     browser&.quit

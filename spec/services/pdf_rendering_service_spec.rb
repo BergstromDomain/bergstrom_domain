@@ -36,10 +36,22 @@ RSpec.describe PdfRenderingService do
       pdf = described_class.new("<html><body>Has a footer</body></html>").render
       expect(pdf.byteslice(0, 5)).to eq("%PDF-")
     end
+
+    it "Puts its own text in the footer instead of 'BergstromDomain'" do
+      expect(described_class.footer_template("Alex Example")).to include("Alex Example &middot; Page")
+      expect(described_class.footer_template("Alex Example")).not_to include("BergstromDomain")
+
+      pdf = described_class.new("<html><body>CV</body></html>", footer: "Alex Example").render
+      expect(pdf.byteslice(0, 5)).to eq("%PDF-")
+    end
   end
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
+    it "Escapes HTML in the footer text" do
+      expect(described_class.footer_template("<b>Alex</b>")).to include("&lt;b&gt;Alex&lt;/b&gt;")
+    end
+
     it "Renders HTML containing an inline base64 image without a network fetch" do
       pixel = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
       html = "<html><body><img src='#{pixel}'></body></html>"

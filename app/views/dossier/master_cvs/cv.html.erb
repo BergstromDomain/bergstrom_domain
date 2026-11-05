@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title><%= @cv.header.name %> — CV</title>
+<%# "Classic" CV style: A4, one column, one slate accent. Deliberately not the
+    site's palette — the CV leaves the site. Inline, since the PDF renderer
+    has no origin to fetch a stylesheet from. %>
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm; }
+  body {
+    font-family: Calibri, Carlito, "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.4;
+    color: #1f2933;
+    margin: 0;
+  }
+  .cv-name { font-size: 24pt; color: #334155; margin: 0; }
+  .cv-headline { font-size: 13pt; color: #475569; margin: 2pt 0 4pt; }
+  .cv-contacts { font-size: 9.5pt; color: #475569; margin: 0 0 10pt; }
+  .cv-summary { margin: 0 0 6pt; }
+  h2 {
+    font-size: 12.5pt;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1.5pt solid #334155;
+    padding-bottom: 2pt;
+    margin: 14pt 0 6pt;
+  }
+  .cv-job { margin: 0 0 10pt; }
+  .cv-job-title { font-size: 11.5pt; font-weight: bold; margin: 0; }
+  .cv-job-meta, .cv-assignment-meta { color: #475569; margin: 0 0 3pt; }
+  .cv-assignment { margin: 4pt 0 6pt; break-inside: avoid-page; }
+  .cv-assignment-heading { font-weight: bold; margin: 0; }
+  .cv-tech-stack { font-size: 9.5pt; color: #475569; margin: 2pt 0; }
+  .cv-tech-stack-label { font-weight: bold; }
+  ul { margin: 2pt 0 0; padding-left: 14pt; }
+  li { margin: 0 0 1.5pt; }
+  .cv-skills p { margin: 0 0 3pt; }
+  .cv-credential { margin: 0 0 3pt; }
+  .cv-muted { color: #475569; }
+  p { margin: 0 0 3pt; }
+</style>
+</head>
+<body>
+  <header>
+    <h1 class="cv-name"><%= @cv.header.name %></h1>
+    <% if @cv.header.headline %>
+      <p class="cv-headline"><%= @cv.header.headline %></p>
+    <% end %>
+    <% if @cv.header.contacts.any? %>
+      <p class="cv-contacts"><%= safe_join(@cv.header.contacts, " · ") %></p>
+    <% end %>
+    <% if @cv.summary %>
+      <p class="cv-summary"><%= @cv.summary %></p>
+    <% end %>
+  </header>
+
+  <% [ [ "Experience", @cv.experience ], [ "Personal Projects", @cv.personal_projects ] ].each do |heading, jobs| %>
+    <% next if jobs.empty? %>
+    <section>
+      <h2><%= heading %></h2>
+      <% jobs.each do |job| %>
+        <div class="cv-job">
+          <p class="cv-job-title"><%= job.title %></p>
+          <p class="cv-job-meta"><%= job.organisation %> · <%= job.employment_type %> · <%= job.dates %></p>
+          <% if job.summary %>
+            <p><%= job.summary %></p>
+          <% end %>
+          <% job.assignments.each do |assignment| %>
+            <div class="cv-assignment">
+              <% if assignment.heading %>
+                <p class="cv-assignment-heading"><%= assignment.heading %></p>
+                <p class="cv-assignment-meta"><%= [ assignment.role, assignment.dates, assignment.location ].compact.join(" · ") %></p>
+              <% elsif assignment.location %>
+                <p class="cv-assignment-meta"><%= assignment.location %></p>
+              <% end %>
+              <% if assignment.summary %>
+                <p><%= assignment.summary %></p>
+              <% end %>
+              <% assignment.tech_stack.each do |label, names| %>
+                <p class="cv-tech-stack"><span class="cv-tech-stack-label"><%= label %>:</span> <%= names %></p>
+              <% end %>
+              <% if assignment.achievements.any? %>
+                <ul>
+                  <% assignment.achievements.each do |achievement| %>
+                    <li><%= achievement %></li>
+                  <% end %>
+                </ul>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+  <% end %>
+
+  <% if (skills = @cv.skills).any? %>
+    <section class="cv-skills">
+      <h2>Skills</h2>
+      <% skills.each do |category, names| %>
+        <p><span class="cv-tech-stack-label"><%= category %>:</span> <%= names.join(", ") %></p>
+      <% end %>
+    </section>
+  <% end %>
+
+  <% @cv.credentials.each do |section| %>
+    <section>
+      <h2><%= section.heading %></h2>
+      <% section.entries.each do |credential| %>
+        <p class="cv-credential">
+          <strong><%= credential.title %><%= " (expired)" if credential.expired %></strong>
+          <span class="cv-muted"><%= [ credential.provider, credential.dates ].compact.join(" · ") %></span>
+        </p>
+      <% end %>
+    </section>
+  <% end %>
+</body>
+</html>
