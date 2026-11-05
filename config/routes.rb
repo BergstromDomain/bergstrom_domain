@@ -113,6 +113,7 @@ Rails.application.routes.draw do
     end
     resources :assignments, except: :index do
       resources :colleagues, except: %i[index show]
+      resources :partners, except: %i[index show], controller: "assignment_partners"
     end
     resources :achievements do
       get :deleted, on: :collection

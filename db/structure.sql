@@ -480,6 +480,40 @@ ALTER SEQUENCE public.dossier_achievements_id_seq OWNED BY public.dossier_achiev
 
 
 --
+-- Name: dossier_assignment_partners; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_assignment_partners (
+    id bigint NOT NULL,
+    assignment_id bigint NOT NULL,
+    organisation_id bigint NOT NULL,
+    kind character varying NOT NULL,
+    scope text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_assignment_partners_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_assignment_partners_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_assignment_partners_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_assignment_partners_id_seq OWNED BY public.dossier_assignment_partners.id;
+
+
+--
 -- Name: dossier_assignment_skills; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1985,6 +2019,13 @@ ALTER TABLE ONLY public.dossier_achievements ALTER COLUMN id SET DEFAULT nextval
 
 
 --
+-- Name: dossier_assignment_partners id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_assignment_partners ALTER COLUMN id SET DEFAULT nextval('public.dossier_assignment_partners_id_seq'::regclass);
+
+
+--
 -- Name: dossier_assignment_skills id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2367,6 +2408,14 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 
 ALTER TABLE ONLY public.dossier_achievements
     ADD CONSTRAINT dossier_achievements_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_assignment_partners dossier_assignment_partners_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_assignment_partners
+    ADD CONSTRAINT dossier_assignment_partners_pkey PRIMARY KEY (id);
 
 
 --
@@ -2876,6 +2925,20 @@ CREATE INDEX index_dossier_achievements_on_assignment_id_and_position ON public.
 --
 
 CREATE INDEX index_dossier_achievements_on_user_id ON public.dossier_achievements USING btree (user_id);
+
+
+--
+-- Name: index_dossier_assignment_partners_on_organisation_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_assignment_partners_on_organisation_id ON public.dossier_assignment_partners USING btree (organisation_id);
+
+
+--
+-- Name: index_dossier_assignment_partners_uniqueness; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_assignment_partners_uniqueness ON public.dossier_assignment_partners USING btree (assignment_id, kind, organisation_id);
 
 
 --
@@ -3752,6 +3815,14 @@ ALTER TABLE ONLY public.recipe_cuisines
 
 
 --
+-- Name: dossier_assignment_partners fk_rails_406451053d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_assignment_partners
+    ADD CONSTRAINT fk_rails_406451053d FOREIGN KEY (assignment_id) REFERENCES public.dossier_assignments(id) ON DELETE CASCADE;
+
+
+--
 -- Name: event_mutes fk_rails_4e19c316c3; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4096,6 +4167,14 @@ ALTER TABLE ONLY public.dossier_achievements
 
 
 --
+-- Name: dossier_assignment_partners fk_rails_f230f75f75; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_assignment_partners
+    ADD CONSTRAINT fk_rails_f230f75f75 FOREIGN KEY (organisation_id) REFERENCES public.dossier_organisations(id);
+
+
+--
 -- Name: dossier_assignments fk_rails_f467ade37e; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4126,6 +4205,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261106110000'),
 ('20261106100000'),
 ('20261106090000'),
 ('20261105200000'),

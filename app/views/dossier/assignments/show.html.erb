@@ -95,6 +95,7 @@
 
 <% if @assignment.private_details_visible_to?(current_user) %>
   <%= render "colleagues", assignment: @assignment, editable: policy.can_update? %>
+  <%= render "partners", assignment: @assignment, editable: policy.can_update? %>
 <% end %>
 
 <%# Actions div %>

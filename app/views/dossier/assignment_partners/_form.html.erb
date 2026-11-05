@@ -1,0 +1,32 @@
+<%# Locals: partner, panel ("new"/"edit"), submit_label %>
+<% assignment = partner.assignment %>
+<% url = partner.persisted? ? dossier_assignment_partner_path(assignment, partner) : dossier_assignment_partners_path(assignment) %>
+<%= form_with model: partner, url: url, class: "resource-form" do |f| %>
+  <%= render "dossier/shared/form_errors", record: partner, noun: partner.kind_label.downcase %>
+  <%= f.hidden_field :kind %>
+
+  <div class="show-panel" data-testid="<%= panel %>-panel-main">
+    <p class="form-hint">On <%= link_to assignment.to_toast_label, dossier_assignment_path(assignment) %>.
+      <%= partner.vendor? ? "A Vendor built part of it" : "A Customer buys or uses the result" %>.
+      Only you and Admins see Vendors and Customers, and they're never on a CV.</p>
+    <%= render "dossier/shared/field", f: f, record: partner, attribute: :organisation_id, label: "Organisation",
+          field: f.collection_select(:organisation_id, Dossier::Organisation.alphabetical, :id, :name,
+                                     { include_blank: "Choose an Organisation" }, class: "form-control",
+                                     data: { testid: "organisation-field" }),
+          hint: safe_join([ "Not listed? ",
+                            link_to("Add An Organisation", new_dossier_organisation_path, target: "_blank", rel: "noopener"),
+                            " in a new tab, then reload this page." ]) %>
+    <%= render "dossier/shared/field", f: f, record: partner, attribute: :scope, label: "Scope", text_area: true,
+          hint: partner.vendor? ? "Optional: what they did, e.g. \"Built the Salesforce portal\"." : "Optional: what they use it for." %>
+  </div>
+
+  <div class="show-panel show-panel--actions" data-testid="<%= panel %>-panel-actions">
+    <%= link_to dossier_assignment_path(assignment, anchor: "partners"), class: "btn btn-secondary" do %>
+      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary">
+      <%= lucide_icon("save", size: 16) %> <%= submit_label %>
+    </button>
+  </div>
+<% end %>
