@@ -194,6 +194,26 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads Download Master CV and its Word and PDF downloads without N+1 queries" do
+      create(:dossier_profile, user: adam, location: create(:dossier_location))
+      2.times do
+        engagement = create(:dossier_engagement, user: adam, start_month: "2015-01", end_month: "2022-12")
+        2.times do
+          assignment = create(:dossier_assignment, engagement: engagement, location: create(:dossier_location),
+                                                   start_month: "2016-01", end_month: "2016-12",
+                                                   test_tools_na: false, test_tools_text: "Jira, Excel")
+          create_list(:dossier_achievement, 2, assignment: assignment, skills_text: "Selenium")
+        end
+        create(:dossier_credential, :certification, user: adam, provider: create(:dossier_organisation))
+        create(:dossier_credential, user: adam, provider: create(:dossier_organisation))
+      end
+
+      [ dossier_master_cv_path, docx_dossier_master_cv_path, pdf_dossier_master_cv_path ].each do |path|
+        without_n_plus_one_queries { get path }
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
     it "Loads an Organisation's Credentials without N+1 queries" do
       ni = create(:dossier_organisation, name: "National Instruments")
       create_list(:dossier_credential, 2, user: adam, provider: ni)

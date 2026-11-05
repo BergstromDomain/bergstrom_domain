@@ -11,6 +11,11 @@ class Dossier::MasterCvsController < ApplicationController
 
   before_action :require_dossier_access
   before_action :set_cv
+  before_action :require_profile, except: :show
+
+  # Download Word / Download PDF, or a link to create the Profile first.
+  def show
+  end
 
   def pdf
     send_data render_pdf(template: "dossier/master_cvs/cv", assigns: { cv: @cv }, footer: @cv.header.name),
@@ -29,6 +34,9 @@ class Dossier::MasterCvsController < ApplicationController
 
   def set_cv
     @cv = Dossier::CvDocument.new(current_user)
+  end
+
+  def require_profile
     redirect_to edit_dossier_profile_path, alert: "Create your Profile first — the CV starts from it." unless @cv.profile?
   end
 end
