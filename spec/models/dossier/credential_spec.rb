@@ -210,6 +210,28 @@ RSpec.describe Dossier::Credential, type: :model do
       expect(credential.expiring_soon?).to be(false)
     end
 
+    it "Takes a year on its own, as year precision" do
+      degree = create(:dossier_credential, start_year: "1995", start_month_number: "", end_year: "2001", end_month_number: "")
+
+      expect(degree.reload).to have_attributes(start_on: Date.new(1995, 1, 1), start_precision: "year",
+                                               end_on: Date.new(2001, 1, 1), end_precision: "year",
+                                               dates: "1995 – 2001", effective_end: Date.new(2001, 12, 31))
+      fresh = described_class.find(degree.id)
+      expect([ fresh.start_year, fresh.start_month_number, fresh.end_month ]).to eq([ "1995", nil, "2001" ])
+    end
+
+    it "Shows a year-only course once and counts it as completed any time that year" do
+      course = create(:dossier_credential, start_month: "2012", end_month: "2012")
+      expect(course.dates).to eq("2012")
+      expect(described_class.completed_during(Date.new(2012, 6, 1), Date.new(2012, 8, 31))).to eq([ course ])
+    end
+
+    it "Ignores a day given with only a year" do
+      course = build(:dossier_credential, start_month: "2012", start_day: "5", end_month: "2012")
+      expect(course).to be_valid
+      expect(course.start_precision).to eq("year")
+    end
+
     it "Shows a course within one month once" do
       expect(build(:dossier_credential, start_month: "2020-03", end_month: "2020-03").dates).to eq("Mar 2020")
     end

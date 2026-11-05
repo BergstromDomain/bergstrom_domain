@@ -238,6 +238,17 @@ RSpec.describe "Dossier Credentials", type: :feature do
       expect(page).to have_selector("[data-testid='training-empty']")
     end
 
+    it "Takes a year on its own for an old course" do
+      sign_in_as(charlie)
+      visit new_dossier_credential_path
+      fill_in "Title", with: "LabVIEW Basic I"
+      fill_in "Started Year", with: "2002"
+      fill_in "Completed Year", with: "2002"
+      click_button "Add Credential"
+
+      expect(find("[data-testid='credential-row']", text: "LabVIEW Basic I")).to have_text("2002")
+    end
+
     it "Deletes a Credential" do
       course = create(:dossier_credential, user: charlie, title: "Agile Fundamentals", engagement: engagement)
       sign_in_as(charlie)

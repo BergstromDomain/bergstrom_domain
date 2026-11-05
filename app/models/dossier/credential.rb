@@ -21,6 +21,7 @@ class Dossier::Credential < ApplicationRecord
 
   URL_FORMAT = { with: %r{\Ahttps?://\S+\z}i, message: "must start with http:// or https://" }.freeze
 
+  self.year_precision = true
   dated_edge :expires
 
   belongs_to :user
@@ -55,9 +56,9 @@ class Dossier::Credential < ApplicationRecord
   scope :kept, -> { left_joins(:engagement).where(dossier_engagements: { deleted_at: nil }) }
 
   # Those completed between from and to (inclusive), newest first; a
-  # month-precision completion counts if any of its month falls inside.
+  # month- or year-precision completion counts if any of it falls inside.
   def self.completed_during(from, to)
-    where(end_on: from.beginning_of_month..to).newest_first.select { |credential| credential.effective_end >= from }
+    where(end_on: from.beginning_of_year..to).newest_first.select { |credential| credential.effective_end >= from }
   end
 
   def hidden?
@@ -74,7 +75,7 @@ class Dossier::Credential < ApplicationRecord
   def formatted_expiry = expires_on && format_dossier_date(expires_on, expires_precision)
 
   # The last day it's valid: a month-precision expiry lasts the whole month.
-  def expires_at_end = expires_on && (expires_precision == "month" ? expires_on.end_of_month : expires_on)
+  def expires_at_end = expires_on && last_day(expires_on, expires_precision)
 
   def expired?(today = Date.current) = expires_on.present? && expires_at_end < today
 
