@@ -592,7 +592,7 @@ Other export targets worth designing for from the start (same data, different re
 * **Steps:** 8a models + default rules; 8b variant pages + Copy From; 8c Edit Selection; 8d
   CvDocument filtering + variant downloads; 8e nav, feature and eager-loading specs.
 
-## Block 9 — Upload CV Template
+## Block 9 — Upload CV Template (paused 2026-11-06 — see TODO)
 * Upload a consultancy's own .docx template with merge placeholders added in Word (`Q-D17`);
   generate a variant into it
 
@@ -657,6 +657,35 @@ Private to the author and Admins (the same check as certificate files); **never*
 * **No real personal CV data in commits, fixtures, specs, screenshots or EVIDENCE storyboards**
 * Manually tested in the browser via `bin/dev`
 * Confirmed with me before moving to the next block
+
+---
+
+# TODO
+* **Upload CV Template (Block 9)** — paused 2026-11-06. Niklas is using the app as it is for a
+  couple of weeks (reviewing and rewriting text, CV Variants, Classic Word/PDF). Revisit when a
+  CV has to go into a specific consultancy's template; bring that template along, since it shows
+  whether section placeholders are enough or loops are needed. Draft recommendations from the
+  gate, not yet agreed:
+  * **Placeholders:** text fields anywhere, headers/footers included — `{{name}}`,
+    `{{headline}}`, `{{location}}`, `{{email}}`, `{{phone}}`, `{{website}}`, `{{linkedin}}`,
+    `{{github}}`, `{{summary}}`, `{{target_role}}`, `{{target_company}}`, `{{date}}`; section
+    fields alone on a paragraph — `{{experience}}`, `{{personal_projects}}`, `{{skills}}`,
+    `{{credentials}}` — replaced by the whole section. No loops for now. Word splits typed text
+    into several runs, so the filler must join a paragraph's runs before matching.
+  * **Styles:** sections use Heading 1–3, List Bullet, Meta and Tech Stack, so the template's own
+    definitions apply; missing styles get the Classic ones; bullets get their own numbering
+    definition without touching the template's.
+  * **`Dossier::CvTemplate`:** name, optional consultancy (Organisation), the .docx (≤ 5 MB),
+    checked on upload (at least one known placeholder; unknown `{{…}}` rejected by name). Private
+    to the owner and Admins.
+  * **Variants:** Style lists Classic plus your templates; a template variant downloads Word only
+    (PDF would need LibreOffice in Docker/CI) and offers the Classic PDF instead.
+  * **Sample template:** a generated .docx with every placeholder and a note on each, to restyle
+    in Word and upload back.
+  * **Pages:** My CVs › CV Templates; New › Upload A CV Template; Show with the placeholders used,
+    Download Original, Replace File, Edit, Delete (blocked while a variant uses it).
+  * **Steps:** 9a template filler; 9b model + upload checks; 9c pages, sample template, nav;
+    9d variant Style + Word download/PDF fallback; 9e eager-loading and permission specs.
 
 ---
 
