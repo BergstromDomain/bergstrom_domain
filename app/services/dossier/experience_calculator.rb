@@ -54,6 +54,7 @@ class Dossier::ExperienceCalculator
   ENGAGEMENT_SLICES = { employer: :employer, employment_type: :employment_type }.freeze
   ASSIGNMENT_SLICES = { client: :client, industry: ->(a) { a.client&.industry }, role: :role }.freeze
   NONE_LABELS = { industry: "No Industry", role: "No Role" }.freeze
+  SLICE_PRELOADS = { client: :client, industry: { client: :industry }, role: :role }.freeze
 
   def initialize(user, today: Date.current)
     @user = user
@@ -87,8 +88,7 @@ class Dossier::ExperienceCalculator
   private
 
   def engagements
-    @engagements ||= @user.dossier_engagements.kept
-                          .includes(:employer, :employment_type, assignments: [ :role, { client: :industry } ]).to_a
+    @engagements ||= @user.dossier_engagements.kept.includes(:employer, :employment_type, :assignments).to_a
   end
 
   def professional_engagements = @professional_engagements ||= engagements.reject(&:personal?)
@@ -98,7 +98,10 @@ class Dossier::ExperienceCalculator
       groups = professional_engagements.group_by(&finder)
       count = ->(list) { list.sum { |engagement| engagement.assignments.size } }
     elsif (finder = ASSIGNMENT_SLICES[name])
-      groups = professional_engagements.flat_map(&:assignments).group_by(&finder)
+      assignments = professional_engagements.flat_map(&:assignments)
+      # Each slice loads only what it reads (the Organisation page needs no Roles).
+      ActiveRecord::Associations::Preloader.new(records: assignments, associations: SLICE_PRELOADS.fetch(name)).call
+      groups = assignments.group_by(&finder)
       count = :size.to_proc
     else
       raise ArgumentError, "Unknown slice #{name.inspect}"

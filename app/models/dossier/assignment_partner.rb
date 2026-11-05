@@ -19,7 +19,7 @@ class Dossier::AssignmentPartner < ApplicationRecord
     "is already a #{partner.kind_label} on this Assignment"
   } }
 
-  scope :by_name, -> { joins(:organisation).order(Arel.sql("LOWER(dossier_organisations.name)")) }
+  scope :by_name, -> { eager_load(:organisation).order(Arel.sql("LOWER(dossier_organisations.name)")) }
 
   def kind_label = KINDS.fetch(kind)
 

@@ -238,6 +238,33 @@ RSpec.describe "Eager loading", type: :request do
       end
     end
 
+    it "Loads an Assignment's Colleagues, Vendors and Customers without N+1 queries" do
+      assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam),
+                                               test_tools_na: false, test_tools_text: "Jira")
+      create(:dossier_achievement, assignment: assignment, skills_text: "Jira")
+      create_list(:dossier_colleague, 2, assignment: assignment)
+      create_list(:dossier_assignment_partner, 2, assignment: assignment)
+      create_list(:dossier_assignment_partner, 2, :customer, assignment: assignment)
+
+      without_n_plus_one_queries { get dossier_assignment_path(assignment) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads an Organisation's Vendor and Customer Assignments without N+1 queries" do
+      pwc = create(:dossier_organisation, name: "PwC")
+      engagement = create(:dossier_engagement, user: adam)
+      2.times do
+        create(:dossier_assignment_partner, organisation: pwc, assignment: create(:dossier_assignment, engagement: engagement))
+        create(:dossier_assignment_partner, :customer, organisation: pwc,
+                                                       assignment: create(:dossier_assignment, engagement: engagement))
+      end
+
+      without_n_plus_one_queries { get dossier_organisation_path(pwc) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "Loads an Organisation's Credentials without N+1 queries" do
       ni = create(:dossier_organisation, name: "National Instruments")
       create_list(:dossier_credential, 2, user: adam, provider: ni)
