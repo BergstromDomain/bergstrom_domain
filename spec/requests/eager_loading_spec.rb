@@ -214,6 +214,30 @@ RSpec.describe "Eager loading", type: :request do
       end
     end
 
+    it "Loads a CV Variant, its Edit Selection and its downloads without N+1 queries" do
+      create(:dossier_profile, user: adam)
+      variant = create(:dossier_cv_variant, user: adam, show_tech_stack: true)
+      2.times do |n|
+        engagement = create(:dossier_engagement, user: adam, start_month: "20#{10 + (n * 8)}-01", end_month: "20#{14 + (n * 8)}-12")
+        2.times do
+          assignment = create(:dossier_assignment, engagement: engagement, location: create(:dossier_location),
+                                                   start_month: "20#{10 + (n * 8)}-01", end_month: "20#{11 + (n * 8)}-12",
+                                                   test_tools_na: false, test_tools_text: "Jira, Excel")
+          create_list(:dossier_achievement, 2, assignment: assignment, skills_text: "Selenium")
+          variant.items.create!(item: assignment, included: true)
+        end
+        create(:dossier_credential, :certification, user: adam, provider: create(:dossier_organisation))
+        create(:dossier_credential, user: adam, provider: create(:dossier_organisation))
+      end
+      create(:dossier_cv_variant, user: adam)
+
+      [ dossier_cv_variants_path, dossier_cv_variant_path(variant), selection_dossier_cv_variant_path(variant),
+        docx_dossier_cv_variant_path(variant), pdf_dossier_cv_variant_path(variant) ].each do |path|
+        without_n_plus_one_queries { get path }
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
     it "Loads an Organisation's Credentials without N+1 queries" do
       ni = create(:dossier_organisation, name: "National Instruments")
       create_list(:dossier_credential, 2, user: adam, provider: ni)

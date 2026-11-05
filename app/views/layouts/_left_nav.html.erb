@@ -541,6 +541,12 @@
           <%= lucide_icon("graduation-cap", size: 15) %>
           <span>Credentials</span>
         <% end %>
+
+        <h3 class="left-nav-h3" data-testid="left-nav-my-cvs-h3">My CVs</h3>
+        <%= link_to dossier_cv_variants_path, class: "left-nav-link" do %>
+          <%= lucide_icon("files", size: 15) %>
+          <span>CV Variants</span>
+        <% end %>
       <% end %>
 
       <h3 class="left-nav-h3" data-testid="left-nav-reference-data-h3">Reference Data</h3>
@@ -610,6 +616,10 @@
           <%= link_to new_dossier_credential_path, class: "left-nav-link" do %>
             <%= lucide_icon("graduation-cap", size: 15) %>
             <span>Add A Credential</span>
+          <% end %>
+          <%= link_to new_dossier_cv_variant_path, class: "left-nav-link" do %>
+            <%= lucide_icon("file-plus", size: 15) %>
+            <span>Create A CV Variant</span>
           <% end %>
           <%= link_to new_dossier_organisation_path, class: "left-nav-link" do %>
             <%= lucide_icon("building-2", size: 15) %>

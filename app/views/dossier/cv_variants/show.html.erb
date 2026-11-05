@@ -1,0 +1,122 @@
+<% policy = Policy.new(current_user, @variant) %>
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title" data-testid="cv-variant-name"><%= @variant.name %></h1>
+  </div>
+</div>
+
+<%# Metadata div %>
+<div class="show-panel" data-testid="show-panel-metadata">
+  <div class="show-meta-row">
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Target</h3>
+      <p class="show-meta-cell__value" data-testid="cv-variant-target"><%= @variant.target_label || "—" %></p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Voice</h3>
+      <p class="show-meta-cell__value" data-testid="cv-variant-voice"><%= @variant.voice_label %></p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Style</h3>
+      <p class="show-meta-cell__value" data-testid="cv-variant-style"><%= @variant.style_label %></p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Achievements</h3>
+      <p class="show-meta-cell__value" data-testid="cv-variant-min-importance">Importance <%= @variant.min_importance %> or higher</p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Tech Stack</h3>
+      <p class="show-meta-cell__value" data-testid="cv-variant-tech-stack"><%= @variant.show_tech_stack ? "Shown" : "Hidden" %></p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Copied From</h3>
+      <p class="show-meta-cell__value" data-testid="cv-variant-based-on">
+        <%= @variant.based_on ? link_to(@variant.based_on.name, dossier_cv_variant_path(@variant.based_on)) : "—" %>
+      </p>
+    </div>
+  </div>
+</div>
+
+<%# Summary div %>
+<div class="show-panel" data-testid="show-panel-summary">
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">Summary</h2>
+    <p data-testid="cv-variant-summary"><%= @variant.summary || "—" %></p>
+    <p class="form-hint" data-testid="cv-variant-summary-source">
+      <%= @variant.summary_override ? "Written for this CV Variant." : "From your Profile, #{@variant.voice_label.downcase}." %>
+    </p>
+  </div>
+  <% if @variant.job_description %>
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Job Description</h2>
+      <div data-testid="cv-variant-job-description"><%= simple_format(@variant.job_description) %></div>
+    </div>
+  <% end %>
+</div>
+
+<%# Included div — what the files will hold %>
+<div class="show-panel" data-testid="show-panel-included">
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">What's Included</h2>
+    <% jobs = @cv.experience %>
+    <% condensed = jobs.count { |job| job.assignments.empty? } %>
+    <% achievements = (jobs + @cv.personal_projects).sum { |job| job.assignments.sum { |a| a.achievements.size } } %>
+    <ul class="dossier-assignment-list" data-testid="cv-variant-included">
+      <li><%= pluralize(jobs.size, "Engagement") %><%= " (#{condensed} condensed)" if condensed.positive? %></li>
+      <li><%= pluralize(achievements, "Achievement") %></li>
+      <li><%= pluralize(@cv.personal_projects.size, "Personal Project") %></li>
+      <li><%= pluralize(@cv.skills.sum { |_, names| names.size }, "Skill") %></li>
+      <li><%= pluralize(@cv.credentials.sum { |section| section.entries.size }, "Credential") %></li>
+    </ul>
+  </div>
+  <div class="show-panel__section">
+    <% if @cv.profile? %>
+      <%= link_to docx_dossier_cv_variant_path(@variant), class: "btn btn-primary", data: { turbo: false } do %>
+        <%= lucide_icon("file-text", size: 16) %> Download Word
+      <% end %>
+      <span class="btn-divider">|</span>
+      <%= link_to pdf_dossier_cv_variant_path(@variant), class: "btn btn-primary", data: { turbo: false } do %>
+        <%= lucide_icon("file-down", size: 16) %> Download PDF
+      <% end %>
+    <% else %>
+      <p data-testid="cv-variant-no-profile">
+        <%= link_to "Create your Profile", edit_dossier_profile_path %> first — the CV starts from it.
+      </p>
+    <% end %>
+  </div>
+</div>
+
+<%# Actions div %>
+<div class="show-panel show-panel--actions" data-testid="show-panel-actions">
+  <%= link_to dossier_cv_variants_path, class: "btn btn-secondary" do %>
+    <%= lucide_icon("arrow-left", size: 16) %> Back
+  <% end %>
+
+  <% if policy.can_update? %>
+    <span class="btn-divider">|</span>
+    <%= link_to edit_dossier_cv_variant_path(@variant), class: "btn btn-secondary" do %>
+      <%= lucide_icon("pencil", size: 16) %> Edit CV Variant
+    <% end %>
+    <span class="btn-divider">|</span>
+    <%= link_to selection_dossier_cv_variant_path(@variant), class: "btn btn-secondary" do %>
+      <%= lucide_icon("list-checks", size: 16) %> Edit Selection
+    <% end %>
+  <% end %>
+
+  <% if @variant.user_id == current_user.id %>
+    <span class="btn-divider">|</span>
+    <%= link_to new_dossier_cv_variant_path(copy_from: @variant.id), class: "btn btn-secondary" do %>
+      <%= lucide_icon("copy", size: 16) %> Copy CV Variant
+    <% end %>
+  <% end %>
+
+  <% if policy.can_delete? %>
+    <span class="btn-divider">|</span>
+    <%= button_to dossier_cv_variant_path(@variant),
+          method: :delete,
+          class: "btn btn-danger",
+          data: { turbo_confirm: "Delete #{@variant.name}? This cannot be undone." } do %>
+      <%= lucide_icon("trash-2", size: 16) %> Delete CV Variant
+    <% end %>
+  <% end %>
+</div>

@@ -1,0 +1,107 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Edit Selection</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    What <%= @variant.name %> includes. Boxes start at the default rules: the last 10 years in full, older jobs
+    condensed to one line, Achievements of importance <%= @variant.min_importance %> or higher, no Personal Projects or
+    Training. Anything you change shows "Your choice". Something only appears if what it sits under is ticked too.
+  </p>
+</div>
+
+<%= form_with url: selection_dossier_cv_variant_path(@variant), method: :patch, class: "resource-form resource-form--wide" do %>
+  <%# Experience div — Engagement › Assignment › Achievement %>
+  <div class="show-panel" data-testid="selection-experience">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Experience</h2>
+      <% if @engagements.empty? %>
+        <p>No Engagements yet.</p>
+      <% end %>
+      <% @engagements.each do |engagement| %>
+        <% notes = [] %>
+        <% notes << "Personal Project" if engagement.personal? %>
+        <% notes << "Condensed" if !engagement.personal? && @selection.condensed?(engagement) %>
+        <div class="form-group dossier-selection" data-testid="selection-engagement">
+          <%= render "selection_box", selection: @selection, kind: "engagement", record: engagement, notes: notes,
+                label: "#{engagement.to_toast_label} (#{engagement.date_range})" %>
+          <ul class="dossier-selection__list">
+            <% engagement.assignments.sort_by { |a| a.start_on }.reverse_each do |assignment| %>
+              <li data-testid="selection-assignment">
+                <%= render "selection_box", selection: @selection, kind: "assignment", record: assignment,
+                      label: "#{assignment.heading} · #{assignment.role_name} (#{assignment.date_range})" %>
+                <ul class="dossier-selection__list">
+                  <% assignment.achievements.each do |achievement| %>
+                    <li data-testid="selection-achievement">
+                      <%= render "selection_box", selection: @selection, kind: "achievement", record: achievement,
+                            label: achievement.text, notes: [ "Importance #{achievement.importance}" ] %>
+                    </li>
+                  <% end %>
+                </ul>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Skills div %>
+  <div class="show-panel" data-testid="selection-skills">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Skills</h2>
+      <% if @skill_groups.empty? %>
+        <p>No Skills yet.</p>
+      <% end %>
+      <% @skill_groups.each do |category, skills| %>
+        <h3 class="show-meta-cell__label"><%= category.name %></h3>
+        <ul class="dossier-selection__list">
+          <% skills.each do |skill| %>
+            <li data-testid="selection-skill">
+              <%= render "selection_box", selection: @selection, kind: "skill", record: skill, label: skill.name %>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Credentials div %>
+  <div class="show-panel" data-testid="selection-credentials">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Credentials</h2>
+      <% if @credential_groups.empty? %>
+        <p>No Credentials yet.</p>
+      <% end %>
+      <% @credential_groups.each do |type, credentials| %>
+        <h3 class="show-meta-cell__label"><%= type.name %></h3>
+        <ul class="dossier-selection__list">
+          <% credentials.each do |credential| %>
+            <li data-testid="selection-credential">
+              <%= render "selection_box", selection: @selection, kind: "credential", record: credential,
+                    label: "#{credential.title} (#{credential.dates})",
+                    notes: (credential.expired? ? [ "Expired" ] : []) %>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Actions div %>
+  <div class="show-panel show-panel--actions" data-testid="selection-actions">
+    <%= link_to dossier_cv_variant_path(@variant), class: "btn btn-secondary" do %>
+      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary">
+      <%= lucide_icon("save", size: 16) %> Save Selection
+    </button>
+  </div>
+<% end %>
+
+<div class="show-panel show-panel--actions">
+  <%= button_to selection_dossier_cv_variant_path(@variant), method: :delete, class: "btn btn-secondary",
+        data: { turbo_confirm: "Undo every tick and untick you've made in #{@variant.name}?" } do %>
+    <%= lucide_icon("rotate-ccw", size: 16) %> Reset To Defaults
+  <% end %>
+</div>

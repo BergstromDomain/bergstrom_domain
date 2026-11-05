@@ -111,4 +111,9 @@ FactoryBot.define do
       credential_type { Dossier::CredentialType.find_or_create_by!(name: "Certification") }
     end
   end
+
+  factory :dossier_cv_variant, class: "Dossier::CvVariant" do
+    association :user, factory: [ :user, :content_creator ]
+    sequence(:name) { |n| "QE Lead — Company #{n}" }
+  end
 end

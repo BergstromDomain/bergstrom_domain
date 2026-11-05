@@ -72,9 +72,9 @@ RSpec.describe "Dossier", type: :feature do
         links = all(".left-nav-h3, .left-nav-link span").map(&:text)
         new_at = links.index("New")
         reference_at = links.rindex("Reference Data")
-        expect(links[new_at + 1..new_at + 8]).to eq(
-          [ "Create An Engagement", "Create An Assignment", "Write An Achievement", "Add A Credential", "Add An Organisation",
-            "Add A Skill", "Deleted Achievements", "Deleted Engagements" ]
+        expect(links[new_at + 1..new_at + 9]).to eq(
+          [ "Create An Engagement", "Create An Assignment", "Write An Achievement", "Add A Credential", "Create A CV Variant",
+            "Add An Organisation", "Add A Skill", "Deleted Achievements", "Deleted Engagements" ]
         )
         expect(links[reference_at + 1..reference_at + 6]).to eq(
           [ "Add An Industry", "Add A Role", "Add A Location", "Add An Employment Type", "Add A Skill Category",

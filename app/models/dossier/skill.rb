@@ -1,6 +1,7 @@
 # app/models/dossier/skill.rb
 class Dossier::Skill < ApplicationRecord
   include Dossier::NamedReferenceData
+  include Dossier::CvSelectable
 
   belongs_to :skill_category
   has_many :assignment_skills, dependent: :restrict_with_error

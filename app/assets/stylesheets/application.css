@@ -3165,6 +3165,21 @@ textarea.form-control {
   flex: 1 1 12rem;
 }
 
+/* CV Variant › Edit Selection: nested checkbox lists, indented per level. */
+.dossier-selection {
+  margin-bottom: var(--space-md);
+}
+
+.dossier-selection__list {
+  list-style: none;
+  margin: var(--space-xs) 0 var(--space-sm);
+  padding-left: var(--space-lg);
+}
+
+.dossier-selection__list li {
+  margin-bottom: var(--space-xs);
+}
+
 .dossier-assignment-list {
   list-style: none;
   margin: var(--space-sm) 0 0;

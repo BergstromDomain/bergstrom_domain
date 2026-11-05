@@ -678,6 +678,82 @@ ALTER SEQUENCE public.dossier_credentials_id_seq OWNED BY public.dossier_credent
 
 
 --
+-- Name: dossier_cv_variant_items; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_cv_variant_items (
+    id bigint NOT NULL,
+    cv_variant_id bigint NOT NULL,
+    item_type character varying NOT NULL,
+    item_id bigint NOT NULL,
+    included boolean NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_cv_variant_items_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_cv_variant_items_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_cv_variant_items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_cv_variant_items_id_seq OWNED BY public.dossier_cv_variant_items.id;
+
+
+--
+-- Name: dossier_cv_variants; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_cv_variants (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    name character varying NOT NULL,
+    target_company character varying,
+    target_role character varying,
+    job_description text,
+    voice character varying DEFAULT 'first_person'::character varying NOT NULL,
+    style character varying DEFAULT 'classic'::character varying NOT NULL,
+    summary_override text,
+    show_tech_stack boolean DEFAULT false NOT NULL,
+    min_importance integer DEFAULT 3 NOT NULL,
+    based_on_id bigint,
+    classification character varying DEFAULT 'restricted'::character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_cv_variants_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_cv_variants_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_cv_variants_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_cv_variants_id_seq OWNED BY public.dossier_cv_variants.id;
+
+
+--
 -- Name: dossier_employment_types; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1907,6 +1983,20 @@ ALTER TABLE ONLY public.dossier_credentials ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
+-- Name: dossier_cv_variant_items id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_cv_variant_items ALTER COLUMN id SET DEFAULT nextval('public.dossier_cv_variant_items_id_seq'::regclass);
+
+
+--
+-- Name: dossier_cv_variants id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_cv_variants ALTER COLUMN id SET DEFAULT nextval('public.dossier_cv_variants_id_seq'::regclass);
+
+
+--
 -- Name: dossier_employment_types id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2273,6 +2363,22 @@ ALTER TABLE ONLY public.dossier_credential_types
 
 ALTER TABLE ONLY public.dossier_credentials
     ADD CONSTRAINT dossier_credentials_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_cv_variant_items dossier_cv_variant_items_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_cv_variant_items
+    ADD CONSTRAINT dossier_cv_variant_items_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_cv_variants dossier_cv_variants_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_cv_variants
+    ADD CONSTRAINT dossier_cv_variants_pkey PRIMARY KEY (id);
 
 
 --
@@ -2844,6 +2950,41 @@ CREATE INDEX index_dossier_credentials_on_provider_id ON public.dossier_credenti
 --
 
 CREATE INDEX index_dossier_credentials_on_user_id ON public.dossier_credentials USING btree (user_id);
+
+
+--
+-- Name: index_dossier_cv_variant_items_on_item; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_cv_variant_items_on_item ON public.dossier_cv_variant_items USING btree (item_type, item_id);
+
+
+--
+-- Name: index_dossier_cv_variant_items_uniqueness; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_cv_variant_items_uniqueness ON public.dossier_cv_variant_items USING btree (cv_variant_id, item_type, item_id);
+
+
+--
+-- Name: index_dossier_cv_variants_on_based_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_cv_variants_on_based_on_id ON public.dossier_cv_variants USING btree (based_on_id);
+
+
+--
+-- Name: index_dossier_cv_variants_on_user_and_lower_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_cv_variants_on_user_and_lower_name ON public.dossier_cv_variants USING btree (user_id, lower((name)::text));
+
+
+--
+-- Name: index_dossier_cv_variants_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_cv_variants_on_user_id ON public.dossier_cv_variants USING btree (user_id);
 
 
 --
@@ -3448,6 +3589,14 @@ ALTER TABLE ONLY public.dossier_skills
 
 
 --
+-- Name: dossier_cv_variant_items fk_rails_0c2abfe759; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_cv_variant_items
+    ADD CONSTRAINT fk_rails_0c2abfe759 FOREIGN KEY (cv_variant_id) REFERENCES public.dossier_cv_variants(id) ON DELETE CASCADE;
+
+
+--
 -- Name: events fk_rails_0cb5590091; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3573,6 +3722,14 @@ ALTER TABLE ONLY public.dossier_credentials
 
 ALTER TABLE ONLY public.dossier_assignments
     ADD CONSTRAINT fk_rails_622791e61e FOREIGN KEY (engagement_id) REFERENCES public.dossier_engagements(id);
+
+
+--
+-- Name: dossier_cv_variants fk_rails_6d3840df39; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_cv_variants
+    ADD CONSTRAINT fk_rails_6d3840df39 FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -3709,6 +3866,14 @@ ALTER TABLE ONLY public.dossier_credentials
 
 ALTER TABLE ONLY public.recipes
     ADD CONSTRAINT fk_rails_a212e43289 FOREIGN KEY (language_id) REFERENCES public.languages(id);
+
+
+--
+-- Name: dossier_cv_variants fk_rails_a2b90c974d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_cv_variants
+    ADD CONSTRAINT fk_rails_a2b90c974d FOREIGN KEY (based_on_id) REFERENCES public.dossier_cv_variants(id) ON DELETE SET NULL;
 
 
 --
@@ -3894,6 +4059,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261106090000'),
 ('20261105200000'),
 ('20261105090000'),
 ('20261104090000'),
