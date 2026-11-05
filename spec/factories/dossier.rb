@@ -19,6 +19,10 @@ FactoryBot.define do
     trait :permanent do
       permanent { true }
     end
+
+    trait :personal do
+      personal { true }
+    end
   end
 
   factory :dossier_location, class: "Dossier::Location" do
@@ -57,6 +61,10 @@ FactoryBot.define do
     trait :current do
       end_on { nil }
     end
+
+    trait :personal do
+      association :employment_type, factory: [ :dossier_employment_type, :personal ]
+    end
   end
 
   factory :dossier_assignment, class: "Dossier::Assignment" do
@@ -78,5 +86,14 @@ FactoryBot.define do
   factory :dossier_achievement, class: "Dossier::Achievement" do
     association :assignment, factory: :dossier_assignment
     sequence(:text) { |n| "Ran daily defect triage for release #{n}" }
+  end
+
+  factory :dossier_credential, class: "Dossier::Credential" do
+    association :user, factory: [ :user, :content_creator ]
+    sequence(:title) { |n| "Agile Fundamentals #{n}" }
+    start_on        { Date.new(2020, 3, 1) }
+    start_precision { "month" }
+    end_on          { Date.new(2020, 3, 1) }
+    end_precision   { "month" }
   end
 end

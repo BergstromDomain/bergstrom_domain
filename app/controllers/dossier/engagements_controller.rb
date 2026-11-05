@@ -17,7 +17,10 @@ class Dossier::EngagementsController < ApplicationController
   end
 
   def show
-    redirect_to dossier_engagements_path, alert: "Not authorised." unless Policy.new(current_user, @engagement).can_read?
+    unless Policy.new(current_user, @engagement).can_read?
+      redirect_to dossier_engagements_path, alert: "Not authorised." and return
+    end
+    ActiveRecord::Associations::Preloader.new(records: [ @engagement ], associations: { assignments: :client }).call
   end
 
   def new

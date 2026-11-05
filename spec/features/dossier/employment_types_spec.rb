@@ -30,5 +30,16 @@ RSpec.describe "Dossier Employment Types", type: :feature do
       expect(Dossier::EmploymentType.find_by!(name: record_name).permanent).to be(true)
       expect(page).to have_selector("[data-testid='detail-permanent']", text: "Yes")
     end
+
+    it "Saves and shows the Personal flag" do
+      sign_in_as(create(:user, :admin))
+      visit new_path
+      fill_name("Personal Project")
+      check "Personal"
+      click_button "Create Employment Type"
+
+      expect(Dossier::EmploymentType.find_by!(name: "Personal Project").personal).to be(true)
+      expect(page).to have_selector("[data-testid='detail-personal']", text: "Yes")
+    end
   end
 end

@@ -160,7 +160,7 @@ Post) or "reference" data (Event Type, Social Media Platform, Blog Category, Cui
 Type, Language — the same set grouped under a left nav's "Reference Data" header, above).
 Normal-data pages render full width; reference-data pages render at a narrower, centered
 width, consistently across their New, Show, and Edit pages:
-- New/Edit forms: `.resource-form` alone is the narrow (560px, centered) default, used by
+- New/Edit forms: `.resource-form` alone is the narrow (1120px, centered) default, used by
   reference-data resources. Add `.resource-form--wide` for normal-data resources (`class:
   "resource-form resource-form--wide"` on the `form_with` call) to go full width.
 - Show pages: full width is the default (no wrapper needed) — normal-data Show pages render

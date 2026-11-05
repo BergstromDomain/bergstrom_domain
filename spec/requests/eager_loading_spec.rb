@@ -157,9 +157,52 @@ RSpec.describe "Eager loading", type: :request do
         assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam),
                                                  test_tools_na: false, test_tools_text: "Jira")
         create(:dossier_achievement, assignment: assignment, skills_text: "Jira")
+        create(:dossier_credential, user: adam, provider: create(:dossier_organisation), assignment: assignment,
+                                    skills_text: "Jira")
       end
 
       without_n_plus_one_queries { get dossier_skill_path(Dossier::Skill.find_by!(name: "Jira")) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads My Career › Training without N+1 queries" do
+      2.times do
+        assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam))
+        create(:dossier_credential, user: adam, provider: create(:dossier_organisation), assignment: assignment,
+                                    skills_text: "Jira, Excel")
+        create(:dossier_credential, user: adam, engagement: create(:dossier_engagement, user: adam), skills_text: "Scrum")
+      end
+
+      without_n_plus_one_queries { get dossier_credentials_path }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads an Organisation's Training without N+1 queries" do
+      ni = create(:dossier_organisation, name: "National Instruments")
+      create_list(:dossier_credential, 2, user: adam, provider: ni)
+
+      without_n_plus_one_queries { get dossier_organisation_path(ni) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads an Engagement page with its Assignments without N+1 queries" do
+      engagement = create(:dossier_engagement, user: adam, start_month: "2019-01", end_month: "2022-12")
+      create(:dossier_assignment, engagement: engagement, start_month: "2019-01", end_month: "2019-12")
+      create(:dossier_assignment, engagement: engagement, start_month: "2021-01", end_month: "2022-12")
+
+      without_n_plus_one_queries { get dossier_engagement_path(engagement) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads an Engagement's Training without N+1 queries" do
+      engagement = create(:dossier_engagement, user: adam)
+      create_list(:dossier_credential, 2, user: adam, engagement: engagement, provider: create(:dossier_organisation))
+
+      without_n_plus_one_queries { get dossier_engagement_path(engagement) }
 
       expect(response).to have_http_status(:ok)
     end

@@ -15,6 +15,8 @@ class Dossier::Assignment < ApplicationRecord
   # Deleted Achievements go too, so all_achievements does the destroying.
   has_many   :all_achievements, class_name: "Dossier::Achievement", dependent: :destroy
   has_many   :achievements, -> { kept.in_order }, inverse_of: :assignment
+  # Its Training stays with the Engagement.
+  has_many   :credentials, dependent: :nullify
 
   normalizes :summary, :project, with: ->(value) { value.strip.presence }
 

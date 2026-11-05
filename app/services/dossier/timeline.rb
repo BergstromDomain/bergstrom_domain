@@ -3,7 +3,8 @@
 # Builds the Timeline: a user's Engagements newest first, each with its bench
 # time (stretches no Assignment covers), and gaps between Engagements.
 # Overlapping Engagements merge before looking for gaps, so a side job never
-# shows as a gap. Ranges are inclusive dates; a month-precision end counts as
+# shows as a gap. Personal Engagements (hobby projects) have no bench time and
+# never fill a gap. Ranges are inclusive dates; a month-precision end counts as
 # the whole month, and a current one runs to today.
 class Dossier::Timeline
   Period = Data.define(:from, :to) do
@@ -74,6 +75,8 @@ class Dossier::Timeline
   end
 
   def bench_for(engagement)
+    return [] if engagement.personal?
+
     outer = period_for(engagement)
     covered = self.class.merge(engagement.assignments.map { |a| period_for(a) })
     edges = [ Period.new(from: outer.from, to: outer.from - 1) ] + covered + [ Period.new(from: outer.to + 1, to: outer.to) ]
@@ -87,7 +90,7 @@ class Dossier::Timeline
   end
 
   def gaps
-    holes(self.class.merge(@engagements.map { |e| period_for(e) }))
+    holes(self.class.merge(@engagements.reject(&:personal?).map { |e| period_for(e) }))
   end
 
   # The stretches between consecutive merged periods.

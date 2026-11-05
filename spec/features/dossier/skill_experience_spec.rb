@@ -95,6 +95,7 @@ RSpec.describe "Dossier Skill experience", type: :feature do
   describe "Alternative Path" do
     it "Collapses a Skill Category on My Career › Skills", js: true do
       sign_in_as(charlie)
+      expect(page).to have_css("[data-testid='user-thumbnail-dropdown']", wait: 10)
       visit dossier_my_skills_path
 
       category = "[data-testid='my-skills-category']:has([data-testid='my-skills-toggle-#{test_tools.id}'])"
@@ -102,6 +103,23 @@ RSpec.describe "Dossier Skill experience", type: :feature do
       js_click("my-skills-toggle-#{test_tools.id}")
       expect(page).to have_selector("#{category}:not([open])")
       expect(page).not_to have_selector("#{category} [data-testid='my-skill-row']")
+    end
+
+    it "Shows personal projects' years apart from professional ones" do
+      hobby = create(:dossier_engagement, :personal, user: charlie, start_month: "2023-01", end_month: "2024-12")
+      create(:dossier_assignment, engagement: hobby, client: northwind, project: "Hobby App",
+                                  start_month: "2023-01", end_month: "2024-12",
+                                  test_tools_na: false, test_tools_text: "Jira, Rails")
+      sign_in_as(charlie)
+
+      visit dossier_skill_path(jira)
+      expect(page).to have_selector("[data-testid='skill-experience-duration']", text: "3+ years")
+      expect(page).to have_selector("[data-testid='skill-experience-personal-duration']", text: "2+ years")
+
+      visit dossier_my_skills_path
+      rails = find("[data-testid='my-skill-row']", text: "Rails")
+      expect(rails).to have_selector("[data-testid='my-skill-years']", text: "—")
+      expect(rails).to have_selector("[data-testid='my-skill-personal']", text: "2+ years")
     end
 
     it "Lists an Assignment under both lists that use the Skill" do

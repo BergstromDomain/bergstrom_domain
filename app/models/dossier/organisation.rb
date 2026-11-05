@@ -10,6 +10,8 @@ class Dossier::Organisation < ApplicationRecord
                          dependent: :restrict_with_error, inverse_of: :employer
   has_many :client_assignments, class_name: "Dossier::Assignment", foreign_key: :client_id,
                                 dependent: :restrict_with_error, inverse_of: :client
+  has_many :provided_credentials, class_name: "Dossier::Credential", foreign_key: :provider_id,
+                                  dependent: :restrict_with_error, inverse_of: :provider
 
   normalizes :abbreviation, :website_url, with: ->(value) { value.strip.presence }
 

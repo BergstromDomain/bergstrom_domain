@@ -1,5 +1,6 @@
-Name,Permanent,Description
-Permanent Employment,Yes,
-Temp,No,
-Consultant,No,
-Contractor,No,
+Name,Permanent,Personal,Description
+Permanent Employment,Yes,No,
+Temp,No,No,
+Consultant,No,No,
+Contractor,No,No,
+Personal Project,No,Yes,"Your own projects, e.g. a hobby app: personal experience, not professional."

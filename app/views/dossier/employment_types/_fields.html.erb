@@ -2,3 +2,6 @@
 <%= render "dossier/shared/field", f: f, record: record, attribute: :permanent, label: "Permanent",
       field: f.check_box(:permanent, data: { testid: "permanent-field" }),
       hint: "Tick for permanent employment: its Engagement then gets one Assignment, with the employer as client." %>
+<%= render "dossier/shared/field", f: f, record: record, attribute: :personal, label: "Personal",
+      field: f.check_box(:personal, data: { testid: "personal-field" }),
+      hint: "Tick for your own projects, e.g. a hobby app: their years count as personal experience, not professional, and the Timeline doesn't treat them as filling a gap." %>

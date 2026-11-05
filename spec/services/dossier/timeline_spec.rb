@@ -54,6 +54,17 @@ RSpec.describe Dossier::Timeline do
 
   # 3) Alternative Path ───────────────────────────────────────────────────────
   describe "Alternative Path" do
+    it "Lists a personal Engagement but never lets it fill a gap or have bench time" do
+      engagement("2015-01", "2017-12")
+      hobby = engagement("2017-06", "2018-12", employment_type: create(:dossier_employment_type, :personal))
+      engagement("2018-06", "2022-06")
+
+      entries = timeline.entries
+      expect(entries.map(&:kind)).to eq(%i[engagement engagement gap engagement])
+      expect(entries.find { |entry| entry.engagement == hobby }.bench).to be_empty
+      expect(entries.find { |entry| entry.kind == :gap }.date_range).to eq("Jan 2018 – May 2018")
+    end
+
     it "Treats a whole Engagement without Assignments as bench time" do
       engagement("2004-01", "2005-01")
       bench = timeline.entries.first.bench

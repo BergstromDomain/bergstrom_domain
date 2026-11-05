@@ -27,6 +27,9 @@
           </h2>
           <p class="dossier-timeline-card__meta">
             <span data-testid="engagement-type"><%= engagement.employment_type.name %></span>
+            <% if engagement.personal? %>
+              <span class="badge badge--active" data-testid="engagement-personal">Personal</span>
+            <% end %>
             <span class="dossier-assignment-row__dates" data-testid="engagement-dates"><%= engagement.date_range %></span>
           </p>
           <%= render "dossier/engagements/assignment_list", engagement: engagement, bench: entry.bench %>

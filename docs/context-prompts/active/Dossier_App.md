@@ -417,6 +417,50 @@ Other export targets worth designing for from the start (same data, different re
 * **Steps:** 4a calculator, Skill page, My Career › Skills; 4b Merge Skills; 4c Deleted
   Engagements.
 
+## Block 4.5 — Personal Projects + Training
+
+### DECISIONS FROM BLOCK 4.5 GATE (2026-11-04)
+* **Personal Projects:** Employment Type gets a `personal` checkbox (like `permanent`); seed type
+  "Personal Project". A personal Engagement has the user's own Organisation as employer and one
+  Assignment per project, with its own Tech Stack and Achievements.
+* **Years split:** experience is shown as professional and personal separately everywhere (Skill
+  page, My Career › Skills gets a Personal column, sorted on professional years first). Personal
+  time never adds to professional years.
+* **Timeline:** personal Engagements are left out of gap and bench detection, so a hobby project
+  never hides or fills a real gap; they still appear in the list, marked "Personal".
+* **CVs (later):** personal projects get their own "Personal Projects" section, never Employment
+  History.
+* **Training is Block 5's Credential, started slim:** `Dossier::Credential` of type course with
+  title, provider (Organisation), completed date with day/month precision, optional hours,
+  Skills (comma-separated, like Achievements), description, classification (Private by default),
+  optional `engagement_id` and `assignment_id` (the Assignment must belong to the Engagement); a
+  course can also stand alone (bench, gaps).
+* **Where Training shows:** a Training panel with Add Training on Engagement and Assignment pages,
+  My Career › Training (newest first), Your Training on each Skill page, a Training count in My
+  Career › Skills.
+* **Training doesn't count towards years of experience** — it shows a Skill was learned, not used.
+* **Company Specific:** a Skill Category the user creates for company-specific software and
+  hardware (e.g. RPMD at Translink); no code.
+* **Left for Block 5:** degrees/certifications, expiry and its warnings, certificate uploads,
+  verification URLs.
+* **Steps:** 4.5a Personal Projects; 4.5b Training.
+* Made during 4.5b (flagged, not asked):
+  * Training has a Started and a Completed date (reusing `Dossier::Dated`), not just a completed
+    one: a multi-day course and an unfinished one ("Mar 2024 – in progress") both work, and a
+    course within one month shows once. Block 5's expiry will be its own `expires_on`.
+  * Provider is optional (a self-study course has none). Pages live at `/dossier/training`
+    (`Dossier::CredentialsController`).
+  * Deleting Training is a hard delete behind a confirm, with no Deleted page. Deleting an
+    Assignment moves its Training up to the Engagement; a deleted Engagement hides its Training and
+    the purge removes it.
+  * Skills typed as text are shared with Achievements through `Dossier::SkillTags`; merging a
+    Skill moves its Training links too.
+* **Follow-up (2026-11-05):** Provider stays optional and uses the shared Organisations (e.g.
+  LabVIEW by National Instruments). An Organisation page lists the signed-in user's own Training it
+  provided (Your Training). Products and training providers such as LabVIEW / National Instruments
+  belong on CVs; the "no vendor names" rule covers only the private `vendors` field (implementation
+  partners) and is to be revisited with CV Variants.
+
 ## Block 5 — Credentials & certificates
 * CRUD with credential type, issuer, dates, expiry, verification URL, file uploads (PDF/image)
 * List grouped by type (Degrees › Certifications › Courses), expired ones flagged

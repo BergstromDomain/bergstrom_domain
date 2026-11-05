@@ -7,12 +7,16 @@
 # docs/reference-data/dossier/.
 
 [
-  [ "Permanent Employment", true ],
-  [ "Temp",                 false ],
-  [ "Consultant",           false ],
-  [ "Contractor",           false ]
-].each do |name, permanent|
-  Dossier::EmploymentType.find_or_create_by!(name: name) { |t| t.permanent = permanent }
+  [ "Permanent Employment", true,  false ],
+  [ "Temp",                 false, false ],
+  [ "Consultant",           false, false ],
+  [ "Contractor",           false, false ],
+  [ "Personal Project",     false, true ]
+].each do |name, permanent, personal|
+  Dossier::EmploymentType.find_or_create_by!(name: name) do |t|
+    t.permanent = permanent
+    t.personal = personal
+  end
 end
 
 %w[Telecom Finance Government Hospitality].each do |name|
