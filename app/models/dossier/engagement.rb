@@ -14,6 +14,7 @@ class Dossier::Engagement < ApplicationRecord
   belongs_to :employer, class_name: "Dossier::Organisation"
   belongs_to :employment_type
   has_many   :assignments, dependent: :destroy
+  has_many   :credentials, dependent: :destroy
 
   normalizes :position_title, with: ->(value) { value.strip }
   normalizes :summary, with: ->(value) { value.strip.presence }

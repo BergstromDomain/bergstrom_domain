@@ -8,6 +8,7 @@
 # them after DELETION_RETENTION_PERIOD.
 class Dossier::Achievement < ApplicationRecord
   include Classifiable
+  include Dossier::SkillTags
 
   DELETION_RETENTION_PERIOD = 30.days
   IMPORTANCE = (1..5)
@@ -15,12 +16,12 @@ class Dossier::Achievement < ApplicationRecord
   belongs_to :assignment
   has_many :achievement_skills, -> { order(:id) }, dependent: :destroy, autosave: true, inverse_of: :achievement
   has_many :skills, through: :achievement_skills
+  skill_tags :achievement_skills
 
   normalizes :text, with: ->(value) { value.strip }
   normalizes :impact, with: ->(value) { value.strip.presence }
 
   before_validation { self.user_id = assignment&.user_id }
-  before_validation :apply_skills_text
   before_create { self.position ||= (siblings.maximum(:position) || 0) + 1 }
 
   validates :text, presence: true
@@ -29,20 +30,6 @@ class Dossier::Achievement < ApplicationRecord
   scope :kept,      -> { where(deleted_at: nil) }
   scope :discarded, -> { where.not(deleted_at: nil) }
   scope :in_order,  -> { order(:position, :id) }
-
-  # Skills as comma-separated text, matched by name or alias; unknown names
-  # become new Skills in "Uncategorised".
-  def skills_text
-    @skills_text || current_skills.map(&:name).join(", ")
-  end
-
-  def skills_text=(text)
-    @skills_text = text.to_s
-  end
-
-  def current_skills
-    achievement_skills.reject(&:marked_for_destruction?).map(&:skill)
-  end
 
   # Swaps places with the kept neighbour above (:up) or below (:down); false
   # when already at that end.
@@ -89,17 +76,5 @@ class Dossier::Achievement < ApplicationRecord
 
   def siblings
     self.class.where(assignment_id: assignment_id)
-  end
-
-  def apply_skills_text
-    return if @skills_text.nil?
-
-    names = @skills_text.split(",").map(&:strip).compact_blank.uniq(&:downcase)
-    wanted = names.map { |name| Dossier::Skill.find_by_name_or_alias(name) || Dossier::Skill.new_uncategorised(name) }.uniq
-
-    current = achievement_skills.reject(&:marked_for_destruction?)
-    current.each { |as| as.mark_for_destruction unless wanted.include?(as.skill) }
-    wanted.each { |skill| achievement_skills.build(skill: skill) unless current.any? { |as| as.skill == skill } }
-    @skills_text = nil
   end
 end

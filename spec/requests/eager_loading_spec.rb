@@ -157,9 +157,33 @@ RSpec.describe "Eager loading", type: :request do
         assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam),
                                                  test_tools_na: false, test_tools_text: "Jira")
         create(:dossier_achievement, assignment: assignment, skills_text: "Jira")
+        create(:dossier_credential, user: adam, provider: create(:dossier_organisation), assignment: assignment,
+                                    skills_text: "Jira")
       end
 
       without_n_plus_one_queries { get dossier_skill_path(Dossier::Skill.find_by!(name: "Jira")) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads My Career › Training without N+1 queries" do
+      2.times do
+        assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam))
+        create(:dossier_credential, user: adam, provider: create(:dossier_organisation), assignment: assignment,
+                                    skills_text: "Jira, Excel")
+        create(:dossier_credential, user: adam, engagement: create(:dossier_engagement, user: adam), skills_text: "Scrum")
+      end
+
+      without_n_plus_one_queries { get dossier_credentials_path }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads an Engagement's Training without N+1 queries" do
+      engagement = create(:dossier_engagement, user: adam)
+      create_list(:dossier_credential, 2, user: adam, engagement: engagement, provider: create(:dossier_organisation))
+
+      without_n_plus_one_queries { get dossier_engagement_path(engagement) }
 
       expect(response).to have_http_status(:ok)
     end

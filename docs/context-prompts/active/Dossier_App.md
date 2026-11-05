@@ -444,6 +444,17 @@ Other export targets worth designing for from the start (same data, different re
 * **Left for Block 5:** degrees/certifications, expiry and its warnings, certificate uploads,
   verification URLs.
 * **Steps:** 4.5a Personal Projects; 4.5b Training.
+* Made during 4.5b (flagged, not asked):
+  * Training has a Started and a Completed date (reusing `Dossier::Dated`), not just a completed
+    one: a multi-day course and an unfinished one ("Mar 2024 – in progress") both work, and a
+    course within one month shows once. Block 5's expiry will be its own `expires_on`.
+  * Provider is optional (a self-study course has none). Pages live at `/dossier/training`
+    (`Dossier::CredentialsController`).
+  * Deleting Training is a hard delete behind a confirm, with no Deleted page. Deleting an
+    Assignment moves its Training up to the Engagement; a deleted Engagement hides its Training and
+    the purge removes it.
+  * Skills typed as text are shared with Achievements through `Dossier::SkillTags`; merging a
+    Skill moves its Training links too.
 
 ## Block 5 — Credentials & certificates
 * CRUD with credential type, issuer, dates, expiry, verification URL, file uploads (PDF/image)

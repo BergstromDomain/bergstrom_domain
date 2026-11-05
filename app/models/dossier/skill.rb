@@ -5,6 +5,7 @@ class Dossier::Skill < ApplicationRecord
   belongs_to :skill_category
   has_many :assignment_skills, dependent: :restrict_with_error
   has_many :achievement_skills, dependent: :restrict_with_error
+  has_many :credential_skills, dependent: :restrict_with_error
 
   before_validation :tidy_aliases
 
@@ -24,7 +25,7 @@ class Dossier::Skill < ApplicationRecord
     new(name: name, skill_category: Dossier::SkillCategory.find_or_create_by!(name: Dossier::TechStack::UNCATEGORISED))
   end
 
-  # Folds a duplicate into target: Tech Stack and Achievement links move
+  # Folds a duplicate into target: Tech Stack, Achievement and Training links move
   # across (dropping any target already has), this Skill's name and aliases
   # become target's aliases, and this Skill is deleted.
   def merge_into!(target)
@@ -33,6 +34,7 @@ class Dossier::Skill < ApplicationRecord
     transaction do
       move_links(assignment_skills, target, :assignment_id, :stack_slot)
       move_links(achievement_skills, target, :achievement_id)
+      move_links(credential_skills, target, :credential_id)
       names = [ name, *aliases ]
       target.description ||= description
       destroy!

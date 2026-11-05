@@ -3377,15 +3377,13 @@ textarea.form-control {
   table-layout: fixed;
 }
 
-.dossier-skill-table th {
+.dossier-skill-table th,
+.dossier-training-table th {
   color: var(--color-text-primary);
 }
 
-.dossier-skill-table th:nth-child(1) { width: 32%; }
-.dossier-skill-table th:nth-child(2),
-.dossier-skill-table th:nth-child(3),
-.dossier-skill-table th:nth-child(4),
-.dossier-skill-table th:nth-child(5) { width: 17%; }
+.dossier-skill-table th:nth-child(1) { width: 30%; }
+.dossier-skill-table th:nth-child(n + 2) { width: 14%; }
 
 .dossier-skill-group__summary::before {
   content: "▸";

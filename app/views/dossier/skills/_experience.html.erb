@@ -26,22 +26,28 @@
         <h3 class="show-meta-cell__label">Assignments</h3>
         <p class="show-meta-cell__value" data-testid="skill-experience-assignments"><%= @experience.assignments.size %></p>
       </div>
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label">Training</h3>
+        <p class="show-meta-cell__value" data-testid="skill-experience-training"><%= @experience.training.size %></p>
+      </div>
     </div>
   </div>
 
-  <div class="show-panel" data-testid="related-assignments">
-    <div class="show-panel__section">
-      <h2 class="show-panel__heading">Your Assignments</h2>
-      <% @experience.slots.sort_by { |use, _| DossierHelper::SKILL_USES.index(use) }.each do |use, assignments| %>
-        <div class="dossier-achievement-group" data-testid="skill-slot-group">
-          <h3 class="dossier-achievement-group__title"><%= skill_use_label(use) %></h3>
-          <ul class="dossier-assignment-list">
-            <%= render partial: "dossier/assignments/row", collection: assignments, as: :assignment %>
-          </ul>
-        </div>
-      <% end %>
+  <% if @experience.slots.any? %>
+    <div class="show-panel" data-testid="related-assignments">
+      <div class="show-panel__section">
+        <h2 class="show-panel__heading">Your Assignments</h2>
+        <% @experience.slots.sort_by { |use, _| DossierHelper::SKILL_USES.index(use) }.each do |use, assignments| %>
+          <div class="dossier-achievement-group" data-testid="skill-slot-group">
+            <h3 class="dossier-achievement-group__title"><%= skill_use_label(use) %></h3>
+            <ul class="dossier-assignment-list">
+              <%= render partial: "dossier/assignments/row", collection: assignments, as: :assignment %>
+            </ul>
+          </div>
+        <% end %>
+      </div>
     </div>
-  </div>
+  <% end %>
 
   <% if @experience.achievements.any? %>
     <div class="show-panel" data-testid="skill-achievements">
@@ -54,6 +60,15 @@
             </li>
           <% end %>
         </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @experience.training.any? %>
+    <div class="show-panel" data-testid="skill-training">
+      <div class="show-panel__section">
+        <h2 class="show-panel__heading">Your Training</h2>
+        <%= render "dossier/credentials/list", credentials: @experience.training %>
       </div>
     </div>
   <% end %>

@@ -564,6 +564,81 @@ ALTER SEQUENCE public.dossier_assignments_id_seq OWNED BY public.dossier_assignm
 
 
 --
+-- Name: dossier_credential_skills; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_credential_skills (
+    id bigint NOT NULL,
+    credential_id bigint NOT NULL,
+    skill_id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_credential_skills_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_credential_skills_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_credential_skills_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_credential_skills_id_seq OWNED BY public.dossier_credential_skills.id;
+
+
+--
+-- Name: dossier_credentials; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_credentials (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    credential_type character varying DEFAULT 'course'::character varying NOT NULL,
+    title character varying NOT NULL,
+    provider_id bigint,
+    engagement_id bigint,
+    assignment_id bigint,
+    start_on date NOT NULL,
+    start_precision character varying DEFAULT 'month'::character varying NOT NULL,
+    end_on date,
+    end_precision character varying DEFAULT 'month'::character varying NOT NULL,
+    hours numeric(6,1),
+    description text,
+    classification character varying DEFAULT 'restricted'::character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_credentials_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_credentials_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_credentials_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_credentials_id_seq OWNED BY public.dossier_credentials.id;
+
+
+--
 -- Name: dossier_employment_types; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1772,6 +1847,20 @@ ALTER TABLE ONLY public.dossier_assignments ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
+-- Name: dossier_credential_skills id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_credential_skills ALTER COLUMN id SET DEFAULT nextval('public.dossier_credential_skills_id_seq'::regclass);
+
+
+--
+-- Name: dossier_credentials id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_credentials ALTER COLUMN id SET DEFAULT nextval('public.dossier_credentials_id_seq'::regclass);
+
+
+--
 -- Name: dossier_employment_types id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2114,6 +2203,22 @@ ALTER TABLE ONLY public.dossier_assignment_skills
 
 ALTER TABLE ONLY public.dossier_assignments
     ADD CONSTRAINT dossier_assignments_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_credential_skills dossier_credential_skills_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_credential_skills
+    ADD CONSTRAINT dossier_credential_skills_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_credentials dossier_credentials_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_credentials
+    ADD CONSTRAINT dossier_credentials_pkey PRIMARY KEY (id);
 
 
 --
@@ -2615,6 +2720,55 @@ CREATE INDEX index_dossier_assignments_on_role_id ON public.dossier_assignments 
 --
 
 CREATE INDEX index_dossier_assignments_on_user_id ON public.dossier_assignments USING btree (user_id);
+
+
+--
+-- Name: index_dossier_credential_skills_on_credential_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_credential_skills_on_credential_id ON public.dossier_credential_skills USING btree (credential_id);
+
+
+--
+-- Name: index_dossier_credential_skills_on_credential_id_and_skill_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_credential_skills_on_credential_id_and_skill_id ON public.dossier_credential_skills USING btree (credential_id, skill_id);
+
+
+--
+-- Name: index_dossier_credential_skills_on_skill_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_credential_skills_on_skill_id ON public.dossier_credential_skills USING btree (skill_id);
+
+
+--
+-- Name: index_dossier_credentials_on_assignment_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_credentials_on_assignment_id ON public.dossier_credentials USING btree (assignment_id);
+
+
+--
+-- Name: index_dossier_credentials_on_engagement_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_credentials_on_engagement_id ON public.dossier_credentials USING btree (engagement_id);
+
+
+--
+-- Name: index_dossier_credentials_on_provider_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_credentials_on_provider_id ON public.dossier_credentials USING btree (provider_id);
+
+
+--
+-- Name: index_dossier_credentials_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_credentials_on_user_id ON public.dossier_credentials USING btree (user_id);
 
 
 --
@@ -3195,6 +3349,14 @@ ALTER TABLE ONLY public.comments
 
 
 --
+-- Name: dossier_credentials fk_rails_04c24ae251; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_credentials
+    ADD CONSTRAINT fk_rails_04c24ae251 FOREIGN KEY (engagement_id) REFERENCES public.dossier_engagements(id);
+
+
+--
 -- Name: dossier_assignments fk_rails_0547a3a358; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3224,6 +3386,14 @@ ALTER TABLE ONLY public.events
 
 ALTER TABLE ONLY public.event_mutes
     ADD CONSTRAINT fk_rails_11b8aecf70 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: dossier_credentials fk_rails_154c1e21df; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_credentials
+    ADD CONSTRAINT fk_rails_154c1e21df FOREIGN KEY (provider_id) REFERENCES public.dossier_organisations(id);
 
 
 --
@@ -3280,6 +3450,14 @@ ALTER TABLE ONLY public.comments
 
 ALTER TABLE ONLY public.dossier_organisations
     ADD CONSTRAINT fk_rails_3df8f0251e FOREIGN KEY (industry_id) REFERENCES public.dossier_industries(id);
+
+
+--
+-- Name: dossier_credential_skills fk_rails_3e6a61609f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_credential_skills
+    ADD CONSTRAINT fk_rails_3e6a61609f FOREIGN KEY (credential_id) REFERENCES public.dossier_credentials(id);
 
 
 --
@@ -3435,6 +3613,14 @@ ALTER TABLE ONLY public.active_storage_variant_records
 
 
 --
+-- Name: dossier_credentials fk_rails_9c9ed2652f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_credentials
+    ADD CONSTRAINT fk_rails_9c9ed2652f FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: recipes fk_rails_a212e43289; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3496,6 +3682,22 @@ ALTER TABLE ONLY public.event_people
 
 ALTER TABLE ONLY public.active_storage_attachments
     ADD CONSTRAINT fk_rails_c3b3935057 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
+
+--
+-- Name: dossier_credentials fk_rails_c579a9abb5; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_credentials
+    ADD CONSTRAINT fk_rails_c579a9abb5 FOREIGN KEY (assignment_id) REFERENCES public.dossier_assignments(id);
+
+
+--
+-- Name: dossier_credential_skills fk_rails_c8757a2d36; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_credential_skills
+    ADD CONSTRAINT fk_rails_c8757a2d36 FOREIGN KEY (skill_id) REFERENCES public.dossier_skills(id);
 
 
 --
@@ -3609,6 +3811,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261105090000'),
 ('20261104090000'),
 ('20261103090000'),
 ('20261102090000'),

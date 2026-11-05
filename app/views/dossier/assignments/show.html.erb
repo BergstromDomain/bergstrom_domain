@@ -90,6 +90,9 @@
   </div>
 </div>
 
+<%# Training div %>
+<%= render "dossier/credentials/panel", credentials: @assignment.credentials.newest_first.includes(:provider) %>
+
 <%# Actions div %>
 <div class="show-panel show-panel--actions" data-testid="show-panel-actions">
   <%= link_to dossier_engagement_path(@assignment.engagement), class: "btn btn-secondary" do %>
@@ -100,6 +103,10 @@
     <span class="btn-divider">|</span>
     <%= link_to new_dossier_achievement_path(assignment_id: @assignment.id), class: "btn btn-primary-action" do %>
       <%= lucide_icon("plus", size: 16) %> Add Achievement
+    <% end %>
+    <span class="btn-divider">|</span>
+    <%= link_to new_dossier_credential_path(assignment_id: @assignment.id), class: "btn btn-primary-action" do %>
+      <%= lucide_icon("graduation-cap", size: 16) %> Add Training
     <% end %>
     <span class="btn-divider">|</span>
     <%= link_to edit_dossier_assignment_path(@assignment), class: "btn btn-secondary" do %>

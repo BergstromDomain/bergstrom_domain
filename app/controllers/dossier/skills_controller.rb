@@ -4,14 +4,17 @@ class Dossier::SkillsController < Dossier::ReferenceDataController
   # Its own callback: re-declaring set_record here would replace the parent's.
   before_action :set_skill_to_merge, only: %i[merge perform_merge]
 
-  # The signed-in user's own experience with the Skill (nil for a visitor or
-  # a Skill they haven't used).
+  # The signed-in user's own experience with the Skill, Training included (nil
+  # for a visitor or a Skill they haven't used or trained in).
   def show
     super
     return unless current_user
 
     @experience = Dossier::ExperienceCalculator.new(current_user).for_skill(@record)
-    ActiveRecord::Associations::Preloader.new(records: @experience.assignments, associations: :client).call if @experience
+    return unless @experience
+
+    ActiveRecord::Associations::Preloader.new(records: @experience.assignments, associations: :client).call
+    ActiveRecord::Associations::Preloader.new(records: @experience.training, associations: :provider).call
   end
 
   # Merging folds this Skill into the one chosen to keep (Admin only).

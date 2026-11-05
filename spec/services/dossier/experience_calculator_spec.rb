@@ -92,6 +92,18 @@ RSpec.describe Dossier::ExperienceCalculator do
       expect(calculator.skills.map { |e| e.skill.name }).to eq(%w[Rails Jira Sass])
     end
 
+    it "Lists Training with a Skill but never adds it to years" do
+      assignment("2015-01", "2016-12", **tools("Jira"))
+      course = create(:dossier_credential, user: user, skills_text: "Jira, Excel VBA")
+
+      jira = experience("Jira")
+      expect(jira.training).to eq([ course ])
+      expect(jira.duration).to eq("2+ years")
+      vba = experience("Excel VBA")
+      expect([ vba.duration, vba.personal_duration, vba.last_used, vba.assignments ]).to eq([ nil, nil, "—", [] ])
+      expect(vba).not_to be_current
+    end
+
     it "Shows a current Assignment as last used Present, counted up to today" do
       current = create(:dossier_engagement, :current, user: user, start_month: "2026-05")
       assignment("2026-05", "", engagement: current, **tools("Jira"))

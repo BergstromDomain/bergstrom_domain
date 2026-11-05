@@ -3,7 +3,7 @@
     <h1 class="page-title">Skills</h1>
   </div>
   <p class="page-header__subtitle page-header__subtitle--centered">
-    Every Skill in your Tech Stacks and Achievements, with your years of experience, most first. Personal projects are counted separately.
+    Every Skill in your Tech Stacks and Achievements, with your years of experience, most first. Personal projects are counted separately; Training is listed but doesn't add to your years.
   </p>
 </div>
 
@@ -24,6 +24,7 @@
                 <th>Personal</th>
                 <th>Last Used</th>
                 <th class="text-center">Assignments</th>
+                <th class="text-center">Training</th>
               </tr>
             </thead>
             <tbody>
@@ -34,6 +35,7 @@
                   <td data-testid="my-skill-personal"><%= experience.personal_duration || "—" %></td>
                   <td><%= experience.last_used %></td>
                   <td class="text-center"><%= experience.assignments.size %></td>
+                  <td class="text-center" data-testid="my-skill-training"><%= experience.training.size %></td>
                 </tr>
               <% end %>
             </tbody>
@@ -44,6 +46,6 @@
   <% end %>
 <% else %>
   <div class="empty-state" data-testid="empty-state">
-    <p>No Skills yet. They come from your Assignments' Tech Stacks and your Achievements' Skills.</p>
+    <p>No Skills yet. They come from your Assignments' Tech Stacks, your Achievements' Skills and your Training.</p>
   </div>
 <% end %>

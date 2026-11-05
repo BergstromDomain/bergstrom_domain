@@ -533,6 +533,10 @@
           <%= lucide_icon("wrench", size: 15) %>
           <span>Skills</span>
         <% end %>
+        <%= link_to dossier_credentials_path, class: "left-nav-link" do %>
+          <%= lucide_icon("graduation-cap", size: 15) %>
+          <span>Training</span>
+        <% end %>
       <% end %>
 
       <h3 class="left-nav-h3" data-testid="left-nav-reference-data-h3">Reference Data</h3>
@@ -594,6 +598,10 @@
           <%= link_to new_dossier_achievement_path, class: "left-nav-link" do %>
             <%= lucide_icon("trophy", size: 15) %>
             <span>Write An Achievement</span>
+          <% end %>
+          <%= link_to new_dossier_credential_path, class: "left-nav-link" do %>
+            <%= lucide_icon("graduation-cap", size: 15) %>
+            <span>Add Training</span>
           <% end %>
           <%= link_to new_dossier_organisation_path, class: "left-nav-link" do %>
             <%= lucide_icon("building-2", size: 15) %>
