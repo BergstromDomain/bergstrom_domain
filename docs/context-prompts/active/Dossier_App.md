@@ -468,6 +468,32 @@ Other export targets worth designing for from the start (same data, different re
 * Timeline bench/gap period pages (`/dossier/timeline/:from/:to`, added in Block 2) list the
   courses and credentials completed during that period — training often happens on the bench
 
+### DECISIONS FROM BLOCK 5 GATE (2026-11-05)
+* **Credential Type** is reference data (`Dossier::CredentialType`: name, position = group
+  order, `training` flag). Seeds: Degree, Diploma, Certification, Course, Workshop, Award;
+  Course and Workshop are training. Existing `course` rows move to Course. Training panels on
+  Engagement/Assignment pages show training types only.
+* **One list:** My Career › Credentials (`/dossier/credentials`), grouped by type in position
+  order, expired ones flagged. It replaces My Career › Training.
+* **New fields:** `expires_on` (optional, day/month precision), `credential_id` (licence/
+  certificate number), `verification_url`. No grade/ECTS. Provider is labelled "Issued By".
+* **Degree dates** reuse Started/Completed (Completed = awarded). A thesis goes in the degree's
+  description.
+* **Renewals:** one record per credential; a renewal updates `expires_on`, history goes in the
+  description.
+* **Expiry:** "Expired" badge on the list; Warning toast on the Show page when expired or
+  expiring within 90 days.
+* **Uploads:** several files per credential, PDF/JPEG/PNG, max 10 MB each, served only through a
+  Policy-checked controller (owner/admin), whatever the record's classification. The public
+  portfolio may later show title + verification link, never the file.
+* **Period pages** list every credential completed in the period, not only training.
+* **Import** from `master_cv.yaml`: `education` (MSc; SDSU exchange as a Course),
+  `certifications`, `training`. Skipped: `linkedin_learning`, `education_linkedin`, and entries
+  with year "?" (listed as skipped in the preview). `Dossier::Dated` gains a `year` precision for
+  year-only entries.
+* **Steps:** 5a types + fields + grouped Credentials page; 5b expiry; 5c uploads; 5d period
+  pages; 5e import.
+
 ## Block 6 — Experience stats
 * `ExperienceCalculator` service — union of ranges, slices by employer/client/industry/role
   type/skill
