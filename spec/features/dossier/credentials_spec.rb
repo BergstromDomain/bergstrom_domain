@@ -203,6 +203,33 @@ RSpec.describe "Dossier Credentials", type: :feature do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
+    it "Flags an expired Credential on the list and warns on its page" do
+      cert = create(:dossier_credential, :certification, user: charlie, title: "Certified ScrumMaster",
+                                         start_month: "2017-04", end_month: "2017-04", expires_month: 1.month.ago.strftime("%Y-%m"))
+      create(:dossier_credential, :certification, user: charlie, title: "ICAgile Certified Professional")
+      sign_in_as(charlie)
+      visit dossier_credentials_path
+
+      expect(find("[data-testid='credential-row']", text: "Certified ScrumMaster")).to have_selector("[data-testid='credential-expired']", text: "Expired")
+      expect(find("[data-testid='credential-row']", text: "ICAgile")).not_to have_selector("[data-testid='credential-expired']")
+
+      visit dossier_credential_path(cert)
+      expect(page).to have_selector("[data-testid='expiry-warning']", text: "This Credential expired in #{cert.formatted_expiry}.")
+    end
+
+    it "Warns on the page of a Credential that expires within 90 days, but not later" do
+      soon = create(:dossier_credential, :certification, user: charlie, title: "Certified ScrumMaster",
+                                         expires_month: 30.days.from_now.strftime("%Y-%m"), expires_day: 30.days.from_now.day.to_s)
+      later = create(:dossier_credential, :certification, user: charlie, title: "ICAgile Certified Professional",
+                                          expires_month: 120.days.from_now.strftime("%Y-%m"))
+      sign_in_as(charlie)
+
+      visit dossier_credential_path(soon)
+      expect(page).to have_selector("[data-testid='expiry-warning']", text: "This Credential expires on #{soon.formatted_expiry}, in 30 days.")
+      visit dossier_credential_path(later)
+      expect(page).not_to have_selector("[data-testid='expiry-warning']")
+    end
+
     it "Hides Credentials under a deleted Engagement" do
       create(:dossier_credential, user: charlie, title: "Agile Fundamentals", engagement: engagement)
       engagement.soft_delete!

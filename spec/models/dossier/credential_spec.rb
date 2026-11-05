@@ -55,6 +55,19 @@ RSpec.describe Dossier::Credential, type: :model do
       expect(cert).not_to be_training
     end
 
+    it "Knows when it has expired, or expires within 90 days" do
+      today = Date.new(2026, 11, 5)
+      expired = build(:dossier_credential, expires_month: "2026-11", expires_day: "4")
+      soon    = build(:dossier_credential, expires_month: "2027-02", expires_day: "3")
+      later   = build(:dossier_credential, expires_month: "2027-02", expires_day: "4")
+
+      expect(expired.expired?(today)).to be(true)
+      expect(soon).to have_attributes(expired?: false)
+      expect(soon.expiring_soon?(today)).to be(true)
+      expect(soon.days_until_expiry(today)).to eq(90)
+      expect(later.expiring_soon?(today)).to be(false)
+    end
+
     it "Lists only training types under training" do
       course = create(:dossier_credential, user: user)
       create(:dossier_credential, :certification, user: user)
@@ -142,6 +155,24 @@ RSpec.describe Dossier::Credential, type: :model do
       expect(credential.formatted_expiry).to eq("Mar 2027")
       credential.update!(expires_year: "", expires_month_number: "")
       expect(credential.reload).to have_attributes(expires_on: nil, formatted_expiry: nil)
+    end
+
+    it "Counts a month-precision expiry as the whole month" do
+      credential = build(:dossier_credential, expires_month: "2026-11")
+      expect(credential.expired?(Date.new(2026, 11, 30))).to be(false)
+      expect(credential.expired?(Date.new(2026, 12, 1))).to be(true)
+    end
+
+    it "Says when it expires today or tomorrow" do
+      credential = build(:dossier_credential, expires_month: "2026-11", expires_day: "5")
+      expect(credential.expiry_warning(Date.new(2026, 11, 5))).to eq("This Credential expires today, 5 Nov 2026.")
+      expect(credential.expiry_warning(Date.new(2026, 11, 4))).to eq("This Credential expires on 5 Nov 2026, in 1 day.")
+    end
+
+    it "Never expires without an expiry date" do
+      credential = build(:dossier_credential)
+      expect(credential.expired?).to be(false)
+      expect(credential.expiring_soon?).to be(false)
     end
 
     it "Shows a course within one month once" do

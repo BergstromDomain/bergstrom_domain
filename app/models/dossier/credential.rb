@@ -12,6 +12,9 @@ class Dossier::Credential < ApplicationRecord
   include Dossier::Dated
   include Dossier::SkillTags
 
+  # The Show page warns this long before a Credential expires.
+  EXPIRY_WARNING_PERIOD = 90
+
   URL_FORMAT = { with: %r{\Ahttps?://\S+\z}i, message: "must start with http:// or https://" }.freeze
 
   dated_edge :expires
@@ -54,6 +57,30 @@ class Dossier::Credential < ApplicationRecord
   def dates = current? ? "#{formatted_start} – in progress" : date_range
 
   def formatted_expiry = expires_on && format_dossier_date(expires_on, expires_precision)
+
+  # The last day it's valid: a month-precision expiry lasts the whole month.
+  def expires_at_end = expires_on && (expires_precision == "month" ? expires_on.end_of_month : expires_on)
+
+  def expired?(today = Date.current) = expires_on.present? && expires_at_end < today
+
+  def days_until_expiry(today = Date.current) = expires_on && (expires_at_end - today).to_i
+
+  def expiring_soon?(today = Date.current)
+    expires_on.present? && !expired?(today) && days_until_expiry(today) <= EXPIRY_WARNING_PERIOD
+  end
+
+  # The Show page's Warning toast; nil when it's not expired or expiring soon.
+  def expiry_warning(today = Date.current)
+    preposition = expires_precision == "day" ? "on" : "in"
+    if expired?(today)
+      "This Credential expired #{preposition} #{formatted_expiry}."
+    elsif expiring_soon?(today)
+      days = days_until_expiry(today)
+      return "This Credential expires today, #{formatted_expiry}." if days.zero?
+
+      "This Credential expires #{preposition} #{formatted_expiry}, in #{days} #{'day'.pluralize(days)}."
+    end
+  end
 
   private
 
