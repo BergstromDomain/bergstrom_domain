@@ -39,6 +39,9 @@ class Dossier::CvVariant < ApplicationRecord
     summary_override || user.dossier_profile&.summary_for(voice)
   end
 
+  # "QE Lead at Acme", either one alone, or nil.
+  def target_label = [ target_role, target_company ].compact.join(" at ").presence
+
   def voice_label = VOICES.fetch(voice)
   def style_label = STYLES.fetch(style)
 

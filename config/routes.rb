@@ -84,6 +84,7 @@ Rails.application.routes.draw do
   get "dossier",       to: "pages#dossier",       as: :dossier
   namespace :dossier do
     resource :profile, only: %i[show edit update]
+    resources :cv_variants
     resource :master_cv, only: :show do
       get :pdf
       get :docx

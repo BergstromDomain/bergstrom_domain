@@ -1,0 +1,61 @@
+<%# Locals: variant, panel ("new"/"edit"), submit_label, cancel_path %>
+<%= form_with model: variant, class: "resource-form resource-form--wide" do |f| %>
+  <%= render "dossier/shared/form_errors", record: variant, noun: "CV Variant" %>
+
+  <%# Main div — who it's for %>
+  <div class="show-panel" data-testid="<%= panel %>-panel-main">
+    <%= render "dossier/shared/field", f: f, record: variant, attribute: :name, label: "Name",
+          hint: "e.g. \"QE Lead — Acme, Oct 2026\". Only you see it." %>
+    <%= render "dossier/shared/field", f: f, record: variant, attribute: :target_company, label: "Target Company",
+          hint: "Optional: who you're sending it to." %>
+    <%= render "dossier/shared/field", f: f, record: variant, attribute: :target_role, label: "Target Role",
+          hint: "Optional: the role you're applying for." %>
+    <% if panel == "new" %>
+      <%= render "dossier/shared/field", f: f, record: variant, attribute: :based_on_id, label: "Copy From",
+            field: f.collection_select(:based_on_id, copy_choices, :id, :name, { include_blank: "None — start from the default selection" },
+                                       class: "form-control", data: { testid: "copy-from-field" }),
+            hint: "Optional: start from what another of your CV Variants includes. The settings below are this one's own." %>
+    <% end %>
+  </div>
+
+  <%# Settings div — how it reads %>
+  <div class="show-panel" data-testid="<%= panel %>-panel-settings">
+    <%= render "dossier/shared/field", f: f, record: variant, attribute: :voice, label: "Voice",
+          field: f.select(:voice, Dossier::CvVariant::VOICES.invert, {}, class: "form-control", data: { testid: "voice-field" }),
+          hint: "Which version of your Profile summary to use. Achievements read the same in every voice." %>
+    <%= render "dossier/shared/field", f: f, record: variant, attribute: :style, label: "Style",
+          field: f.select(:style, Dossier::CvVariant::STYLES.invert, {}, class: "form-control", data: { testid: "style-field" }),
+          hint: "How the Word and PDF files look. More styles come later." %>
+    <%= render "dossier/shared/field", f: f, record: variant, attribute: :min_importance, label: "Minimum Importance",
+          field: f.select(:min_importance, Dossier::Achievement::IMPORTANCE.to_a, {}, class: "form-control",
+                          data: { testid: "min-importance-field" }),
+          hint: "Achievements of this importance or higher are included unless you untick them; lower ones are left out unless you tick them." %>
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Tech Stack</h2>
+      <div class="form-group">
+        <%= f.check_box :show_tech_stack, data: { testid: "show-tech-stack-field" } %>
+        <%= f.label :show_tech_stack, "Show Tech Stack" %>
+        <p class="form-hint">Show each Assignment's Tech Stack lines (System Under Test, Test Tools…).</p>
+      </div>
+    </div>
+  </div>
+
+  <%# Text div — the one text a variant has of its own %>
+  <div class="show-panel" data-testid="<%= panel %>-panel-text">
+    <%= render "dossier/shared/field", f: f, record: variant, attribute: :summary_override, label: "Summary Override", text_area: true,
+          hint: "Optional: a summary written for this application. Leave empty to use your Profile summary in the voice above." %>
+    <%= render "dossier/shared/field", f: f, record: variant, attribute: :job_description, label: "Job Description", text_area: true,
+          hint: "Optional: paste the ad, for reference. Never on the CV." %>
+  </div>
+
+  <%# Actions div %>
+  <div class="show-panel show-panel--actions" data-testid="<%= panel %>-panel-actions">
+    <%= link_to cancel_path, class: "btn btn-secondary" do %>
+      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary">
+      <%= lucide_icon("save", size: 16) %> <%= submit_label %>
+    </button>
+  </div>
+<% end %>
