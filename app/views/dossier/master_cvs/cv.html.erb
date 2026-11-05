@@ -31,7 +31,9 @@
   .cv-job { margin: 0 0 10pt; }
   .cv-job-title { font-size: 11.5pt; font-weight: bold; margin: 0; }
   .cv-job-meta, .cv-assignment-meta { color: #475569; margin: 0 0 3pt; }
-  .cv-assignment { margin: 4pt 0 6pt; break-inside: avoid-page; }
+  .cv-assignment { margin: 4pt 0 6pt; }
+  /* Headings stay with what follows; long Assignments may split across pages. */
+  h2, .cv-job-title, .cv-job-meta, .cv-assignment-heading, .cv-assignment-meta { break-after: avoid; }
   .cv-assignment-heading { font-weight: bold; margin: 0; }
   .cv-tech-stack { font-size: 9.5pt; color: #475569; margin: 2pt 0; }
   .cv-tech-stack-label { font-weight: bold; }
