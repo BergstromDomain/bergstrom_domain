@@ -3,9 +3,11 @@
 # Imports a Bridge CV master list (master_cv.yaml) into the user's Dossier:
 # Profile, Organisations, Skills, then Engagements › Assignments with their
 # Tech Stack and terse achievements, then Credentials (education,
-# certifications, training). Fields that aren't CV data (vendors, notes, src,
+# certifications, training). Fields that aren't CV data (notes, src,
 # linkedin…) are never read. A record that already exists is skipped, never updated, so a
-# re-import keeps edits made in the app.
+# re-import keeps edits made in the app. An Assignment's vendors become
+# private Vendor links (never on a CV); a re-import adds missing ones to an
+# existing Assignment, like its achievements.
 #
 # All or nothing: #preview runs the whole import and rolls it back, so the
 # preview and #import! can't disagree; any error rolls #import! back too.
@@ -193,6 +195,26 @@ class Dossier::Import
     end
 
     import_achievements(assignment, row.dig("terse", "achievements"))
+    import_vendors(assignment, row["vendors"])
+  end
+
+  # vendors: "N/A", or a list of names or { name, project, scope }. Scope is
+  # "Project – scope" (either alone if the other is missing).
+  def import_vendors(assignment, rows)
+    return unless rows.is_a?(Array)
+
+    rows.each do |row|
+      row = { "name" => row } unless row.is_a?(Hash)
+      next unless (vendor = organisation(row["name"]))
+
+      label = "#{vendor.name} on #{assignment.to_toast_label}"
+      if (existing = assignment.partners.vendor.find_by(organisation: vendor))
+        note_existing("Vendor", label, existing)
+      else
+        scope = [ row["project"], row["scope"] ].map { |part| part.to_s.strip }.reject(&:empty?).join(" – ")
+        save(assignment.partners.build(kind: "vendor", organisation: vendor, scope: scope), "Vendor", label)
+      end
+    end
   end
 
   # Matched by exact text, deleted ones included, so an existing Assignment
