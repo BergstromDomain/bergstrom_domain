@@ -86,8 +86,8 @@ group :test do
   gem "database_cleaner-active_record"
 end
 
-gem "grover", "~> 1.2"
+gem "grover", "~> 2.0"
 
-gem "ferrum", "~> 0.20.0"
+gem "ferrum", "~> 0.20.1"
 
 gem "rubyzip", "~> 3.7"
