@@ -8,6 +8,7 @@
 class Dossier::Engagement < ApplicationRecord
   include Classifiable
   include Dossier::Dated
+  include Dossier::CvSelectable
 
   DELETION_RETENTION_PERIOD = 30.days
 

@@ -11,6 +11,7 @@ class Dossier::Credential < ApplicationRecord
   include Classifiable
   include Dossier::Dated
   include Dossier::SkillTags
+  include Dossier::CvSelectable
 
   # The Show page warns this long before a Credential expires.
   EXPIRY_WARNING_PERIOD = 90

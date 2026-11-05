@@ -9,6 +9,7 @@
 class Dossier::Achievement < ApplicationRecord
   include Classifiable
   include Dossier::SkillTags
+  include Dossier::CvSelectable
 
   DELETION_RETENTION_PERIOD = 30.days
   IMPORTANCE = (1..5)
