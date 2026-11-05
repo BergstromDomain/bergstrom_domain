@@ -2,6 +2,8 @@
 class Dossier::IndustriesController < Dossier::ReferenceDataController
   private
 
+  def experience_slices = [ [ "Years", :industry ] ]
+
   def model_class = Dossier::Industry
   def subtitle    = "Each Organisation belongs to one Industry, used for experience by industry."
 end

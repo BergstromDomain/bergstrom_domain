@@ -1,12 +1,15 @@
 # app/services/dossier/experience_calculator.rb
 
-# A user's experience per Skill, from their kept Engagements' Assignments. An
-# Assignment uses a Skill when it's in its Tech Stack or tagged on one of its
-# kept Achievements. Years are the union of those Assignments' dates (a
+# A user's experience from their kept Engagements: per Skill, career totals
+# and slices by employer, employment type (Engagement dates), client,
+# industry and role (Assignment dates). Years are always the union of dates (a
 # current one runs to today), so overlaps never count twice. Personal
 # Engagements' (hobby projects') time is counted apart and never adds to
-# professional years. Training (courses tagged with the Skill) is listed but
-# never adds to years. Block 6 adds slices by employer, client and industry.
+# professional years or slices.
+#
+# An Assignment uses a Skill when it's in its Tech Stack or tagged on one of
+# its kept Achievements. Training (courses tagged with the Skill) is listed but
+# never adds to years.
 class Dossier::ExperienceCalculator
   # slots: Tech Stack slot (or :achievement) => Assignments, newest first.
   # months / personal_months: nil when the Skill has no professional / personal
@@ -23,6 +26,35 @@ class Dossier::ExperienceCalculator
     end
   end
 
+  # One row of a slice: key is the record (nil for "No Role" / "No Industry").
+  Slice = Data.define(:key, :label, :months, :first_on, :last_on, :assignment_count) do
+    def duration = Dossier::Timeline.duration_of(months)
+
+    def date_range
+      from = first_on.strftime("%b %Y")
+      to = last_on ? last_on.strftime("%b %Y") : "Present"
+      from == to ? from : "#{from} – #{to}"
+    end
+  end
+
+  # Career = union of Engagements (bench counts, gaps don't); assignment =
+  # union of Assignments (no bench); personal = personal Engagements. nil
+  # when there's nothing to count.
+  Totals = Data.define(:career_months, :assignment_months, :personal_months) do
+    def career         = format(career_months)
+    def on_assignments = format(assignment_months)
+    def personal       = format(personal_months)
+
+    private
+
+    def format(months) = months ? Dossier::Timeline.duration_of(months) : "—"
+  end
+
+  # How each slice finds its records: from an Engagement or an Assignment.
+  ENGAGEMENT_SLICES = { employer: :employer, employment_type: :employment_type }.freeze
+  ASSIGNMENT_SLICES = { client: :client, industry: ->(a) { a.client&.industry }, role: :role }.freeze
+  NONE_LABELS = { industry: "No Industry", role: "No Role" }.freeze
+
   def initialize(user, today: Date.current)
     @user = user
     @today = today
@@ -38,7 +70,50 @@ class Dossier::ExperienceCalculator
     skills.find { |experience| experience.skill == skill }
   end
 
+  def totals
+    @totals ||= Totals.new(career_months: months(professional_engagements),
+                           assignment_months: months(professional_engagements.flat_map(&:assignments)),
+                           personal_months: months(engagements - professional_engagements))
+  end
+
+  # Rows for one slice (:employer, :employment_type, :client, :industry or
+  # :role), most years first.
+  def slice(name)
+    (@slices ||= {})[name] ||= build_slice(name)
+  end
+
+  def experience_for(name, record) = slice(name).find { |row| row.key == record }
+
   private
+
+  def engagements
+    @engagements ||= @user.dossier_engagements.kept
+                          .includes(:employer, :employment_type, assignments: [ :role, { client: :industry } ]).to_a
+  end
+
+  def professional_engagements = @professional_engagements ||= engagements.reject(&:personal?)
+
+  def build_slice(name)
+    if (finder = ENGAGEMENT_SLICES[name])
+      groups = professional_engagements.group_by(&finder)
+      count = ->(list) { list.sum { |engagement| engagement.assignments.size } }
+    elsif (finder = ASSIGNMENT_SLICES[name])
+      groups = professional_engagements.flat_map(&:assignments).group_by(&finder)
+      count = :size.to_proc
+    else
+      raise ArgumentError, "Unknown slice #{name.inspect}"
+    end
+
+    groups.map { |key, list| slice_row(name, key, list, count.(list)) }
+          .sort_by { |row| [ -row.months, row.label.downcase ] }
+  end
+
+  def slice_row(name, key, dated, assignment_count)
+    Slice.new(key: key, label: key&.to_toast_label || NONE_LABELS.fetch(name), months: months(dated),
+              first_on: dated.map(&:start_on).min,
+              last_on: dated.any?(&:current?) ? nil : dated.map(&:effective_end).max,
+              assignment_count: assignment_count)
+  end
 
   def assignments
     Dossier::Assignment.where(engagement_id: @user.dossier_engagements.kept.select(:id))
@@ -94,10 +169,11 @@ class Dossier::ExperienceCalculator
                         personal_months: months(personal), last_on: last_on)
   end
 
-  def months(assignments)
-    return if assignments.empty?
+  # Union of the dated records' (Engagements' or Assignments') ranges.
+  def months(dated)
+    return if dated.empty?
 
-    periods = assignments.map { |a| Dossier::Timeline::Period.new(from: a.start_on, to: a.effective_end || @today) }
+    periods = dated.map { |a| Dossier::Timeline::Period.new(from: a.start_on, to: a.effective_end || @today) }
     Dossier::Timeline.months(Dossier::Timeline.merge(periods).sum { |period| period.to - period.from + 1 })
   end
 

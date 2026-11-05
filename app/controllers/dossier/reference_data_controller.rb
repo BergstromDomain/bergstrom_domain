@@ -8,7 +8,8 @@
 # Views live in app/views/dossier/reference_data/; a subclass only adds a
 # _fields partial (the form), #details (the show page's extra rows) and,
 # where Assignments use the record, #assignments_for (the signed-in user's
-# own Assignments listed on the show page).
+# own Assignments listed on the show page) and #experience_slices (the
+# signed-in user's years with the record, from Dossier::ExperienceCalculator).
 class Dossier::ReferenceDataController < ApplicationController
   include Navigable
   allow_unauthenticated_access only: %i[index show]
@@ -27,6 +28,7 @@ class Dossier::ReferenceDataController < ApplicationController
 
   def show
     @assignments = related_assignments
+    @slice_experience = related_experience
   end
 
   def new
@@ -96,6 +98,10 @@ class Dossier::ReferenceDataController < ApplicationController
   # Assignments don't use this kind of record.
   def assignments_for(_record, _assignments) = nil
 
+  # [label, slice] pairs for the Your Experience panel, e.g.
+  # [ [ "As Employer", :employer ] ]; empty when it doesn't apply.
+  def experience_slices = []
+
   # ── Shared ────────────────────────────────────────────────────────────────
   def singular_name = model_class.model_name.human.titleize
   def plural_name   = singular_name.pluralize
@@ -125,6 +131,18 @@ class Dossier::ReferenceDataController < ApplicationController
 
     mine = Dossier::Assignment.where(engagement_id: current_user.dossier_engagements.kept.select(:id))
     assignments_for(@record, mine)&.includes(:client)&.newest_first&.to_a.presence
+  end
+
+  # [label, slice, row] for each slice the signed-in user has experience in;
+  # nil for a visitor, or when there's none.
+  def related_experience
+    return if experience_slices.empty? || !Policy.new(current_user, :dossier).can_create?
+
+    calculator = Dossier::ExperienceCalculator.new(current_user)
+    experience_slices.filter_map do |label, slice|
+      row = calculator.experience_for(slice, @record)
+      [ label, slice, row ] if row
+    end.presence
   end
 
   def set_policy

@@ -180,6 +180,20 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads My Career › Experience without N+1 queries" do
+      2.times do
+        engagement = create(:dossier_engagement, user: adam, start_month: "2015-01", end_month: "2022-12")
+        2.times do
+          create(:dossier_assignment, engagement: engagement, client: create(:dossier_organisation, industry: create(:dossier_industry)),
+                                      start_month: "2016-01", end_month: "2016-12")
+        end
+      end
+
+      without_n_plus_one_queries { get dossier_experience_path }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "Loads an Organisation's Credentials without N+1 queries" do
       ni = create(:dossier_organisation, name: "National Instruments")
       create_list(:dossier_credential, 2, user: adam, provider: ni)
