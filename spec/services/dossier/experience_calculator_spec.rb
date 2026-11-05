@@ -28,6 +28,46 @@ RSpec.describe Dossier::ExperienceCalculator do
       expect(jira.last_used).to eq("Jun 2018")
     end
 
+    it "Totals the career from Engagements, bench included, and On Assignments without it" do
+      assignment("2015-01", "2016-12")
+      later = create(:dossier_engagement, user: user, start_month: "2024-01", end_month: "")
+      assignment("2024-01", "", engagement: later)
+
+      totals = calculator.totals
+      expect(totals.career_months).to eq(96 + 34)          # 2015–2022, then Jan 2024 – today (3 Nov 2026)
+      expect(totals.assignment_months).to eq(24 + 34)
+      expect(totals.personal_months).to be_nil
+      expect([ totals.career, totals.on_assignments ]).to eq([ "10+ years", "4+ years" ])
+    end
+
+    it "Slices by Client, Industry and Role from Assignment dates, most years first" do
+      mining = create(:dossier_industry, name: "Mining")
+      plotlogic = create(:dossier_organisation, name: "Plotlogic", industry: mining)
+      lead = create(:dossier_role, name: "Test Lead")
+      assignment("2015-01", "2016-12", client: plotlogic, role: lead)
+      assignment("2017-01", "2017-06", client: plotlogic, role: create(:dossier_role, name: "Test Manager"))
+      longest = assignment("2018-01", "2022-12", role: lead)
+
+      clients = calculator.slice(:client)
+      expect(clients.map(&:label)).to eq([ longest.client.name, "Plotlogic" ])
+      expect(clients.last).to have_attributes(key: plotlogic, months: 30, assignment_count: 2, date_range: "Jan 2015 – Jun 2017")
+      expect(calculator.slice(:role).map { |row| [ row.label, row.months ] }).to eq([ [ "Test Lead", 84 ], [ "Test Manager", 6 ] ])
+      expect(calculator.slice(:industry).find { |row| row.key == mining }.duration).to eq("2+ years")
+    end
+
+    it "Slices by Employer and Employment Type from Engagement dates" do
+      assignment("2015-01", "2016-12")
+      contractor = create(:dossier_employment_type, name: "Contractor")
+      create(:dossier_engagement, user: user, employer: engagement.employer, employment_type: contractor,
+                                  start_month: "2023-01", end_month: "2023-12")
+
+      employer = calculator.slice(:employer).sole
+      expect(employer).to have_attributes(key: engagement.employer, months: 108, assignment_count: 1,
+                                          date_range: "Jan 2015 – Dec 2023")
+      expect(calculator.slice(:employment_type).map { |row| [ row.label, row.months ] })
+        .to eq([ [ engagement.employment_type.name, 96 ], [ "Contractor", 12 ] ])
+    end
+
     it "Lists every Skill used, most years first" do
       assignment("2015-01", "2016-12", **tools("Jira, Excel"))
       assignment("2017-01", "2017-03", **tools("Jira"))
@@ -43,6 +83,15 @@ RSpec.describe Dossier::ExperienceCalculator do
       assignment("2015-01", "2022-12", engagement: other, **tools("Jira"))
 
       expect(calculator.skills).to be_empty
+    end
+
+    it "Gives no totals or slices without Engagements" do
+      expect(calculator.totals).to have_attributes(career_months: nil, assignment_months: nil, career: "—")
+      expect(calculator.slice(:client)).to eq([])
+    end
+
+    it "Rejects an unknown slice" do
+      expect { calculator.slice(:salary) }.to raise_error(ArgumentError, /Unknown slice/)
     end
 
     it "Leaves out deleted Engagements and deleted Achievements" do
@@ -116,6 +165,30 @@ RSpec.describe Dossier::ExperienceCalculator do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
+    it "Keeps personal projects out of the professional totals and slices" do
+      assignment("2015-01", "2016-12")
+      hobby = create(:dossier_engagement, :personal, user: user, start_month: "2020-01", end_month: "2020-12")
+      assignment("2020-01", "2020-12", engagement: hobby)
+
+      expect(calculator.totals).to have_attributes(career_months: 96, assignment_months: 24, personal_months: 12,
+                                                   personal: "1+ year")
+      expect(calculator.slice(:employer).map(&:key)).to eq([ engagement.employer ])
+      expect(calculator.slice(:client).size).to eq(1)
+    end
+
+    it "Lists Assignments without a Role, or a Client without an Industry, under No Role / No Industry" do
+      assignment("2015-01", "2016-12", role: nil)
+
+      expect(calculator.slice(:role).sole).to have_attributes(key: nil, label: "No Role", months: 24)
+      expect(calculator.slice(:industry).sole).to have_attributes(key: nil, label: "No Industry")
+    end
+
+    it "Finds one row by its record" do
+      assignment("2015-01", "2016-12")
+      expect(calculator.experience_for(:employer, engagement.employer).months).to eq(96)
+      expect(calculator.experience_for(:client, engagement.employer)).to be_nil
+    end
+
     it "Returns nil for a Skill the user hasn't used" do
       expect(calculator.for_skill(create(:dossier_skill))).to be_nil
     end
