@@ -8,7 +8,11 @@ RSpec.describe Dossier::Credential, type: :model do
   # ── Database Columns ──────────────────────────────────────────────────────
   describe "Database Columns" do
     it { is_expected.to have_db_column(:title).of_type(:string).with_options(null: false) }
-    it { is_expected.to have_db_column(:credential_type).of_type(:string).with_options(null: false, default: "course") }
+    it { is_expected.to have_db_column(:credential_type_id).of_type(:integer).with_options(null: false) }
+    it { is_expected.to have_db_column(:expires_on).of_type(:date) }
+    it { is_expected.to have_db_column(:expires_precision).of_type(:string).with_options(null: false, default: "month") }
+    it { is_expected.to have_db_column(:certificate_number).of_type(:string) }
+    it { is_expected.to have_db_column(:verification_url).of_type(:string) }
     it { is_expected.to have_db_column(:hours).of_type(:decimal) }
     it { is_expected.to have_db_column(:classification).of_type(:string).with_options(null: false, default: "restricted") }
   end
@@ -16,6 +20,7 @@ RSpec.describe Dossier::Credential, type: :model do
   # ── Associations ──────────────────────────────────────────────────────────
   describe "Associations" do
     it { is_expected.to belong_to(:user) }
+    it { is_expected.to belong_to(:credential_type) }
     it { is_expected.to belong_to(:provider).class_name("Dossier::Organisation").optional }
     it { is_expected.to belong_to(:engagement).optional }
     it { is_expected.to belong_to(:assignment).optional }
@@ -28,7 +33,8 @@ RSpec.describe Dossier::Credential, type: :model do
       create(:dossier_skill, name: "Jira")
       course = create(:dossier_credential, user: user, skills_text: "jira, Excel VBA")
 
-      expect(course).to have_attributes(credential_type: "course", classification: "restricted")
+      expect(course).to have_attributes(classification: "restricted")
+      expect(course).to be_training
       expect(course.reload.skills_text).to eq("Jira, Excel VBA")
       expect(Dossier::Skill.find_by!(name: "Excel VBA").skill_category.name).to eq(Dossier::TechStack::UNCATEGORISED)
     end
@@ -37,6 +43,22 @@ RSpec.describe Dossier::Credential, type: :model do
       assignment = create(:dossier_assignment, engagement: engagement)
       course = create(:dossier_credential, user: user, assignment: assignment)
       expect(course.engagement).to eq(engagement)
+    end
+
+    it "Keeps an expiry date, a certificate number and a verification URL" do
+      cert = create(:dossier_credential, :certification, user: user, expires_year: "2027", expires_month_number: "3",
+                                         expires_day: "31", certificate_number: " SSTBFCE-176004 ",
+                                         verification_url: "https://example.com/verify/176004")
+
+      expect(cert.reload).to have_attributes(expires_on: Date.new(2027, 3, 31), expires_precision: "day",
+                                             certificate_number: "SSTBFCE-176004", formatted_expiry: "31 Mar 2027")
+      expect(cert).not_to be_training
+    end
+
+    it "Lists only training types under training" do
+      course = create(:dossier_credential, user: user)
+      create(:dossier_credential, :certification, user: user)
+      expect(described_class.training).to eq([ course ])
     end
   end
 
@@ -56,6 +78,30 @@ RSpec.describe Dossier::Credential, type: :model do
 
     it "Is invalid with zero hours" do
       expect(build(:dossier_credential, hours: 0)).not_to be_valid
+    end
+
+    it "Is invalid without a type" do
+      credential = build(:dossier_credential, credential_type: nil)
+      expect(credential).not_to be_valid
+      expect(credential.errors[:credential_type]).to be_present
+    end
+
+    it "Is invalid with a verification URL that isn't http(s)" do
+      credential = build(:dossier_credential, verification_url: "example.com/verify")
+      expect(credential).not_to be_valid
+      expect(credential.errors[:verification_url]).to include("must start with http:// or https://")
+    end
+
+    it "Is invalid when it expires before it starts" do
+      credential = build(:dossier_credential, start_month: "2020-03", expires_month: "2019-12")
+      expect(credential).not_to be_valid
+      expect(credential.errors[:expires_month]).to include("must not be before the start")
+    end
+
+    it "Is invalid with an expiry day that isn't in the month" do
+      credential = build(:dossier_credential, expires_month: "2027-02", expires_day: "30")
+      expect(credential).not_to be_valid
+      expect(credential.errors[:expires_day]).to be_present
     end
   end
 
@@ -89,6 +135,13 @@ RSpec.describe Dossier::Credential, type: :model do
       assignment.destroy
 
       expect(course.reload).to have_attributes(assignment_id: nil, engagement_id: engagement.id)
+    end
+
+    it "Has no expiry unless one is given, and clears it when emptied" do
+      credential = create(:dossier_credential, expires_month: "2027-03")
+      expect(credential.formatted_expiry).to eq("Mar 2027")
+      credential.update!(expires_year: "", expires_month_number: "")
+      expect(credential.reload).to have_attributes(expires_on: nil, formatted_expiry: nil)
     end
 
     it "Shows a course within one month once" do

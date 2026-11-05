@@ -5,7 +5,8 @@
 # start_month/start_day and end_month/end_day ("2019-03" + optional "15");
 # forms send the year and month separately (start_year + start_month_number),
 # which make up start_month. No end means current. Month-precision ends count
-# as the whole month.
+# as the whole month. A model can add more dates the same way with
+# dated_edge (e.g. a Credential's expiry).
 module Dossier
   module Dated
     extend ActiveSupport::Concern
@@ -14,32 +15,39 @@ module Dossier
     MONTH_FORMAT = /\A(\d{4})-(\d{2})\z/
 
     included do
-      validates :start_precision, :end_precision, inclusion: { in: PRECISIONS }
+      dated_edge :start
+      dated_edge :end
       validate :dates_are_valid
 
       scope :newest_first, -> { order(Arel.sql("#{table_name}.end_on DESC NULLS FIRST, #{table_name}.start_on DESC")) }
     end
 
-    %i[start end].each do |edge|
-      define_method(:"#{edge}_month") { date_input(edge).fetch(:month) { public_send(:"#{edge}_on")&.strftime("%Y-%m") } }
+    class_methods do
+      # Adds the start_month/start_day-style accessors for one more date on
+      # the record, e.g. a Credential's expires_on + expires_precision.
+      def dated_edge(edge)
+        validates :"#{edge}_precision", inclusion: { in: PRECISIONS }
 
-      define_method(:"#{edge}_day") do
-        date_input(edge).fetch(:day) { public_send(:"#{edge}_on")&.day&.to_s if public_send(:"#{edge}_precision") == "day" }.presence
+        define_method(:"#{edge}_month") { date_input(edge).fetch(:month) { public_send(:"#{edge}_on")&.strftime("%Y-%m") } }
+
+        define_method(:"#{edge}_day") do
+          date_input(edge).fetch(:day) { public_send(:"#{edge}_on")&.day&.to_s if public_send(:"#{edge}_precision") == "day" }.presence
+        end
+
+        define_method(:"#{edge}_month=") do |value|
+          date_input(edge).except!(:year, :month_number)
+          set_date_input(edge, :month, value.to_s.strip)
+        end
+        define_method(:"#{edge}_day=")   { |value| set_date_input(edge, :day,   value.to_s.strip) }
+
+        define_method(:"#{edge}_year")         { date_input(edge).fetch(:year) { month_part(edge, 1) } }
+        define_method(:"#{edge}_month_number") do
+          date_input(edge).fetch(:month_number) { month_part(edge, 2) }&.delete_prefix("0")
+        end
+
+        define_method(:"#{edge}_year=")         { |value| set_month_part(edge, :year, value) }
+        define_method(:"#{edge}_month_number=") { |value| set_month_part(edge, :month_number, value) }
       end
-
-      define_method(:"#{edge}_month=") do |value|
-        date_input(edge).except!(:year, :month_number)
-        set_date_input(edge, :month, value.to_s.strip)
-      end
-      define_method(:"#{edge}_day=")   { |value| set_date_input(edge, :day,   value.to_s.strip) }
-
-      define_method(:"#{edge}_year")         { date_input(edge).fetch(:year) { month_part(edge, 1) } }
-      define_method(:"#{edge}_month_number") do
-        date_input(edge).fetch(:month_number) { month_part(edge, 2) }&.delete_prefix("0")
-      end
-
-      define_method(:"#{edge}_year=")         { |value| set_month_part(edge, :year, value) }
-      define_method(:"#{edge}_month_number=") { |value| set_month_part(edge, :month_number, value) }
     end
 
     def current?

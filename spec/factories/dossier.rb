@@ -88,12 +88,27 @@ FactoryBot.define do
     sequence(:text) { |n| "Ran daily defect triage for release #{n}" }
   end
 
+  factory :dossier_credential_type, class: "Dossier::CredentialType" do
+    sequence(:name) { |n| "Credential Type #{n}" }
+    training { false }
+
+    trait :training do
+      training { true }
+    end
+  end
+
   factory :dossier_credential, class: "Dossier::Credential" do
     association :user, factory: [ :user, :content_creator ]
+    # A course by default: one shared Course type, as seeded.
+    credential_type { Dossier::CredentialType.find_or_create_by!(name: "Course") { |t| t.training = true } }
     sequence(:title) { |n| "Agile Fundamentals #{n}" }
     start_on        { Date.new(2020, 3, 1) }
     start_precision { "month" }
     end_on          { Date.new(2020, 3, 1) }
     end_precision   { "month" }
+
+    trait :certification do
+      credential_type { Dossier::CredentialType.find_or_create_by!(name: "Certification") }
+    end
   end
 end

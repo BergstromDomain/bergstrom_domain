@@ -596,13 +596,47 @@ ALTER SEQUENCE public.dossier_credential_skills_id_seq OWNED BY public.dossier_c
 
 
 --
+-- Name: dossier_credential_types; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_credential_types (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    description text,
+    "position" integer DEFAULT 0 NOT NULL,
+    training boolean DEFAULT false NOT NULL,
+    slug character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_credential_types_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_credential_types_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_credential_types_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_credential_types_id_seq OWNED BY public.dossier_credential_types.id;
+
+
+--
 -- Name: dossier_credentials; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.dossier_credentials (
     id bigint NOT NULL,
     user_id bigint NOT NULL,
-    credential_type character varying DEFAULT 'course'::character varying NOT NULL,
     title character varying NOT NULL,
     provider_id bigint,
     engagement_id bigint,
@@ -615,7 +649,12 @@ CREATE TABLE public.dossier_credentials (
     description text,
     classification character varying DEFAULT 'restricted'::character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    credential_type_id bigint NOT NULL,
+    expires_on date,
+    expires_precision character varying DEFAULT 'month'::character varying NOT NULL,
+    certificate_number character varying,
+    verification_url character varying
 );
 
 
@@ -1854,6 +1893,13 @@ ALTER TABLE ONLY public.dossier_credential_skills ALTER COLUMN id SET DEFAULT ne
 
 
 --
+-- Name: dossier_credential_types id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_credential_types ALTER COLUMN id SET DEFAULT nextval('public.dossier_credential_types_id_seq'::regclass);
+
+
+--
 -- Name: dossier_credentials id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2211,6 +2257,14 @@ ALTER TABLE ONLY public.dossier_assignments
 
 ALTER TABLE ONLY public.dossier_credential_skills
     ADD CONSTRAINT dossier_credential_skills_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_credential_types dossier_credential_types_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_credential_types
+    ADD CONSTRAINT dossier_credential_types_pkey PRIMARY KEY (id);
 
 
 --
@@ -2744,10 +2798,31 @@ CREATE INDEX index_dossier_credential_skills_on_skill_id ON public.dossier_crede
 
 
 --
+-- Name: index_dossier_credential_types_on_lower_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_credential_types_on_lower_name ON public.dossier_credential_types USING btree (lower((name)::text));
+
+
+--
+-- Name: index_dossier_credential_types_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_dossier_credential_types_on_slug ON public.dossier_credential_types USING btree (slug);
+
+
+--
 -- Name: index_dossier_credentials_on_assignment_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_dossier_credentials_on_assignment_id ON public.dossier_credentials USING btree (assignment_id);
+
+
+--
+-- Name: index_dossier_credentials_on_credential_type_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_credentials_on_credential_type_id ON public.dossier_credentials USING btree (credential_type_id);
 
 
 --
@@ -3485,6 +3560,14 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 
 
 --
+-- Name: dossier_credentials fk_rails_5f4f04751e; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_credentials
+    ADD CONSTRAINT fk_rails_5f4f04751e FOREIGN KEY (credential_type_id) REFERENCES public.dossier_credential_types(id);
+
+
+--
 -- Name: dossier_assignments fk_rails_622791e61e; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3811,6 +3894,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261105200000'),
 ('20261105090000'),
 ('20261104090000'),
 ('20261103090000'),

@@ -35,16 +35,19 @@ RSpec.describe "Dossier Organisations", type: :feature do
       expect(page).to have_link("https://northwind.example", href: "https://northwind.example")
     end
 
-    it "Lists your own Training the Organisation provided, not anyone else's" do
+    it "Lists your own Credentials the Organisation issued, of any type, not anyone else's" do
       charlie = create(:user, :content_creator)
       ni = create(:dossier_organisation, name: "National Instruments")
       create(:dossier_credential, user: charlie, provider: ni, title: "LabVIEW Core 1", skills_text: "LabVIEW")
+      create(:dossier_credential, :certification, user: charlie, provider: ni, title: "Certified LabVIEW Developer")
       create(:dossier_credential, provider: ni, title: "Someone Else's Course")
       sign_in_as(charlie)
       visit dossier_organisation_path(ni)
 
-      within("[data-testid='organisation-training']") do
+      within("[data-testid='organisation-credentials']") do
+        expect(page).to have_selector("h2", text: "Your Credentials")
         expect(page).to have_link("LabVIEW Core 1")
+        expect(page).to have_link("Certified LabVIEW Developer")
         expect(page).not_to have_content("Someone Else's Course")
       end
     end
@@ -61,13 +64,13 @@ RSpec.describe "Dossier Organisations", type: :feature do
       expect(page).to have_content("must start with http:// or https://")
     end
 
-    it "Shows a visitor no Training panel" do
+    it "Shows a visitor no Credentials panel" do
       ni = create(:dossier_organisation, name: "National Instruments")
       create(:dossier_credential, provider: ni, title: "LabVIEW Core 1")
       visit dossier_organisation_path(ni)
 
       expect(page).to have_selector("[data-testid='reference-data-name']", text: "National Instruments")
-      expect(page).not_to have_selector("[data-testid='organisation-training']")
+      expect(page).not_to have_selector("[data-testid='organisation-credentials']")
     end
   end
 end

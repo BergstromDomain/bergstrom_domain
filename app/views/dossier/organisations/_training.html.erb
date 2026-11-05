@@ -1,9 +1,0 @@
-<%# The signed-in user's own Training this Organisation provided (@training). %>
-<% if @training&.any? %>
-  <div class="show-panel" data-testid="organisation-training">
-    <div class="show-panel__section">
-      <h2 class="show-panel__heading">Your Training</h2>
-      <%= render "dossier/credentials/list", credentials: @training %>
-    </div>
-  </div>
-<% end %>

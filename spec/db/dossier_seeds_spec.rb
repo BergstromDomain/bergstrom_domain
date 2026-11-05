@@ -6,14 +6,15 @@ RSpec.describe "db/seeds/dossier.rb" do
   def load_seeds = load Rails.root.join("db/seeds/dossier.rb")
 
   def counts
-    [ Dossier::EmploymentType, Dossier::Industry, Dossier::Location, Dossier::Role, Dossier::SkillCategory ].map(&:count)
+    [ Dossier::EmploymentType, Dossier::Industry, Dossier::Location, Dossier::Role, Dossier::SkillCategory,
+      Dossier::CredentialType ].map(&:count)
   end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    it "Creates the starting Employment Types, Industries, Locations, Roles and Skill Categories" do
+    it "Creates the starting Employment Types, Industries, Locations, Roles, Skill Categories and Credential Types" do
       load_seeds
-      expect(counts).to eq([ 5, 4, 3, 9, 1 ])
+      expect(counts).to eq([ 5, 4, 3, 9, 1, 6 ])
       expect(Dossier::Location.find_by!(city: "Brisbane")).to have_attributes(country: "Australia")
     end
   end
@@ -50,6 +51,18 @@ RSpec.describe "db/seeds/dossier.rb" do
     it "Includes the Uncategorised Skill Category that imported and on-the-fly Skills start in" do
       load_seeds
       expect(Dossier::SkillCategory.exists?(name: "Uncategorised")).to be(true)
+    end
+
+    it "Orders the Credential Types and marks only Course and Workshop as training" do
+      load_seeds
+      expect(Dossier::CredentialType.in_order.pluck(:name)).to eq(%w[Degree Diploma Certification Course Workshop Award])
+      expect(Dossier::CredentialType.where(training: true).pluck(:name)).to contain_exactly("Course", "Workshop")
+    end
+
+    it "Reuses a Course type that already exists" do
+      create(:dossier_credential)
+      load_seeds
+      expect(Dossier::CredentialType.where(name: "Course").count).to eq(1)
     end
   end
 end
