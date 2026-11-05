@@ -53,9 +53,10 @@ class Dossier::CvDocument
   end
 
   def credentials
-    @user.dossier_credentials.kept.includes(:credential_type, :provider).newest_first.to_a
-         .select { |credential| shown?(credential) }
-         .group_by { |credential| credential.training? ? TRAINING_HEADING : credential.credential_type }
+    shown = @user.dossier_credentials.kept.includes(:credential_type).newest_first.select { |credential| shown?(credential) }
+    # Providers only for those shown, so a variant's left-out Training loads none.
+    ActiveRecord::Associations::Preloader.new(records: shown, associations: :provider).call
+    shown.group_by { |credential| credential.training? ? TRAINING_HEADING : credential.credential_type }
          .sort_by { |key, list| [ list.map { |c| c.credential_type.position }.min, key == TRAINING_HEADING ? 1 : 0 ] }
          .map do |key, list|
            heading = key == TRAINING_HEADING ? key : key.name.pluralize

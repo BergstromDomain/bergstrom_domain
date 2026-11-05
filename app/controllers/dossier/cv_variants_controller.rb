@@ -141,7 +141,7 @@ class Dossier::CvVariantsController < ApplicationController
   end
 
   def set_variant
-    @variant = Dossier::CvVariant.includes(:based_on, user: :dossier_profile).find(params[:id])
+    @variant = Dossier::CvVariant.find(params[:id])
   end
 
   def variant_params

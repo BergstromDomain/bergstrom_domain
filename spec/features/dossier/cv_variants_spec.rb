@@ -114,8 +114,10 @@ RSpec.describe "Dossier CV Variants", type: :feature do
       expect(page).to have_selector("[data-testid='field-error']", text: "can't be blank")
     end
 
-    it "Turns away an App User" do
+    it "Turns away an App User, who sees no link to CV Variants" do
       sign_in_as(uno)
+      visit dossier_path
+      expect(page).not_to have_link("CV Variants")
       visit dossier_cv_variants_path
 
       expect(page).to have_current_path(dossier_path)
@@ -155,6 +157,19 @@ RSpec.describe "Dossier CV Variants", type: :feature do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
+    it "Links from the left nav: My CVs › CV Variants and New › Create A CV Variant" do
+      sign_in_as(charlie)
+      visit dossier_path
+      within("[data-testid='left-nav']") do
+        expect(page).to have_selector("[data-testid='left-nav-my-cvs-h3']", text: "My CVs")
+        click_link "CV Variants"
+      end
+      expect(page).to have_current_path(dossier_cv_variants_path)
+
+      within("[data-testid='left-nav']") { click_link "Create A CV Variant" }
+      expect(page).to have_current_path(new_dossier_cv_variant_path)
+    end
+
     it "Shows an empty state with no CV Variants" do
       sign_in_as(charlie)
       visit dossier_cv_variants_path
