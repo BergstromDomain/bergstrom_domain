@@ -100,7 +100,7 @@ class Dossier::CredentialsController < ApplicationController
   end
 
   def set_credential
-    @credential = Dossier::Credential.includes(credential_skills: :skill).find(params[:id])
+    @credential = Dossier::Credential.includes(credential_skills: :skill, files_attachments: :blob).find(params[:id])
   end
 
   def credential_params
@@ -109,6 +109,6 @@ class Dossier::CredentialsController < ApplicationController
                                                :end_year, :end_month_number, :end_day,
                                                :expires_year, :expires_month_number, :expires_day,
                                                :certificate_number, :verification_url,
-                                               :hours, :skills_text, :description)
+                                               :hours, :skills_text, :description, files: [])
   end
 end

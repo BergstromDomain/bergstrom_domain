@@ -25,6 +25,7 @@ RSpec.describe Dossier::Credential, type: :model do
     it { is_expected.to belong_to(:engagement).optional }
     it { is_expected.to belong_to(:assignment).optional }
     it { is_expected.to have_many(:credential_skills).dependent(:destroy) }
+    it { is_expected.to have_many_attached(:files) }
   end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
@@ -68,6 +69,16 @@ RSpec.describe Dossier::Credential, type: :model do
       expect(later.expiring_soon?(today)).to be(false)
     end
 
+    it "Keeps several certificate files: PDFs and images" do
+      credential = create(:dossier_credential, files: [
+        fixture_file_upload("test_certificate.pdf", "application/pdf"),
+        fixture_file_upload("test_image.png", "image/png"),
+        fixture_file_upload("test_image.jpg", "image/jpeg")
+      ])
+      expect(credential.reload.files.map(&:filename).map(&:to_s))
+        .to contain_exactly("test_certificate.pdf", "test_image.png", "test_image.jpg")
+    end
+
     it "Lists only training types under training" do
       course = create(:dossier_credential, user: user)
       create(:dossier_credential, :certification, user: user)
@@ -103,6 +114,20 @@ RSpec.describe Dossier::Credential, type: :model do
       credential = build(:dossier_credential, verification_url: "example.com/verify")
       expect(credential).not_to be_valid
       expect(credential.errors[:verification_url]).to include("must start with http:// or https://")
+    end
+
+    it "Rejects a certificate file that isn't a PDF, JPEG or PNG" do
+      credential = build(:dossier_credential, files: [ fixture_file_upload("test_image.gif", "image/gif") ])
+      expect(credential).not_to be_valid
+      expect(credential.errors[:files]).to include("must be a PDF, JPEG or PNG")
+    end
+
+    it "Rejects a certificate file of 10 MB or more" do
+      big = ActiveStorage::Blob.create_and_upload!(io: StringIO.new("%PDF-1.4\n" + ("0" * 10.megabytes)),
+                                                   filename: "big.pdf", content_type: "application/pdf")
+      credential = build(:dossier_credential, files: [ big.signed_id ])
+      expect(credential).not_to be_valid
+      expect(credential.errors[:files]).to include("must be smaller than 10 MB each")
     end
 
     it "Is invalid when it expires before it starts" do

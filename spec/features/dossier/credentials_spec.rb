@@ -82,6 +82,33 @@ RSpec.describe "Dossier Credentials", type: :feature do
       expect(page).to have_link("https://example.com/verify/176004", href: "https://example.com/verify/176004")
     end
 
+    it "Uploads certificate files, lists them on the page and removes one on edit" do
+      sign_in_as(charlie)
+      visit new_dossier_credential_path
+      select "Certification", from: "Type"
+      fill_in "Title", with: "Certified ScrumMaster"
+      fill_dates("2010", "February", "2010", "February")
+      attach_file "Certificates", [ file_fixture("test_certificate.pdf"), file_fixture("test_image.png") ]
+      click_button "Add Credential"
+
+      click_link "Certified ScrumMaster"
+      within("[data-testid='credential-files']") do
+        expect(page).to have_link("test_certificate.pdf")
+        expect(page).to have_link("test_image.png")
+      end
+
+      click_link "Edit Credential"
+      uncheck "Keep test_image.png"
+      attach_file "Certificates", file_fixture("test_image.jpg")
+      click_button "Update Credential"
+
+      within("[data-testid='credential-files']") do
+        expect(page).to have_link("test_certificate.pdf")
+        expect(page).to have_link("test_image.jpg")
+        expect(page).not_to have_link("test_image.png")
+      end
+    end
+
     it "Groups My Career › Credentials by type in sort order, newest first within each" do
       create(:dossier_credential, user: charlie, title: "Agile Fundamentals", start_month: "2020-03", end_month: "2020-03")
       create(:dossier_credential, user: charlie, title: "Scrum Basics", start_month: "2022-03", end_month: "2022-03")
@@ -125,6 +152,28 @@ RSpec.describe "Dossier Credentials", type: :feature do
 
       expect(page).to have_content("can't be blank")
       expect(Dossier::Credential.count).to eq(0)
+    end
+
+    it "Shows the error for a certificate that isn't a PDF, JPEG or PNG" do
+      sign_in_as(charlie)
+      visit new_dossier_credential_path
+      fill_in "Title", with: "Certified ScrumMaster"
+      fill_dates("2010", "February", "2010", "February")
+      attach_file "Certificates", file_fixture("test_image.gif")
+      click_button "Add Credential"
+
+      expect(page).to have_content("must be a PDF, JPEG or PNG")
+      expect(Dossier::Credential.count).to eq(0)
+    end
+
+    it "Hides certificate files from anyone but the owner, even on an unrestricted Credential" do
+      cert = create(:dossier_credential, user: charlie, classification: "unrestricted",
+                                         files: [ Rack::Test::UploadedFile.new(file_fixture("test_certificate.pdf"), "application/pdf") ])
+      sign_in_as(chris)
+      visit dossier_credential_path(cert)
+
+      expect(page).to have_selector("[data-testid='credential-title']", text: cert.title)
+      expect(page).not_to have_selector("[data-testid='credential-files']")
     end
 
     it "Shows the error for an expiry before the start" do

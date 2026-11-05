@@ -15,6 +15,10 @@ class Dossier::Credential < ApplicationRecord
   # The Show page warns this long before a Credential expires.
   EXPIRY_WARNING_PERIOD = 90
 
+  # Certificate scans: shown only to the owner and admins, whatever the
+  # classification (they can carry personal details).
+  FILE_TYPES = %w[application/pdf image/jpeg image/png].freeze
+
   URL_FORMAT = { with: %r{\Ahttps?://\S+\z}i, message: "must start with http:// or https://" }.freeze
 
   dated_edge :expires
@@ -27,6 +31,7 @@ class Dossier::Credential < ApplicationRecord
   has_many :credential_skills, -> { order(:id) }, dependent: :destroy, autosave: true, inverse_of: :credential
   has_many :skills, through: :credential_skills
   skill_tags :credential_skills
+  has_many_attached :files
 
   normalizes :title, with: ->(value) { value.strip }
   normalizes :description, with: ->(value) { value.strip.presence }
@@ -37,6 +42,8 @@ class Dossier::Credential < ApplicationRecord
 
   validates :title, presence: true
   validates :verification_url, format: URL_FORMAT, allow_nil: true
+  validates :files, content_type: { in: FILE_TYPES, message: "must be a PDF, JPEG or PNG" },
+                    size: { less_than: 10.megabytes, message: "must be smaller than 10 MB each" }
   validates :hours, numericality: { greater_than: 0 }, allow_nil: true
   validate  :links_belong_to_user
   validate  :expires_after_start
@@ -52,6 +59,8 @@ class Dossier::Credential < ApplicationRecord
   end
 
   def to_toast_label = title
+
+  def files_visible_to?(user) = user.present? && (user_id == user.id || user.can_administer?)
 
   # Like date_range, but an unfinished course is "Mar 2024 – in progress".
   def dates = current? ? "#{formatted_start} – in progress" : date_range
