@@ -12,6 +12,9 @@ class Dossier::Organisation < ApplicationRecord
                                 dependent: :restrict_with_error, inverse_of: :client
   has_many :provided_credentials, class_name: "Dossier::Credential", foreign_key: :provider_id,
                                   dependent: :restrict_with_error, inverse_of: :provider
+  # Vendor or Customer on someone's Assignment (private links).
+  has_many :assignment_partners, class_name: "Dossier::AssignmentPartner",
+                                 dependent: :restrict_with_error, inverse_of: :organisation
 
   normalizes :abbreviation, :website_url, with: ->(value) { value.strip.presence }
 

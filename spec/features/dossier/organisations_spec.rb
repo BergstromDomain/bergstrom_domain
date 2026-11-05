@@ -53,6 +53,52 @@ RSpec.describe "Dossier Organisations", type: :feature do
     end
   end
 
+  describe "Happy Path (Organisation as Vendor or Customer)" do
+    it "Lists your Assignments where it's a Vendor or a Customer, with the scope" do
+      charlie = create(:user, :content_creator)
+      pwc = create(:dossier_organisation, name: "PwC")
+      engagement = create(:dossier_engagement, user: charlie)
+      alpha = create(:dossier_assignment, engagement: engagement, project: "Alpha",
+                                          client: create(:dossier_organisation, name: "Queensland Government", abbreviation: "QG"))
+      beta = create(:dossier_assignment, engagement: engagement, project: "Beta",
+                                         client: create(:dossier_organisation, name: "Westpac"))
+      create(:dossier_assignment_partner, assignment: alpha, organisation: pwc, scope: "Built the software")
+      create(:dossier_assignment_partner, :customer, assignment: beta, organisation: pwc)
+      sign_in_as(charlie)
+      visit dossier_organisation_path(pwc)
+
+      within("[data-testid='organisation-as-vendor']") do
+        expect(page).to have_selector("h2", text: "Your Assignments As Vendor")
+        expect(page).to have_link("QG - Alpha", href: dossier_assignment_path(alpha))
+        expect(page).to have_text("Built the software")
+      end
+      expect(page).to have_selector("[data-testid='organisation-as-customer']", text: "Westpac - Beta")
+    end
+  end
+
+  describe "Negative Path (Organisation as Vendor or Customer)" do
+    it "Shows nobody else your Vendor and Customer links" do
+      pwc = create(:dossier_organisation, name: "PwC")
+      create(:dossier_assignment_partner, organisation: pwc)
+      sign_in_as(create(:user, :content_creator))
+      visit dossier_organisation_path(pwc)
+
+      expect(page).to have_selector("[data-testid='reference-data-name']", text: "PwC")
+      expect(page).not_to have_selector("[data-testid='organisation-as-vendor']")
+    end
+
+    it "Won't delete an Organisation that's a Vendor or Customer" do
+      pwc = create(:dossier_organisation, name: "PwC")
+      create(:dossier_assignment_partner, :customer, organisation: pwc)
+      sign_in_as(create(:user, :admin))
+      visit dossier_organisation_path(pwc)
+      click_button "Delete Organisation"
+
+      expect(page).to have_content("Cannot delete record because dependent assignment partners exist")
+      expect(Dossier::Organisation.exists?(pwc.id)).to be(true)
+    end
+  end
+
   describe "Negative Path (Organisation)" do
     it "Rejects a website that isn't an http(s) URL" do
       sign_in_as(create(:user, :admin))
