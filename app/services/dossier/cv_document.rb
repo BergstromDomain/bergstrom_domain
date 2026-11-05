@@ -8,6 +8,10 @@
 # order, with all training types together as "Training". A permanent job's
 # single synced Assignment folds into its Engagement (heading, role and dates
 # nil), so the CV doesn't repeat them.
+#
+# With a CV Variant, only what its Dossier::CvSelection shows is kept: a
+# condensed Engagement has no summary or Assignments, the Tech Stack shows
+# only if the variant asks, and the summary is the variant's.
 class Dossier::CvDocument
   Header     = Data.define(:name, :headline, :contacts)
   Job        = Data.define(:title, :organisation, :employment_type, :dates, :summary, :assignments)
@@ -17,10 +21,12 @@ class Dossier::CvDocument
 
   TRAINING_HEADING = "Training"
 
-  def initialize(user, today: Date.current)
+  def initialize(user, today: Date.current, variant: nil)
     @user = user
     @today = today
     @profile = user.dossier_profile
+    @variant = variant
+    @selection = variant && Dossier::CvSelection.new(variant, today: today)
   end
 
   def profile? = @profile.present?
@@ -31,7 +37,7 @@ class Dossier::CvDocument
     Header.new(name: @profile.display_name, headline: @profile.headline, contacts: contacts)
   end
 
-  def summary = @profile.summary_for(:first_person)
+  def summary = @variant ? @variant.summary : @profile.summary_for(:first_person)
 
   def experience        = jobs.reject(&:first).map(&:last)
   def personal_projects = jobs.select(&:first).map(&:last)
@@ -39,6 +45,7 @@ class Dossier::CvDocument
   # [[category name, [skill names, most years first]], …], categories A–Z.
   def skills
     experiences = Dossier::ExperienceCalculator.new(@user, today: @today).skills
+    experiences = experiences.select { |experience| @selection.included?(experience.skill) } if @selection
     ActiveRecord::Associations::Preloader.new(records: experiences.map(&:skill), associations: :skill_category).call
     experiences.group_by { |experience| experience.skill.skill_category.name }
                .sort_by { |category, _| category.downcase }
@@ -47,6 +54,7 @@ class Dossier::CvDocument
 
   def credentials
     @user.dossier_credentials.kept.includes(:credential_type, :provider).newest_first.to_a
+         .select { |credential| shown?(credential) }
          .group_by { |credential| credential.training? ? TRAINING_HEADING : credential.credential_type }
          .sort_by { |key, list| [ list.map { |c| c.credential_type.position }.min, key == TRAINING_HEADING ? 1 : 0 ] }
          .map do |key, list|
@@ -55,10 +63,11 @@ class Dossier::CvDocument
          end
   end
 
-  # "Alex_Example_CV_2026-11-05.pdf"
+  # "Alex_Example_CV_2026-11-05.pdf", or with a variant
+  # "Alex_Example_CV_QE_Lead_Acme_2026-11-05.pdf".
   def filename(extension)
-    name = @profile.display_name.gsub(/[^\p{Alnum}]+/, "_").delete_prefix("_").delete_suffix("_")
-    "#{name}_CV_#{@today.iso8601}.#{extension}"
+    parts = [ @profile.display_name, "CV", @variant&.name ].compact.map { |part| safe_filename(part) }
+    "#{parts.join('_')}_#{@today.iso8601}.#{extension}"
   end
 
   private
@@ -68,14 +77,17 @@ class Dossier::CvDocument
     @jobs ||= @user.dossier_engagements.kept.newest_first
                    .includes(:employer, :employment_type,
                              assignments: [ :client, :role, :location, :achievements, { assignment_skills: :skill } ])
+                   .select { |engagement| shown?(engagement) }
                    .map { |engagement| [ engagement.personal?, job(engagement) ] }
   end
 
   def job(engagement)
-    assignments = engagement.assignments.sort_by { |a| [ a.effective_end || @today, a.start_on ] }.reverse
+    assignments = engagement.assignments.select { |assignment| shown?(assignment) }
+                            .sort_by { |a| [ a.effective_end || @today, a.start_on ] }.reverse
+    condensed = assignments.empty? && @selection
     Job.new(title: engagement.position_title, organisation: engagement.employer.name,
             employment_type: engagement.employment_type.name, dates: engagement.date_range,
-            summary: engagement.summary,
+            summary: (engagement.summary unless condensed),
             assignments: assignments.map { |assignment| assignment_entry(assignment, folded: folded?(engagement)) })
   end
 
@@ -94,9 +106,14 @@ class Dossier::CvDocument
                    dates: (assignment.date_range unless folded),
                    location: location(assignment),
                    summary: assignment.summary,
-                   tech_stack: tech_stack(assignment),
-                   achievements: assignment.achievements.map { |a| [ a.text, a.impact ].compact.join(" — ") })
+                   tech_stack: (@variant && !@variant.show_tech_stack ? [] : tech_stack(assignment)),
+                   achievements: assignment.achievements.select { |a| shown?(a) }.map { |a| [ a.text, a.impact ].compact.join(" — ") })
   end
+
+  # Everything, for the master CV; a variant's selection otherwise.
+  def shown?(record) = @selection.nil? || @selection.shown?(record)
+
+  def safe_filename(text) = text.gsub(/[^\p{Alnum}]+/, "_").delete_prefix("_").delete_suffix("_")
 
   def location(assignment)
     return "Remote" if assignment.remote && assignment.location.nil?

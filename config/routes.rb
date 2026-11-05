@@ -89,6 +89,8 @@ Rails.application.routes.draw do
         get    :selection
         patch  :selection, action: :update_selection
         delete :selection, action: :reset_selection
+        get    :pdf
+        get    :docx
       end
     end
     resource :master_cv, only: :show do

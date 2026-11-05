@@ -54,6 +54,38 @@
   <% end %>
 </div>
 
+<%# Included div — what the files will hold %>
+<div class="show-panel" data-testid="show-panel-included">
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">What's Included</h2>
+    <% jobs = @cv.experience %>
+    <% condensed = jobs.count { |job| job.assignments.empty? } %>
+    <% achievements = (jobs + @cv.personal_projects).sum { |job| job.assignments.sum { |a| a.achievements.size } } %>
+    <ul class="dossier-assignment-list" data-testid="cv-variant-included">
+      <li><%= pluralize(jobs.size, "Engagement") %><%= " (#{condensed} condensed)" if condensed.positive? %></li>
+      <li><%= pluralize(achievements, "Achievement") %></li>
+      <li><%= pluralize(@cv.personal_projects.size, "Personal Project") %></li>
+      <li><%= pluralize(@cv.skills.sum { |_, names| names.size }, "Skill") %></li>
+      <li><%= pluralize(@cv.credentials.sum { |section| section.entries.size }, "Credential") %></li>
+    </ul>
+  </div>
+  <div class="show-panel__section">
+    <% if @cv.profile? %>
+      <%= link_to docx_dossier_cv_variant_path(@variant), class: "btn btn-primary", data: { turbo: false } do %>
+        <%= lucide_icon("file-text", size: 16) %> Download Word
+      <% end %>
+      <span class="btn-divider">|</span>
+      <%= link_to pdf_dossier_cv_variant_path(@variant), class: "btn btn-primary", data: { turbo: false } do %>
+        <%= lucide_icon("file-down", size: 16) %> Download PDF
+      <% end %>
+    <% else %>
+      <p data-testid="cv-variant-no-profile">
+        <%= link_to "Create your Profile", edit_dossier_profile_path %> first — the CV starts from it.
+      </p>
+    <% end %>
+  </div>
+</div>
+
 <%# Actions div %>
 <div class="show-panel show-panel--actions" data-testid="show-panel-actions">
   <%= link_to dossier_cv_variants_path, class: "btn btn-secondary" do %>

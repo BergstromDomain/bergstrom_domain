@@ -35,6 +35,28 @@ RSpec.describe "Dossier CV Variants", type: :feature do
       expect(page).to have_selector("[data-testid='cv-variant-job-description']", text: "Lead a team of five testers.")
     end
 
+    it "Shows what's included and downloads the Word file" do
+      job = create(:dossier_engagement, :current, user: charlie, position_title: "Test Consultant")
+      assignment = create(:dossier_assignment, engagement: job, end_month: "")
+      create(:dossier_achievement, assignment: assignment, importance: 4)
+      create(:dossier_achievement, assignment: assignment, importance: 1)
+      create(:dossier_engagement, user: charlie, start_month: "2010-01", end_month: "2012-12")
+      create(:dossier_credential, :certification, user: charlie)
+      variant = create(:dossier_cv_variant, user: charlie, name: "Acme")
+      sign_in_as(charlie)
+      visit dossier_cv_variant_path(variant)
+
+      within("[data-testid='cv-variant-included']") do
+        expect(page).to have_text("2 Engagements (1 condensed)")
+        expect(page).to have_text("1 Achievement")
+        expect(page).to have_text("0 Personal Projects")
+        expect(page).to have_text("1 Credential")
+      end
+      click_link "Download Word"
+
+      expect(page.response_headers["Content-Disposition"]).to include("_CV_Acme_")
+    end
+
     it "Lists your CV Variants and edits one" do
       variant = create(:dossier_cv_variant, user: charlie, name: "Acme")
       create(:dossier_cv_variant, user: charlie, name: "Bravo")

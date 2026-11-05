@@ -5,9 +5,12 @@
 # form from it; creating with Copy From set also copies its ticks.
 class Dossier::CvVariantsController < ApplicationController
   include Navigable
+  include Dossier::CvDownloadable
   before_action :require_dossier_access, only: %i[index new create]
   before_action :set_variant, except: %i[index new create]
+  before_action :require_read, only: %i[show pdf docx]
   before_action :require_update, only: %i[edit update selection update_selection reset_selection]
+  before_action :require_profile, only: %i[pdf docx]
 
   SELECTABLE = %w[engagement assignment achievement skill credential].freeze
 
@@ -17,9 +20,13 @@ class Dossier::CvVariantsController < ApplicationController
     @variants = current_user.dossier_cv_variants.alphabetical
   end
 
+  # Settings, what's included, and the downloads.
   def show
-    redirect_to dossier_cv_variants_path, alert: "Not authorised." unless Policy.new(current_user, @variant).can_read?
+    @cv = cv
   end
+
+  def pdf  = send_cv_pdf(cv)
+  def docx = send_cv_docx(cv)
 
   def new
     original = copy_choices.find_by(id: params[:copy_from])
@@ -106,6 +113,19 @@ class Dossier::CvVariantsController < ApplicationController
     assignments = @engagements.flat_map(&:assignments)
     @selectable = { "engagement" => @engagements, "assignment" => assignments,
                     "achievement" => assignments.flat_map(&:achievements), "skill" => skills, "credential" => credentials }
+  end
+
+  # The owner's CV through this variant (an Admin downloads the owner's CV).
+  def cv
+    @cv ||= Dossier::CvDocument.new(@variant.user, variant: @variant)
+  end
+
+  def require_read
+    redirect_to dossier_cv_variants_path, alert: "Not authorised." unless Policy.new(current_user, @variant).can_read?
+  end
+
+  def require_profile
+    redirect_to edit_dossier_profile_path, alert: NO_PROFILE unless cv.profile?
   end
 
   def require_update

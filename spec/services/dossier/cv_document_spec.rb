@@ -123,10 +123,58 @@ RSpec.describe Dossier::CvDocument do
       expect(cv.experience.map(&:title)).to eq([ "Test Consultant" ])
       expect(cv.experience.first.assignments.first).to have_attributes(achievements: [ "Kept" ], tech_stack: [])
     end
+
+    it "Leaves out what a CV Variant leaves out: low-importance Achievements, Training, unticked items" do
+      profile
+      variant = create(:dossier_cv_variant, user: user, min_importance: 3)
+      job = engagement(:current, position_title: "Test Consultant")
+      assignment = create(:dossier_assignment, engagement: job, test_tools_na: false, test_tools_text: "Jira")
+      create(:dossier_achievement, assignment: assignment, text: "Important", importance: 4)
+      create(:dossier_achievement, assignment: assignment, text: "Minor", importance: 2)
+      create(:dossier_credential, user: user, title: "A Course")
+      cert = create(:dossier_credential, :certification, user: user, title: "Unticked Cert")
+      variant.items.create!(item: cert, included: false)
+
+      cv = described_class.new(user, today: today, variant: variant)
+
+      expect(cv.experience.first.assignments.first.achievements).to eq([ "Important" ])
+      expect(cv.experience.first.assignments.first.tech_stack).to eq([])
+      expect(cv.credentials).to be_empty
+    end
   end
 
   # 3) Alternative Paths ───────────────────────────────────────────────────────
   describe "Alternative Paths" do
+    it "Filters through a CV Variant: older Engagements condensed, its summary, Tech Stack when asked, its own filename" do
+      profile(summary: "Test lead.")
+      variant = create(:dossier_cv_variant, user: user, name: "QE Lead — Acme", summary_override: "For Acme.",
+                                            show_tech_stack: true)
+      old = engagement(position_title: "Tester", start_month: "2010-01", end_month: "2015-12", summary: "Old job.")
+      create(:dossier_assignment, engagement: old, start_month: "2010-01", end_month: "2015-12")
+      recent = engagement(:current, position_title: "Test Consultant")
+      create(:dossier_assignment, engagement: recent, end_month: "", test_tools_na: false, test_tools_text: "Jira")
+
+      cv = described_class.new(user, today: today, variant: variant)
+
+      expect(cv.summary).to eq("For Acme.")
+      expect(cv.experience.map(&:title)).to eq([ "Test Consultant", "Tester" ])
+      expect(cv.experience.second).to have_attributes(assignments: [], summary: nil, dates: "Jan 2010 – Dec 2015")
+      expect(cv.experience.first.assignments.first.tech_stack).to eq([ [ "Test Tools", "Jira" ] ])
+      expect(cv.filename("pdf")).to eq("Alex_Example_CV_QE_Lead_Acme_2026-11-05.pdf")
+    end
+
+    it "Keeps only the CV Variant's Skills" do
+      profile
+      variant = create(:dossier_cv_variant, user: user)
+      tools = create(:dossier_skill_category, name: "Test Tools")
+      jira = create(:dossier_skill, name: "Jira", skill_category: tools)
+      create(:dossier_skill, name: "qTest", skill_category: tools)
+      create(:dossier_assignment, engagement: engagement, test_tools_na: false, test_tools_text: "Jira, qTest")
+      variant.items.create!(item: jira, included: false)
+
+      expect(described_class.new(user, today: today, variant: variant).skills).to eq([ [ "Test Tools", [ "qTest" ] ] ])
+    end
+
     it "Falls back to the terse summary" do
       profile(summary: "Test lead.")
 
@@ -185,6 +233,15 @@ RSpec.describe Dossier::CvDocument do
       profile
 
       expect([ cv.experience, cv.personal_projects, cv.skills, cv.credentials ]).to all(be_empty)
+    end
+
+    it "Shows a Personal Project a CV Variant ticks" do
+      profile
+      variant = create(:dossier_cv_variant, user: user)
+      lab = engagement(:personal, :current, position_title: "Home Lab")
+      variant.items.create!(item: lab, included: true)
+
+      expect(described_class.new(user, today: today, variant: variant).personal_projects.map(&:title)).to eq([ "Home Lab" ])
     end
 
     it "Strips characters a filename can't safely hold" do
