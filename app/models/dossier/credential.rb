@@ -54,6 +54,12 @@ class Dossier::Credential < ApplicationRecord
   # Not under a deleted Engagement.
   scope :kept, -> { left_joins(:engagement).where(dossier_engagements: { deleted_at: nil }) }
 
+  # Those completed between from and to (inclusive), newest first; a
+  # month-precision completion counts if any of its month falls inside.
+  def self.completed_during(from, to)
+    where(end_on: from.beginning_of_month..to).newest_first.select { |credential| credential.effective_end >= from }
+  end
+
   def hidden?
     engagement&.deleted_at.present?
   end

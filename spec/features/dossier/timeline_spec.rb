@@ -58,6 +58,25 @@ RSpec.describe "Dossier Timeline", type: :feature do
       expect(page).to have_selector("h1.page-title", text: "Gap")
       expect(page).to have_selector("[data-testid='period-dates']", text: "Jan 2018 – May 2018")
       expect(page).not_to have_selector("[data-testid='period-engagement']")
+      expect(page).to have_selector("[data-testid='period-credentials-empty']")
+    end
+
+    it "Lists every Credential completed during a period, of any type, and none from outside it" do
+      engagement("Older", "2015-01", "2017-12")
+      engagement("Newer", "2018-06", "2022-06")
+      create(:dossier_credential, user: charlie, title: "Scrum: The Basics", start_month: "2018-01", end_month: "2018-01")
+      create(:dossier_credential, :certification, user: charlie, title: "Certified ScrumMaster",
+                                                  start_month: "2018-05", end_month: "2018-05", end_day: "31")
+      create(:dossier_credential, user: charlie, title: "Before The Gap", start_month: "2017-12", end_month: "2017-12")
+      create(:dossier_credential, user: charlie, title: "After The Gap", start_month: "2018-06", end_month: "2018-06")
+      create(:dossier_credential, user: charlie, title: "Still Taking It", start_month: "2018-02", end_month: "")
+      create(:dossier_credential, title: "Someone Else's Course", start_month: "2018-03", end_month: "2018-03")
+      sign_in_as(charlie)
+      visit dossier_period_path(from: "2018-01-01", to: "2018-05-31")
+
+      within("[data-testid='show-panel-courses']") do
+        expect(all("[data-testid='training-title']").map(&:text)).to eq([ "Certified ScrumMaster", "Scrum: The Basics" ])
+      end
     end
   end
 

@@ -182,6 +182,16 @@ RSpec.describe Dossier::Credential, type: :model do
       expect(credential.reload).to have_attributes(expires_on: nil, formatted_expiry: nil)
     end
 
+    it "Finds Credentials completed during a period, counting a month-precision completion as the whole month" do
+      in_month = create(:dossier_credential, start_month: "2020-01", end_month: "2020-02")
+      on_day   = create(:dossier_credential, start_month: "2020-01", end_month: "2020-03", end_day: "10")
+      create(:dossier_credential, start_month: "2020-01", end_month: "2020-03", end_day: "20")
+      create(:dossier_credential, start_month: "2020-01", end_month: "")
+
+      expect(described_class.completed_during(Date.new(2020, 2, 15), Date.new(2020, 3, 15)))
+        .to contain_exactly(in_month, on_day)
+    end
+
     it "Counts a month-precision expiry as the whole month" do
       credential = build(:dossier_credential, expires_month: "2026-11")
       expect(credential.expired?(Date.new(2026, 11, 30))).to be(false)
