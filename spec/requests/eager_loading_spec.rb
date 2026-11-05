@@ -179,6 +179,15 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads an Organisation's Training without N+1 queries" do
+      ni = create(:dossier_organisation, name: "National Instruments")
+      create_list(:dossier_credential, 2, user: adam, provider: ni)
+
+      without_n_plus_one_queries { get dossier_organisation_path(ni) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "Loads an Engagement's Training without N+1 queries" do
       engagement = create(:dossier_engagement, user: adam)
       create_list(:dossier_credential, 2, user: adam, engagement: engagement, provider: create(:dossier_organisation))

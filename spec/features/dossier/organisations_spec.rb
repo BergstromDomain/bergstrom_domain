@@ -34,6 +34,20 @@ RSpec.describe "Dossier Organisations", type: :feature do
       expect(page).to have_selector("[data-testid='detail-industry']", text: "Transport")
       expect(page).to have_link("https://northwind.example", href: "https://northwind.example")
     end
+
+    it "Lists your own Training the Organisation provided, not anyone else's" do
+      charlie = create(:user, :content_creator)
+      ni = create(:dossier_organisation, name: "National Instruments")
+      create(:dossier_credential, user: charlie, provider: ni, title: "LabVIEW Core 1", skills_text: "LabVIEW")
+      create(:dossier_credential, provider: ni, title: "Someone Else's Course")
+      sign_in_as(charlie)
+      visit dossier_organisation_path(ni)
+
+      within("[data-testid='organisation-training']") do
+        expect(page).to have_link("LabVIEW Core 1")
+        expect(page).not_to have_content("Someone Else's Course")
+      end
+    end
   end
 
   describe "Negative Path (Organisation)" do
@@ -45,6 +59,15 @@ RSpec.describe "Dossier Organisations", type: :feature do
       click_button "Create Organisation"
 
       expect(page).to have_content("must start with http:// or https://")
+    end
+
+    it "Shows a visitor no Training panel" do
+      ni = create(:dossier_organisation, name: "National Instruments")
+      create(:dossier_credential, provider: ni, title: "LabVIEW Core 1")
+      visit dossier_organisation_path(ni)
+
+      expect(page).to have_selector("[data-testid='reference-data-name']", text: "National Instruments")
+      expect(page).not_to have_selector("[data-testid='organisation-training']")
     end
   end
 end

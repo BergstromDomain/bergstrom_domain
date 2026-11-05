@@ -455,6 +455,11 @@ Other export targets worth designing for from the start (same data, different re
     the purge removes it.
   * Skills typed as text are shared with Achievements through `Dossier::SkillTags`; merging a
     Skill moves its Training links too.
+* **Follow-up (2026-11-05):** Provider stays optional and uses the shared Organisations (e.g.
+  LabVIEW by National Instruments). An Organisation page lists the signed-in user's own Training it
+  provided (Your Training). Products and training providers such as LabVIEW / National Instruments
+  belong on CVs; the "no vendor names" rule covers only the private `vendors` field (implementation
+  partners) and is to be revisited with CV Variants.
 
 ## Block 5 — Credentials & certificates
 * CRUD with credential type, issuer, dates, expiry, verification URL, file uploads (PDF/image)
