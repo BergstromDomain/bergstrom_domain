@@ -501,6 +501,22 @@ Other export targets worth designing for from the start (same data, different re
 * These numbers become insertable "highlights" in CV variants ("25 years in software testing,
   12 in DevOps-heavy environments")
 
+### DECISIONS FROM BLOCK 6 GATE (2026-11-05)
+* **One page, My Career › Experience:** a table per slice (Employers, Clients, Industries,
+  Roles, Employment Types), each row with years, first–last dates and Assignment count, most
+  years first. Skills stay on My Career › Skills (linked, not repeated).
+* **Totals at the top:** Career (union of Engagements: bench counts, gaps don't), On Assignments
+  (union of Assignments: bench left out), and Personal Projects on their own. Personal
+  Engagements never feed the professional totals or slices.
+* **No Role:** Assignments without a Role are listed under a "No Role" row, so the gap shows.
+* **Reference-data pages:** Organisation (as employer and as client separately), Industry, Role
+  and Employment Type pages show a "Your Experience" figure above Your Assignments. Visitors see
+  no years.
+* **Tables only;** a chart/visual timeline comes after Export. Highlight sentences wait for CV
+  Variants (Block 8).
+* **Who:** Content Creator and above, own data only.
+* **Steps:** 6a calculator slices + totals; 6b Experience page + nav; 6c reference-data pages.
+
 ## Block 7 — Export spike, then Word/PDF export (MVP finish line)
 * Spike: compare options A–D on one real-looking fictional CV; pick, document, then TDD
 * Export the **full master CV** (no variants yet) in one style, Word + PDF
