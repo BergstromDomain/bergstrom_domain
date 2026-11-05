@@ -562,6 +562,36 @@ Other export targets worth designing for from the start (same data, different re
 * Default selection rules (e.g. importance ≥ 3, last 10 years in detail)
 * Export = generate and download; no stored history (`Q-D8`)
 
+### DECISIONS FROM BLOCK 8 GATE (2026-11-06)
+* **Models:** `Dossier::CvVariant` — user, name, target company, target role, job description
+  (kept for later AI tailoring), voice (first person / implied / third person), style ("classic",
+  the only one until Block 9b), summary override, Show Tech Stack (off by default), minimum
+  importance (1–5, default 3), based on (the variant it was copied from).
+  `Dossier::CvVariantItem` — one row per Engagement, Assignment, Achievement, Skill or Credential
+  explicitly ticked or unticked. **No row = the default rules**, so new master data shows up in
+  existing variants sensibly.
+* **Summary:** the one text override a variant has (`Q-D7` otherwise stands); blank = the
+  Profile summary in the variant's voice.
+* **Default rules:** Engagements ending in the last 10 years in full, with their Assignments and
+  the Achievements whose importance is at least the variant's minimum importance; older
+  Engagements condensed (title, employer, dates only); Personal Projects off; Skills with
+  professional years on, except the "Uncategorised" category; Degrees, Diplomas,
+  Certifications and Awards on; Training and expired Credentials off. An explicit row always wins.
+* **Edit Selection:** one plain form (no JavaScript) — a checkbox tree Engagement › Assignment ›
+  Achievement (importance shown), then Skills by category and Credentials by type; Save and
+  Reset To Defaults.
+* **No reordering** in this block: jobs newest first, Achievements in master order.
+* **Copy From** on New copies the settings and item rows of another of your variants.
+* **Pages:** VIEWS › My CVs › CV Variants (index); ACTIONS › New › Create CV Variant. Show page
+  with settings, what's included, Edit, Edit Selection, Download Word, Download PDF, Delete (hard
+  delete with confirm). Normal data, full width. Content Creator and above, own only; Admin read.
+* **Export:** `Dossier::CvDocument` takes an optional variant and filters through it; the
+  renderers are unchanged (a condensed Engagement is a Meta line, no Assignments). Filename
+  `<Display_Name>_CV_<Variant_Name>_<YYYY-MM-DD>.docx|.pdf`.
+* **Later:** highlight sentences ("25+ years in software testing…") and reordering.
+* **Steps:** 8a models + default rules; 8b variant pages + Copy From; 8c Edit Selection; 8d
+  CvDocument filtering + variant downloads; 8e nav, feature and eager-loading specs.
+
 ## Block 9 — Upload CV Template
 * Upload a consultancy's own .docx template with merge placeholders added in Word (`Q-D17`);
   generate a variant into it
@@ -577,6 +607,18 @@ Other export targets worth designing for from the start (same data, different re
 * Public URL (e.g. `/dossier/niklas` or a custom slug), full CV (`Q-D20`) with phone/email/address hidden
   (contact link only), own styling,
   "Download CV (PDF)" from a chosen public variant
+
+## Block 12 — Private Assignment details (last block before the app is complete)
+Private to the author and Admins (the same check as certificate files); **never** on any export
+— Word, PDF, LinkedIn view or public page (specs check this).
+* **Colleagues:** one or several per Assignment — Name (mandatory), Position, Mobile, Email,
+  LinkedIn, Comment (optional). A panel on the Assignment page.
+* **Vendors** and **Customers:** optional, several each, as private links from an Assignment to
+  Organisations (like Client). Not stored today — the import reads the master CV's `vendors:` and
+  drops it; once this exists, a re-import fills them.
+* **Example:** employed as a consultant at Deloitte (Engagement employer); Queensland Government
+  (Client) runs project Alpha; PwC (Vendor) builds the software; Deloitte tests it; Telstra
+  (Customer) buys the final product.
 
 ## Toasts — *reusable pattern*
 * Implement `#to_toast_label` on every entity (see Data Model).
