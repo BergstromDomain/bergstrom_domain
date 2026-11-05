@@ -49,6 +49,26 @@ class Dossier::CvSelection
     engagement.assignments.none? { |assignment| included?(assignment) }
   end
 
+  # ticks: [[record, included], …]. A tick at its default keeps (or leaves)
+  # no row, so later changes to the rules still reach it.
+  def save!(ticks)
+    rows = @variant.items.index_by { |item| [ item.item_type, item.item_id ] }
+    Dossier::CvVariantItem.transaction do
+      ticks.each do |record, included|
+        row = rows[[ record.class.name, record.id ]]
+        if included == default?(record) then row&.destroy!
+        elsif row then row.update!(included: included)
+        else @variant.items.create!(item: record, included: included)
+        end
+      end
+    end
+    @variant.items.reset
+    @explicit = nil
+  end
+
+  # An explicit row that differs from the default.
+  def choice?(record) = explicit.key?([ record.class.name, record.id ])
+
   private
 
   def explicit

@@ -1,0 +1,12 @@
+<%# One Edit Selection checkbox. Locals: selection, kind ("engagement"…), record, label; optional notes (Array of Strings) %>
+<% id = dom_id(record, :selection) %>
+<%= hidden_field_tag "selection[#{kind}][#{record.id}]", "0", id: nil %>
+<%= check_box_tag "selection[#{kind}][#{record.id}]", "1", selection.included?(record), id: id %>
+<%= label_tag id, label %>
+<% notes = Array(local_assigns[:notes]) %>
+<% notes.each do |note| %>
+  <span class="badge badge--pending"><%= note %></span>
+<% end %>
+<% if selection.choice?(record) %>
+  <span class="badge badge--active">Your choice</span>
+<% end %>

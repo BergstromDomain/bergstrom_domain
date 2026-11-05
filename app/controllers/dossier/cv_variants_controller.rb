@@ -6,7 +6,10 @@
 class Dossier::CvVariantsController < ApplicationController
   include Navigable
   before_action :require_dossier_access, only: %i[index new create]
-  before_action :set_variant, only: %i[show edit update destroy]
+  before_action :set_variant, except: %i[index new create]
+  before_action :require_update, only: %i[edit update selection update_selection reset_selection]
+
+  SELECTABLE = %w[engagement assignment achievement skill credential].freeze
 
   helper_method :copy_choices
 
@@ -44,13 +47,9 @@ class Dossier::CvVariantsController < ApplicationController
   end
 
   def edit
-    redirect_to dossier_cv_variants_path, alert: "Not authorised." unless Policy.new(current_user, @variant).can_update?
   end
 
   def update
-    unless Policy.new(current_user, @variant).can_update?
-      redirect_to dossier_cv_variants_path, alert: "Not authorised." and return
-    end
     previous_label = @variant.to_toast_label
     if @variant.update(variant_params)
       toast_updated(@variant, previous_label: previous_label)
@@ -58,6 +57,27 @@ class Dossier::CvVariantsController < ApplicationController
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  # Edit Selection: a checkbox per Engagement, Assignment, Achievement, Skill
+  # and Credential of the variant's owner, ticked as the variant has them.
+  def selection
+    load_selectable
+  end
+
+  def update_selection
+    load_selectable
+    ticks = SELECTABLE.flat_map do |kind|
+      submitted = params.dig(:selection, kind) || {}
+      @selectable[kind].filter_map { |record| [ record, submitted[record.id.to_s] == "1" ] if submitted.key?(record.id.to_s) }
+    end
+    @selection.save!(ticks)
+    redirect_to @variant, flash: { success: "#{@variant.name}'s selection has been saved" }
+  end
+
+  def reset_selection
+    @variant.items.delete_all
+    redirect_to @variant, flash: { success: "#{@variant.name} is back to the default selection" }
   end
 
   def destroy
@@ -70,6 +90,27 @@ class Dossier::CvVariantsController < ApplicationController
   end
 
   private
+
+  # The owner's records, for the page and to check submitted ids against.
+  def load_selectable
+    owner = @variant.user
+    @selection = Dossier::CvSelection.new(@variant)
+    @engagements = owner.dossier_engagements.kept.newest_first
+                        .includes(:employer, :employment_type, assignments: [ :client, :role, :achievements ]).to_a
+    skills = Dossier::ExperienceCalculator.new(owner).skills.map(&:skill)
+    ActiveRecord::Associations::Preloader.new(records: skills, associations: :skill_category).call
+    @skill_groups = skills.group_by(&:skill_category).sort_by { |category, _| category.name.downcase }
+    credentials = owner.dossier_credentials.kept.newest_first.includes(:credential_type).to_a
+    @credential_groups = credentials.group_by(&:credential_type).sort_by { |type, _| [ type.position, type.name.downcase ] }
+
+    assignments = @engagements.flat_map(&:assignments)
+    @selectable = { "engagement" => @engagements, "assignment" => assignments,
+                    "achievement" => assignments.flat_map(&:achievements), "skill" => skills, "credential" => credentials }
+  end
+
+  def require_update
+    redirect_to dossier_cv_variants_path, alert: "Not authorised." unless Policy.new(current_user, @variant).can_update?
+  end
 
   def copy_choices
     current_user.dossier_cv_variants.alphabetical

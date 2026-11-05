@@ -65,6 +65,10 @@
     <%= link_to edit_dossier_cv_variant_path(@variant), class: "btn btn-secondary" do %>
       <%= lucide_icon("pencil", size: 16) %> Edit CV Variant
     <% end %>
+    <span class="btn-divider">|</span>
+    <%= link_to selection_dossier_cv_variant_path(@variant), class: "btn btn-secondary" do %>
+      <%= lucide_icon("list-checks", size: 16) %> Edit Selection
+    <% end %>
   <% end %>
 
   <% if @variant.user_id == current_user.id %>

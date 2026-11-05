@@ -60,6 +60,17 @@ RSpec.describe Dossier::CvSelection do
       expect(selection.included?(low)).to be(true)
       expect(selection.default?(recent)).to be(true)
     end
+
+    it "Writes a row only where a tick differs from the default, and drops rows back at the default" do
+      recent = engagement(:current)
+      low = create(:dossier_achievement, assignment: assignment_in(recent), importance: 1)
+      high = create(:dossier_achievement, assignment: low.assignment, importance: 5)
+      variant.items.create!(item: high, included: false)
+
+      selection.save!([ [ recent, true ], [ low, true ], [ high, true ] ])
+
+      expect(variant.items.reload.map { |i| [ i.item, i.included ] }).to eq([ [ low, true ] ])
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
