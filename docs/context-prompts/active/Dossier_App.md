@@ -620,6 +620,28 @@ Private to the author and Admins (the same check as certificate files); **never*
   (Client) runs project Alpha; PwC (Vendor) builds the software; Deloitte tests it; Telstra
   (Customer) buys the final product.
 
+### DECISIONS FROM BLOCK 12 GATE (2026-11-06)
+* **Colleagues per Assignment** (`Dossier::Colleague`): Name (required), Position, Mobile, Email
+  (valid address), LinkedIn (http(s)), Comment. Someone you worked with twice is entered twice;
+  a person-level record (or a link to Occasions' People) can come later. A "Colleagues" panel on
+  the Assignment page lists them, with Edit and Delete per row; "Add A Colleague" opens its own
+  small form. Hard delete with a confirm.
+* **Vendors and Customers** (`Dossier::AssignmentPartner`): Assignment, kind (vendor / customer),
+  Organisation and an optional Scope ("Built the Salesforce portal"); an Organisation once per
+  kind per Assignment. A "Vendors & Customers" panel with "Add A Vendor" / "Add A Customer".
+* **Organisation pages:** the owner sees "Your Assignments as Vendor" / "as Customer"; nobody
+  else does. An Organisation linked as Vendor or Customer can't be deleted (like a Client).
+* **Import:** each `vendors:` entry (name, project, scope) becomes a Vendor link — Organisation
+  found by name or abbreviation or created; Scope "Project – scope" (or just the scope). A
+  re-import adds missing Vendor links to existing Assignments (the one exception to "never
+  changes existing records"); the preview lists them. Customers and Colleagues are manual only.
+* **Never exported:** the Word/PDF generators never read these tables; specs fill all three in
+  and check the master CV and a CV Variant (Word and PDF HTML) contain none of them. Blocks 10
+  and 11 get the same checks. The panels show only to the owner and Admins, whatever the
+  Assignment's classification.
+* **Steps:** 12a Colleagues; 12b Vendors and Customers; 12c Organisation lists + delete
+  protection; 12d vendors from the import; 12e never-exported and eager-loading specs.
+
 ## Toasts — *reusable pattern*
 * Implement `#to_toast_label` on every entity (see Data Model).
 * Create/Update/Delete via `toast_created`/`toast_updated`/`toast_deleted`; Delete passes `info:`
