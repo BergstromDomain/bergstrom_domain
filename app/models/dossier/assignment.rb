@@ -18,6 +18,8 @@ class Dossier::Assignment < ApplicationRecord
   has_many   :achievements, -> { kept.in_order }, inverse_of: :assignment
   # Its Training stays with the Engagement.
   has_many   :credentials, dependent: :nullify
+  # Private details (Block 12): only the owner and Admins see them.
+  has_many   :colleagues, -> { order(Arel.sql("LOWER(dossier_colleagues.name)"), :id) }, dependent: :delete_all
 
   normalizes :summary, :project, with: ->(value) { value.strip.presence }
 
@@ -34,6 +36,10 @@ class Dossier::Assignment < ApplicationRecord
   def heading
     [ client&.short_name, project ].compact.join(" - ")
   end
+
+  # Colleagues, Vendors and Customers: the owner and Admins only, whatever
+  # the classification, and never on a CV.
+  def private_details_visible_to?(user) = user.present? && (user_id == user.id || user.can_administer?)
 
   def fits_within?(outer)
     start_on >= outer.start_on && (outer.end_on.nil? || (end_on && effective_end <= outer.effective_end))

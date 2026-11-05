@@ -1,0 +1,53 @@
+<%# Colleagues div — private: the caller shows it to the owner and Admins only. Locals: assignment, editable %>
+<div class="show-panel" id="colleagues" data-testid="assignment-colleagues">
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">
+      Colleagues
+      <%= render "shared/info_tip", text: "Only you and Admins see this, and it's never on a CV.", testid: "colleagues-info" %>
+    </h2>
+    <% if assignment.colleagues.any? %>
+      <div class="data-table-wrapper">
+        <table class="data-table" data-testid="colleagues-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Position</th>
+              <th>Mobile</th>
+              <th>Email</th>
+              <th>LinkedIn</th>
+              <th>Comment</th>
+              <% if editable %><th></th><% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <% assignment.colleagues.each do |colleague| %>
+              <tr data-testid="colleague-row">
+                <td><%= colleague.name %></td>
+                <td><%= colleague.position || "—" %></td>
+                <td><%= colleague.mobile || "—" %></td>
+                <td><%= colleague.email ? mail_to(colleague.email) : "—" %></td>
+                <td><%= colleague.linkedin_url ? link_to("LinkedIn", colleague.linkedin_url, target: "_blank", rel: "noopener") : "—" %></td>
+                <td><%= colleague.comment || "—" %></td>
+                <% if editable %>
+                  <td class="data-table__actions">
+                    <%= link_to "Edit", edit_dossier_assignment_colleague_path(assignment, colleague), class: "btn btn-secondary" %>
+                    <%= button_to "Delete", dossier_assignment_colleague_path(assignment, colleague), method: :delete,
+                          class: "btn btn-danger", form: { style: "display: inline" },
+                          data: { turbo_confirm: "Delete #{colleague.name}? This cannot be undone." } %>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p data-testid="colleagues-empty">No Colleagues yet.</p>
+    <% end %>
+    <% if editable %>
+      <%= link_to new_dossier_assignment_colleague_path(assignment), class: "btn btn-primary-action" do %>
+        <%= lucide_icon("user-plus", size: 16) %> Add A Colleague
+      <% end %>
+    <% end %>
+  </div>
+</div>

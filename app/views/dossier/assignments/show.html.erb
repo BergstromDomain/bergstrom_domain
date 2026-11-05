@@ -93,6 +93,10 @@
 <%# Training div %>
 <%= render "dossier/credentials/panel", credentials: @assignment.credentials.training.newest_first.includes(:provider) %>
 
+<% if @assignment.private_details_visible_to?(current_user) %>
+  <%= render "colleagues", assignment: @assignment, editable: policy.can_update? %>
+<% end %>
+
 <%# Actions div %>
 <div class="show-panel show-panel--actions" data-testid="show-panel-actions">
   <%= link_to dossier_engagement_path(@assignment.engagement), class: "btn btn-secondary" do %>

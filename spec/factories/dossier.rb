@@ -116,4 +116,9 @@ FactoryBot.define do
     association :user, factory: [ :user, :content_creator ]
     sequence(:name) { |n| "QE Lead — Company #{n}" }
   end
+
+  factory :dossier_colleague, class: "Dossier::Colleague" do
+    association :assignment, factory: :dossier_assignment
+    sequence(:name) { |n| "Colleague #{n}" }
+  end
 end
