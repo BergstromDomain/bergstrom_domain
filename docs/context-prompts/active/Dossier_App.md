@@ -521,6 +521,40 @@ Other export targets worth designing for from the start (same data, different re
 * Spike: compare options A–D on one real-looking fictional CV; pick, document, then TDD
 * Export the **full master CV** (no variants yet) in one style, Word + PDF
 
+### DECISIONS FROM BLOCK 7 GATE (2026-11-05)
+* **Spike = a write-up, not four prototypes.** Only the chosen route is built (on a fictional
+  CV in the specs):
+  * **A. Pandoc** — dropped: a new system binary for Docker, CI and every dev machine.
+  * **B. `sablon`** / **C. `caracal`** — not needed: both add a gem whose upkeep would need
+    checking, for output a small writer of our own can produce.
+  * **D. HTML + print CSS → PDF** — chosen for PDF: `PdfRenderingService` (Ferrum + headless
+    Chrome) already does this for Cookbook and Chronicle, and Chrome is already in CI.
+  * **Word: our own small OOXML writer on `rubyzip`** (already in the Gemfile) — writes
+    `word/document.xml` with named paragraph styles, the styles themselves in a
+    `reference.docx`-style `styles.xml` that could later be restyled in Word. No new gem or
+    binary; specs unzip the file and read `word/document.xml`. The same zip handling leads into
+    Block 9 (filling placeholders in an uploaded .docx).
+* **PDF footer:** `PdfRenderingService` takes a footer text; the CV's reads
+  "<Display Name> · Page X of Y" instead of "BergstromDomain".
+* **Contents, in order:** header (display name, headline, location, email, phone, website,
+  LinkedIn, GitHub — the file is only ever downloaded by its owner); summary (first person,
+  falling back to the terse summary); Experience (non-personal kept Engagements, newest first,
+  each with its Assignments: client/project, role, dates, summary, Tech Stack and kept
+  Achievements in position order, impact after the text); Personal Projects (personal
+  Engagements, same layout); Skills grouped by Skill Category; then Credentials grouped by
+  Credential Type in type order, all training types together as "Training", expired ones
+  marked "(expired)". A permanent job's single synced Assignment folds into its Engagement
+  (no repeated sub-heading). Vendor names never appear (the import never stores them).
+* **One style, "Classic":** A4, single column, sans-serif (Calibri in Word, system font in the
+  PDF), one dark slate accent — independent of the site's terracotta.
+* **Download Master CV:** ACTIONS › Import & Export › Download Master CV opens a page with
+  Download Word and Download PDF; the file downloads directly, no toast (`Q-D14`). Filename
+  `<Display_Name>_CV_<YYYY-MM-DD>.docx|.pdf`. Content Creator and above, own data only; with no
+  Profile the page asks for one first.
+* **Steps:** 7a spike write-up + decisions; 7b `Dossier::CvDocument` (the CV's content, in
+  order, no formatting); 7c HTML view + PDF download; 7d Word writer + Word download; 7e the
+  Download Master CV page + nav, feature and eager-loading specs.
+
 ## Block 8 — CV Variants
 * Create variant (from scratch or "Copy From" an existing variant)
 * Selection UI: checkbox per engagement/achievement/skill/credential, ordering, voice, style,

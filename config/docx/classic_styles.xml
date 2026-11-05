@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- "Classic" CV style for DocxBuilder: A4, one column, Calibri, one slate
+     accent (#334155). This is word/styles.xml as Word reads it: restyle a
+     copy in Word, unzip it and paste its styles.xml here to change the look.
+     Built-in ids (Title, Heading1-3, ListBullet) keep Word's navigation pane
+     and outline working. -->
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:docDefaults>
+    <w:rPrDefault>
+      <w:rPr>
+        <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:eastAsia="Calibri" w:cs="Calibri"/>
+        <w:color w:val="1F2933"/>
+        <w:sz w:val="21"/>
+        <w:szCs w:val="21"/>
+        <w:lang w:val="en-AU"/>
+      </w:rPr>
+    </w:rPrDefault>
+    <w:pPrDefault>
+      <w:pPr>
+        <w:spacing w:after="60" w:line="264" w:lineRule="auto"/>
+      </w:pPr>
+    </w:pPrDefault>
+  </w:docDefaults>
+
+  <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
+    <w:name w:val="Normal"/>
+    <w:qFormat/>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="Title">
+    <w:name w:val="Title"/>
+    <w:basedOn w:val="Normal"/>
+    <w:next w:val="Subtitle"/>
+    <w:qFormat/>
+    <w:pPr><w:spacing w:after="0"/></w:pPr>
+    <w:rPr><w:b/><w:color w:val="334155"/><w:sz w:val="48"/><w:szCs w:val="48"/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="Subtitle">
+    <w:name w:val="Subtitle"/>
+    <w:basedOn w:val="Normal"/>
+    <w:qFormat/>
+    <w:pPr><w:spacing w:after="40"/></w:pPr>
+    <w:rPr><w:color w:val="475569"/><w:sz w:val="26"/><w:szCs w:val="26"/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="Contacts">
+    <w:name w:val="Contacts"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr><w:spacing w:after="200"/></w:pPr>
+    <w:rPr><w:color w:val="475569"/><w:sz w:val="19"/><w:szCs w:val="19"/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="Heading1">
+    <w:name w:val="heading 1"/>
+    <w:basedOn w:val="Normal"/>
+    <w:next w:val="Normal"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:keepNext/>
+      <w:pBdr><w:bottom w:val="single" w:sz="12" w:space="2" w:color="334155"/></w:pBdr>
+      <w:spacing w:before="280" w:after="120"/>
+      <w:outlineLvl w:val="0"/>
+    </w:pPr>
+    <w:rPr><w:b/><w:caps/><w:color w:val="334155"/><w:spacing w:val="10"/><w:sz w:val="25"/><w:szCs w:val="25"/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="Heading2">
+    <w:name w:val="heading 2"/>
+    <w:basedOn w:val="Normal"/>
+    <w:next w:val="Meta"/>
+    <w:qFormat/>
+    <w:pPr><w:keepNext/><w:spacing w:before="160" w:after="0"/><w:outlineLvl w:val="1"/></w:pPr>
+    <w:rPr><w:b/><w:sz w:val="23"/><w:szCs w:val="23"/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="Heading3">
+    <w:name w:val="heading 3"/>
+    <w:basedOn w:val="Normal"/>
+    <w:next w:val="Meta"/>
+    <w:qFormat/>
+    <w:pPr><w:keepNext/><w:spacing w:before="100" w:after="0"/><w:outlineLvl w:val="2"/></w:pPr>
+    <w:rPr><w:b/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="Meta">
+    <w:name w:val="Meta"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr><w:keepNext/></w:pPr>
+    <w:rPr><w:color w:val="475569"/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="TechStack">
+    <w:name w:val="Tech Stack"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr><w:spacing w:after="20"/></w:pPr>
+    <w:rPr><w:color w:val="475569"/><w:sz w:val="19"/><w:szCs w:val="19"/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="ListBullet">
+    <w:name w:val="List Bullet"/>
+    <w:basedOn w:val="Normal"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:numPr><w:numId w:val="1"/></w:numPr>
+      <w:spacing w:after="30"/>
+      <w:ind w:left="284" w:hanging="284"/>
+    </w:pPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="Footer">
+    <w:name w:val="footer"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr><w:jc w:val="center"/></w:pPr>
+    <w:rPr><w:color w:val="6B6460"/><w:sz w:val="16"/><w:szCs w:val="16"/></w:rPr>
+  </w:style>
+</w:styles>

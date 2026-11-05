@@ -1,0 +1,196 @@
+# spec/services/dossier/cv_document_spec.rb
+
+require "rails_helper"
+
+RSpec.describe Dossier::CvDocument do
+  let(:user)  { create(:user, :content_creator) }
+  let(:today) { Date.new(2026, 11, 5) }
+  let(:cv)    { described_class.new(user, today: today) }
+
+  def profile(**attributes)
+    create(:dossier_profile, user: user, display_name: "Alex Example", **attributes)
+  end
+
+  def engagement(*traits, **attributes)
+    create(:dossier_engagement, *traits, user: user, **attributes)
+  end
+
+  # 1) Happy Path ─────────────────────────────────────────────────────────────
+  describe "Happy Path" do
+    it "Heads the CV with the name, headline and contact details" do
+      profile(headline: "Senior Test Consultant", location: create(:dossier_location, city: "Sydney", country: "Australia"),
+              email: "alex@example.com", phone: "+61 400 000 000", website_url: "https://alex.example",
+              linkedin_url: "https://linkedin.com/in/alex", github_url: "https://github.com/alex")
+
+      expect(cv.header.name).to eq("Alex Example")
+      expect(cv.header.headline).to eq("Senior Test Consultant")
+      expect(cv.header.contacts).to eq([ "Sydney, Australia", "alex@example.com", "+61 400 000 000", "https://alex.example",
+                                         "https://linkedin.com/in/alex", "https://github.com/alex" ])
+    end
+
+    it "Uses the first-person summary" do
+      profile(summary: "Test lead.", summary_first_person: "I lead test teams.")
+
+      expect(cv.summary).to eq("I lead test teams.")
+    end
+
+    it "Lists Engagements newest first, each with its Assignments, Tech Stack and Achievements" do
+      profile
+      older = engagement(position_title: "Tester", employer: create(:dossier_organisation, name: "Acme"),
+                         start_month: "2015-01", end_month: "2017-12")
+      newer = engagement(position_title: "Test Consultant", employer: create(:dossier_organisation, name: "Bridge"),
+                         employment_type: create(:dossier_employment_type, name: "Consultant"),
+                         start_month: "2019-03", end_month: "2022-06", summary: "Consulting for banks.")
+      assignment = create(:dossier_assignment, engagement: newer, client: create(:dossier_organisation, name: "Westpac", abbreviation: "WBC"),
+                                               project: "Payments", role: create(:dossier_role, name: "Test Lead"),
+                                               location: create(:dossier_location, city: "Sydney", country: "Australia"),
+                                               start_month: "2019-03", end_month: "2020-12", summary: "Led payments testing.",
+                                               test_tools_na: false, test_tools_text: "Jira, qTest")
+      create(:dossier_achievement, assignment: assignment, text: "Ran daily defect triage", impact: "cut open defects by 40%")
+      create(:dossier_achievement, assignment: assignment, text: "Built the regression suite")
+      create(:dossier_assignment, engagement: older, start_month: "2015-01", end_month: "2017-12")
+
+      expect(cv.experience.map(&:title)).to eq([ "Test Consultant", "Tester" ])
+      job = cv.experience.first
+      expect(job).to have_attributes(organisation: "Bridge", employment_type: "Consultant",
+                                     dates: "Mar 2019 – Jun 2022", summary: "Consulting for banks.")
+      expect(job.assignments.first).to have_attributes(
+        heading: "WBC - Payments", role: "Test Lead", dates: "Mar 2019 – Dec 2020", location: "Sydney, Australia",
+        summary: "Led payments testing.", tech_stack: [ [ "Test Tools", "Jira, qTest" ] ],
+        achievements: [ "Ran daily defect triage — cut open defects by 40%", "Built the regression suite" ]
+      )
+    end
+
+    it "Groups Skills by Skill Category" do
+      profile
+      tools = create(:dossier_skill_category, name: "Test Tools")
+      create(:dossier_skill, name: "Jira", skill_category: tools)
+      create(:dossier_skill, name: "Agile", skill_category: create(:dossier_skill_category, name: "Methodologies"))
+      create(:dossier_assignment, engagement: engagement, test_tools_na: false, test_tools_text: "Jira",
+                                  methodologies_na: false, methodologies_text: "Agile")
+
+      expect(cv.skills).to eq([ [ "Methodologies", [ "Agile" ] ], [ "Test Tools", [ "Jira" ] ] ])
+    end
+
+    it "Groups Credentials by Credential Type in type order, all training types together" do
+      profile
+      degree = create(:dossier_credential_type, name: "Degree", position: 1)
+      certification = create(:dossier_credential_type, name: "Certification", position: 3)
+      create(:dossier_credential_type, :training, name: "Course", position: 4)
+      workshop = create(:dossier_credential_type, :training, name: "Workshop", position: 5)
+      create(:dossier_credential, user: user, credential_type: workshop, title: "Exploratory Testing Workshop")
+      create(:dossier_credential, user: user, title: "Agile Fundamentals") # Course, training
+      create(:dossier_credential, user: user, credential_type: certification, title: "ISTQB Foundation",
+                                  provider: create(:dossier_organisation, name: "ISTQB"))
+      create(:dossier_credential, user: user, credential_type: degree, title: "BSc Computer Science",
+                                  start_month: "2001", end_month: "2004")
+
+      expect(cv.credentials.map(&:heading)).to eq([ "Degrees", "Certifications", "Training" ])
+      expect(cv.credentials.first.entries.first).to have_attributes(title: "BSc Computer Science", dates: "2001 – 2004")
+      expect(cv.credentials.second.entries.first).to have_attributes(title: "ISTQB Foundation", provider: "ISTQB", expired: false)
+      expect(cv.credentials.third.entries.map(&:title)).to contain_exactly("Exploratory Testing Workshop", "Agile Fundamentals")
+    end
+
+    it "Names the file after the display name and today's date" do
+      profile(display_name: "Alex Q. Example")
+
+      expect(cv.filename("docx")).to eq("Alex_Q_Example_CV_2026-11-05.docx")
+    end
+  end
+
+  # 2) Negative Path ──────────────────────────────────────────────────────────
+  describe "Negative Path" do
+    it "Has no Profile, so no CV, when none has been created" do
+      expect(cv.profile?).to be(false)
+    end
+
+    it "Leaves out other users' Engagements and Credentials" do
+      profile
+      create(:dossier_engagement, position_title: "Someone Else's Job")
+      create(:dossier_credential, title: "Someone Else's Course")
+
+      expect(cv.experience).to be_empty
+      expect(cv.credentials).to be_empty
+    end
+
+    it "Leaves out deleted Engagements and Achievements, and N/A Tech Stack lists" do
+      profile
+      engagement(position_title: "Deleted Job").soft_delete!
+      assignment = create(:dossier_assignment, engagement: engagement)
+      create(:dossier_achievement, assignment: assignment, text: "Kept")
+      create(:dossier_achievement, assignment: assignment, text: "Deleted").soft_delete!
+
+      expect(cv.experience.map(&:title)).to eq([ "Test Consultant" ])
+      expect(cv.experience.first.assignments.first).to have_attributes(achievements: [ "Kept" ], tech_stack: [])
+    end
+  end
+
+  # 3) Alternative Paths ───────────────────────────────────────────────────────
+  describe "Alternative Paths" do
+    it "Falls back to the terse summary" do
+      profile(summary: "Test lead.")
+
+      expect(cv.summary).to eq("Test lead.")
+    end
+
+    it "Puts personal Engagements under Personal Projects, not Experience" do
+      profile
+      engagement(position_title: "Test Consultant")
+      engagement(:personal, position_title: "Home Lab", employer: create(:dossier_organisation, name: "Self"))
+
+      expect(cv.experience.map(&:title)).to eq([ "Test Consultant" ])
+      expect(cv.personal_projects.map(&:title)).to eq([ "Home Lab" ])
+    end
+
+    it "Folds a permanent job's single synced Assignment into its Engagement" do
+      profile
+      job = engagement(:permanent, position_title: "QA Engineer")
+      create(:dossier_achievement, assignment: job.assignments.first, text: "Automated the smoke tests")
+
+      expect(job.assignments.size).to eq(1)
+      expect(cv.experience.first.assignments.first).to have_attributes(heading: nil, role: nil, dates: nil,
+                                                                        achievements: [ "Automated the smoke tests" ])
+    end
+
+    it "Marks an expired Credential, and shows an unfinished one as in progress" do
+      profile
+      create(:dossier_credential, :certification, user: user, title: "Old Cert", expires_month: "2021-01")
+      create(:dossier_credential, user: user, title: "Ongoing Course", end_month: "")
+
+      entries = cv.credentials.flat_map(&:entries)
+      expect(entries.find { |e| e.title == "Old Cert" }.expired).to be(true)
+      expect(entries.find { |e| e.title == "Ongoing Course" }.dates).to eq("Mar 2020 – in progress")
+    end
+  end
+
+  # 4) Edge Cases ─────────────────────────────────────────────────────────────
+  describe "Edge Cases" do
+    it "Leaves out contact details that aren't set" do
+      profile(email: "alex@example.com")
+
+      expect(cv.header.contacts).to eq([ "alex@example.com" ])
+    end
+
+    it "Shows a current Engagement as running to Present, and a remote Assignment as Remote" do
+      profile
+      job = engagement(:current)
+      create(:dossier_assignment, engagement: job, end_month: "", remote: true,
+                                  location: create(:dossier_location, city: "Perth", country: "Australia"))
+
+      expect(cv.experience.first.dates).to eq("Mar 2019 – Present")
+      expect(cv.experience.first.assignments.first.location).to eq("Perth, Australia (Remote)")
+    end
+
+    it "Has empty sections, not errors, for a Profile with nothing else" do
+      profile
+
+      expect([ cv.experience, cv.personal_projects, cv.skills, cv.credentials ]).to all(be_empty)
+    end
+
+    it "Strips characters a filename can't safely hold" do
+      profile(display_name: "Åsa O'Brien / Test")
+
+      expect(cv.filename("pdf")).to eq("Åsa_O_Brien_Test_CV_2026-11-05.pdf")
+    end
+  end
+end
