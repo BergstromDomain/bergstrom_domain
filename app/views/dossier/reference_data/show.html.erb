@@ -31,6 +31,24 @@
     </div>
   </div>
 
+  <%# Experience div — the signed-in user's own years with this record %>
+  <% if @slice_experience %>
+    <div class="show-panel" data-testid="your-experience">
+      <div class="show-panel__section">
+        <h2 class="show-panel__heading">Your Experience</h2>
+        <div class="show-meta-row">
+          <% @slice_experience.each do |label, slice, row| %>
+            <div class="show-meta-cell" data-testid="your-experience-<%= slice %>">
+              <h3 class="show-meta-cell__label"><%= label %></h3>
+              <p class="show-meta-cell__value"><%= row.duration %></p>
+              <p class="show-meta-cell__value"><%= row.date_range %> · <%= pluralize(row.assignment_count, "Assignment") %></p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <%# Assignments div — the signed-in user's own Assignments using this record %>
   <% if @assignments %>
     <div class="show-panel" data-testid="related-assignments">

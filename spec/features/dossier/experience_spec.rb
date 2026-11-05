@@ -47,6 +47,28 @@ RSpec.describe "Dossier Experience", type: :feature do
       expect(section("employment-types")).to have_link("Consultant", href: dossier_employment_type_path(consultant))
       expect(page).to have_link("My Skills", href: dossier_my_skills_path)
     end
+
+    it "Shows Your Experience on Organisation, Industry, Role and Employment Type pages" do
+      sign_in_as(charlie)
+
+      visit dossier_organisation_path(acme)
+      within("[data-testid='your-experience']") do
+        expect(page).to have_selector("[data-testid='your-experience-employer']", text: "8+ years")
+        expect(page).to have_selector("[data-testid='your-experience-employer']", text: "Jan 2015 – Dec 2022")
+        expect(page).not_to have_selector("[data-testid='your-experience-client']")
+      end
+
+      visit dossier_organisation_path(northwind)
+      expect(page).to have_selector("[data-testid='your-experience-client']", text: "3+ years")
+      expect(page).not_to have_selector("[data-testid='your-experience-employer']")
+
+      visit dossier_industry_path(government)
+      expect(page).to have_selector("[data-testid='your-experience-industry']", text: "3+ years")
+      visit dossier_role_path(test_lead)
+      expect(page).to have_selector("[data-testid='your-experience-role']", text: "1 Assignment")
+      visit dossier_employment_type_path(consultant)
+      expect(page).to have_selector("[data-testid='your-experience-employment_type']", text: "8+ years")
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
@@ -55,6 +77,16 @@ RSpec.describe "Dossier Experience", type: :feature do
       sign_in_as(uno)
       visit dossier_experience_path
       expect(page).to have_current_path(dossier_path)
+    end
+
+    it "Shows a visitor, or someone with no experience of it, no Your Experience panel" do
+      visit dossier_organisation_path(acme)
+      expect(page).to have_selector("[data-testid='reference-data-name']", text: "Acme Consulting")
+      expect(page).not_to have_selector("[data-testid='your-experience']")
+
+      sign_in_as(chris)
+      visit dossier_organisation_path(acme)
+      expect(page).not_to have_selector("[data-testid='your-experience']")
     end
 
     it "Shows another Content Creator only their own (empty) experience" do

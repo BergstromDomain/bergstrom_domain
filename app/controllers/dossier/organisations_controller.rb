@@ -13,6 +13,8 @@ class Dossier::OrganisationsController < Dossier::ReferenceDataController
 
   private
 
+  def experience_slices = [ [ "As Employer", :employer ], [ "As Client", :client ] ]
+
   def model_class          = Dossier::Organisation
   def permitted_attributes = %i[name abbreviation industry_id website_url description]
   def subtitle             = "Employers, clients, education providers and credential issuers, shared by every Dossier."

@@ -2,6 +2,8 @@
 class Dossier::RolesController < Dossier::ReferenceDataController
   private
 
+  def experience_slices = [ [ "Years", :role ] ]
+
   def model_class = Dossier::Role
   def subtitle    = "What you did for a client on an Assignment, e.g. Test Manager."
 
