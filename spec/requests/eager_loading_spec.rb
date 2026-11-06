@@ -267,6 +267,18 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads a Skill Category's Skills, their versions and your years without N+1 queries" do
+      databases = create(:dossier_skill_category, name: "Databases")
+      oracle = create(:dossier_skill, name: "Oracle", skill_category: databases)
+      create_list(:dossier_skill, 2, skill_category: databases, parent: oracle)
+      create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam),
+                                  other_tools_na: false, other_tools_text: oracle.versions.map(&:name).join(", "))
+
+      without_n_plus_one_queries { get dossier_skill_category_path(databases) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "Loads an Organisation's Credentials without N+1 queries" do
       ni = create(:dossier_organisation, name: "National Instruments")
       create_list(:dossier_credential, 2, user: adam, provider: ni)
