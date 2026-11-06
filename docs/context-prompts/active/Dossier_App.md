@@ -719,6 +719,21 @@ Private to the author and Admins (the same check as certificate files); **never*
 ---
 
 # TODO
+* **Dev data clean-up (Niklas, on a large screen, before PROD)** — all done in the app with what
+  exists today; no code needed. Planned 2026-11-06:
+  1. **Merge and regroup Skills and Skill Categories:** Merge the import's broken bracket Skills
+     (`Windows (XP` and `Windows (XP)` → `Windows XP`; `Windows (Vista)`, `Windows (NT)`;
+     `Linux (Ubuntu` and `Red Hat)` → `Linux Ubuntu` / `Linux Red Hat`) and other duplicates;
+     delete the unused umbrella Skills (`Windows (NT, XP, Vista, 8.1, 10, 11)`,
+     `Linux (Ubuntu, Red Hat, Embedded, SUSE)`); set **Version Of** on versions (see Skill
+     versions); move Uncategorised Skills into real Skill Categories (only categorised Skills are
+     in a CV Variant's default selection).
+  2. **Confirm all dates** on Engagements and Assignments (they drive years of experience,
+     Timeline gaps and the CV).
+  3. **Map courses to Assignments:** set the Assignment on each Training course taken during one.
+  4. **Add Vendors and Customers** to Assignments if/when known (private).
+  5. **Add Colleagues** (and Vendor/Customer Staff) when known (private).
+  Then re-check the master CV and the CV Variants' Word/PDF downloads.
 * **Upload CV Template (Block 9)** — paused 2026-11-06. Niklas is using the app as it is for a
   couple of weeks (reviewing and rewriting text, CV Variants, Classic Word/PDF). Revisit when a
   CV has to go into a specific consultancy's template; bring that template along, since it shows
