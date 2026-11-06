@@ -6,8 +6,9 @@
 # certifications, training). Fields that aren't CV data (notes, src,
 # linkedin…) are never read. A record that already exists is skipped, never updated, so a
 # re-import keeps edits made in the app. An Assignment's vendors become
-# private Vendor links (never on a CV); a re-import adds missing ones to an
-# existing Assignment, like its achievements.
+# private Vendor links, with their staff as private Staff members (never on
+# a CV); a re-import adds missing ones to an existing Assignment, like its
+# achievements.
 #
 # All or nothing: #preview runs the whole import and rolls it back, so the
 # preview and #import! can't disagree; any error rolls #import! back too.
@@ -28,6 +29,9 @@ class Dossier::Import
   DEGREE_TITLE = /degree|bachelor|master of|diploma|doctor|ph\.?d/i
   THESIS_TITLE = /\A(?:\w+ )?thesis\b/i
   NA = "N/A"
+  # A vendor's staff: YAML key → Dossier::StaffMember attribute.
+  STAFF_FIELDS = { "name" => :name, "position" => :position, "mobile" => :mobile, "email" => :email,
+                   "linkedin" => :linkedin_url, "comment" => :comment }.freeze
 
   # The master list tags items with their source CV: "Provar (D)", "Test Tools (P tools)".
   SOURCE_TAG = /\s*\([A-Z](?: [a-z]+)?\)\z/
@@ -208,11 +212,30 @@ class Dossier::Import
       next unless (vendor = organisation(row["name"]))
 
       label = "#{vendor.name} on #{assignment.to_toast_label}"
-      if (existing = assignment.partners.vendor.find_by(organisation: vendor))
-        note_existing("Vendor", label, existing)
+      if (partner = assignment.partners.vendor.find_by(organisation: vendor))
+        note_existing("Vendor", label, partner)
       else
         scope = [ row["project"], row["scope"] ].map { |part| part.to_s.strip }.reject(&:empty?).join(" – ")
-        save(assignment.partners.build(kind: "vendor", organisation: vendor, scope: scope), "Vendor", label)
+        partner = save(assignment.partners.build(kind: "vendor", organisation: vendor, scope: scope), "Vendor", label)
+      end
+      import_staff(partner, label, row["staff"]) if partner
+    end
+  end
+
+  # staff: a vendor's list of { name, position, mobile, email, linkedin,
+  # comment }. Matched by name (any case), so a re-import adds only new ones.
+  def import_staff(partner, partner_label, rows)
+    return unless rows.is_a?(Array)
+
+    rows.each do |row|
+      next unless row.is_a?(Hash) && (name = row["name"].to_s.strip).present?
+
+      label = "#{name} at #{partner_label}"
+      if (existing = partner.staff_members.find_by("LOWER(name) = ?", name.downcase))
+        note_existing("Staff Member", label, existing)
+      else
+        attributes = STAFF_FIELDS.to_h { |key, attribute| [ attribute, row[key].to_s ] }
+        save(partner.staff_members.build(attributes), "Staff Member", label)
       end
     end
   end
