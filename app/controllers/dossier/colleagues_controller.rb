@@ -61,6 +61,6 @@ class Dossier::ColleaguesController < ApplicationController
   def colleagues_path = dossier_assignment_path(@assignment, anchor: "colleagues")
 
   def colleague_params
-    params.require(:dossier_colleague).permit(:name, :position, :mobile, :email, :linkedin_url, :comment)
+    params.require(:dossier_colleague).permit(*Dossier::ContactDetails::FIELDS)
   end
 end
