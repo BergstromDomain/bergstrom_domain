@@ -4,6 +4,10 @@ class Dossier::Skill < ApplicationRecord
   include Dossier::CvSelectable
 
   belongs_to :skill_category
+  # Versions (Windows XP, Windows Vista) of a Skill (Windows): one level deep.
+  belongs_to :parent, class_name: "Dossier::Skill", optional: true
+  has_many :versions, -> { order(Arel.sql("LOWER(name)")) }, class_name: "Dossier::Skill", foreign_key: :parent_id,
+                                                             inverse_of: :parent, dependent: :nullify
   has_many :assignment_skills, dependent: :restrict_with_error
   has_many :achievement_skills, dependent: :restrict_with_error
   has_many :credential_skills, dependent: :restrict_with_error
@@ -12,6 +16,7 @@ class Dossier::Skill < ApplicationRecord
 
   validate :aliases_are_not_other_skills
   validate :name_is_not_another_skills_alias
+  validate :parent_is_one_level_deep
 
   def self.find_by_name_or_alias(text)
     text = text.to_s.strip.downcase
@@ -33,6 +38,7 @@ class Dossier::Skill < ApplicationRecord
     raise ArgumentError, "A Skill can't be merged into itself" if target == self
 
     transaction do
+      move_versions(target)
       move_links(assignment_skills, target, :assignment_id, :stack_slot)
       move_links(achievement_skills, target, :achievement_id)
       move_links(credential_skills, target, :credential_id)
@@ -41,6 +47,18 @@ class Dossier::Skill < ApplicationRecord
       destroy!
       target.update!(aliases: target.aliases + names)
     end
+  end
+
+  # The Skill a family is shown under: the parent, or itself.
+  def family_root = parent || self
+
+  # What sets a version apart: "XP" for Windows XP under Windows; the whole
+  # name when it doesn't start with the parent's (Ubuntu under Linux).
+  def version_label
+    return name unless parent
+
+    rest = name.sub(/\A#{Regexp.escape(parent.name)}\b/i, "").strip
+    rest.empty? || rest == name ? name : rest
   end
 
   def aliases_text
@@ -59,6 +77,26 @@ class Dossier::Skill < ApplicationRecord
       taken ? link.destroy! : link.update!(skill: target)
     end
     links.reset
+  end
+
+  # A merged Skill's versions become versions of the kept Skill (or of its
+  # parent, when the kept Skill is itself a version).
+  def move_versions(target)
+    target.parent = nil if target.parent_id == id
+    root = target.parent || target
+    versions.where.not(id: target.id).update_all(parent_id: root.id, updated_at: Time.current)
+  end
+
+  def parent_is_one_level_deep
+    return unless parent
+
+    if parent == self || parent_id == id
+      errors.add(:parent, "can't be the Skill itself")
+    elsif parent.parent_id
+      errors.add(:parent, "is itself a version of #{parent.parent.name}")
+    elsif persisted? && versions.exists?
+      errors.add(:parent, "can't be set on a Skill that has versions")
+    end
   end
 
   def tidy_aliases

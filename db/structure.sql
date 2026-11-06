@@ -1126,7 +1126,8 @@ CREATE TABLE public.dossier_skills (
     description text,
     slug character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    parent_id bigint
 );
 
 
@@ -3302,6 +3303,13 @@ CREATE UNIQUE INDEX index_dossier_skills_on_lower_name ON public.dossier_skills 
 
 
 --
+-- Name: index_dossier_skills_on_parent_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_skills_on_parent_id ON public.dossier_skills USING btree (parent_id);
+
+
+--
 -- Name: index_dossier_skills_on_skill_category_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3826,6 +3834,14 @@ ALTER TABLE ONLY public.likes
 
 
 --
+-- Name: dossier_skills fk_rails_1faad92959; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_skills
+    ADD CONSTRAINT fk_rails_1faad92959 FOREIGN KEY (parent_id) REFERENCES public.dossier_skills(id) ON DELETE SET NULL;
+
+
+--
 -- Name: user_app_settings fk_rails_251c45444d; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4272,6 +4288,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261106130000'),
 ('20261106120000'),
 ('20261106110000'),
 ('20261106100000'),
