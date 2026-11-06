@@ -11,7 +11,7 @@ RSpec.describe "Edit Guide Page", type: :feature do
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     it "Updates the title and regenerates the slug" do
-      gp = create(:guide_page, title: "Fitness Guide", app_section: "admin", body: "Body.")
+      gp = create(:guide_page, title: "Fitness Guide", app_section: "blog_posts", body: "Body.")
       visit edit_guide_page_path(gp)
       fill_in "Title", with: "Sport Guide"
       click_button "Update Guide Page"
@@ -22,7 +22,7 @@ RSpec.describe "Edit Guide Page", type: :feature do
     end
 
     it "Updates the body and shows the new rendered body on the show page" do
-      gp = create(:guide_page, title: "Sport Guide", app_section: "admin", body: "Old body.")
+      gp = create(:guide_page, title: "Sport Guide", app_section: "blog_posts", body: "Old body.")
       visit edit_guide_page_path(gp)
       fill_in "Body", with: "**New body.**"
       click_button "Update Guide Page"
@@ -69,7 +69,7 @@ RSpec.describe "Edit Guide Page", type: :feature do
   describe "Negative Path" do
     it "Shows an error when updated title is already taken" do
       create(:guide_page, title: "Chronicle Guide", app_section: "blog_posts", body: "Body.")
-      gp = create(:guide_page, title: "Sport Guide", app_section: "admin", body: "Body.")
+      gp = create(:guide_page, title: "Sport Guide", app_section: "blog_posts", body: "Body.")
       visit edit_guide_page_path(gp)
       fill_in "Title", with: "Chronicle Guide"
       click_button "Update Guide Page"
@@ -95,7 +95,7 @@ RSpec.describe "Edit Guide Page", type: :feature do
   # 3) Alternative Paths ───────────────────────────────────────────────────────
   describe "Alternative Paths" do
     it "Old slug resolves to the record after a title change" do
-      gp = create(:guide_page, title: "Fitness Guide", app_section: "admin", body: "Body.")
+      gp = create(:guide_page, title: "Fitness Guide", app_section: "blog_posts", body: "Body.")
       old_slug = gp.slug
       visit edit_guide_page_path(gp)
       fill_in "Title", with: "Sport Guide"
@@ -105,7 +105,7 @@ RSpec.describe "Edit Guide Page", type: :feature do
     end
 
     it "Re-renders the form with entered values when validation fails" do
-      gp = create(:guide_page, title: "Sport Guide", app_section: "admin", body: "Body.")
+      gp = create(:guide_page, title: "Sport Guide", app_section: "blog_posts", body: "Body.")
       visit edit_guide_page_path(gp)
       fill_in "Title", with: ""
       click_button "Update Guide Page"
@@ -113,13 +113,13 @@ RSpec.describe "Edit Guide Page", type: :feature do
     end
 
     it "Allows changing the App Section to one already used by another guide page" do
-      create(:guide_page, title: "Classification", app_section: "admin")
+      create(:guide_page, title: "Classification", app_section: "blog_posts")
       gp = create(:guide_page, title: "Sport Guide", app_section: "core", body: "Body.")
       visit edit_guide_page_path(gp)
-      select "Admin", from: "App Section"
+      select "Chronicle", from: "App Section"
       click_button "Update Guide Page"
-      expect(page).to have_selector("[data-testid='guide-page-app-section']", text: "Admin")
-      expect(GuidePage.where(app_section: "admin").count).to eq(2)
+      expect(page).to have_selector("[data-testid='guide-page-app-section']", text: "Chronicle")
+      expect(GuidePage.where(app_section: "blog_posts").count).to eq(2)
     end
 
     it "Allows 'Sam SysAdmin' to edit a guide page" do

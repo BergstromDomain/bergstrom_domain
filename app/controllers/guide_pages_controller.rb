@@ -4,17 +4,19 @@ class GuidePagesController < ApplicationController
   allow_unauthenticated_access only: %i[index show]
   before_action :resume_session_if_present
   before_action :set_guide_page, only: %i[show edit update destroy]
+  before_action :require_visible, only: %i[show edit update destroy]
   before_action :set_policy,     only: %i[show edit update destroy]
   before_action :require_admin,  only: %i[new create]
 
   def index
     @query = params[:q].to_s.strip
-    # Sorted by App Section label, then Title — app_section_label isn't a
-    # DB column (it's a Ruby-side lookup off the enum), so this sorts in
-    # Ruby rather than SQL, same "fine at this app's scale" reasoning as
-    # BlogPostFilter's own sort.
-    @guide_pages = GuidePage.search(@query).to_a
-      .sort_by { |guide_page| [ guide_page.app_section_label, guide_page.title.downcase ] }
+    # Sorted by App Section label, then reading order (a story's chapters
+    # come in file order; pages without a position after them), then Title —
+    # app_section_label isn't a DB column (it's a Ruby-side lookup off the
+    # enum), so this sorts in Ruby rather than SQL, same "fine at this app's
+    # scale" reasoning as BlogPostFilter's own sort.
+    @guide_pages = GuidePage.visible_to(current_user).search(@query).to_a
+      .sort_by { |guide_page| [ guide_page.app_section_label, guide_page.position || Float::INFINITY, guide_page.title.downcase ] }
   end
 
   def show
@@ -66,6 +68,12 @@ class GuidePagesController < ApplicationController
     unless current_user&.can_administer?
       redirect_to guide_pages_path, alert: "Not authorised."
     end
+  end
+
+  # Pages in a system-admin-only section (GuidePage::SYSTEM_ADMIN_SECTIONS)
+  # don't exist for anyone else — not even to an admin who could edit them.
+  def require_visible
+    redirect_to guide_pages_path, alert: "Not authorised." unless @guide_page.visible_to?(current_user)
   end
 
   def resume_session_if_present

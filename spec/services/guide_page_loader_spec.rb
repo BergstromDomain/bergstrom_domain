@@ -59,6 +59,16 @@ RSpec.describe GuidePageLoader do
 
       expect(GuidePage.first.body).to eq("Use the menu.\n\n![The Cookbook left nav](#{image_url('left_nav.png')})")
     end
+
+    it "Takes each page's position from its file name's number, so a story reads in order" do
+      write_page("02_gary_signs_up.md", title: "Gary Signs Up")
+      write_page("10_adam.md", title: "Adam")
+
+      load_pages
+
+      expect(GuidePage.find_by!(title: "Gary Signs Up").position).to eq(2)
+      expect(GuidePage.find_by!(title: "Adam").position).to eq(10)
+    end
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
@@ -127,6 +137,14 @@ RSpec.describe GuidePageLoader do
       load_pages
 
       expect(GuidePage.first).to have_attributes(supports_guest: false, supports_user: false, supports_content_creator: false)
+    end
+
+    it "Leaves the position empty for a file name without a number" do
+      write_page("notes.md", title: "Notes")
+
+      load_pages
+
+      expect(GuidePage.find_by!(title: "Notes").position).to be_nil
     end
   end
 

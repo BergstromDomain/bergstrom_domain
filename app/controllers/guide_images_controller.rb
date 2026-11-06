@@ -9,14 +9,30 @@
 # the request.
 class GuideImagesController < ApplicationController
   allow_unauthenticated_access only: :show
+  before_action :resume_session_if_present
 
   ROOT = Rails.root.join("docs/user-guide")
 
   def show
     image = ROOT.glob("*/images/*.png").find { |file| file == ROOT.join(params[:app], "images", "#{params[:name]}.png") }
-    return head :not_found unless image
+    return head :not_found unless image && (!restricted? || current_user&.system_admin?)
 
-    expires_in 1.hour, public: true
-    send_file image, type: "image/png", disposition: "inline" if stale?(etag: Digest::SHA256.file(image).hexdigest, public: true)
+    # A system-admin-only screenshot mustn't sit in a shared cache.
+    public = !restricted?
+    expires_in 1.hour, public: public
+    send_file image, type: "image/png", disposition: "inline" if stale?(etag: Digest::SHA256.file(image).hexdigest, public: public)
+  end
+
+  private
+
+  # Image folders are named after the app (docs/user-guide/cookbook), not
+  # the section enum (recipes), but docs/user-guide/admin matches its
+  # system-admin-only section.
+  def restricted?
+    GuidePage::SYSTEM_ADMIN_SECTIONS.include?(params[:app])
+  end
+
+  def resume_session_if_present
+    Current.session ||= find_session_by_cookie
   end
 end

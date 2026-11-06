@@ -86,10 +86,10 @@ RSpec.describe "List Guide Page", type: :feature do
     end
 
     it "Sorts by App Section ahead of Title, even when Title order alone would disagree" do
-      # By title alone "Apple Page" < "Zebra Page", but "Admin" < "Occasions"
-      # as App Section labels, so the Admin page must still come first.
+      # By title alone "Apple Page" < "Zebra Page", but "Chronicle" < "Occasions"
+      # as App Section labels, so the Chronicle page must still come first.
       create(:guide_page, title: "Apple Page", app_section: "event_tracker")
-      create(:guide_page, title: "Zebra Page", app_section: "admin")
+      create(:guide_page, title: "Zebra Page", app_section: "blog_posts")
       visit guide_pages_path
       main_text = find("[data-testid='main-content']").text
       expect(main_text.index("Zebra Page")).to be < main_text.index("Apple Page")

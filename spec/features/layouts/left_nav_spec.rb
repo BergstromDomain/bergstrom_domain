@@ -539,14 +539,14 @@ RSpec.describe "Left Nav", type: :feature do
       context "When guide pages exist across multiple sections" do
         it "Shows a table of contents grouped by App Section, omitting empty sections" do
           core_page  = create(:guide_page, title: "Classification", app_section: "core")
-          admin_page = create(:guide_page, title: "Admin Overview",  app_section: "admin")
+          recipes_page = create(:guide_page, title: "Cookbook Overview", app_section: "recipes")
           visit guide_pages_path
 
           within("[data-testid='left-nav']") do
             expect(page).to have_selector("[data-testid='left-nav-guide-section-core-h3']", text: "Core")
             expect(page).to have_link("Classification", href: guide_page_path(core_page))
-            expect(page).to have_selector("[data-testid='left-nav-guide-section-admin-h3']", text: "Admin")
-            expect(page).to have_link("Admin Overview", href: guide_page_path(admin_page))
+            expect(page).to have_selector("[data-testid='left-nav-guide-section-recipes-h3']", text: "Cookbook")
+            expect(page).to have_link("Cookbook Overview", href: guide_page_path(recipes_page))
             expect(page).not_to have_selector("[data-testid='left-nav-guide-section-event-tracker-h3']")
             expect(page).not_to have_selector("[data-testid='left-nav-guide-section-blog-posts-h3']")
           end

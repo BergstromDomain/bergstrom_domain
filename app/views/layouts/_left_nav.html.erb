@@ -727,7 +727,7 @@
       <% end %>
 
       <%# ── Table of contents, grouped by section — empty sections omitted %>
-      <% GuidePage.app_sections.keys.each do |section| %>
+      <% GuidePage.sections_visible_to(current_user).each do |section| %>
         <% section_pages = guide_pages_for_section(section) %>
         <% next if section_pages.empty? %>
         <h3 class="left-nav-h3" data-testid="left-nav-guide-section-<%= section.dasherize %>-h3">

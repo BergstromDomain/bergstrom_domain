@@ -8,6 +8,9 @@
 # updates rather than duplicates. All-or-nothing: one bad file saves nothing.
 # Run via `bin/rails guide_pages:load[cookbook]`.
 #
+# A file name's leading number (02_gary_signs_up.md) becomes the page's
+# position, so a section reads in file order rather than by title.
+#
 # Screenshots sit in the folder's images/ subfolder and are written
 # `![Alt text](images/name.png)`, so they also preview on GitHub. Loading
 # points them at the guide image route (GuideImagesController), after
@@ -19,6 +22,7 @@ class GuidePageLoader
   FLAGS = GuidePage::SUPPORT_COLUMNS.keys.map(&:to_s).freeze
   IMAGE = %r{!\[(?<alt>[^\]]*)\]\(images/(?<name>[^)]+)\.png\)}
   IMAGE_NAME = /\A[a-z0-9_-]+\z/
+  POSITION = /\A(?<number>\d+)_/
 
   def initialize(directory)
     @directory = Pathname.new(directory)
@@ -52,6 +56,7 @@ class GuidePageLoader
       title:       attributes["title"],
       app_section: attributes["app_section"],
       body:        link_images(match[:body].strip, file),
+      position:    POSITION.match(file.basename.to_s)&.then { |number| number[:number].to_i },
       **FLAGS.index_with { |flag| attributes.fetch(flag, false) }
     )
     page

@@ -3082,6 +3082,36 @@ textarea.form-control {
   margin: var(--space-md) 0;
 }
 
+/* The User Guide's story is told by the test users. A chapter opens with
+   its narrator's portrait (images/<persona>_portrait.png), and each thing
+   they say is a blockquote starting with their avatar
+   (> ![Gary](images/gary_guest_avatar.png) I was introduced…). The file
+   name picks the style, so the Markdown needs no HTML. */
+.guide-page-body img[src*="_portrait"] {
+  display: block;
+  width: 160px;
+  height: 160px;
+  margin: 0 auto var(--space-md);
+  border-radius: 50%;
+}
+
+.guide-page-body blockquote {
+  display: flow-root;
+  margin: var(--space-md) 0;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-raised);
+  border-left: 3px solid var(--color-border-focus);
+  border-radius: var(--radius-sm);
+}
+
+.guide-page-body img[src*="_avatar"] {
+  float: left;
+  width: 48px;
+  height: 48px;
+  margin: 0 var(--space-sm) 0 0;
+  border-radius: 50%;
+}
+
 .guide-page-support-list {
   display: flex;
   flex-wrap: wrap;
