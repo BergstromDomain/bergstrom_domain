@@ -20,8 +20,8 @@ class GuidePage < ApplicationRecord
   # Declared in the order the left nav lists them: the story first, as the
   # way in, then the apps' reference pages.
   # :story is the test users' first-person walk through the site (Gary,
-  # Ulrika, Charlie, Adam); :admin is Sam's chapter, for system admins only
-  # (see .visible_to).
+  # Ulrika, Charlie, Adam); :admin holds pages for admins (reference data);
+  # :system_admin is Sam's chapter, for system admins only (see .visible_to).
   enum :app_section, {
     story:         "story",
     core:          "core",
@@ -29,7 +29,8 @@ class GuidePage < ApplicationRecord
     blog_posts:    "blog_posts",
     recipes:       "recipes",
     dossier:       "dossier",
-    admin:         "admin"
+    admin:         "admin",
+    system_admin:  "system_admin"
   }, validate: true
 
   # Brand-facing labels for app_section — the enum's own values stay
@@ -44,7 +45,8 @@ class GuidePage < ApplicationRecord
     "blog_posts"    => "Chronicle",
     "recipes"       => "Cookbook",
     "dossier"       => "Dossier",
-    "admin"         => "Admin"
+    "admin"         => "Admin",
+    "system_admin"  => "System Admin"
   }.freeze
 
   # Which personas the feature a guide page documents is available to.
@@ -62,7 +64,7 @@ class GuidePage < ApplicationRecord
 
   # Sections only a system admin may read — user management and restoring
   # data aren't part of the normal User Guide, not even for admins.
-  SYSTEM_ADMIN_SECTIONS = %w[admin].freeze
+  SYSTEM_ADMIN_SECTIONS = %w[system_admin].freeze
 
   # Chapter order first (GuidePageLoader takes position from the file
   # name's number), then title; pages without a position come last.

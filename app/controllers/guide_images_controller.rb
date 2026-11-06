@@ -26,7 +26,7 @@ class GuideImagesController < ApplicationController
   private
 
   # Image folders are named after the app (docs/user-guide/cookbook), not
-  # the section enum (recipes), but docs/user-guide/admin matches its
+  # the section enum (recipes), but docs/user-guide/system_admin matches its
   # system-admin-only section.
   def restricted?
     GuidePage::SYSTEM_ADMIN_SECTIONS.include?(params[:app])

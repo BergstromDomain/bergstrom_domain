@@ -22,7 +22,7 @@ RSpec.describe GuidePage, type: :model do
       is_expected.to define_enum_for(:app_section)
         .with_values(
           story: "story", core: "core", event_tracker: "event_tracker", blog_posts: "blog_posts",
-          recipes: "recipes", dossier: "dossier", admin: "admin"
+          recipes: "recipes", dossier: "dossier", admin: "admin", system_admin: "system_admin"
         ).backed_by_column_of_type(:string)
     }
   end
@@ -143,6 +143,7 @@ RSpec.describe GuidePage, type: :model do
       expect(build(:guide_page, app_section: "admin").app_section_label).to eq("Admin")
       expect(build(:guide_page, app_section: "story").app_section_label).to eq("The Story")
       expect(build(:guide_page, app_section: "dossier").app_section_label).to eq("Dossier")
+      expect(build(:guide_page, app_section: "system_admin").app_section_label).to eq("System Admin")
     end
   end
 
@@ -188,38 +189,41 @@ RSpec.describe GuidePage, type: :model do
   describe ".visible_to" do
     let!(:story_page) { create(:guide_page, app_section: "story") }
     let!(:admin_page) { create(:guide_page, app_section: "admin") }
+    let!(:sams_page)  { create(:guide_page, app_section: "system_admin") }
 
     # 1) Happy Path ───────────────────────────────────────────────────────────
     describe "Happy Path" do
-      it "shows a system admin every page, including the Admin section" do
+      it "shows a system admin every page, including the System Admin section" do
         sam = create(:user, :system_admin)
-        expect(GuidePage.visible_to(sam)).to contain_exactly(story_page, admin_page)
-        expect(admin_page.visible_to?(sam)).to be(true)
+        expect(GuidePage.visible_to(sam)).to contain_exactly(story_page, admin_page, sams_page)
+        expect(sams_page.visible_to?(sam)).to be(true)
       end
     end
 
     # 2) Negative Path ──────────────────────────────────────────────────────────
     describe "Negative Path" do
-      it "hides the Admin section from an admin, a content creator, a user and a guest" do
+      it "hides the System Admin section from an admin, a content creator, a user and a guest" do
         [ create(:user, :admin), create(:user, :content_creator), create(:user), nil ].each do |user|
-          expect(GuidePage.visible_to(user)).to contain_exactly(story_page)
-          expect(admin_page.visible_to?(user)).to be(false)
+          expect(GuidePage.visible_to(user)).to contain_exactly(story_page, admin_page)
+          expect(sams_page.visible_to?(user)).to be(false)
         end
       end
     end
 
     # 3) Alternative Paths ───────────────────────────────────────────────────────
     describe "Alternative Paths" do
-      it "shows every other section to a guest" do
+      it "shows every other section to a guest, including the admins' reference-data pages" do
         expect(story_page.visible_to?(nil)).to be(true)
+        expect(admin_page.visible_to?(nil)).to be(true)
       end
     end
 
     # 4) Edge Cases ─────────────────────────────────────────────────────────────
     describe "Edge Cases" do
-      it "lists the sections a user may see, without Admin for anyone but a system admin" do
-        expect(GuidePage.sections_visible_to(create(:user, :admin))).not_to include("admin")
-        expect(GuidePage.sections_visible_to(create(:user, :system_admin))).to include("admin")
+      it "lists the sections a user may see, without System Admin for anyone but a system admin" do
+        expect(GuidePage.sections_visible_to(create(:user, :admin))).to include("admin")
+        expect(GuidePage.sections_visible_to(create(:user, :admin))).not_to include("system_admin")
+        expect(GuidePage.sections_visible_to(create(:user, :system_admin))).to include("system_admin")
       end
     end
   end
