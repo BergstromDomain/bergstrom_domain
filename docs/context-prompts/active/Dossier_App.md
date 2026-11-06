@@ -660,6 +660,24 @@ Private to the author and Admins (the same check as certificate files); **never*
 * **Steps:** 12f refactor shared contact details; 12g Staff; 12h Staff from the import; 12i
   never-exported and eager-loading specs.
 
+## Skill versions (2026-11-06, built on request)
+* **Version Of:** a Skill can be a version of another, one level deep (`Dossier::Skill#parent` /
+  `#versions`), e.g. Windows XP of Windows, Ubuntu of Linux. Each version stays its own Skill; an
+  Assignment tags Windows for an unknown version, Windows XP when known. Set on the Skill form;
+  the Skill page shows Version Of / Versions. Merging hands versions to the kept Skill; deleting
+  a parent frees its versions.
+* **CV display:** Skills and each Assignment's Tech Stack show a family as one entry —
+  "Windows (XP, Vista)", versions in the order first used, the label being the name minus the
+  parent's ("Ubuntu" when it doesn't start with it); the parent alone shows as "Windows". A CV
+  Variant lists only its included versions.
+* **Experience:** a version counts for its parent too (union of months); versions keep their own.
+* **Parsing** (`Dossier::SkillNames`, Tech Stack, Achievement and Training skill lists): commas
+  split only outside brackets; a Skill named with brackets ("Android (Eclair)") wins; otherwise
+  "Name (a, b)" means versions a and b of Name — an existing version by label, else "Name a" by
+  name/alias, else a new Uncategorised "Name a" under Name (never a version of a version).
+* **Cleanup (manual, in the app):** merge "Windows (XP)" / "Windows (XP" into "Windows XP" etc.,
+  delete the unused umbrella Skills, then set Version Of.
+
 ## Toasts — *reusable pattern*
 * Implement `#to_toast_label` on every entity (see Data Model).
 * Create/Update/Delete via `toast_created`/`toast_updated`/`toast_deleted`; Delete passes `info:`
