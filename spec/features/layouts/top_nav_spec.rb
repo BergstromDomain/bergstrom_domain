@@ -144,6 +144,10 @@ RSpec.describe "Top Nav", type: :feature do
       it "Shows 'User Settings' link in the 'User Thumbnail' dropdown menu" do
         expect(page).to have_link("User Settings")
       end
+
+      it "Marks the 'User Thumbnail' dropdown's menu for the User Guide's screenshots" do
+        expect(page).to have_css("[data-testid='user-thumbnail-dropdown'] [data-testid='user-thumbnail-dropdown-menu']", visible: :all)
+      end
     end
 
     context "When viewing as 'Charlie Content Creator'" do

@@ -88,4 +88,67 @@ RSpec.describe "Story Guide Images", type: :feature, js: true, guide_image: true
       capture_guide_image("flash-notice", as: "story/gary_sign_up_submitted")
     end
   end
+
+  # ── Chapter 3: Ulrika User ────────────────────────────────────────────────
+  describe "Ulrika User" do
+    def sign_in_and_wait(user)
+      sign_in_as(user)
+      expect(page).to have_css("[data-testid='user-thumbnail-dropdown']", wait: 8)
+    end
+
+    it "Captures the user menu, comments and reactions" do
+      sign_in_and_wait(world.ulrika)
+      open_dropdown("user-thumbnail-dropdown")
+      capture_guide_image(%w[top-nav user-thumbnail-dropdown-menu], as: "story/ulrika_user_menu")
+
+      visit blog_post_path(world.posts[:newton])
+      expect(page).to have_css("[data-testid='comment-body-field']")
+      capture_guide_image(%w[likes-panel comments-panel], as: "story/ulrika_blog_post_comments")
+    end
+
+    it "Captures connecting with Charlie, and what that unlocks" do
+      sign_in_and_wait(world.ulrika)
+      visit contacts_path
+      page.execute_script("document.querySelector('[data-testid=\"left-nav\"]').style.height = 'auto'")
+      capture_guide_image("left-nav", as: "story/ulrika_settings_left_nav")
+
+      find("[data-testid='contact-search-input']").fill_in(with: "Charlie")
+      expect(page).to have_css("[data-testid='contact-search-result-row']", text: "Charlie Content Creator", wait: 8)
+      capture_guide_image("new-contacts-panel", as: "story/ulrika_contact_search")
+
+      js_click("connect-contact-#{world.charlie.id}")
+      expect(page).to have_css("[data-testid='outgoing-pending-contact-row']", text: "Charlie Content Creator", wait: 8)
+      capture_guide_image("outgoing-pending-contacts", as: "story/ulrika_contact_request_sent")
+
+      # Charlie in a browser of their own, rather than signing Ulrika out.
+      using_session(:charlie) do
+        sign_in_and_wait(world.charlie)
+        visit contacts_path
+        capture_guide_image("incoming-pending-contacts", as: "story/charlie_contact_request_incoming")
+        js_click("accept-contact-#{Contact.find_by!(user: world.ulrika).id}")
+        expect(page).to have_css("[data-testid='my-contacts-row']", text: "Ulrika User", wait: 8)
+      end
+
+      visit contacts_path
+      capture_guide_image("my-contacts-panel", as: "story/ulrika_my_contacts")
+
+      visit blog_posts_path(category_id: BlogCategory.find_by!(name: "Science").id)
+      capture_guide_image("browse-preview", as: "story/ulrika_blog_posts")
+
+      visit events_by_month_path(month: 11)
+      capture_guide_image("event-list", as: "story/ulrika_events_by_month")
+
+      visit people_path
+      capture_guide_image(%w[classification-nav people-table], as: "story/ulrika_people")
+    end
+
+    it "Captures Ulrika's settings" do
+      sign_in_and_wait(world.ulrika)
+      visit preferences_settings_path
+      capture_guide_image("preferences-panel", as: "story/ulrika_preferences")
+
+      visit occasions_settings_path
+      capture_guide_image("occasions-settings-panel", as: "story/ulrika_occasions_settings")
+    end
+  end
 end
