@@ -93,15 +93,4 @@ RSpec.describe "Cookbook Guide Images", type: :feature, js: true, guide_image: t
 
     capture_guide_image("basic-panel", as: "cookbook/filter_basic")
   end
-
-  it "Captures the Cookbook left nav" do
-    sign_in_as(charlie)
-    expect(page).to have_css("[data-testid='user-thumbnail-dropdown']", wait: 8)
-    visit cookbook_path
-    # .left-nav is 100vh tall but starts below the top bar, so its last links
-    # sit behind the footer — let it take its natural height for the image.
-    page.execute_script("document.querySelector('[data-testid=\"left-nav\"]').style.height = 'auto'")
-
-    capture_guide_image("left-nav", as: "cookbook/left_nav")
-  end
 end

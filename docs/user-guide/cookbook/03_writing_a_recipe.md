@@ -17,7 +17,7 @@ Content Creators and above can write recipes. Choose **Actions › New › Write
 - **Language**: the language the recipe is written in. It starts as your default (see *Cookbook Settings*).
 - **Serves or Makes**: fill in Serves (e.g. 4) or, when baking, Makes (e.g. 24). If both are filled in, Makes is shown.
 - **Cook Time**: free text, e.g. "1 hour 30 min".
-- **Visibility**: Unrestricted, Contacts or Restricted. See *Cookbook Overview*.
+- **Visibility**: Unrestricted, Contacts or Restricted. See *Chapter 4: Charlie Creates* in The Story.
 
 ![The form's Title, Description and Recipe Image](images/recipe_form_title.png)
 

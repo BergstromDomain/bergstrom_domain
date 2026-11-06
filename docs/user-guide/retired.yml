@@ -1,0 +1,9 @@
+# User Guide pages whose Markdown files have been removed. GuidePageLoader
+# never deletes, so `bin/rails guide_pages:retire` deletes these titles from
+# the database (GuidePageRetirer). Run it after loading, in every
+# environment. A title that still has a Markdown file is refused.
+
+# Replaced by the story (docs/user-guide/story), 2026-11-07.
+- Chronicle Overview
+- Cookbook Overview
+- Occasions Overview

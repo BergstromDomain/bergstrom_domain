@@ -30,10 +30,10 @@ RSpec.describe "Guide Images", type: :request do
     end
 
     it "Doesn't serve files outside the images folders" do
-      get "/user-guide/images/cookbook/..%2F01_cookbook_overview.png"
+      get "/user-guide/images/cookbook/..%2F02_finding_recipes.png"
       expect(response).to have_http_status(:not_found)
 
-      get "/user-guide/images/cookbook/01_cookbook_overview.md"
+      get "/user-guide/images/cookbook/02_finding_recipes.md"
       expect(response).to have_http_status(:not_found)
     end
   end

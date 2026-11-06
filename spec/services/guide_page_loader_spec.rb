@@ -175,15 +175,16 @@ RSpec.describe GuidePageLoader do
     it "Loads every page in docs/user-guide/story, in chapter order" do
       result = described_class.new(Rails.root.join("docs/user-guide/story")).call
 
-      expect(result[:created]).to eq([ "Chapter 1: Gary Looks Around", "Chapter 2: Gary Signs Up", "Chapter 3: Ulrika Joins In" ])
-      expect(GuidePage.story.in_reading_order.pluck(:position)).to eq([ 1, 2, 3 ])
+      expect(result[:created]).to eq([ "Chapter 1: Gary Looks Around", "Chapter 2: Gary Signs Up", "Chapter 3: Ulrika Joins In",
+        "Chapter 4: Charlie Creates" ])
+      expect(GuidePage.story.in_reading_order.pluck(:position)).to eq([ 1, 2, 3, 4 ])
     end
 
     it "Loads every page in docs/user-guide/chronicle" do
       result = described_class.new(Rails.root.join("docs/user-guide/chronicle")).call
 
       expect(result[:created]).to contain_exactly(
-        "Chronicle Overview", "Reading Blog Posts", "Writing A Blog Post",
+        "Reading Blog Posts", "Writing A Blog Post",
         "Importing And Downloading Blog Posts", "Chronicle Settings", "Managing Chronicle Reference Data"
       )
       expect(GuidePage.find_by!(title: "Managing Chronicle Reference Data").app_section).to eq("admin")
@@ -193,7 +194,7 @@ RSpec.describe GuidePageLoader do
       result = described_class.new(Rails.root.join("docs/user-guide/cookbook")).call
 
       expect(result[:created]).to contain_exactly(
-        "Cookbook Overview", "Finding Recipes", "Writing A Recipe", "Downloading Recipes",
+        "Finding Recipes", "Writing A Recipe", "Downloading Recipes",
         "Cookbook Settings", "Managing Cookbook Reference Data"
       )
       expect(GuidePage.find_by!(title: "Managing Cookbook Reference Data").app_section).to eq("admin")
@@ -203,7 +204,7 @@ RSpec.describe GuidePageLoader do
       result = described_class.new(Rails.root.join("docs/user-guide/occasions")).call
 
       expect(result[:created]).to contain_exactly(
-        "Occasions Overview", "Viewing Events", "People", "Filtering People And Events",
+        "Viewing Events", "People", "Filtering People And Events",
         "Creating Events And People", "Importing And Downloading", "Occasions Settings",
         "Managing Occasions Reference Data"
       )
