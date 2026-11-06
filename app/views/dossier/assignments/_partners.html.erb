@@ -19,11 +19,11 @@
                   <% end %>
                 </span>
                 <% if editable %>
-                  <span class="dossier-partner-actions">
+                  <span class="row-actions dossier-partner-actions">
                     <%= link_to "Edit", edit_dossier_assignment_partner_path(assignment, partner), class: "btn btn-secondary" %>
                     <% staff_note = partner.staff_members.any? ? " This also deletes its #{pluralize(partner.staff_members.size, 'Staff member')}." : "" %>
                     <%= button_to "Delete", dossier_assignment_partner_path(assignment, partner), method: :delete,
-                          class: "btn btn-danger", form: { style: "display: inline" },
+                          class: "btn btn-danger",
                           data: { turbo_confirm: "Remove #{partner.organisation.name} as a #{partner.kind_label}?#{staff_note}" } %>
                   </span>
                 <% end %>

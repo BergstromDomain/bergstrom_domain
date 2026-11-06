@@ -3210,10 +3210,8 @@ textarea.form-control {
 }
 
 /* Inset by the Staff table's cell padding and border, so both sets of
-   Edit/Delete buttons line up on the right. */
+   Edit/Delete buttons (.row-actions) line up on the right. */
 .dossier-partner-actions {
-  display: flex;
-  gap: var(--space-xs);
   margin-left: auto;
   padding-right: calc(var(--space-md) + 1px);
 }
@@ -3226,10 +3224,21 @@ textarea.form-control {
   margin-bottom: var(--space-xs);
 }
 
-/* A table row's Edit/Delete buttons, right-aligned. */
+/* A row's Edit/Delete buttons, packed against the right edge with an even
+   gap (flex, so no stray whitespace between or after them). */
 .data-table__actions {
-  text-align: right;
   white-space: nowrap;
+}
+
+.row-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.row-actions form {
+  margin: 0;
 }
 
 .dossier-assignment-row--bench,
