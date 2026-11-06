@@ -19,6 +19,12 @@ RSpec.describe "Top Nav", type: :feature do
     it "Shows the 'Info' dropdown menu" do
       expect(page).to have_button("Info")
     end
+
+    it "Marks the 'Apps' and 'Info' dropdowns and their menus for the User Guide's screenshots" do
+      %w[top-nav-apps top-nav-info].each do |testid|
+        expect(page).to have_css("[data-testid='#{testid}'] [data-testid='#{testid}-menu']", visible: :all)
+      end
+    end
   end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────

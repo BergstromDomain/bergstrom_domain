@@ -19,12 +19,15 @@ module ScreenCapture
   MAX_HEIGHT     = 16_384
 
   # How much taller the window must be for the page, every area that scrolls
-  # on its own, and the element being captured (arguments[0], if any — it can
-  # run past the window without anything scrolling) to show in full.
+  # on its own, and the elements being captured (any arguments after the
+  # margin in arguments[0] — they can run past the window without anything
+  # scrolling) to show in full.
   HIDDEN_HEIGHT_SCRIPT = <<~JS.freeze
     (() => {
       let hidden = document.documentElement.scrollHeight - window.innerHeight
-      if (arguments[0]) hidden = Math.max(hidden, arguments[0].getBoundingClientRect().bottom + arguments[1] - window.innerHeight)
+      for (const element of Array.from(arguments).slice(1)) {
+        hidden = Math.max(hidden, element.getBoundingClientRect().bottom + arguments[0] - window.innerHeight)
+      }
       for (const el of document.querySelectorAll("*")) {
         const overflowY = getComputedStyle(el).overflowY
         if ((overflowY === "auto" || overflowY === "scroll") && el.scrollHeight > el.clientHeight) {
@@ -50,15 +53,19 @@ module ScreenCapture
 
   # Raises Capybara::ElementNotFound (after Capybara's usual wait) when no
   # visible element has the testid. The margin is trimmed where it would run
-  # off the top or left of the page.
-  def capture_element(testid, path, margin: ELEMENT_MARGIN, session: Capybara.current_session)
-    element = session.find("[data-testid='#{testid}']")
+  # off the top or left of the page. Several testids give one image spanning
+  # them all — a dropdown's menu sits outside its button's box.
+  def capture_element(testids, path, margin: ELEMENT_MARGIN, session: Capybara.current_session)
+    elements = Array(testids).map { |testid| session.find("[data-testid='#{testid}']") }
     wait_for_images(session)
-    showing_everything(session, element, margin) do |browser|
-      box = session.evaluate_script(<<~JS, element)
+    showing_everything(session, elements, margin) do |browser|
+      # Each element is its own argument: Capybara doesn't unwrap nodes inside an array.
+      box = session.evaluate_script(<<~JS, *elements)
         (() => {
-          const rect = arguments[0].getBoundingClientRect()
-          return { x: rect.left + window.scrollX, y: rect.top + window.scrollY, width: rect.width, height: rect.height }
+          const rects = Array.from(arguments).map((element) => element.getBoundingClientRect())
+          const left = Math.min(...rects.map((rect) => rect.left)), top = Math.min(...rects.map((rect) => rect.top))
+          const right = Math.max(...rects.map((rect) => rect.right)), bottom = Math.max(...rects.map((rect) => rect.bottom))
+          return { x: left + window.scrollX, y: top + window.scrollY, width: right - left, height: bottom - top }
         })()
       JS
       # Whole pixels: a clip starting part-way into a pixel is resampled, and
@@ -74,11 +81,11 @@ module ScreenCapture
   # Grows the window until nothing is hidden (growing one scrolling area can
   # reveal another), yields the browser and the window's size, then restores it.
   # Gives up after a few rounds, for something that grows with the window.
-  def showing_everything(session, element = nil, margin = 0)
+  def showing_everything(session, elements = [], margin = 0)
     browser = chrome(session)
     width, height = session.evaluate_script("[window.innerWidth, window.innerHeight]")
     3.times do
-      hidden = session.evaluate_script(HIDDEN_HEIGHT_SCRIPT, element, margin).ceil
+      hidden = session.evaluate_script(HIDDEN_HEIGHT_SCRIPT, margin, *elements).ceil
       break if hidden <= 0 || height >= MAX_HEIGHT
 
       height = [ height + hidden, MAX_HEIGHT ].min

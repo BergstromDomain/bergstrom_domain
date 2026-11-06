@@ -172,6 +172,13 @@ RSpec.describe GuidePageLoader do
       expect(GuidePage.first.body).to eq("Above\n\n---\n\nBelow")
     end
 
+    it "Loads every page in docs/user-guide/story, in chapter order" do
+      result = described_class.new(Rails.root.join("docs/user-guide/story")).call
+
+      expect(result[:created]).to eq([ "Chapter 1: Gary Looks Around", "Chapter 2: Gary Signs Up" ])
+      expect(GuidePage.story.in_reading_order.pluck(:position)).to eq([ 1, 2 ])
+    end
+
     it "Loads every page in docs/user-guide/chronicle" do
       result = described_class.new(Rails.root.join("docs/user-guide/chronicle")).call
 

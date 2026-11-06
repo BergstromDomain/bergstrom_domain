@@ -6,6 +6,7 @@
 
     <%= render "layouts/dropdown",
                label: "Apps",
+               testid: "top-nav-apps",
                items: [
                  { label: "Chronicle", path: chronicle_path },
                  { label: "Cookbook",  path: cookbook_path },
@@ -15,6 +16,7 @@
 
     <%= render "layouts/dropdown",
                label: "Info",
+               testid: "top-nav-info",
                items: [
                  { label: "About",   path: about_path },
                  { label: "Contact", path: contact_path }

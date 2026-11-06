@@ -1,11 +1,13 @@
 <%# app/views/layouts/_dropdown.html.erb %>
-<div class="dropdown" data-controller="dropdown">
+<%# Optional local testid marks the dropdown and (as "<testid>-menu") its menu. %>
+<% testid = local_assigns[:testid] %>
+<div class="dropdown" data-controller="dropdown" <%= tag.attributes(data: { testid: testid }) %>>
   <button class="top-nav__link top-nav__dropdown-trigger"
           data-action="click->dropdown#toggle">
     <%= label %>
     <%= lucide_icon "chevron-down", class: "dropdown__chevron" %>
   </button>
-  <ul class="dropdown__menu" data-dropdown-target="menu">
+  <ul class="dropdown__menu" data-dropdown-target="menu" <%= tag.attributes(data: { testid: testid && "#{testid}-menu" }) %>>
     <% items.each do |item| %>
       <li>
         <% if item[:path] %>
