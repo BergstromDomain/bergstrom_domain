@@ -432,6 +432,14 @@ RSpec.describe Dossier::Import do
       expect(Dossier::StaffMember.pluck(:name)).to contain_exactly("VERA VENDOR", "Sam Second")
     end
 
+    it "Reads Windows (XP, Vista) in a Tech Stack as versions of Windows, not broken Skills" do
+      described_class.new(admin, yaml.sub("operating_systems: Windows 10, Windows 11",
+                                          "operating_systems: \"Windows (XP, Vista), Linux\"")).import!
+
+      expect(Dossier::Skill.where("name LIKE ? OR name LIKE ?", "%(%", "%)%")).to be_empty
+      expect(Dossier::Skill.find_by!(name: "Windows").versions.map(&:name)).to eq([ "Windows Vista", "Windows XP" ])
+    end
+
     it "Matches an existing Skill by alias instead of creating it" do
       jenkins = create(:dossier_skill, name: "Jenkins", aliases: [ "Robot Framework" ])
 

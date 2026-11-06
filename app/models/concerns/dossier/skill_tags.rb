@@ -38,8 +38,7 @@ module Dossier
     def apply_skills_text
       return if @skills_text.nil?
 
-      names = @skills_text.split(",").map(&:strip).compact_blank.uniq(&:downcase)
-      wanted = names.map { |name| Dossier::Skill.find_by_name_or_alias(name) || Dossier::Skill.new_uncategorised(name) }.uniq
+      wanted = Dossier::SkillNames.new.skills(@skills_text)
 
       current = skill_links.reject(&:marked_for_destruction?)
       current.each { |link| link.mark_for_destruction unless wanted.include?(link.skill) }

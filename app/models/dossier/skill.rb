@@ -90,7 +90,7 @@ class Dossier::Skill < ApplicationRecord
   def parent_is_one_level_deep
     return unless parent
 
-    if parent == self || parent_id == id
+    if parent.equal?(self) || (persisted? && parent_id == id)
       errors.add(:parent, "can't be the Skill itself")
     elsif parent.parent_id
       errors.add(:parent, "is itself a version of #{parent.parent.name}")
