@@ -61,7 +61,7 @@ class Dossier::StaffMembersController < ApplicationController
     @staff_member = @partner.staff_members.find(params[:id])
   end
 
-  def partners_path = dossier_assignment_path(@assignment, anchor: "partners")
+  def partners_path = dossier_assignment_path(@assignment, anchor: @partner.kind.pluralize)
 
   def staff_member_params
     params.require(:dossier_staff_member).permit(*Dossier::ContactDetails::FIELDS)

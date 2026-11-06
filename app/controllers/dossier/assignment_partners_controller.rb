@@ -59,7 +59,7 @@ class Dossier::AssignmentPartnersController < ApplicationController
     @partner = @assignment.partners.find(params[:id])
   end
 
-  def partners_path = dossier_assignment_path(@assignment, anchor: "partners")
+  def partners_path = dossier_assignment_path(@assignment, anchor: @partner.kind.pluralize)
 
   def partner_params
     permitted = params.require(:dossier_assignment_partner).permit(:kind, :organisation_id, :scope)

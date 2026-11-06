@@ -34,6 +34,8 @@ RSpec.describe "Dossier Assignment Vendors and Customers", type: :feature do
         expect(page).to have_text("Built the Salesforce portal")
       end
       expect(panel.find("[data-testid='customers']")).to have_link("Telstra")
+      expect(page).to have_css(".show-panel#vendors[data-testid='vendors']")
+      expect(page).to have_css(".show-panel#customers[data-testid='customers']")
     end
 
     it "Edits and deletes a Vendor" do

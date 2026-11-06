@@ -3200,10 +3200,33 @@ textarea.form-control {
   white-space: nowrap;
 }
 
-/* A Vendor's or Customer's Staff: a full-width block under its row. */
+/* A Vendor or Customer row: name and scope on the left, Edit/Delete on the
+   right, and its Staff as a full-width block underneath. */
+.dossier-partner-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-md);
+}
+
+.dossier-partner-actions {
+  display: flex;
+  gap: var(--space-xs);
+  margin-left: auto;
+}
+
 .dossier-partner-staff {
   flex-basis: 100%;
-  padding-left: var(--space-md);
+}
+
+.dossier-partner-staff .data-table-wrapper {
+  margin-bottom: var(--space-xs);
+}
+
+/* A table row's Edit/Delete buttons, right-aligned. */
+.data-table__actions {
+  text-align: right;
+  white-space: nowrap;
 }
 
 .dossier-assignment-row--bench,
