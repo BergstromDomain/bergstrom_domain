@@ -3209,10 +3209,13 @@ textarea.form-control {
   gap: var(--space-md);
 }
 
+/* Inset by the Staff table's cell padding and border, so both sets of
+   Edit/Delete buttons line up on the right. */
 .dossier-partner-actions {
   display: flex;
   gap: var(--space-xs);
   margin-left: auto;
+  padding-right: calc(var(--space-md) + 1px);
 }
 
 .dossier-partner-staff {
