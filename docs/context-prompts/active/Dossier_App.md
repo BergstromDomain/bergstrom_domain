@@ -642,6 +642,24 @@ Private to the author and Admins (the same check as certificate files); **never*
 * **Steps:** 12a Colleagues; 12b Vendors and Customers; 12c Organisation lists + delete
   protection; 12d vendors from the import; 12e never-exported and eager-loading specs.
 
+### DECISIONS FROM BLOCK 12f GATE — Vendor and Customer Staff (2026-11-06)
+* **Staff per Vendor/Customer link** (`Dossier::StaffMember`, belongs to an
+  `AssignmentPartner`): the same fields and rules as Colleagues — Name (required), Position,
+  Mobile, Email, LinkedIn, Comment. PwC's staff on Alpha are separate from PwC's staff on
+  another Assignment. Colleague and StaffMember share a `Dossier::ContactDetails` concern and
+  form/table partials so they can't drift apart.
+* **Assignment page:** each Vendor or Customer in the Vendors & Customers panel lists its Staff
+  underneath (Colleague-style rows with Edit and Delete) and has an "Add Staff" button opening
+  "Add Staff Member" / "Edit Staff Member" pages; saving returns to the panel.
+* **Access:** as Colleagues — seen only by the owner and Admins, changed by those who may update
+  the Assignment; a Staff id from another link is a 404. Never on a CV (export spec extended).
+* **Removing a Vendor/Customer** deletes its Staff; the confirm says how many.
+* **Import:** an optional `staff:` list (name, position, mobile, email, linkedin, comment) in a
+  `vendors:` entry; a re-import skips Staff whose name already exists on that Vendor link.
+  Organisation pages don't show Staff.
+* **Steps:** 12f refactor shared contact details; 12g Staff; 12h Staff from the import; 12i
+  never-exported and eager-loading specs.
+
 ## Toasts — *reusable pattern*
 * Implement `#to_toast_label` on every entity (see Data Model).
 * Create/Update/Delete via `toast_created`/`toast_updated`/`toast_deleted`; Delete passes `info:`
