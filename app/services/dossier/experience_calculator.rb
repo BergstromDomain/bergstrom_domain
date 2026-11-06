@@ -8,7 +8,8 @@
 # professional years or slices.
 #
 # An Assignment uses a Skill when it's in its Tech Stack or tagged on one of
-# its kept Achievements. Training (courses tagged with the Skill) is listed but
+# its kept Achievements — or one of the Skill's versions is (Windows XP counts
+# for Windows too). Training (courses tagged with the Skill) is listed but
 # never adds to years.
 class Dossier::ExperienceCalculator
   # slots: Tech Stack slot (or :achievement) => Assignments, newest first.
@@ -18,6 +19,7 @@ class Dossier::ExperienceCalculator
     def duration          = months && Dossier::Timeline.duration_of(months)
     def personal_duration = personal_months && Dossier::Timeline.duration_of(personal_months)
     def current?          = assignments.any? && last_on.nil?
+    def first_on          = assignments.map(&:start_on).min
 
     def last_used
       return "—" if assignments.empty?
@@ -54,6 +56,7 @@ class Dossier::ExperienceCalculator
   ENGAGEMENT_SLICES = { employer: :employer, employment_type: :employment_type }.freeze
   ASSIGNMENT_SLICES = { client: :client, industry: ->(a) { a.client&.industry }, role: :role }.freeze
   NONE_LABELS = { industry: "No Industry", role: "No Role" }.freeze
+  SLICE_PRELOADS = { client: :client, industry: { client: :industry }, role: :role }.freeze
 
   def initialize(user, today: Date.current)
     @user = user
@@ -87,8 +90,7 @@ class Dossier::ExperienceCalculator
   private
 
   def engagements
-    @engagements ||= @user.dossier_engagements.kept
-                          .includes(:employer, :employment_type, assignments: [ :role, { client: :industry } ]).to_a
+    @engagements ||= @user.dossier_engagements.kept.includes(:employer, :employment_type, :assignments).to_a
   end
 
   def professional_engagements = @professional_engagements ||= engagements.reject(&:personal?)
@@ -98,7 +100,10 @@ class Dossier::ExperienceCalculator
       groups = professional_engagements.group_by(&finder)
       count = ->(list) { list.sum { |engagement| engagement.assignments.size } }
     elsif (finder = ASSIGNMENT_SLICES[name])
-      groups = professional_engagements.flat_map(&:assignments).group_by(&finder)
+      assignments = professional_engagements.flat_map(&:assignments)
+      # Each slice loads only what it reads (the Organisation page needs no Roles).
+      ActiveRecord::Associations::Preloader.new(records: assignments, associations: SLICE_PRELOADS.fetch(name)).call
+      groups = assignments.group_by(&finder)
       count = :size.to_proc
     else
       raise ArgumentError, "Unknown slice #{name.inspect}"
@@ -117,31 +122,41 @@ class Dossier::ExperienceCalculator
 
   def assignments
     Dossier::Assignment.where(engagement_id: @user.dossier_engagements.kept.select(:id))
-                       .includes(engagement: :employment_type, assignment_skills: :skill,
-                                 achievements: { achievement_skills: :skill })
+                       .includes(engagement: :employment_type, assignment_skills: { skill: :parent },
+                                 achievements: { achievement_skills: { skill: :parent } })
   end
 
   def training
-    @user.dossier_credentials.training.kept.newest_first.includes(credential_skills: :skill)
+    @user.dossier_credentials.training.kept.newest_first.includes(credential_skills: { skill: :parent })
   end
 
   def uses
     found = assignments.each_with_object({}) do |assignment, uses|
       assignment.assignment_skills.each do |link|
-        add(uses, link.skill, assignment, link.stack_slot&.to_sym || :other)
+        family(link.skill).each { |skill| add(uses, skill, assignment, link.stack_slot&.to_sym || :other) }
       end
       assignment.achievements.each do |achievement|
         achievement.achievement_skills.each do |link|
-          use = add(uses, link.skill, assignment, :achievement)
-          use[:achievements] << achievement
+          family(link.skill).each do |skill|
+            use = add(uses, skill, assignment, :achievement)
+            use[:achievements] << achievement unless use[:achievements].include?(achievement)
+          end
         end
       end
     end
     training.each do |credential|
-      credential.credential_skills.each { |link| use_for(found, link.skill)[:training] << credential }
+      credential.credential_skills.each do |link|
+        family(link.skill).each do |skill|
+          list = use_for(found, skill)[:training]
+          list << credential unless list.include?(credential)
+        end
+      end
     end
     found
   end
+
+  # A version (Windows XP) counts for itself and for its Skill (Windows).
+  def family(skill) = [ skill, skill.parent ].compact
 
   def add(uses, skill, assignment, slot)
     use = use_for(uses, skill)

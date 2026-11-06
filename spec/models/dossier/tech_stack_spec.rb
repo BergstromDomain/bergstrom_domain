@@ -41,6 +41,20 @@ RSpec.describe "Dossier Assignment Tech Stack", type: :model do
       record.save!
       expect(Dossier::Skill.find_by!(name: "HL7").skill_category).to eq(uncategorised)
     end
+
+    it "Reads Name (version, version) as those versions of the Skill, reusing known ones" do
+      windows = create(:dossier_skill, name: "Windows")
+      xp = create(:dossier_skill, name: "Windows XP", parent: windows)
+
+      record = assignment(operating_systems_na: false, operating_systems_text: "windows (xp, Vista), Linux (Ubuntu, Red Hat)")
+      record.save!
+
+      expect(record.skills_in(:operating_system).map(&:name)).to eq([ "Windows XP", "Windows Vista", "Linux Ubuntu", "Linux Red Hat" ])
+      expect(record.skills_in(:operating_system).first).to eq(xp)
+      expect(Dossier::Skill.find_by!(name: "Windows Vista").parent).to eq(windows)
+      expect(Dossier::Skill.find_by!(name: "Linux Red Hat").parent.name).to eq("Linux")
+      expect(Dossier::Skill.where("name LIKE ?", "%(%").or(Dossier::Skill.where("name LIKE ?", "%)%"))).to be_empty
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
@@ -103,6 +117,28 @@ RSpec.describe "Dossier Assignment Tech Stack", type: :model do
       record = assignment(test_tools_na: false, test_tools_text: " Jira, , JIRA ,Jira")
       record.save!
       expect(record.reload.test_tools_text).to eq("Jira")
+    end
+
+    it "Prefers a Skill named with the brackets, matches a version by its label, and splits only outside brackets" do
+      eclair = create(:dossier_skill, name: "Android (Eclair)")
+      linux = create(:dossier_skill, name: "Linux")
+      ubuntu = create(:dossier_skill, name: "Ubuntu", parent: linux)
+
+      record = assignment(operating_systems_na: false, operating_systems_text: "Android (Eclair), Linux (ubuntu), Solaris")
+      record.save!
+
+      expect(record.skills_in(:operating_system)).to eq([ eclair, ubuntu, Dossier::Skill.find_by!(name: "Solaris") ])
+    end
+
+    it "Doesn't make a version of a version" do
+      xp = create(:dossier_skill, name: "Windows XP", parent: create(:dossier_skill, name: "Windows"))
+
+      record = assignment(operating_systems_na: false, operating_systems_text: "Windows XP (SP2)")
+      record.save!
+
+      sp2 = Dossier::Skill.find_by!(name: "Windows XP SP2")
+      expect(sp2.parent).to be_nil
+      expect(xp.versions).to be_empty
     end
 
     it "Is tech-stack-blank only when every list is N/A, the System Under Test included" do

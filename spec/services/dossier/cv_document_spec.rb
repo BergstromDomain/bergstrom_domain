@@ -72,6 +72,38 @@ RSpec.describe Dossier::CvDocument do
       expect(cv.skills).to eq([ [ "Methodologies", [ "Agile" ] ], [ "Test Tools", [ "Jira" ] ] ])
     end
 
+    it "Shows a Skill's versions as one family, in the order first used, in Skills and the Tech Stack" do
+      profile
+      systems = create(:dossier_skill_category, name: "Operating Systems")
+      windows = create(:dossier_skill, name: "Windows", skill_category: systems)
+      linux = create(:dossier_skill, name: "Linux", skill_category: systems)
+      create(:dossier_skill, name: "Windows Vista", parent: windows)
+      create(:dossier_skill, name: "Windows XP", parent: windows)
+      job = engagement(start_month: "2005-01", end_month: "2012-12")
+      create(:dossier_assignment, engagement: job, start_month: "2005-01", end_month: "2007-12",
+                                  operating_systems_na: false, operating_systems_text: "Windows XP, Linux")
+      create(:dossier_assignment, engagement: job, start_month: "2008-01", end_month: "2012-12",
+                                  operating_systems_na: false, operating_systems_text: "Windows Vista, Windows XP, Windows")
+
+      expect(cv.skills).to eq([ [ "Operating Systems", [ "Windows (XP, Vista)", "Linux" ] ] ])
+      stacks = cv.experience.first.assignments.map(&:tech_stack)
+      expect(stacks).to eq([ [ [ "Operating Systems", "Windows (XP, Vista)" ] ], [ [ "Operating Systems", "Windows (XP), Linux" ] ] ])
+      expect(linux.versions).to be_empty
+    end
+
+    it "Shows a family with only the CV Variant's versions" do
+      profile
+      windows = create(:dossier_skill, name: "Windows", skill_category: create(:dossier_skill_category, name: "Operating Systems"))
+      vista = create(:dossier_skill, name: "Windows Vista", parent: windows)
+      create(:dossier_skill, name: "Windows XP", parent: windows)
+      create(:dossier_assignment, engagement: engagement, operating_systems_na: false,
+                                  operating_systems_text: "Windows (XP, Vista)")
+      variant = create(:dossier_cv_variant, user: user)
+      variant.items.create!(item: vista, included: false)
+
+      expect(described_class.new(user, today: today, variant: variant).skills).to eq([ [ "Operating Systems", [ "Windows (XP)" ] ] ])
+    end
+
     it "Groups Credentials by Credential Type in type order, all training types together" do
       profile
       degree = create(:dossier_credential_type, name: "Degree", position: 1)

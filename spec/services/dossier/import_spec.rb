@@ -50,7 +50,9 @@ RSpec.describe Dossier::Import do
             end: current
             project: Licensing Upgrade
             summary: The verbatim original summary.
-            vendors: [Secret Vendor]
+            vendors:
+              - { name: Secret Vendor, project: Licensing Portal, scope: Built the portal,
+                  staff: [ { name: Vera Vendor, position: Delivery Lead, email: vera@vendor.example, linkedin: "https://linkedin.com/in/vera", mobile: "+61 400 222 333", comment: Ran the releases } ] }
             tech_stack:
               operating_systems: Windows 10, Windows 11
               methodology: Hybrid
@@ -218,6 +220,26 @@ RSpec.describe Dossier::Import do
       expect(assignment.achievements.map(&:text)).to eq([ "Did a thing", "Did another thing" ])
       expect(assignment.achievements).to all(have_attributes(importance: 3, classification: "restricted", user_id: admin.id))
     end
+
+    it "Imports vendors as private Vendor links, with the project and scope" do
+      result = import.import!
+
+      assignment = admin.dossier_engagements.find_by!(position_title: "Test Consultant").assignments.sole
+      vendor = assignment.vendors.sole
+      expect(vendor.organisation.name).to eq("Secret Vendor")
+      expect(vendor.scope).to eq("Licensing Portal – Built the portal")
+      expect(result.created["Vendor"]).to eq([ "Secret Vendor on Test Lead at Department of Examples" ])
+    end
+
+    it "Imports a vendor's staff as its private Staff members" do
+      result = import.import!
+
+      member = Dossier::AssignmentPartner.sole.staff_members.sole
+      expect(member).to have_attributes(name: "Vera Vendor", position: "Delivery Lead", email: "vera@vendor.example",
+                                        linkedin_url: "https://linkedin.com/in/vera", mobile: "+61 400 222 333",
+                                        comment: "Ran the releases")
+      expect(result.created["Staff Member"]).to eq([ "Vera Vendor at Secret Vendor on Test Lead at Department of Examples" ])
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
@@ -276,11 +298,10 @@ RSpec.describe Dossier::Import do
       expect(result.errors).to include("Engagement Test Consultant at Acme Consulting: unknown Employment Type 'Freelancer' — ask an Admin to add it")
     end
 
-    it "Ignores the private fields" do
+    it "Ignores unconfirmed Tech Stack items" do
       import.import!
 
       expect(Dossier::Skill.find_by(name: "Guessed Tool")).to be_nil
-      expect(Dossier::Organisation.find_by(name: "Secret Vendor")).to be_nil
     end
   end
 
@@ -296,6 +317,8 @@ RSpec.describe Dossier::Import do
       expect(result.existing["Engagement"]).to eq([ "Test Consultant at Acme Consulting", "Test Engineer at Widget Works" ])
       expect(result.existing["Profile"]).to eq([ "Alex Example" ])
       expect(result.existing["Organisation"]).to contain_exactly("Acme Consulting", "Department of Examples", "Widget Works")
+      expect(result.existing["Vendor"]).to eq([ "Secret Vendor on Test Lead at Department of Examples" ])
+      expect(result.existing["Staff Member"]).to eq([ "Vera Vendor at Secret Vendor on Test Lead at Department of Examples" ])
       expect(result.existing["Assignment"].size).to eq(3) # two share the label "Test Lead at Widget Works"
       expect(result.existing["Achievement"]).to eq([ "Did a thing", "Did another thing" ])
       expect(Dossier::Assignment.count).to eq(3)
@@ -387,6 +410,36 @@ RSpec.describe Dossier::Import do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
+    it "Adds a missing Vendor to an Assignment that already exists, and reads N/A and plain names" do
+      without = yaml.sub(/ *vendors:\n *- \{ name: Secret Vendor.*\n.*\n/, "            vendors: N/A\n")
+      described_class.new(admin, without).import!
+      expect(Dossier::AssignmentPartner.count).to eq(0)
+
+      result = described_class.new(admin, yaml.sub(/- \{ name: Secret Vendor.*\n.*\] \}/, "- Plain Vendor")).import!
+
+      expect(result.created["Vendor"]).to eq([ "Plain Vendor on Test Lead at Department of Examples" ])
+      expect(Dossier::AssignmentPartner.sole).to have_attributes(kind: "vendor", scope: nil)
+    end
+
+    it "Adds missing Staff to a Vendor that already exists, matching names case-insensitively" do
+      import.import!
+      Dossier::StaffMember.sole.update!(name: "VERA VENDOR")
+      more = yaml.sub("staff: [ { name: Vera Vendor", "staff: [ { name: Sam Second }, { name: Vera Vendor")
+
+      result = described_class.new(admin, more).import!
+
+      expect(result.created["Staff Member"]).to eq([ "Sam Second at Secret Vendor on Test Lead at Department of Examples" ])
+      expect(Dossier::StaffMember.pluck(:name)).to contain_exactly("VERA VENDOR", "Sam Second")
+    end
+
+    it "Reads Windows (XP, Vista) in a Tech Stack as versions of Windows, not broken Skills" do
+      described_class.new(admin, yaml.sub("operating_systems: Windows 10, Windows 11",
+                                          "operating_systems: \"Windows (XP, Vista), Linux\"")).import!
+
+      expect(Dossier::Skill.where("name LIKE ? OR name LIKE ?", "%(%", "%)%")).to be_empty
+      expect(Dossier::Skill.find_by!(name: "Windows").versions.map(&:name)).to eq([ "Windows Vista", "Windows XP" ])
+    end
+
     it "Matches an existing Skill by alias instead of creating it" do
       jenkins = create(:dossier_skill, name: "Jenkins", aliases: [ "Robot Framework" ])
 

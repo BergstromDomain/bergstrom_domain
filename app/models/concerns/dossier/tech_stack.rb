@@ -2,8 +2,9 @@
 
 # An Assignment's mandatory Tech Stack: six Skill lists, System Under Test
 # first. Each list is set as comma-separated text (e.g. test_tools_text =
-# "Jira, qTest"), matched to Skills by name or alias; unknown names become new
-# Skills in the "Uncategorised" Skill Category. A list must have items or its
+# "Jira, qTest"), matched to Skills by Dossier::SkillNames, so "Windows (XP,
+# Vista)" means those versions of Windows; unknown names become new Skills in
+# the "Uncategorised" Skill Category. A list must have items or its
 # *_na flag, never both.
 module Dossier
   module TechStack
@@ -72,10 +73,9 @@ module Dossier
     end
 
     def apply_tech_stack_text
-      new_skills = {}
+      names = Dossier::SkillNames.new
       tech_stack_text.each do |slot, text|
-        names = text.split(",").map(&:strip).compact_blank.uniq(&:downcase)
-        wanted = names.map { |name| Dossier::Skill.find_by_name_or_alias(name) || (new_skills[name.downcase] ||= Dossier::Skill.new_uncategorised(name)) }.uniq
+        wanted = names.skills(text)
 
         current = assignment_skills.reject(&:marked_for_destruction?).select { |as| as.stack_slot == slot.to_s }
         current.each { |as| as.mark_for_destruction unless wanted.include?(as.skill) }

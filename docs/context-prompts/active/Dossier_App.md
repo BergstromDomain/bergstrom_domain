@@ -620,6 +620,64 @@ Private to the author and Admins (the same check as certificate files); **never*
   (Client) runs project Alpha; PwC (Vendor) builds the software; Deloitte tests it; Telstra
   (Customer) buys the final product.
 
+### DECISIONS FROM BLOCK 12 GATE (2026-11-06)
+* **Colleagues per Assignment** (`Dossier::Colleague`): Name (required), Position, Mobile, Email
+  (valid address), LinkedIn (http(s)), Comment. Someone you worked with twice is entered twice;
+  a person-level record (or a link to Occasions' People) can come later. A "Colleagues" panel on
+  the Assignment page lists them, with Edit and Delete per row; "Add A Colleague" opens its own
+  small form. Hard delete with a confirm.
+* **Vendors and Customers** (`Dossier::AssignmentPartner`): Assignment, kind (vendor / customer),
+  Organisation and an optional Scope ("Built the Salesforce portal"); an Organisation once per
+  kind per Assignment. A "Vendors & Customers" panel with "Add A Vendor" / "Add A Customer".
+* **Organisation pages:** the owner sees "Your Assignments as Vendor" / "as Customer"; nobody
+  else does. An Organisation linked as Vendor or Customer can't be deleted (like a Client).
+* **Import:** each `vendors:` entry (name, project, scope) becomes a Vendor link — Organisation
+  found by name or abbreviation or created; Scope "Project – scope" (or just the scope). A
+  re-import adds missing Vendor links to existing Assignments (the one exception to "never
+  changes existing records"); the preview lists them. Customers and Colleagues are manual only.
+* **Never exported:** the Word/PDF generators never read these tables; specs fill all three in
+  and check the master CV and a CV Variant (Word and PDF HTML) contain none of them. Blocks 10
+  and 11 get the same checks. The panels show only to the owner and Admins, whatever the
+  Assignment's classification.
+* **Steps:** 12a Colleagues; 12b Vendors and Customers; 12c Organisation lists + delete
+  protection; 12d vendors from the import; 12e never-exported and eager-loading specs.
+
+### DECISIONS FROM BLOCK 12f GATE — Vendor and Customer Staff (2026-11-06)
+* **Staff per Vendor/Customer link** (`Dossier::StaffMember`, belongs to an
+  `AssignmentPartner`): the same fields and rules as Colleagues — Name (required), Position,
+  Mobile, Email, LinkedIn, Comment. PwC's staff on Alpha are separate from PwC's staff on
+  another Assignment. Colleague and StaffMember share a `Dossier::ContactDetails` concern and
+  form/table partials so they can't drift apart.
+* **Assignment page:** each Vendor or Customer in the Vendors & Customers panel lists its Staff
+  underneath (Colleague-style rows with Edit and Delete) and has an "Add Staff" button opening
+  "Add Staff Member" / "Edit Staff Member" pages; saving returns to the panel.
+* **Access:** as Colleagues — seen only by the owner and Admins, changed by those who may update
+  the Assignment; a Staff id from another link is a 404. Never on a CV (export spec extended).
+* **Removing a Vendor/Customer** deletes its Staff; the confirm says how many.
+* **Import:** an optional `staff:` list (name, position, mobile, email, linkedin, comment) in a
+  `vendors:` entry; a re-import skips Staff whose name already exists on that Vendor link.
+  Organisation pages don't show Staff.
+* **Steps:** 12f refactor shared contact details; 12g Staff; 12h Staff from the import; 12i
+  never-exported and eager-loading specs.
+
+## Skill versions (2026-11-06, built on request)
+* **Version Of:** a Skill can be a version of another, one level deep (`Dossier::Skill#parent` /
+  `#versions`), e.g. Windows XP of Windows, Ubuntu of Linux. Each version stays its own Skill; an
+  Assignment tags Windows for an unknown version, Windows XP when known. Set on the Skill form;
+  the Skill page shows Version Of / Versions. Merging hands versions to the kept Skill; deleting
+  a parent frees its versions.
+* **CV display:** Skills and each Assignment's Tech Stack show a family as one entry —
+  "Windows (XP, Vista)", versions in the order first used, the label being the name minus the
+  parent's ("Ubuntu" when it doesn't start with it); the parent alone shows as "Windows". A CV
+  Variant lists only its included versions.
+* **Experience:** a version counts for its parent too (union of months); versions keep their own.
+* **Parsing** (`Dossier::SkillNames`, Tech Stack, Achievement and Training skill lists): commas
+  split only outside brackets; a Skill named with brackets ("Android (Eclair)") wins; otherwise
+  "Name (a, b)" means versions a and b of Name — an existing version by label, else "Name a" by
+  name/alias, else a new Uncategorised "Name a" under Name (never a version of a version).
+* **Cleanup (manual, in the app):** merge "Windows (XP)" / "Windows (XP" into "Windows XP" etc.,
+  delete the unused umbrella Skills, then set Version Of.
+
 ## Toasts — *reusable pattern*
 * Implement `#to_toast_label` on every entity (see Data Model).
 * Create/Update/Delete via `toast_created`/`toast_updated`/`toast_deleted`; Delete passes `info:`
@@ -661,6 +719,21 @@ Private to the author and Admins (the same check as certificate files); **never*
 ---
 
 # TODO
+* **Dev data clean-up (Niklas, on a large screen, before PROD)** — all done in the app with what
+  exists today; no code needed. Planned 2026-11-06:
+  1. **Merge and regroup Skills and Skill Categories:** Merge the import's broken bracket Skills
+     (`Windows (XP` and `Windows (XP)` → `Windows XP`; `Windows (Vista)`, `Windows (NT)`;
+     `Linux (Ubuntu` and `Red Hat)` → `Linux Ubuntu` / `Linux Red Hat`) and other duplicates;
+     delete the unused umbrella Skills (`Windows (NT, XP, Vista, 8.1, 10, 11)`,
+     `Linux (Ubuntu, Red Hat, Embedded, SUSE)`); set **Version Of** on versions (see Skill
+     versions); move Uncategorised Skills into real Skill Categories (only categorised Skills are
+     in a CV Variant's default selection).
+  2. **Confirm all dates** on Engagements and Assignments (they drive years of experience,
+     Timeline gaps and the CV).
+  3. **Map courses to Assignments:** set the Assignment on each Training course taken during one.
+  4. **Add Vendors and Customers** to Assignments if/when known (private).
+  5. **Add Colleagues** (and Vendor/Customer Staff) when known (private).
+  Then re-check the master CV and the CV Variants' Word/PDF downloads.
 * **Upload CV Template (Block 9)** — paused 2026-11-06. Niklas is using the app as it is for a
   couple of weeks (reviewing and rewriting text, CV Variants, Classic Word/PDF). Revisit when a
   CV has to go into a specific consultancy's template; bring that template along, since it shows

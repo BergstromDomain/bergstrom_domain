@@ -41,7 +41,7 @@ class Dossier::SkillsController < Dossier::ReferenceDataController
   private
 
   def model_class          = Dossier::Skill
-  def permitted_attributes = %i[name skill_category_id aliases_text description]
+  def permitted_attributes = %i[name skill_category_id aliases_text description parent_id]
   def subtitle             = "Tools, methods, platforms and protocols. Aliases catch other spellings of the same Skill."
   def show_panels          = "dossier/skills/experience"
   def show_actions         = ("dossier/skills/merge_action" if current_user&.can_administer?)
@@ -62,6 +62,9 @@ class Dossier::SkillsController < Dossier::ReferenceDataController
 
   def details(record)
     [ [ "Skill Category", record.skill_category.name, "skill-category" ],
-      [ "Aliases",        record.aliases_text.presence, "aliases" ] ]
+      [ "Aliases",        record.aliases_text.presence, "aliases" ],
+      [ "Version Of",     (helpers.link_to(record.parent.name, dossier_skill_path(record.parent)) if record.parent), "version-of" ],
+      [ "Versions",       helpers.safe_join(record.versions.map { |v| helpers.link_to(v.name, dossier_skill_path(v)) }, ", ").presence,
+        "versions" ] ]
   end
 end

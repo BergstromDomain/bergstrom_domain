@@ -2,13 +2,18 @@
 class Dossier::OrganisationsController < Dossier::ReferenceDataController
   self.content_creators_can_create = true
 
-  # The signed-in user's own Credentials this Organisation issued, of any type.
+  # The signed-in user's own Credentials this Organisation issued, of any
+  # type, and their own Assignments where it's a Vendor or Customer.
   def show
     super
     return unless current_user
 
     @credentials = current_user.dossier_credentials.kept.where(provider: @record)
                                .includes(:provider).newest_first.to_a
+    own = Dossier::Assignment.where(engagement_id: current_user.dossier_engagements.kept.select(:id))
+    @partner_links = Dossier::AssignmentPartner.where(organisation: @record, assignment_id: own.select(:id))
+                                               .includes(assignment: :client).to_a
+                                               .sort_by { |link| link.assignment.start_on }.reverse.group_by(&:kind)
   end
 
   private
@@ -18,7 +23,7 @@ class Dossier::OrganisationsController < Dossier::ReferenceDataController
   def model_class          = Dossier::Organisation
   def permitted_attributes = %i[name abbreviation industry_id website_url description]
   def subtitle             = "Employers, clients, education providers and credential issuers, shared by every Dossier."
-  def show_panels          = "dossier/organisations/credentials"
+  def show_panels          = "dossier/organisations/panels"
 
   def details(record)
     website = record.website_url && helpers.link_to(record.website_url, record.website_url, rel: "noopener", target: "_blank")

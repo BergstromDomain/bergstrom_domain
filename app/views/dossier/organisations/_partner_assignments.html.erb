@@ -1,0 +1,21 @@
+<%# The signed-in user's own Assignments where this Organisation is a Vendor or Customer (@partner_links, by kind). %>
+<% Dossier::AssignmentPartner::KINDS.each do |kind, label| %>
+  <% links = @partner_links&.fetch(kind, nil) %>
+  <% next if links.blank? %>
+  <div class="show-panel" data-testid="organisation-as-<%= kind %>">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">
+        Your Assignments As <%= label %>
+        <%= render "shared/info_tip", text: "Only you and Admins see this, and it's never on a CV.", testid: "organisation-as-#{kind}-info" %>
+      </h2>
+      <ul class="dossier-assignment-list">
+        <% links.each do |link| %>
+          <%= render "dossier/assignments/row", assignment: link.assignment %>
+          <% if link.scope %>
+            <li class="dossier-assignment-row__dates" data-testid="partner-scope"><%= link.scope %></li>
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>

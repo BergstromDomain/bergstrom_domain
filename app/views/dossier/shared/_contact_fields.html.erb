@@ -1,0 +1,10 @@
+<%# A Colleague's or Staff member's fields (Dossier::ContactDetails). Locals: f, record %>
+<%= render "dossier/shared/field", f: f, record: record, attribute: :name, label: "Name" %>
+<%= render "dossier/shared/field", f: f, record: record, attribute: :position, label: "Position",
+      hint: "Optional, e.g. Test Lead or Product Owner." %>
+<%= render "dossier/shared/field", f: f, record: record, attribute: :mobile, label: "Mobile", hint: "Optional." %>
+<%= render "dossier/shared/field", f: f, record: record, attribute: :email, label: "Email", hint: "Optional." %>
+<%= render "dossier/shared/field", f: f, record: record, attribute: :linkedin_url, label: "LinkedIn",
+      hint: "Optional: their profile URL, e.g. https://www.linkedin.com/in/…" %>
+<%= render "dossier/shared/field", f: f, record: record, attribute: :comment, label: "Comment", text_area: true,
+      hint: "Optional, e.g. what you worked on together, or that they'd be a good reference." %>

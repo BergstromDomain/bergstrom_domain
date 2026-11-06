@@ -9,11 +9,14 @@ RSpec.describe Dossier::Skill, type: :model do
     it { is_expected.to have_db_column(:aliases).of_type(:string).with_options(array: true, null: false, default: []) }
     it { is_expected.to have_db_column(:description).of_type(:text) }
     it { is_expected.to have_db_column(:slug).of_type(:string) }
+    it { is_expected.to have_db_column(:parent_id).of_type(:integer) }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
   describe "Associations" do
     it { is_expected.to belong_to(:skill_category) }
+    it { is_expected.to belong_to(:parent).optional }
+    it { is_expected.to have_many(:versions).dependent(:nullify) }
   end
 
   it_behaves_like "Dossier named reference data", :dossier_skill
@@ -30,6 +33,18 @@ RSpec.describe Dossier::Skill, type: :model do
       skill = create(:dossier_skill, name: "Selenium", aliases_text: "Selenium WebDriver")
       expect(described_class.find_by_name_or_alias("selenium webdriver")).to eq(skill)
       expect(described_class.find_by_name_or_alias("SELENIUM")).to eq(skill)
+    end
+
+    it "Is a version of another Skill, labelled by what follows that Skill's name" do
+      windows = create(:dossier_skill, name: "Windows")
+      xp = create(:dossier_skill, name: "Windows XP", parent: windows)
+      ubuntu = create(:dossier_skill, name: "Ubuntu", parent: create(:dossier_skill, name: "Linux"))
+
+      expect(windows.versions).to eq([ xp ])
+      expect(xp.version_label).to eq("XP")
+      expect(ubuntu.version_label).to eq("Ubuntu")
+      expect(xp.family_root).to eq(windows)
+      expect(windows.family_root).to eq(windows)
     end
 
     it "Merges into another Skill: links move, its names become aliases, it's deleted" do
@@ -71,6 +86,18 @@ RSpec.describe Dossier::Skill, type: :model do
       expect(skill.errors[:name]).to include("is already an alias of Selenium")
     end
 
+    it "Is only one level deep, and never a version of itself" do
+      windows = create(:dossier_skill, name: "Windows")
+      xp = create(:dossier_skill, name: "Windows XP", parent: windows)
+
+      expect(build(:dossier_skill, name: "Windows XP SP2", parent: xp)).not_to be_valid
+      windows.parent = create(:dossier_skill, name: "Operating System")
+      expect(windows).not_to be_valid
+      expect(windows.errors[:parent]).to include("can't be set on a Skill that has versions")
+      xp.parent = xp
+      expect(xp).not_to be_valid
+    end
+
     it "Won't merge into itself" do
       skill = create(:dossier_skill)
       expect { skill.merge_into!(skill) }.to raise_error(ArgumentError, "A Skill can't be merged into itself")
@@ -110,6 +137,17 @@ RSpec.describe Dossier::Skill, type: :model do
       expect(assignment.reload.test_tools_text).to eq("Excel")
       expect(assignment.other_tools_text).to eq("Excel")
       expect(Dossier::AchievementSkill.where(skill: kept).count).to eq(1)
+    end
+
+    it "Hands its versions to the kept Skill when merged, and frees them when deleted" do
+      old = create(:dossier_skill, name: "MS Windows")
+      xp = create(:dossier_skill, name: "Windows XP", parent: old)
+      windows = create(:dossier_skill, name: "Windows")
+
+      old.merge_into!(windows)
+      expect(xp.reload.parent).to eq(windows)
+      windows.destroy!
+      expect(xp.reload.parent).to be_nil
     end
 
     it "Returns nil for a blank lookup" do

@@ -1,0 +1,22 @@
+<%# Colleagues div — private: the caller shows it to the owner and Admins only. Locals: assignment, editable %>
+<div class="show-panel" id="colleagues" data-testid="assignment-colleagues">
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">
+      Colleagues
+      <%= render "shared/info_tip", text: "Only you and Admins see this, and it's never on a CV.", testid: "colleagues-info" %>
+    </h2>
+    <% if assignment.colleagues.any? %>
+      <%= render "dossier/shared/contacts_table", contacts: assignment.colleagues, editable: editable,
+            table_testid: "colleagues-table", row_testid: "colleague-row",
+            edit_path: ->(colleague) { edit_dossier_assignment_colleague_path(assignment, colleague) },
+            delete_path: ->(colleague) { dossier_assignment_colleague_path(assignment, colleague) } %>
+    <% else %>
+      <p data-testid="colleagues-empty">No Colleagues yet.</p>
+    <% end %>
+    <% if editable %>
+      <%= link_to new_dossier_assignment_colleague_path(assignment), class: "btn btn-primary-action" do %>
+        <%= lucide_icon("user-plus", size: 16) %> Add A Colleague
+      <% end %>
+    <% end %>
+  </div>
+</div>

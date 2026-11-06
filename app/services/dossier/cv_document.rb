@@ -43,13 +43,16 @@ class Dossier::CvDocument
   def personal_projects = jobs.select(&:first).map(&:last)
 
   # [[category name, [skill names, most years first]], …], categories A–Z.
+  # A Skill's versions show as one family under its category: "Windows (XP,
+  # Vista)".
   def skills
-    experiences = Dossier::ExperienceCalculator.new(@user, today: @today).skills
+    experiences = experience_calculator.skills
     experiences = experiences.select { |experience| @selection.included?(experience.skill) } if @selection
-    ActiveRecord::Associations::Preloader.new(records: experiences.map(&:skill), associations: :skill_category).call
-    experiences.group_by { |experience| experience.skill.skill_category.name }
-               .sort_by { |category, _| category.downcase }
-               .map { |category, list| [ category, list.map { |experience| experience.skill.name } ] }
+    families = experiences.map(&:skill).group_by(&:family_root)
+    ActiveRecord::Associations::Preloader.new(records: families.keys, associations: :skill_category).call
+    families.group_by { |root, _| root.skill_category.name }
+            .sort_by { |category, _| category.downcase }
+            .map { |category, list| [ category, list.map { |root, members| family_name(root, members) } ] }
   end
 
   def credentials
@@ -77,7 +80,7 @@ class Dossier::CvDocument
   def jobs
     @jobs ||= @user.dossier_engagements.kept.newest_first
                    .includes(:employer, :employment_type,
-                             assignments: [ :client, :role, :location, :achievements, { assignment_skills: :skill } ])
+                             assignments: [ :client, :role, :location, :achievements, { assignment_skills: { skill: :parent } } ])
                    .select { |engagement| shown?(engagement) }
                    .map { |engagement| [ engagement.personal?, job(engagement) ] }
   end
@@ -123,12 +126,29 @@ class Dossier::CvDocument
     assignment.remote ? "#{assignment.location.name} (Remote)" : assignment.location.name
   end
 
-  # [["Test Tools", "Jira, qTest"], …], N/A lists left out.
+  # [["Test Tools", "Jira, qTest"], …], N/A lists left out; versions as
+  # families, like Skills.
   def tech_stack(assignment)
     Dossier::TechStack::SLOTS.filter_map do |slot, plural|
-      names = assignment.skills_in(slot).map(&:name)
+      families = assignment.skills_in(slot).group_by(&:family_root)
+      names = families.map { |root, members| family_name(root, members) }
       [ Dossier::TechStack::LABELS.fetch(plural), names.join(", ") ] if names.any?
     end
+  end
+
+  def experience_calculator
+    @experience_calculator ||= Dossier::ExperienceCalculator.new(@user, today: @today)
+  end
+
+  # "Windows" alone, or "Windows (XP, Vista)" with its versions in the order
+  # first used.
+  def family_name(root, members)
+    versions = members.reject { |skill| skill == root }
+    return root.name if versions.empty?
+
+    first_used = ->(skill) { experience_calculator.for_skill(skill)&.first_on || Date.new(9999) }
+    labels = versions.sort_by { |skill| [ first_used.(skill), skill.name.downcase ] }.map(&:version_label)
+    "#{root.name} (#{labels.join(', ')})"
   end
 
   def credential_entry(credential)

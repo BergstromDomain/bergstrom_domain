@@ -1,0 +1,57 @@
+<%# Vendors and Customers, a panel each — private: the caller shows them to the owner and Admins only. Locals: assignment, editable %>
+<div id="partners" data-testid="assignment-partners">
+  <% [ [ "vendor", "Vendors", assignment.vendors ], [ "customer", "Customers", assignment.customers ] ].each do |kind, heading, partners| %>
+    <div class="show-panel" id="<%= heading.downcase %>" data-testid="<%= heading.downcase %>">
+      <div class="show-panel__section">
+        <h2 class="show-panel__heading">
+          <%= heading %>
+          <%= render "shared/info_tip", testid: "#{kind}s-info",
+                text: "#{kind == 'vendor' ? 'Who else built part of it' : 'Who buys or uses the result'}. Only you and Admins see this, and it's never on a CV." %>
+        </h2>
+        <% if partners.any? %>
+          <ul class="dossier-assignment-list">
+            <% partners.each do |partner| %>
+              <li class="dossier-assignment-row" data-testid="partner-row">
+                <span class="dossier-partner-name">
+                  <%= link_to partner.organisation.name, dossier_organisation_path(partner.organisation) %>
+                  <% if partner.scope %>
+                    <span class="dossier-assignment-row__dates"><%= partner.scope %></span>
+                  <% end %>
+                </span>
+                <% if editable %>
+                  <span class="row-actions dossier-partner-actions">
+                    <%= link_to "Edit", edit_dossier_assignment_partner_path(assignment, partner), class: "btn btn-secondary" %>
+                    <% staff_note = partner.staff_members.any? ? " This also deletes its #{pluralize(partner.staff_members.size, 'Staff member')}." : "" %>
+                    <%= button_to "Delete", dossier_assignment_partner_path(assignment, partner), method: :delete,
+                          class: "btn btn-danger",
+                          data: { turbo_confirm: "Remove #{partner.organisation.name} as a #{partner.kind_label}?#{staff_note}" } %>
+                  </span>
+                <% end %>
+                <div class="dossier-partner-staff" data-testid="partner-staff">
+                  <% if partner.staff_members.any? %>
+                    <%= render "dossier/shared/contacts_table", contacts: partner.staff_members, editable: editable,
+                          table_testid: "staff-table", row_testid: "staff-row",
+                          edit_path: ->(member) { edit_dossier_assignment_partner_staff_member_path(assignment, partner, member) },
+                          delete_path: ->(member) { dossier_assignment_partner_staff_member_path(assignment, partner, member) } %>
+                  <% end %>
+                  <% if editable %>
+                    <%= link_to new_dossier_assignment_partner_staff_member_path(assignment, partner), class: "btn btn-secondary" do %>
+                      <%= lucide_icon("user-plus", size: 16) %> Add Staff
+                    <% end %>
+                  <% end %>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p>No <%= heading %> yet.</p>
+        <% end %>
+        <% if editable %>
+          <%= link_to new_dossier_assignment_partner_path(assignment, kind: kind), class: "btn btn-primary-action" do %>
+            <%= lucide_icon("plus", size: 16) %> Add A <%= heading.singularize %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

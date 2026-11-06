@@ -33,6 +33,22 @@ RSpec.describe "Dossier Skills", type: :feature do
       expect(page).to have_selector("[data-testid='detail-aliases']", text: "Selenium WebDriver, WebDriver")
     end
 
+    it "Makes a Skill a version of another and shows the family on both pages" do
+      windows = create(:dossier_skill, name: "Windows", skill_category: test_tools)
+      create(:dossier_skill, name: "Windows Vista", skill_category: test_tools, parent: windows)
+      xp = create(:dossier_skill, name: "Windows XP", skill_category: test_tools)
+      sign_in_as(create(:user, :admin))
+      visit edit_dossier_skill_path(xp)
+
+      expect(page).not_to have_select("Version Of", with_options: [ "Windows Vista" ])
+      select "Windows", from: "Version Of"
+      click_button "Update Skill"
+
+      expect(page).to have_selector("[data-testid='detail-version-of']", text: "Windows")
+      visit dossier_skill_path(windows)
+      expect(page).to have_selector("[data-testid='detail-versions']", text: "Windows Vista, Windows XP")
+    end
+
     it "Lists Skills under their Skill Categories, both alphabetically" do
       methods = create(:dossier_skill_category, name: "Methodologies")
       create(:dossier_skill, name: "Selenium", skill_category: test_tools)

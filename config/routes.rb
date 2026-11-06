@@ -111,7 +111,12 @@ Rails.application.routes.draw do
       get  :deleted, on: :collection
       post :restore, on: :member
     end
-    resources :assignments, except: :index
+    resources :assignments, except: :index do
+      resources :colleagues, except: %i[index show]
+      resources :partners, except: %i[index show], controller: "assignment_partners" do
+        resources :staff_members, except: %i[index show], path: "staff"
+      end
+    end
     resources :achievements do
       get :deleted, on: :collection
       member do

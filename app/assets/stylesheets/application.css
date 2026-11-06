@@ -3200,6 +3200,47 @@ textarea.form-control {
   white-space: nowrap;
 }
 
+/* A Vendor or Customer row: name and scope on the left, Edit/Delete on the
+   right, and its Staff as a full-width block underneath. */
+.dossier-partner-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-md);
+}
+
+/* Inset by the Staff table's cell padding and border, so both sets of
+   Edit/Delete buttons (.row-actions) line up on the right. */
+.dossier-partner-actions {
+  margin-left: auto;
+  padding-right: calc(var(--space-md) + 1px);
+}
+
+.dossier-partner-staff {
+  flex-basis: 100%;
+}
+
+.dossier-partner-staff .data-table-wrapper {
+  margin-bottom: var(--space-xs);
+}
+
+/* A row's Edit/Delete buttons, packed against the right edge with an even
+   gap (flex, so no stray whitespace between or after them). */
+.data-table__actions {
+  white-space: nowrap;
+}
+
+.row-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.row-actions form {
+  margin: 0;
+}
+
 .dossier-assignment-row--bench,
 .dossier-timeline-gap {
   color: var(--color-text-secondary);

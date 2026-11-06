@@ -107,6 +107,20 @@ RSpec.describe Dossier::ExperienceCalculator do
 
   # 3) Alternative Path ───────────────────────────────────────────────────────
   describe "Alternative Path" do
+    it "Counts a Skill's versions towards its own years, each version keeping its own" do
+      windows = create(:dossier_skill, name: "Windows")
+      create(:dossier_skill, name: "Windows XP", parent: windows)
+      create(:dossier_skill, name: "Windows Vista", parent: windows)
+      assignment("2015-01", "2016-12", operating_systems_na: false, operating_systems_text: "Windows XP")
+      assignment("2016-07", "2017-12", operating_systems_na: false, operating_systems_text: "Windows Vista, Windows")
+
+      expect(experience("Windows").months).to eq(36)
+      expect(experience("Windows").assignments.size).to eq(2)
+      expect(experience("Windows XP").months).to eq(24)
+      expect(experience("Windows Vista").months).to eq(18)
+      expect(experience("Windows XP").first_on).to eq(Date.new(2015, 1, 1))
+    end
+
     it "Counts a Skill tagged only on an Achievement over that Achievement's Assignment" do
       create(:dossier_achievement, assignment: assignment("2016-07", "2018-06"), skills_text: "Selenium")
 
