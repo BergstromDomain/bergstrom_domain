@@ -17,10 +17,24 @@
               <% end %>
               <% if editable %>
                 <%= link_to "Edit", edit_dossier_assignment_partner_path(assignment, partner), class: "btn btn-secondary" %>
+                <% staff_note = partner.staff_members.any? ? " This also deletes its #{pluralize(partner.staff_members.size, 'Staff member')}." : "" %>
                 <%= button_to "Delete", dossier_assignment_partner_path(assignment, partner), method: :delete,
                       class: "btn btn-danger", form: { style: "display: inline" },
-                      data: { turbo_confirm: "Remove #{partner.organisation.name} as a #{partner.kind_label}?" } %>
+                      data: { turbo_confirm: "Remove #{partner.organisation.name} as a #{partner.kind_label}?#{staff_note}" } %>
               <% end %>
+              <div class="dossier-partner-staff" data-testid="partner-staff">
+                <% if partner.staff_members.any? %>
+                  <%= render "dossier/shared/contacts_table", contacts: partner.staff_members, editable: editable,
+                        table_testid: "staff-table", row_testid: "staff-row",
+                        edit_path: ->(member) { edit_dossier_assignment_partner_staff_member_path(assignment, partner, member) },
+                        delete_path: ->(member) { dossier_assignment_partner_staff_member_path(assignment, partner, member) } %>
+                <% end %>
+                <% if editable %>
+                  <%= link_to new_dossier_assignment_partner_staff_member_path(assignment, partner), class: "btn btn-secondary" do %>
+                    <%= lucide_icon("user-plus", size: 16) %> Add Staff
+                  <% end %>
+                <% end %>
+              </div>
             </li>
           <% end %>
         </ul>

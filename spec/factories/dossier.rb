@@ -131,4 +131,9 @@ FactoryBot.define do
       kind { "customer" }
     end
   end
+
+  factory :dossier_staff_member, class: "Dossier::StaffMember" do
+    association :assignment_partner, factory: :dossier_assignment_partner
+    sequence(:name) { |n| "Staff Member #{n}" }
+  end
 end

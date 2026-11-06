@@ -3200,6 +3200,12 @@ textarea.form-control {
   white-space: nowrap;
 }
 
+/* A Vendor's or Customer's Staff: a full-width block under its row. */
+.dossier-partner-staff {
+  flex-basis: 100%;
+  padding-left: var(--space-md);
+}
+
 .dossier-assignment-row--bench,
 .dossier-timeline-gap {
   color: var(--color-text-secondary);

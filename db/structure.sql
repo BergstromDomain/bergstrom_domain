@@ -1150,6 +1150,43 @@ ALTER SEQUENCE public.dossier_skills_id_seq OWNED BY public.dossier_skills.id;
 
 
 --
+-- Name: dossier_staff_members; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_staff_members (
+    id bigint NOT NULL,
+    assignment_partner_id bigint NOT NULL,
+    name character varying NOT NULL,
+    "position" character varying,
+    mobile character varying,
+    email character varying,
+    linkedin_url character varying,
+    comment text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_staff_members_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_staff_members_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_staff_members_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_staff_members_id_seq OWNED BY public.dossier_staff_members.id;
+
+
+--
 -- Name: event_mutes; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2145,6 +2182,13 @@ ALTER TABLE ONLY public.dossier_skills ALTER COLUMN id SET DEFAULT nextval('publ
 
 
 --
+-- Name: dossier_staff_members id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_staff_members ALTER COLUMN id SET DEFAULT nextval('public.dossier_staff_members_id_seq'::regclass);
+
+
+--
 -- Name: event_mutes id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2552,6 +2596,14 @@ ALTER TABLE ONLY public.dossier_skill_categories
 
 ALTER TABLE ONLY public.dossier_skills
     ADD CONSTRAINT dossier_skills_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_staff_members dossier_staff_members_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_staff_members
+    ADD CONSTRAINT dossier_staff_members_pkey PRIMARY KEY (id);
 
 
 --
@@ -3264,6 +3316,13 @@ CREATE UNIQUE INDEX index_dossier_skills_on_slug ON public.dossier_skills USING 
 
 
 --
+-- Name: index_dossier_staff_members_on_assignment_partner_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_staff_members_on_assignment_partner_id ON public.dossier_staff_members USING btree (assignment_partner_id);
+
+
+--
 -- Name: index_event_mutes_on_user_id_and_event_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3855,6 +3914,14 @@ ALTER TABLE ONLY public.dossier_assignments
 
 
 --
+-- Name: dossier_staff_members fk_rails_6824cba56e; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_staff_members
+    ADD CONSTRAINT fk_rails_6824cba56e FOREIGN KEY (assignment_partner_id) REFERENCES public.dossier_assignment_partners(id) ON DELETE CASCADE;
+
+
+--
 -- Name: dossier_cv_variants fk_rails_6d3840df39; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4205,6 +4272,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261106120000'),
 ('20261106110000'),
 ('20261106100000'),
 ('20261106090000'),
