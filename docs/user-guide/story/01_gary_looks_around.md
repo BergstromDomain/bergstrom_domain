@@ -26,11 +26,11 @@ The bar across the top is the same on every page. **Home** brings you back here,
 
 **Apps** lists the site's apps. Each one has its own landing page and its own menu down the left-hand side.
 
-![The Info menu open in the top bar: About and Contact](images/gary_info_menu.png)
+![The Info menu open in the top bar: About, Contact and User Guide](images/gary_info_menu.png)
 
-**Info** has pages about the site itself.
+**Info** has pages about the site itself, and this **User Guide**.
 
-> ![Gary](images/gary_guest_avatar.png) About tells you who runs the site, and Contact tells you how to reach them.
+> ![Gary](images/gary_guest_avatar.png) About tells you who runs the site, and Contact tells you how to reach them. User Guide is where you're reading this: every chapter of the story, plus how-to pages for each app.
 
 ![The About page](images/gary_about.png)
 

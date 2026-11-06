@@ -18,8 +18,9 @@
                label: "Info",
                testid: "top-nav-info",
                items: [
-                 { label: "About",   path: about_path },
-                 { label: "Contact", path: contact_path }
+                 { label: "About",      path: about_path },
+                 { label: "Contact",    path: contact_path },
+                 { label: "User Guide", path: guide_pages_path }
                ] %>
 
     <% if authenticated? && current_user.system_admin? %>

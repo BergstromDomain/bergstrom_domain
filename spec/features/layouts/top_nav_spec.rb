@@ -76,6 +76,11 @@ RSpec.describe "Top Nav", type: :feature do
         expect(page).to have_link("Contact", href: contact_path)
       end
 
+      it "Shows 'User Guide' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("User Guide", href: guide_pages_path)
+      end
+
       it "Does not show the 'System Admin' dropdown menu" do
         expect(page).not_to have_button("System Admin")
       end
@@ -123,6 +128,11 @@ RSpec.describe "Top Nav", type: :feature do
       it "Shows 'Contact' link in 'Info' dropdown menu" do
         click_button "Info"
         expect(page).to have_link("Contact", href: contact_path)
+      end
+
+      it "Shows 'User Guide' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("User Guide", href: guide_pages_path)
       end
 
       it "Does not show the 'System Admin' dropdown menu" do
@@ -178,6 +188,11 @@ RSpec.describe "Top Nav", type: :feature do
         expect(page).to have_link("Contact", href: contact_path)
       end
 
+      it "Shows 'User Guide' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("User Guide", href: guide_pages_path)
+      end
+
       it "Does not show the 'System Admin' dropdown menu" do
         expect(page).not_to have_button("System Admin")
       end
@@ -227,6 +242,11 @@ RSpec.describe "Top Nav", type: :feature do
         expect(page).to have_link("Contact", href: contact_path)
       end
 
+      it "Shows 'User Guide' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("User Guide", href: guide_pages_path)
+      end
+
       it "Does not show the 'System Admin' dropdown menu" do
         expect(page).not_to have_button("System Admin")
       end
@@ -274,6 +294,11 @@ RSpec.describe "Top Nav", type: :feature do
       it "Shows 'Contact' link in 'Info' dropdown menu" do
         click_button "Info"
         expect(page).to have_link("Contact", href: contact_path)
+      end
+
+      it "Shows 'User Guide' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("User Guide", href: guide_pages_path)
       end
 
       it "Shows the 'System Admin' dropdown menu" do
