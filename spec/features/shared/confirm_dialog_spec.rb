@@ -49,6 +49,7 @@ RSpec.describe "Confirm Dialog", type: :feature do
     it "Shows the styled dialog with the trigger's message and proceeds with the action on Confirm", js: true do
       dialog = open_delete_dialog_for(person)
       expect(dialog).to have_text(:all, "Delete James Alan Hetfield? This cannot be undone.", normalize_ws: true)
+      expect(dialog).to have_css("[data-testid='confirm-dialog-card']", visible: :all)
 
       js_click("confirm-dialog-confirm")
 

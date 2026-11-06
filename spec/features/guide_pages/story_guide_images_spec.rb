@@ -151,4 +151,64 @@ RSpec.describe "Story Guide Images", type: :feature, js: true, guide_image: true
       capture_guide_image("occasions-settings-panel", as: "story/ulrika_occasions_settings")
     end
   end
+
+  # ── Chapter 4: Charlie Creates ────────────────────────────────────────────
+  describe "Charlie Content Creator" do
+    before do
+      sign_in_as(world.charlie)
+      expect(page).to have_css("[data-testid='user-thumbnail-dropdown']", wait: 8)
+    end
+
+    def capture_left_nav(path, as:)
+      visit path
+      page.execute_script("document.querySelector('[data-testid=\"left-nav\"]').style.height = 'auto'")
+      capture_guide_image("left-nav", as: as)
+    end
+
+    it "Captures the left menus a Content Creator gets" do
+      capture_left_nav(chronicle_path, as: "story/charlie_chronicle_left_nav")
+      capture_left_nav(event_tracker_path, as: "story/charlie_occasions_left_nav")
+      capture_left_nav(dossier_path, as: "story/charlie_dossier_left_nav")
+
+      visit dossier_engagements_path
+      capture_guide_image("timeline", as: "story/charlie_dossier_timeline")
+    end
+
+    it "Captures writing, publishing and deleting a blog post" do
+      visit new_blog_post_path
+      fill_in "Title", with: "Optics"
+      select "Science", from: "blog_post[blog_category_id]"
+      fill_in "blog_post[subject]", with: "Physics"
+      fill_in "blog_post[topic]", with: "Isaac Newton"
+      select "Contacts — visible to my contacts", from: "blog_post[classification]"
+      capture_guide_image("new-panel-metadata", as: "story/charlie_post_form_visibility")
+
+      click_button "Save Blog Post"
+      expect(page).to have_content("Optics has been successfully created", wait: 8)
+      visit blog_post_path(BlogPost.find_by!(title: "Optics"))
+      expect(page).to have_css("[data-testid='draft-mode-warning']", wait: 8)
+      capture_guide_image("draft-mode-warning", as: "story/charlie_draft_warning")
+      capture_guide_image("show-panel-actions", as: "story/charlie_post_actions")
+
+      js_click("delete-button")
+      expect(page).to have_css("[data-testid='confirm-dialog'][open]", wait: 8)
+      capture_guide_image("confirm-dialog-card", as: "story/charlie_delete_confirm")
+      js_click("confirm-dialog-confirm")
+      expect(page).to have_content("The post can be restored by Admin for 30 days.", wait: 8)
+      capture_guide_image("toast-container", as: "story/charlie_post_deleted")
+    end
+
+    it "Captures restoring a deleted Dossier engagement" do
+      world.engagements[:observatory].soft_delete!
+      visit deleted_dossier_engagements_path
+      capture_guide_image("deleted-engagement-table", as: "story/charlie_deleted_engagements")
+    end
+
+    it "Captures Charlie's app settings" do
+      visit chronicle_settings_path
+      capture_guide_image("chronicle-settings-panel", as: "story/charlie_chronicle_settings")
+      visit cookbook_settings_path
+      capture_guide_image("cookbook-settings-panel", as: "story/charlie_cookbook_settings")
+    end
+  end
 end

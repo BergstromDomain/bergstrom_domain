@@ -101,6 +101,40 @@ RSpec.describe "User Guide story world", type: :feature do
         expect(page).to have_css("[data-testid='likes-panel'] button[data-testid='like-grinning']")
       end
     end
+
+    it "Gives Charlie Actions to create things in every app" do
+      sign_in_as(world.charlie)
+
+      { chronicle_path => "Create A Blog Post", cookbook_path => "Write A Recipe",
+        event_tracker_path => "Create Event", dossier_path => "Create An Engagement" }.each do |path, link|
+        visit path
+        within("[data-testid='left-nav']") { expect(page).to have_link(link) }
+      end
+    end
+
+    it "Keeps a deleted post for 30 days, for an admin to restore" do
+      sign_in_as(world.charlie)
+      visit blog_post_path(world.posts[:motion])
+      click_button "Delete"
+      expect(page).to have_content("The post can be restored by Admin for 30 days.")
+      expect(world.posts[:motion].reload.deleted_at).to be_present
+      click_button "Sign Out"
+
+      sign_in_as(world.adam)
+      visit deleted_blog_posts_path
+      find("[data-testid='restore-blog-post-#{world.posts[:motion].id}']").click
+      expect(world.posts[:motion].reload.deleted_at).to be_nil
+    end
+
+    it "Lets Charlie restore their own deleted Dossier engagement" do
+      engagement = world.engagements[:observatory]
+      engagement.soft_delete!
+      sign_in_as(world.charlie)
+
+      visit deleted_dossier_engagements_path
+      find("[data-testid='restore-engagement-#{engagement.id}']").click
+      expect(engagement.reload.deleted_at).to be_nil
+    end
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
@@ -147,6 +181,41 @@ RSpec.describe "User Guide story world", type: :feature do
         expect(page).not_to have_content("Erik and Maja's Wedding")
       end
     end
+
+    it "Doesn't let Charlie add reference data, except Organisations and Skills in Dossier" do
+      sign_in_as(world.charlie)
+
+      { chronicle_path => "Create A Blog Category", event_tracker_path => "Create Event Type",
+        cookbook_path => "Add A Cuisine" }.each do |path, link|
+        visit path
+        within("[data-testid='left-nav']") { expect(page).not_to have_link(link) }
+      end
+
+      visit dossier_path
+      within("[data-testid='left-nav']") do
+        expect(page).to have_link("Add An Organisation")
+        expect(page).to have_link("Add A Skill")
+        expect(page).not_to have_link("Add A Skill Category")
+      end
+    end
+
+    it "Doesn't let Charlie restore their own deleted post" do
+      world.posts[:motion].update!(deleted_at: Time.current)
+      sign_in_as(world.charlie)
+
+      visit deleted_blog_posts_path
+      expect(page).not_to have_css("[data-testid='deleted-blog-post-table']")
+    end
+
+    it "Keeps Charlie's draft from everyone else, even a contact" do
+      draft = create(:blog_post, :contacts, user: world.charlie, blog_category: world.posts[:newton].blog_category,
+        title: "Optics", body: "Light and colour.")
+      connect_ulrika_and_charlie
+      sign_in_as(world.ulrika)
+
+      visit blog_post_path(draft)
+      expect(page).not_to have_css("[data-testid='blog-post-title']", text: "Optics")
+    end
   end
 
   # 3) Alternative path ───────────────────────────────────────────────────────
@@ -177,6 +246,14 @@ RSpec.describe "User Guide story world", type: :feature do
         expect(page).to have_content("Ulrika User")
         expect(page).not_to have_content("Erik Lind")
       end
+    end
+
+    it "Deletes an Occasions event for good, with no Deleted page to restore it from" do
+      sign_in_as(world.charlie)
+      visit event_path(world.events[:majas_birthday])
+      click_button "Delete"
+
+      expect(Event.exists?(world.events[:majas_birthday].id)).to be(false)
     end
   end
 
@@ -211,6 +288,23 @@ RSpec.describe "User Guide story world", type: :feature do
 
       visit people_path(classifications: [ "restricted" ])
       expect(page).not_to have_content("Maja Lind")
+    end
+
+    it "Starts a new post at Charlie's default Chronicle visibility" do
+      world.charlie.app_settings_for("blog_posts").update!(default_classification: "contacts")
+      sign_in_as(world.charlie)
+
+      visit new_blog_post_path
+      expect(page).to have_select("blog_post[classification]", selected: "Contacts — visible to my contacts")
+    end
+
+    it "Deletes an event along with the only person in it, but keeps one that still has people" do
+      sign_in_as(world.charlie)
+      visit person_path(world.people[:maja])
+      click_button "Delete"
+
+      expect(Event.exists?(world.events[:majas_birthday].id)).to be(false)
+      expect(world.events[:wedding].reload.people).to contain_exactly(world.people[:erik])
     end
   end
 end

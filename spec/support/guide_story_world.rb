@@ -12,7 +12,8 @@ module GuideStoryWorld
   STORY_TIME = Time.zone.local(2026, 11, 2, 10, 0)
   IMAGES     = Rails.root.join("docs/test-data/images")
 
-  World = Struct.new(:charlie, :ulrika, :adam, :sam, :posts, :people, :events, :recipes, keyword_init: true)
+  World = Struct.new(:charlie, :ulrika, :adam, :sam, :posts, :people, :events, :recipes, :engagements,
+    keyword_init: true)
 
   def build_story_world
     charlie = story_user("Charlie", "Content Creator", :content_creator, "Test_User_Charlie_Contect_Creator.png")
@@ -24,7 +25,8 @@ module GuideStoryWorld
       posts:   story_posts(charlie, ulrika, adam),
       people:  people = story_people(charlie),
       events:  story_events(charlie, people),
-      recipes: story_recipes(charlie, ulrika))
+      recipes: story_recipes(charlie, ulrika),
+      engagements: story_engagements(charlie))
   end
 
   private
@@ -107,6 +109,29 @@ module GuideStoryWorld
 
     { lasagna: lasagna,
       buns:    story_recipe(charlie, "Kanelbullar", :contacts, english, swedish, bread) }
+  end
+
+  # ── Dossier ── Charlie's own career, private to Charlie ───────────────────
+  def story_engagements(charlie)
+    create(:dossier_profile, user: charlie, display_name: "Charlie Content Creator")
+    permanent = create(:dossier_employment_type, :permanent, name: "Permanent")
+    {
+      observatory: story_engagement(charlie, permanent, "Research Assistant", "Greenwich Observatory",
+                     "Star Catalogue", Date.new(2016, 9, 1), Date.new(2019, 6, 1)),
+      school:      story_engagement(charlie, permanent, "Physics Teacher", "Woolsthorpe School",
+                     "Year 12 Physics", Date.new(2019, 8, 1), nil)
+    }
+  end
+
+  def story_engagement(charlie, employment_type, title, employer, project, start_on, end_on)
+    organisation = create(:dossier_organisation, name: employer)
+    engagement = create(:dossier_engagement, user: charlie, employment_type: employment_type,
+      position_title: title, employer: organisation, start_on: start_on, end_on: end_on)
+    # A permanent Engagement creates its own Assignment; give it a project
+    # and one Tech Stack list, so the Timeline isn't flagged incomplete.
+    engagement.assignments.first.update!(project: project, methodologies_na: false,
+      methodologies_text: "Inquiry-Based Learning")
+    engagement
   end
 
   def story_recipe(charlie, title, classification, language, cuisine, food_type, image = nil)

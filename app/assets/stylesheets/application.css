@@ -3082,6 +3082,43 @@ textarea.form-control {
   margin: var(--space-md) 0;
 }
 
+/* Guide pages are rendered Markdown, but the reset at the top of this file
+   zeroes every margin and padding — so give paragraphs, headings and lists
+   their spacing back, and lists their bullets and numbers. */
+.guide-page-body h2 {
+  margin: var(--space-xl) 0 var(--space-sm);
+}
+
+.guide-page-body h3 {
+  margin: var(--space-lg) 0 var(--space-xs);
+}
+
+.guide-page-body > :first-child {
+  margin-top: 0;
+}
+
+.guide-page-body p,
+.guide-page-body ul,
+.guide-page-body ol {
+  margin-bottom: var(--space-sm);
+}
+
+.guide-page-body ul,
+.guide-page-body ol {
+  padding-left: var(--space-lg);
+}
+
+.guide-page-body ul { list-style: disc; }
+.guide-page-body ol { list-style: decimal; }
+
+.guide-page-body li + li {
+  margin-top: var(--space-2xs);
+}
+
+.guide-page-body blockquote p:last-child {
+  margin-bottom: 0;
+}
+
 /* The User Guide's story is told by the test users. A chapter opens with
    its narrator's portrait (images/<persona>_portrait.png), and each thing
    they say is a blockquote starting with their avatar

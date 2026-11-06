@@ -18,6 +18,7 @@ RSpec.describe "Dossier Timeline", type: :feature do
       sign_in_as(charlie)
       visit dossier_engagements_path
 
+      expect(page).to have_css("[data-testid='timeline'] [data-testid='engagement-card']", count: 2)
       within("[data-testid='timeline-gap']") do
         expect(page).to have_selector("[data-testid='timeline-gap-label']", exact_text: "Gap · 5 months")
         expect(page).to have_selector(".dossier-assignment-row__dates", exact_text: "Jan 2018 – May 2018")
