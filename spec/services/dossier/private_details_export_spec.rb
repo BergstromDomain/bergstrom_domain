@@ -2,14 +2,16 @@
 
 require "rails_helper"
 
-# Colleagues, Vendors and Customers are private (Block 12): no CV — master or
+# Colleagues, Vendors, Customers and their Staff are private (Block 12): no CV — master or
 # CV Variant, Word or PDF — may ever carry them.
 RSpec.describe "Dossier private Assignment details on exports" do
   let(:user) { create(:user, :content_creator) }
   let(:today) { Date.new(2026, 11, 6) }
   let(:secrets) do
     [ "Zelda Secretname", "Quiet Lead", "zelda@hidden.example", "+61 499 999 999", "linkedin.com/in/zelda-secret",
-      "Knows where the bodies are", "Hidden Vendor Pty", "Built the secret portal", "Hidden Customer Co", "Uses it quietly" ]
+      "Knows where the bodies are", "Hidden Vendor Pty", "Built the secret portal", "Hidden Customer Co", "Uses it quietly",
+      "Vera Vendorstaff", "Release Wrangler", "vera@vendor.example", "+61 488 888 888", "linkedin.com/in/vera-secret",
+      "Never ships on Fridays" ]
   end
 
   before do
@@ -21,8 +23,11 @@ RSpec.describe "Dossier private Assignment details on exports" do
     create(:dossier_colleague, assignment: assignment, name: "Zelda Secretname", position: "Quiet Lead",
                                email: "zelda@hidden.example", mobile: "+61 499 999 999",
                                linkedin_url: "https://linkedin.com/in/zelda-secret", comment: "Knows where the bodies are")
-    create(:dossier_assignment_partner, assignment: assignment, scope: "Built the secret portal",
-                                        organisation: create(:dossier_organisation, name: "Hidden Vendor Pty"))
+    vendor = create(:dossier_assignment_partner, assignment: assignment, scope: "Built the secret portal",
+                                                 organisation: create(:dossier_organisation, name: "Hidden Vendor Pty"))
+    create(:dossier_staff_member, assignment_partner: vendor, name: "Vera Vendorstaff", position: "Release Wrangler",
+                                  email: "vera@vendor.example", mobile: "+61 488 888 888",
+                                  linkedin_url: "https://linkedin.com/in/vera-secret", comment: "Never ships on Fridays")
     create(:dossier_assignment_partner, :customer, assignment: assignment, scope: "Uses it quietly",
                                                    organisation: create(:dossier_organisation, name: "Hidden Customer Co"))
   end

@@ -238,13 +238,15 @@ RSpec.describe "Eager loading", type: :request do
       end
     end
 
-    it "Loads an Assignment's Colleagues, Vendors and Customers without N+1 queries" do
+    it "Loads an Assignment's Colleagues, Vendors, Customers and their Staff without N+1 queries" do
       assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam),
                                                test_tools_na: false, test_tools_text: "Jira")
       create(:dossier_achievement, assignment: assignment, skills_text: "Jira")
       create_list(:dossier_colleague, 2, assignment: assignment)
       create_list(:dossier_assignment_partner, 2, assignment: assignment)
+        .each { |vendor| create_list(:dossier_staff_member, 2, assignment_partner: vendor) }
       create_list(:dossier_assignment_partner, 2, :customer, assignment: assignment)
+        .each { |customer| create(:dossier_staff_member, assignment_partner: customer) }
 
       without_n_plus_one_queries { get dossier_assignment_path(assignment) }
 
