@@ -129,7 +129,7 @@ class Dossier::ReferenceDataController < ApplicationController
   def related_assignments
     return unless current_user
 
-    mine = Dossier::Assignment.where(engagement_id: current_user.dossier_engagements.kept.select(:id))
+    mine = Dossier::Assignment.kept.where(engagement_id: current_user.dossier_engagements.kept.select(:id))
     assignments_for(@record, mine)&.includes(:client)&.newest_first&.to_a.presence
   end
 

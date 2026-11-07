@@ -68,7 +68,7 @@ Choose the restore button at the end of the row. The post or recipe comes back e
 
 A few things aren't on these pages:
 
-- **Dossier Engagements and Achievements** are restored by their owner, from their own Deleted pages (see Charlie's chapter).
+- **Dossier Engagements, Assignments and Achievements** are restored by their owner, from their own Deleted pages (see Charlie's chapter).
 - **People and events in Occasions** are deleted immediately, so there's nothing to restore.
 - **Reference Data** can't be restored either.
 

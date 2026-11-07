@@ -574,7 +574,8 @@ CREATE TABLE public.dossier_assignments (
     other_tools_na boolean DEFAULT false NOT NULL,
     protocols_na boolean DEFAULT false NOT NULL,
     project character varying,
-    systems_under_test_na boolean DEFAULT false NOT NULL
+    systems_under_test_na boolean DEFAULT false NOT NULL,
+    deleted_at timestamp(6) without time zone
 );
 
 
@@ -3024,6 +3025,13 @@ CREATE INDEX index_dossier_assignments_on_client_id ON public.dossier_assignment
 
 
 --
+-- Name: index_dossier_assignments_on_deleted_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_assignments_on_deleted_at ON public.dossier_assignments USING btree (deleted_at);
+
+
+--
 -- Name: index_dossier_assignments_on_engagement_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4289,6 +4297,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261107120000'),
 ('20261106140000'),
 ('20261106130000'),
 ('20261106120000'),

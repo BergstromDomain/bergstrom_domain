@@ -475,6 +475,18 @@ RSpec.describe Dossier::Import do
       expect(Dossier::Achievement.kept.pluck(:text)).to eq([ "Did another thing" ])
     end
 
+    it "Doesn't bring back an Assignment deleted in the app, or duplicate it" do
+      import.import!
+      assignment = admin.dossier_engagements.find_by!(position_title: "Test Consultant").assignments.sole
+      assignment.soft_delete!
+
+      result = import.import!
+
+      expect(result.created).to be_empty
+      expect(assignment.engagement.all_assignments).to contain_exactly(assignment)
+      expect(assignment.reload.deleted_at).to be_present
+    end
+
     it "Matches an achievement by its exact text only" do
       import.import!
       Dossier::Achievement.find_by!(text: "Did a thing").update!(text: "Did a thing, reworded")

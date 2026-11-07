@@ -2,6 +2,8 @@
 require "rails_helper"
 
 RSpec.describe Dossier::Assignment, type: :model do
+  include ActiveSupport::Testing::TimeHelpers
+
   let(:engagement) { create(:dossier_engagement, start_month: "2019-03", end_month: "2022-06") }
 
   # ── Database Columns ──────────────────────────────────────────────────────
@@ -18,6 +20,7 @@ RSpec.describe Dossier::Assignment, type: :model do
     it { is_expected.to have_db_column(:project).of_type(:string) }
     it { is_expected.to have_db_column(:classification).of_type(:string).with_options(null: false, default: "restricted") }
     it { is_expected.to have_db_column(:position).of_type(:integer) }
+    it { is_expected.to have_db_column(:deleted_at).of_type(:datetime) }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
@@ -30,6 +33,22 @@ RSpec.describe Dossier::Assignment, type: :model do
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
+    it "Is soft-deleted: hidden from its Engagement's Assignments, kept for 30 days, and restorable" do
+      assignment = create(:dossier_assignment, engagement: engagement)
+      freeze_time do
+        assignment.soft_delete!
+        expect(assignment).to have_attributes(deleted_at: Time.current, purge_at: 30.days.from_now)
+      end
+
+      expect(engagement.reload.assignments).to be_empty
+      expect(engagement.all_assignments).to contain_exactly(assignment)
+      expect(Dossier::Assignment.discarded).to contain_exactly(assignment)
+
+      assignment.restore!
+      expect(engagement.reload.assignments).to contain_exactly(assignment)
+      expect(Dossier::Assignment.kept).to contain_exactly(assignment)
+    end
+
     it "Is valid within its Engagement's dates, owned by the Engagement's user" do
       assignment = create(:dossier_assignment, engagement: engagement)
       expect(assignment).to be_valid
@@ -52,6 +71,28 @@ RSpec.describe Dossier::Assignment, type: :model do
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
+    it "Is hidden when it's deleted, or when its Engagement is" do
+      assignment = create(:dossier_assignment, engagement: engagement)
+      expect(assignment).not_to be_hidden
+
+      engagement.soft_delete!
+      expect(assignment.reload).to be_hidden
+      engagement.restore!
+      assignment.soft_delete!
+      expect(assignment.reload).to be_hidden
+    end
+
+    it "Hides its Achievements and Training while it's deleted" do
+      assignment  = create(:dossier_assignment, engagement: engagement)
+      achievement = create(:dossier_achievement, assignment: assignment)
+      course      = create(:dossier_credential, user: engagement.user, engagement: engagement, assignment: assignment)
+      assignment.soft_delete!
+
+      expect(achievement.reload).to be_hidden
+      expect(course.reload).to be_hidden
+      expect(Dossier::Credential.kept).not_to include(course)
+    end
+
     it "Is invalid when it starts before its Engagement" do
       assignment = build(:dossier_assignment, engagement: engagement, start_month: "2019-02")
       expect(assignment).not_to be_valid
@@ -110,6 +151,13 @@ RSpec.describe Dossier::Assignment, type: :model do
   describe "Edge Cases" do
     it "Fits a day-precision end inside a month-precision Engagement end" do
       expect(build(:dossier_assignment, engagement: engagement, end_month: "2022-06", end_day: "30")).to be_valid
+    end
+
+    it "Doesn't let a deleted Assignment stop its Engagement's dates changing" do
+      assignment = create(:dossier_assignment, engagement: engagement, start_month: "2019-03", end_month: "2022-06")
+      assignment.soft_delete!
+      expect(engagement.reload.update(end_month: "2020-01")).to be true
+      expect(assignment.reload.fits_within?(engagement)).to be false
     end
 
     it "Orders an Engagement's Assignments newest first" do

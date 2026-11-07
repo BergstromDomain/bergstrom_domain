@@ -10,7 +10,7 @@ class Dossier::OrganisationsController < Dossier::ReferenceDataController
 
     @credentials = current_user.dossier_credentials.kept.where(provider: @record)
                                .includes(:provider).newest_first.to_a
-    own = Dossier::Assignment.where(engagement_id: current_user.dossier_engagements.kept.select(:id))
+    own = Dossier::Assignment.kept.where(engagement_id: current_user.dossier_engagements.kept.select(:id))
     @partner_links = Dossier::AssignmentPartner.where(organisation: @record, assignment_id: own.select(:id))
                                                .includes(assignment: :client).to_a
                                                .sort_by { |link| link.assignment.start_on }.reverse.group_by(&:kind)

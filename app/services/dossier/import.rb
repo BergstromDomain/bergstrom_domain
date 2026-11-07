@@ -188,8 +188,9 @@ class Dossier::Import
     assignment.role = reference(Dossier::Role, row["role"], on: "Assignment #{assignment.to_toast_label}")
 
     # Role is part of the match: one client can have two Assignments starting the same month.
+    # A deleted one counts too, so a re-import doesn't bring it back as a duplicate.
     match = { client: assignment.client, start_on: assignment.start_on, role: assignment.role }
-    if reusable.nil? && (existing = engagement.assignments.find_by(match))
+    if reusable.nil? && (existing = engagement.all_assignments.find_by(match))
       note_existing("Assignment", existing.to_toast_label, existing)
       assignment = existing
     else

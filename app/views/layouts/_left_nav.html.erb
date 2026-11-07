@@ -637,6 +637,10 @@
             <%= lucide_icon("trash-2", size: 15) %>
             <span>Deleted Engagements</span>
           <% end %>
+          <%= link_to deleted_dossier_assignments_path, class: "left-nav-link" do %>
+            <%= lucide_icon("trash-2", size: 15) %>
+            <span>Deleted Assignments</span>
+          <% end %>
         <% end %>
 
         <% if current_user.can_administer? %>

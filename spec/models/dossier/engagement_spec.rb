@@ -22,7 +22,8 @@ RSpec.describe Dossier::Engagement, type: :model do
     it { is_expected.to belong_to(:user) }
     it { is_expected.to belong_to(:employer).class_name("Dossier::Organisation") }
     it { is_expected.to belong_to(:employment_type) }
-    it { is_expected.to have_many(:assignments).dependent(:destroy) }
+    it { is_expected.to have_many(:all_assignments).class_name("Dossier::Assignment").dependent(:destroy) }
+    it { is_expected.to have_many(:assignments) }
 
     it "Keeps an Organisation from being deleted while it employs someone" do
       engagement = create(:dossier_engagement)
@@ -75,12 +76,12 @@ RSpec.describe Dossier::Engagement, type: :model do
       engagement.soft_delete!
       expect(described_class.discarded).to eq([ engagement ])
       expect(engagement.purge_at).to eq(engagement.deleted_at + 30.days)
-      expect(assignment.reload.deleted_at).to eq(engagement.deleted_at)
+      expect(assignment.reload.hidden?).to be(true)
       expect(achievement.reload.hidden?).to be(true)
 
       engagement.restore!
       expect(described_class.kept).to eq([ engagement ])
-      expect(assignment.reload.deleted_at).to be_nil
+      expect(assignment.reload.hidden?).to be(false)
       expect(achievement.reload.hidden?).to be(false)
     end
   end

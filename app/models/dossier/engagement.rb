@@ -3,7 +3,8 @@
 # Who employed or contracted you: employer (or agency), employment type and
 # position title. A permanent job gets one Assignment automatically, with the
 # employer as client, kept in step with the Engagement's dates. Deleting is
-# soft and hides its Assignments and their Achievements too;
+# soft and hides its Assignments and their Achievements too (assignments are
+# the kept ones; a deleted Assignment is restored on its own);
 # PurgeDeletedDossierEngagementsJob removes it after DELETION_RETENTION_PERIOD.
 class Dossier::Engagement < ApplicationRecord
   include Classifiable
@@ -14,7 +15,9 @@ class Dossier::Engagement < ApplicationRecord
 
   belongs_to :employer, class_name: "Dossier::Organisation"
   belongs_to :employment_type
-  has_many   :assignments, dependent: :destroy
+  # Deleted Assignments go too, so all_assignments does the destroying.
+  has_many   :all_assignments, class_name: "Dossier::Assignment", dependent: :destroy
+  has_many   :assignments, -> { kept }, inverse_of: :engagement
   has_many   :credentials, dependent: :destroy
 
   normalizes :position_title, with: ->(value) { value.strip }

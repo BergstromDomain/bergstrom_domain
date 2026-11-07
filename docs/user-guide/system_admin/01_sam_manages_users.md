@@ -72,6 +72,6 @@ Suspending doesn't delete anything: their posts, recipes and comments stay as th
 > ![Sam](images/sam_system_admin_avatar.png) Restoring works the same for me as for Adam.
 
 - **Blog posts and recipes:** use **Deleted Posts** and **Deleted Recipes**, under Actions in Chronicle and Cookbook, within 30 days (see Adam's chapter).
-- **Dossier Engagements and Achievements:** only their owner can restore them, from their own Deleted pages, within 30 days.
+- **Dossier Engagements, Assignments and Achievements:** only their owner can restore them, from their own Deleted pages, within 30 days.
 - **People and events in Occasions, and Reference Data:** deleted immediately and for good. There's no way to restore them from the site.
 - **Rejected sign-up requests:** deleted for good. The person can sign up again.
