@@ -3119,6 +3119,33 @@ textarea.form-control {
   margin-bottom: 0;
 }
 
+.guide-page-body pre {
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  overflow-x: auto;
+  border: 1px solid var(--color-border); /* the highlighter sets an inline white background */
+  border-radius: var(--radius-sm);
+}
+
+.guide-page-body table {
+  margin-bottom: var(--space-md);
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.guide-page-body th,
+.guide-page-body td {
+  padding: var(--space-xs) var(--space-md);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.guide-page-body th {
+  font-weight: var(--font-weight-semibold);
+  background: var(--color-surface-raised);
+}
+
 /* The User Guide's story is told by the test users. A chapter opens with
    its narrator's portrait (images/<persona>_portrait.png), and each thing
    they say is a blockquote starting with their avatar

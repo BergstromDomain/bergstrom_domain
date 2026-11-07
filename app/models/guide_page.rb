@@ -7,7 +7,8 @@ class GuidePage < ApplicationRecord
   # highlighting spans through Rails' sanitizer. Kept as GuidePage's own
   # constant rather than sharing BlogPost's so the two can diverge later
   # (e.g. GuidePage has no image-upload feature yet) without coupling.
-  RENDERED_BODY_ALLOWED_TAGS       = %w[h1 h2 h3 h4 h5 h6 p br strong em u s blockquote ol ul li a code pre img span].freeze
+  RENDERED_BODY_ALLOWED_TAGS       = %w[h1 h2 h3 h4 h5 h6 p br strong em u s blockquote ol ul li a code pre img span
+                                       table thead tbody tr th td].freeze
   RENDERED_BODY_ALLOWED_ATTRIBUTES = %w[href src alt style lang].freeze
 
   extend FriendlyId

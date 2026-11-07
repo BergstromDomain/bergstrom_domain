@@ -191,7 +191,7 @@ RSpec.describe GuidePageLoader do
       result = described_class.new(Rails.root.join("docs/user-guide/chronicle")).call
 
       expect(result[:created]).to contain_exactly(
-        "Reading Blog Posts", "Writing A Blog Post",
+        "Reading Blog Posts", "Writing A Blog Post", "Writing In Markdown",
         "Importing And Downloading Blog Posts", "Chronicle Settings", "Managing Chronicle Reference Data"
       )
       expect(GuidePage.find_by!(title: "Managing Chronicle Reference Data").app_section).to eq("admin")

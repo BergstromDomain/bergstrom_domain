@@ -31,6 +31,16 @@ RSpec.describe "Show Guide Page", type: :feature do
       expect(page).to have_selector("[data-testid='guide-page-body'] strong", text: "BergstromDomain")
     end
 
+    it "Renders a Markdown table as a table, so reference pages can list fields" do
+      guide_page.update!(body: "| Field | Example |\n| --- | --- |\n| `title` | `title CONTAINS \"rails\"` |")
+      visit guide_page_path(guide_page)
+
+      within("[data-testid='guide-page-body'] table") do
+        expect(page).to have_selector("thead th", text: "Field")
+        expect(page).to have_selector("tbody td code", text: "title")
+      end
+    end
+
     it "Shows the Supported For list with the right checks/x marks" do
       within("[data-testid='guide-page-support-list']") do
         expect(page).to have_selector("[data-testid='guide-page-supports_guest'] svg.classification-icon--success")
