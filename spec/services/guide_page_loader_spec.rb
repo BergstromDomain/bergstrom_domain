@@ -180,6 +180,15 @@ RSpec.describe GuidePageLoader do
       expect(GuidePage.story.in_reading_order.pluck(:position)).to eq([ 1, 2, 3, 4, 5 ])
     end
 
+    it "Loads every page in docs/user-guide/dossier, with Reference Data in the admin section" do
+      result = described_class.new(Rails.root.join("docs/user-guide/dossier")).call
+
+      expect(result[:created]).to eq([ "Your Profile And Timeline", "Writing Achievements", "Skills And Experience",
+        "Credentials And Training", "CVs And CV Variants", "Importing A Master CV", "Managing Dossier Reference Data" ])
+      expect(GuidePage.find_by!(title: "Managing Dossier Reference Data").app_section).to eq("admin")
+      expect(GuidePage.dossier.count).to eq(6)
+    end
+
     it "Loads Sam's page from docs/user-guide/system_admin, in the system-admin-only section" do
       result = described_class.new(Rails.root.join("docs/user-guide/system_admin")).call
 

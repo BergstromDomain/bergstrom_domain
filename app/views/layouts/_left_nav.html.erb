@@ -701,9 +701,19 @@
         How To
       </h3>
 
-      <%= link_to user_guide_path, class: "left-nav-link" do %>
-        <%= lucide_icon("book-open-check", size: 15) %>
-        <span>User Guide</span>
+      <% dossier_guide_pages = guide_pages_for_section(:dossier) %>
+      <% if dossier_guide_pages.any? %>
+        <% dossier_guide_pages.each do |guide_page| %>
+          <%= link_to guide_page_path(guide_page), class: "left-nav-link", data: { testid: "left-nav-guide-page-link" } do %>
+            <%= lucide_icon("file-text", size: 15) %>
+            <span><%= guide_page.title %></span>
+          <% end %>
+        <% end %>
+      <% else %>
+        <%= link_to user_guide_path, class: "left-nav-link" do %>
+          <%= lucide_icon("book-open-check", size: 15) %>
+          <span>User Guide</span>
+        <% end %>
       <% end %>
       </div>
     </div>

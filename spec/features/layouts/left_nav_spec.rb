@@ -514,6 +514,23 @@ RSpec.describe "Left Nav", type: :feature do
       end
     end
 
+    describe "Dossier" do
+      it "Lists Dossier's own guide pages under How To, like the other apps" do
+        guide = create(:guide_page, title: "Your Timeline", app_section: "dossier")
+        visit dossier_path
+
+        within("[data-testid='left-nav']") do
+          expect(page).to have_link("Your Timeline", href: guide_page_path(guide))
+          expect(page).not_to have_link("User Guide", href: user_guide_path)
+        end
+      end
+
+      it "Falls back to the User Guide link while Dossier has no guide pages" do
+        visit dossier_path
+        within("[data-testid='left-nav']") { expect(page).to have_link("User Guide", href: user_guide_path) }
+      end
+    end
+
     describe "Guide Pages" do
       context "When 'Gary Guest' visits the guide pages index" do
         before { visit guide_pages_path }
