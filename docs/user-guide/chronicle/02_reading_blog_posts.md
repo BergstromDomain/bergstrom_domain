@@ -12,7 +12,11 @@ There are two ways to find a post, both under **Blog Posts** in the left nav. Ea
 
 Starts with every Category and the number of posts in it. Categories that have posts are shown in bold; the others are listed too, with a count of 0.
 
+![Browse Blog Posts: Chronicle (3), with Science (3) in bold, and Technology (0) and Travel (0)](images/browse_categories.png)
+
 Choose a Category to see its posts, newest first, along with the Subjects inside it. Choose a Subject to narrow to its posts and Topics, and a Topic to narrow once more. At the last level a breadcrumb takes you back up.
+
+![Browsing into Science › Physics: the tree, then the three posts in Physics, newest first](images/browse_subject.png)
 
 Each card shows the post's image (or its Category's icon), title, where it's filed, its author, when it was created, its reaction score, how many comments it has and the first few lines of the post.
 
@@ -22,11 +26,15 @@ Narrows the list with a table you can sort by clicking its column headers.
 
 **Basic** offers dropdowns for Category, Subject, Topic, Author, Created (Today, This Week, This Month or This Year) and Published (All, Published Only or Drafts Only). Choices are combined with AND.
 
+![Filter Blog Posts: the Basic dropdowns, and the results table](images/filter_basic.png)
+
 **SQL** lets you write a query, for example:
 
 ```
 category = "Technology" AND (topic = "Ruby On Rails" OR comments > 5)
 ```
+
+![An SQL query, topic = "Isaac Newton" AND comments > 0, and the one post it finds](images/filter_sql.png)
 
 | Field | Example |
 | --- | --- |

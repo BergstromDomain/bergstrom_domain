@@ -12,6 +12,8 @@ Content Creators and above can bring posts in from a file, and download them aga
 
 Imported posts are created as **Restricted drafts** under your name, so you can review, format and publish them afterwards. You can upload either of two kinds of file.
 
+![Import Blog Posts: choose a CSV or ZIP file, the Category for a ZIP, Download CSV Template and Import](images/import.png)
+
 ### A CSV file
 
 One row per post, in the columns Title, Category, Subject, Topic and Body (Markdown). Choose **Download CSV Template** for a file with the right headings and one example row for each Blog Category.
@@ -35,6 +37,8 @@ Starting from a Word document? Look for a "Word to Markdown" converter that also
 ## Download Blog Posts
 
 Narrow the list with the same Basic or SQL filter as *Reading Blog Posts*, then:
+
+![Download Blog Posts: the filter, then Download PDFs and Download CSV](images/download.png)
 
 - **Download PDFs**: a ZIP file with one PDF per post, named after its title. You're asked to confirm how many posts it will include.
 - **Download CSV**: one row per post, with the columns Title, Category, Subject, Topic, Author, Created, Published and Body (Markdown).

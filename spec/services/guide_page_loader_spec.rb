@@ -59,6 +59,16 @@ RSpec.describe GuidePageLoader do
 
       expect(GuidePage.first.body).to eq("Use the menu.\n\n![The Cookbook left nav](#{image_url('left_nav.png')})")
     end
+
+    it "Takes each page's position from its file name's number, so a story reads in order" do
+      write_page("02_gary_signs_up.md", title: "Gary Signs Up")
+      write_page("10_adam.md", title: "Adam")
+
+      load_pages
+
+      expect(GuidePage.find_by!(title: "Gary Signs Up").position).to eq(2)
+      expect(GuidePage.find_by!(title: "Adam").position).to eq(10)
+    end
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
@@ -128,6 +138,14 @@ RSpec.describe GuidePageLoader do
 
       expect(GuidePage.first).to have_attributes(supports_guest: false, supports_user: false, supports_content_creator: false)
     end
+
+    it "Leaves the position empty for a file name without a number" do
+      write_page("notes.md", title: "Notes")
+
+      load_pages
+
+      expect(GuidePage.find_by!(title: "Notes").position).to be_nil
+    end
   end
 
   # 4) Edge cases ─────────────────────────────────────────────────────────────
@@ -154,11 +172,35 @@ RSpec.describe GuidePageLoader do
       expect(GuidePage.first.body).to eq("Above\n\n---\n\nBelow")
     end
 
+    it "Loads every page in docs/user-guide/story, in chapter order" do
+      result = described_class.new(Rails.root.join("docs/user-guide/story")).call
+
+      expect(result[:created]).to eq([ "Chapter 1: Gary Looks Around", "Chapter 2: Gary Signs Up", "Chapter 3: Ulrika Joins In",
+        "Chapter 4: Charlie Creates", "Chapter 5: Adam Looks After the Site" ])
+      expect(GuidePage.story.in_reading_order.pluck(:position)).to eq([ 1, 2, 3, 4, 5 ])
+    end
+
+    it "Loads every page in docs/user-guide/dossier, with Reference Data in the admin section" do
+      result = described_class.new(Rails.root.join("docs/user-guide/dossier")).call
+
+      expect(result[:created]).to eq([ "Your Profile And Timeline", "Writing Achievements", "Skills And Experience",
+        "Credentials And Training", "CVs And CV Variants", "Importing A Master CV", "Managing Dossier Reference Data" ])
+      expect(GuidePage.find_by!(title: "Managing Dossier Reference Data").app_section).to eq("admin")
+      expect(GuidePage.dossier.count).to eq(6)
+    end
+
+    it "Loads Sam's page from docs/user-guide/system_admin, in the system-admin-only section" do
+      result = described_class.new(Rails.root.join("docs/user-guide/system_admin")).call
+
+      expect(result[:created]).to eq([ "Sam Manages Users" ])
+      expect(GuidePage.find_by!(title: "Sam Manages Users").app_section).to eq("system_admin")
+    end
+
     it "Loads every page in docs/user-guide/chronicle" do
       result = described_class.new(Rails.root.join("docs/user-guide/chronicle")).call
 
       expect(result[:created]).to contain_exactly(
-        "Chronicle Overview", "Reading Blog Posts", "Writing A Blog Post",
+        "Reading Blog Posts", "Writing A Blog Post", "Writing In Markdown",
         "Importing And Downloading Blog Posts", "Chronicle Settings", "Managing Chronicle Reference Data"
       )
       expect(GuidePage.find_by!(title: "Managing Chronicle Reference Data").app_section).to eq("admin")
@@ -168,7 +210,7 @@ RSpec.describe GuidePageLoader do
       result = described_class.new(Rails.root.join("docs/user-guide/cookbook")).call
 
       expect(result[:created]).to contain_exactly(
-        "Cookbook Overview", "Finding Recipes", "Writing A Recipe", "Downloading Recipes",
+        "Finding Recipes", "Writing A Recipe", "Downloading Recipes",
         "Cookbook Settings", "Managing Cookbook Reference Data"
       )
       expect(GuidePage.find_by!(title: "Managing Cookbook Reference Data").app_section).to eq("admin")
@@ -178,7 +220,7 @@ RSpec.describe GuidePageLoader do
       result = described_class.new(Rails.root.join("docs/user-guide/occasions")).call
 
       expect(result[:created]).to contain_exactly(
-        "Occasions Overview", "Viewing Events", "People", "Filtering People And Events",
+        "Viewing Events", "People", "Filtering People And Events",
         "Creating Events And People", "Importing And Downloading", "Occasions Settings",
         "Managing Occasions Reference Data"
       )

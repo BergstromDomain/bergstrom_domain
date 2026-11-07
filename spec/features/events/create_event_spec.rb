@@ -12,6 +12,11 @@ RSpec.describe "Create Event", type: :feature do
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
+    it "Marks the form for the User Guide's screenshots" do
+      visit new_event_path
+      expect(page).to have_css("form[data-testid='event-form']")
+    end
+
     context "With valid attributes" do
       it "Creates a new event and redirects to its page" do
         visit new_event_path

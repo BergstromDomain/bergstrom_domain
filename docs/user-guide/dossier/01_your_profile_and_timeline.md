@@ -1,0 +1,70 @@
+---
+title: Your Profile And Timeline
+app_section: dossier
+supports_guest: false
+supports_user: false
+supports_content_creator: true
+---
+
+Dossier keeps your whole working life in one place, so you can make a CV for any job without deleting anything. Content Creators and above can use it. Everything you add is **Restricted**: other users never see it, though admins can.
+
+The idea is simple: you enter everything once, here, and every CV is **made from it**. You never edit a CV by hand, and leaving something off one CV doesn't remove it from the next.
+
+## Your Profile
+
+**My Career › Profile** holds what goes at the top of a CV: your **Display Name**, a one-line **Headline**, your **Location** and contact details (email, phone, website, LinkedIn, GitHub).
+
+![Charlie's Profile: the Summary and First-Person Summary, then Location, Email, Pronouns and the other contact details](images/profile.png)
+
+Your summary can be written three ways, for different CVs:
+
+- **Summary:** the short form, with no "I" and no name: "Physics teacher who turns lessons into experiments." Used whenever a CV has no version of its own.
+- **First-Person Summary** (optional): "I'm a physics teacher who…", for cover letters and LinkedIn.
+- **Third-Person Summary** (optional): uses your **Third-Person Name**, "Charlie teaches…", for bios.
+
+## Engagements and Assignments
+
+Your career is made of two kinds of record:
+
+- An **Engagement** is who employed you: the employer (or agency), your **Position Title**, the **Employment Type** and the dates.
+- An **Assignment** is where the work was done: the **Client**, your **Role** there, an optional **Project**, the dates, **Location** and whether it was **Remote**. Every Assignment belongs to an Engagement, and its dates must fall inside the Engagement's.
+
+A permanent job has one Assignment, at the employer itself, and Dossier creates it for you. A consultant or contractor usually has several Assignments under one Engagement, one for each client.
+
+To add a job, choose **Actions › New › Create An Engagement**:
+
+![The Create An Engagement form: Employer, Employment Type, Position Title, and Start and End dates](images/engagement_form.png)
+
+- Dates need a year and month. Add the day only if you know it. CVs always show the month.
+- Leave **End** empty for your current job.
+- The employer must already be an Organisation. If it isn't, **Add An Organisation** first (see *Managing Dossier Reference Data*).
+
+Then add Assignments with **Add Assignment** on the Engagement's page, or **Actions › New › Create An Assignment**.
+
+### An Assignment's page
+
+![Charlie's Assignment at Woolsthorpe School: Client, Project, Role, Dates, Location and Engagement, then the Tech Stack](images/assignment_page.png)
+
+Each Assignment has a **Tech Stack**: what you worked with, in six lists (System Under Test, Operating Systems, Methodology, Test Tools, Other Tools and Protocols). Type the items separated by commas. Each list needs at least one item or its **N/A** box ticked. The lists are built around software work, so tick N/A for any that don't fit your job.
+
+An Assignment's page also has panels for its **Achievements**, **Training**, **Colleagues**, and **Vendors & Customers**. Colleagues, vendors, customers and their staff are private notes: only you and admins see them, and they never appear on a CV.
+
+## The Timeline
+
+**My Career › Timeline** lists your Engagements newest first, each with its Assignments.
+
+![Charlie's Timeline: Physics Teacher at Woolsthorpe School, a one-month gap, then Research Assistant at Greenwich Observatory](images/timeline.png)
+
+It also shows where your career has holes:
+
+- A **Gap** is time between Engagements.
+- **Bench** is time inside an Engagement that no Assignment covers, common for consultants between clients.
+
+Choose a Gap or Bench period to see what you did then, such as courses you took.
+
+Personal projects (an Engagement whose Employment Type is Personal) appear on the Timeline marked **Personal**, but never fill or hide a gap.
+
+## Deleting
+
+- **Deleting an Engagement** hides it and its Assignments. You can restore it from **Actions › New › Deleted Engagements** for 30 days.
+- **Deleting an Assignment** is permanent, and **deletes its Achievements with it**. An Achievement can't be moved to another Assignment, so copy the text of any you want to keep and write them again under another Assignment first. Its Training moves up to the Engagement.

@@ -11,6 +11,10 @@ require "rails_helper"
 RSpec.describe "Cookbook Guide Images", type: :feature, js: true, guide_image: true do
   include ActiveSupport::Testing::TimeHelpers
 
+  # Before the let!s (they're before hooks too), so every "Created" date is fixed.
+  before { travel_to Time.zone.local(2026, 10, 1, 18, 0) }
+  after  { travel_back }
+
   let!(:charlie) do
     create(:user, :content_creator, first_name: "Charlie", last_name: "Content Creator",
       email_address: "charlie@example.com")
@@ -39,7 +43,6 @@ RSpec.describe "Cookbook Guide Images", type: :feature, js: true, guide_image: t
   end
 
   before do
-    travel_to Time.zone.local(2026, 10, 1, 18, 0)
     create_recipe("Swedish Meatballs", cuisines: [ swedish ], food_types: [ mince ])
     create_recipe("Kanelbullar", cuisines: [ swedish ], food_types: [ bread ])
     create_recipe("Tiramisu", cuisines: [ italian ], food_types: [ desserts ])
@@ -94,14 +97,18 @@ RSpec.describe "Cookbook Guide Images", type: :feature, js: true, guide_image: t
     capture_guide_image("basic-panel", as: "cookbook/filter_basic")
   end
 
-  it "Captures the Cookbook left nav" do
+  it "Captures Find Recipes By Ingredients" do
+    visit find_by_ingredients_recipes_path(ingredients: %w[garlic onion])
+    expect(page).to have_css("[data-testid='ingredient-tally-step']", count: 2, wait: 8)
+
+    capture_guide_image(%w[ingredient-chips ingredient-results-list], as: "cookbook/find_by_ingredients")
+  end
+
+  it "Captures Download Recipes" do
     sign_in_as(charlie)
     expect(page).to have_css("[data-testid='user-thumbnail-dropdown']", wait: 8)
-    visit cookbook_path
-    # .left-nav is 100vh tall but starts below the top bar, so its last links
-    # sit behind the footer — let it take its natural height for the image.
-    page.execute_script("document.querySelector('[data-testid=\"left-nav\"]').style.height = 'auto'")
+    visit recipe_exports_path
 
-    capture_guide_image("left-nav", as: "cookbook/left_nav")
+    capture_guide_image(%w[export-panel download-action-panel], as: "cookbook/download")
   end
 end

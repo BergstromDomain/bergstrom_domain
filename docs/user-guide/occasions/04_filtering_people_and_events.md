@@ -19,6 +19,8 @@ Things worth knowing:
 - **Event Date** offers Today, This Week, This Month and This Year. Each runs from the start of that period up to today, and compares the event's full date including its year. An event without a year never matches.
 - **Classification** is the person's Visibility, not the event's.
 
+![Filter People and Events: the Basic dropdowns, and one row per person and event](images/filter_basic.png)
+
 ## SQL
 
 Write a query instead, for example:
@@ -26,6 +28,8 @@ Write a query instead, for example:
 ```
 first_name = "James" AND (event_type = "Birthday" OR title CONTAINS "Tour")
 ```
+
+![An SQL query, last_name = "Lind" AND event_type = "Wedding", finding Erik and Maja at their wedding](images/filter_sql.png)
 
 | Field | Example |
 | --- | --- |

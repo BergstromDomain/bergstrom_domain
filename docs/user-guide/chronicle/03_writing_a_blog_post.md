@@ -16,7 +16,7 @@ Content Creators and above can write blog posts. Choose **Actions › New › Cr
 - **Subject** and **Topic**: free text that files the post more precisely. A Topic needs a Subject.
 - **Visibility**: Unrestricted, Contacts or Restricted. It starts as your **Default Classification** (see *Chronicle Settings*).
 - **Add Author**: choose co-authors from your confirmed contacts, moving them from **Available** to **Co-Authors** with the arrow buttons. Type in the filter box to find someone quickly.
-- **Body**: the post itself, written in the **Raw** (Markdown) or **Formatted** editor. You can switch between them at any time, and either way it's saved as Markdown.
+- **Body**: the post itself, written in the **Formatted** or **Raw** (Markdown) editor. You can switch between them at any time, and either way it's saved as Markdown. See *Writing In Markdown*.
 
 ## Draft and Publish
 

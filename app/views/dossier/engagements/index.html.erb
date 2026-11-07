@@ -9,6 +9,7 @@
 
 <% entries = @timeline.entries %>
 <% if entries.any? %>
+  <div data-testid="timeline">
   <% entries.each do |entry| %>
     <% if entry.kind == :gap %>
       <p class="dossier-timeline-gap" data-testid="timeline-gap">
@@ -37,6 +38,7 @@
       </div>
     <% end %>
   <% end %>
+  </div>
 <% else %>
   <div class="empty-state" data-testid="empty-state">
     <p>No Engagements yet. <%= link_to "Create An Engagement", new_dossier_engagement_path %> to start your Timeline.</p>

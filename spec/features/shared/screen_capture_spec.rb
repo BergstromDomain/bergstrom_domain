@@ -121,6 +121,22 @@ RSpec.describe "Screen Capture", type: :feature do
       expect(blank?(path)).to be(false)
     end
 
+    it "Captures several elements as one image spanning all of them, like a menu open below its button" do
+      visit contact_path
+      page.execute_script(<<~JS)
+        for (const [testid, top, left] of [["first-box", 100, 50], ["second-box", 300, 250]]) {
+          const box = document.createElement("div")
+          box.dataset.testid = testid
+          box.style.cssText = `position:absolute; top:${top}px; left:${left}px; width:100px; height:50px; background:red`
+          document.body.append(box)
+        }
+      JS
+
+      path = capture_element(%w[first-box second-box], directory.join("both.png"), margin: 0)
+
+      expect(png_size(path)).to eq([ 300, 250 ])
+    end
+
     it "Captures an element taller than the window in full" do
       visit contact_path
       page.execute_script(<<~JS)

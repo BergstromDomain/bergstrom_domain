@@ -16,6 +16,8 @@ Upload a CSV file with one row per person and event, in these columns:
 | --- | --- | --- | --- | --- |
 | Anna | Svensson | Birthday | Anna's Birthday | 1985-05-12 |
 
+![Import People and Events: choose a CSV file, then Download CSV Template or Import](images/import.png)
+
 Choose **Download CSV Template** for a file with the right headings and one example row for each Event Type. Replace or delete the example rows before importing. Left as they are, each one fails with an invalid date.
 
 How each row is handled:
@@ -31,5 +33,7 @@ Each row is imported on its own, so a bad row doesn't stop the rest. Afterwards 
 ## Download People And Events
 
 Narrow the list with the same Basic or SQL filter as *Filtering People And Events*, then choose **Download CSV**. The file has the same columns as the import, one row for each person and event, ordered by last name, and only includes what you're allowed to see. It's named `BergstromDomain_Occasions_` followed by the date.
+
+![Download People and Events: the filter, then Download CSV](images/download.png)
 
 In the download, an event without a year has an empty **Event date**, and a person with no events has empty event columns.

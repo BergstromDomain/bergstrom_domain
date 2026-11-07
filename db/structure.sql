@@ -1438,7 +1438,8 @@ CREATE TABLE public.guide_pages (
     updated_at timestamp(6) without time zone NOT NULL,
     supports_guest boolean DEFAULT false NOT NULL,
     supports_user boolean DEFAULT false NOT NULL,
-    supports_content_creator boolean DEFAULT false NOT NULL
+    supports_content_creator boolean DEFAULT false NOT NULL,
+    "position" integer
 );
 
 
@@ -4288,6 +4289,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261106140000'),
 ('20261106130000'),
 ('20261106120000'),
 ('20261106110000'),

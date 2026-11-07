@@ -26,6 +26,8 @@ module GuideImages
     end
   end
 
+  # testid can be several, for one image spanning them all (a dropdown's
+  # button and its open menu).
   def capture_guide_image(testid, as:)
     app, name = as.to_s.split("/", 2)
     raise ArgumentError, "Name the guide image as \"<app folder>/<name>\", got #{as.inspect}" if name.blank?

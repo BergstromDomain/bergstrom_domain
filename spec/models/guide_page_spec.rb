@@ -13,6 +13,7 @@ RSpec.describe GuidePage, type: :model do
     it { is_expected.to have_db_column(:supports_guest).of_type(:boolean).with_options(null: false, default: false) }
     it { is_expected.to have_db_column(:supports_user).of_type(:boolean).with_options(null: false, default: false) }
     it { is_expected.to have_db_column(:supports_content_creator).of_type(:boolean).with_options(null: false, default: false) }
+    it { is_expected.to have_db_column(:position).of_type(:integer).with_options(null: true) }
   end
 
   # ── Enums ─────────────────────────────────────────────────────────────────
@@ -20,7 +21,8 @@ RSpec.describe GuidePage, type: :model do
     it {
       is_expected.to define_enum_for(:app_section)
         .with_values(
-          core: "core", event_tracker: "event_tracker", blog_posts: "blog_posts", recipes: "recipes", admin: "admin"
+          story: "story", core: "core", event_tracker: "event_tracker", blog_posts: "blog_posts",
+          recipes: "recipes", dossier: "dossier", admin: "admin", system_admin: "system_admin"
         ).backed_by_column_of_type(:string)
     }
   end
@@ -139,6 +141,90 @@ RSpec.describe GuidePage, type: :model do
       expect(build(:guide_page, app_section: "recipes").app_section_label).to eq("Cookbook")
       expect(build(:guide_page, app_section: "core").app_section_label).to eq("Core")
       expect(build(:guide_page, app_section: "admin").app_section_label).to eq("Admin")
+      expect(build(:guide_page, app_section: "story").app_section_label).to eq("The Story")
+      expect(build(:guide_page, app_section: "dossier").app_section_label).to eq("Dossier")
+      expect(build(:guide_page, app_section: "system_admin").app_section_label).to eq("System Admin")
+    end
+  end
+
+  # ── .in_reading_order ─────────────────────────────────────────────────────
+  describe ".in_reading_order" do
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
+      it "orders pages by position, so a story reads in chapter order" do
+        third  = create(:guide_page, title: "Adam", position: 3)
+        first  = create(:guide_page, title: "Gary", position: 1)
+        second = create(:guide_page, title: "Charlie", position: 2)
+        expect(GuidePage.in_reading_order).to eq([ first, second, third ])
+      end
+    end
+
+    # 2) Negative Path ──────────────────────────────────────────────────────────
+    describe "Negative Path" do
+      it "returns nothing when there are no pages" do
+        expect(GuidePage.in_reading_order).to be_empty
+      end
+    end
+
+    # 3) Alternative Paths ───────────────────────────────────────────────────────
+    describe "Alternative Paths" do
+      it "orders pages with the same position by title" do
+        b = create(:guide_page, title: "Beta", position: 1)
+        a = create(:guide_page, title: "Alpha", position: 1)
+        expect(GuidePage.in_reading_order).to eq([ a, b ])
+      end
+    end
+
+    # 4) Edge Cases ─────────────────────────────────────────────────────────────
+    describe "Edge Cases" do
+      it "puts pages without a position after numbered ones" do
+        unnumbered = create(:guide_page, title: "Aardvark", position: nil)
+        numbered   = create(:guide_page, title: "Zebra", position: 9)
+        expect(GuidePage.in_reading_order).to eq([ numbered, unnumbered ])
+      end
+    end
+  end
+
+  # ── .visible_to / #visible_to? ────────────────────────────────────────────
+  describe ".visible_to" do
+    let!(:story_page) { create(:guide_page, app_section: "story") }
+    let!(:admin_page) { create(:guide_page, app_section: "admin") }
+    let!(:sams_page)  { create(:guide_page, app_section: "system_admin") }
+
+    # 1) Happy Path ───────────────────────────────────────────────────────────
+    describe "Happy Path" do
+      it "shows a system admin every page, including the System Admin section" do
+        sam = create(:user, :system_admin)
+        expect(GuidePage.visible_to(sam)).to contain_exactly(story_page, admin_page, sams_page)
+        expect(sams_page.visible_to?(sam)).to be(true)
+      end
+    end
+
+    # 2) Negative Path ──────────────────────────────────────────────────────────
+    describe "Negative Path" do
+      it "hides the System Admin section from an admin, a content creator, a user and a guest" do
+        [ create(:user, :admin), create(:user, :content_creator), create(:user), nil ].each do |user|
+          expect(GuidePage.visible_to(user)).to contain_exactly(story_page, admin_page)
+          expect(sams_page.visible_to?(user)).to be(false)
+        end
+      end
+    end
+
+    # 3) Alternative Paths ───────────────────────────────────────────────────────
+    describe "Alternative Paths" do
+      it "shows every other section to a guest, including the admins' reference-data pages" do
+        expect(story_page.visible_to?(nil)).to be(true)
+        expect(admin_page.visible_to?(nil)).to be(true)
+      end
+    end
+
+    # 4) Edge Cases ─────────────────────────────────────────────────────────────
+    describe "Edge Cases" do
+      it "lists the sections a user may see, without System Admin for anyone but a system admin" do
+        expect(GuidePage.sections_visible_to(create(:user, :admin))).to include("admin")
+        expect(GuidePage.sections_visible_to(create(:user, :admin))).not_to include("system_admin")
+        expect(GuidePage.sections_visible_to(create(:user, :system_admin))).to include("system_admin")
+      end
     end
   end
 

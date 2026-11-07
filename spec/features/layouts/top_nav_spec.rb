@@ -19,6 +19,12 @@ RSpec.describe "Top Nav", type: :feature do
     it "Shows the 'Info' dropdown menu" do
       expect(page).to have_button("Info")
     end
+
+    it "Marks the 'Apps' and 'Info' dropdowns and their menus for the User Guide's screenshots" do
+      %w[top-nav-apps top-nav-info].each do |testid|
+        expect(page).to have_css("[data-testid='#{testid}'] [data-testid='#{testid}-menu']", visible: :all)
+      end
+    end
   end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
@@ -70,6 +76,11 @@ RSpec.describe "Top Nav", type: :feature do
         expect(page).to have_link("Contact", href: contact_path)
       end
 
+      it "Shows 'User Guide' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("User Guide", href: guide_pages_path)
+      end
+
       it "Does not show the 'System Admin' dropdown menu" do
         expect(page).not_to have_button("System Admin")
       end
@@ -119,6 +130,11 @@ RSpec.describe "Top Nav", type: :feature do
         expect(page).to have_link("Contact", href: contact_path)
       end
 
+      it "Shows 'User Guide' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("User Guide", href: guide_pages_path)
+      end
+
       it "Does not show the 'System Admin' dropdown menu" do
         expect(page).not_to have_button("System Admin")
       end
@@ -137,6 +153,10 @@ RSpec.describe "Top Nav", type: :feature do
 
       it "Shows 'User Settings' link in the 'User Thumbnail' dropdown menu" do
         expect(page).to have_link("User Settings")
+      end
+
+      it "Marks the 'User Thumbnail' dropdown's menu for the User Guide's screenshots" do
+        expect(page).to have_css("[data-testid='user-thumbnail-dropdown'] [data-testid='user-thumbnail-dropdown-menu']", visible: :all)
       end
     end
 
@@ -166,6 +186,11 @@ RSpec.describe "Top Nav", type: :feature do
       it "Shows 'Contact' link in 'Info' dropdown menu" do
         click_button "Info"
         expect(page).to have_link("Contact", href: contact_path)
+      end
+
+      it "Shows 'User Guide' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("User Guide", href: guide_pages_path)
       end
 
       it "Does not show the 'System Admin' dropdown menu" do
@@ -217,6 +242,11 @@ RSpec.describe "Top Nav", type: :feature do
         expect(page).to have_link("Contact", href: contact_path)
       end
 
+      it "Shows 'User Guide' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("User Guide", href: guide_pages_path)
+      end
+
       it "Does not show the 'System Admin' dropdown menu" do
         expect(page).not_to have_button("System Admin")
       end
@@ -266,8 +296,17 @@ RSpec.describe "Top Nav", type: :feature do
         expect(page).to have_link("Contact", href: contact_path)
       end
 
+      it "Shows 'User Guide' link in 'Info' dropdown menu" do
+        click_button "Info"
+        expect(page).to have_link("User Guide", href: guide_pages_path)
+      end
+
       it "Shows the 'System Admin' dropdown menu" do
         expect(page).to have_button("System Admin")
+      end
+
+      it "Marks the 'System Admin' dropdown and its menu for the User Guide's screenshots" do
+        expect(page).to have_css("[data-testid='top-nav-system-admin'] [data-testid='top-nav-system-admin-menu']", visible: :all)
       end
 
       it "Shows 'User Management' link in 'System Admin' dropdown menu" do

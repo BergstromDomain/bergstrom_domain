@@ -29,6 +29,8 @@ Social media accounts are added when editing a person, not when creating one. Ch
 - **Classification**: Unrestricted, Contacts or Restricted. It starts as your **Default Classification**.
 - **Event image**: a JPEG, PNG or WebP smaller than 5MB. Without one, the event shows its Event Type's icon.
 
+![The New Event form](images/event_form.png)
+
 ## Edit and Delete
 
 The owner of a person or event can edit or delete it from its page. Admins can edit and delete anyone's.

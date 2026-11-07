@@ -7,7 +7,8 @@ class GuidePage < ApplicationRecord
   # highlighting spans through Rails' sanitizer. Kept as GuidePage's own
   # constant rather than sharing BlogPost's so the two can diverge later
   # (e.g. GuidePage has no image-upload feature yet) without coupling.
-  RENDERED_BODY_ALLOWED_TAGS       = %w[h1 h2 h3 h4 h5 h6 p br strong em u s blockquote ol ul li a code pre img span].freeze
+  RENDERED_BODY_ALLOWED_TAGS       = %w[h1 h2 h3 h4 h5 h6 p br strong em u s blockquote ol ul li a code pre img span
+                                       table thead tbody tr th td].freeze
   RENDERED_BODY_ALLOWED_ATTRIBUTES = %w[href src alt style lang].freeze
 
   extend FriendlyId
@@ -17,12 +18,20 @@ class GuidePage < ApplicationRecord
   # pages can share a section (e.g. "Classification" and "Sign Up" both
   # under :core), each distinguished by its own title. Photo Album is left
   # out for now since that app doesn't exist yet; add it once it does.
+  # Declared in the order the left nav lists them: the story first, as the
+  # way in, then the apps' reference pages.
+  # :story is the test users' first-person walk through the site (Gary,
+  # Ulrika, Charlie, Adam); :admin holds pages for admins (reference data);
+  # :system_admin is Sam's chapter, for system admins only (see .visible_to).
   enum :app_section, {
+    story:         "story",
     core:          "core",
     event_tracker: "event_tracker",
     blog_posts:    "blog_posts",
     recipes:       "recipes",
-    admin:         "admin"
+    dossier:       "dossier",
+    admin:         "admin",
+    system_admin:  "system_admin"
   }, validate: true
 
   # Brand-facing labels for app_section — the enum's own values stay
@@ -31,11 +40,14 @@ class GuidePage < ApplicationRecord
   # technical split (CLAUDE.md: "Chronicle" is BlogPost's brand, "Occasions"
   # is Event_Tracker's).
   APP_SECTION_LABELS = {
+    "story"         => "The Story",
     "core"          => "Core",
     "event_tracker" => "Occasions",
     "blog_posts"    => "Chronicle",
     "recipes"       => "Cookbook",
-    "admin"         => "Admin"
+    "dossier"       => "Dossier",
+    "admin"         => "Admin",
+    "system_admin"  => "System Admin"
   }.freeze
 
   # Which personas the feature a guide page documents is available to.
@@ -51,6 +63,22 @@ class GuidePage < ApplicationRecord
   validates :app_section, presence: true
   validates :body,        presence: true
 
+  # Sections only a system admin may read — user management and restoring
+  # data aren't part of the normal User Guide, not even for admins.
+  SYSTEM_ADMIN_SECTIONS = %w[system_admin].freeze
+
+  # Chapter order first (GuidePageLoader takes position from the file
+  # name's number), then title; pages without a position come last.
+  scope :in_reading_order, -> { order(arel_table[:position].asc.nulls_last, :title) }
+
+  def self.sections_visible_to(user)
+    user&.system_admin? ? app_sections.keys : app_sections.keys - SYSTEM_ADMIN_SECTIONS
+  end
+
+  def self.visible_to(user)
+    where(app_section: sections_visible_to(user))
+  end
+
   # Plain title/body substring search — deliberately not a JQL-style query
   # language like BlogPostFilter's (that was built as a reusable engine on
   # purpose); a documentation search box doesn't need that complexity.
@@ -63,6 +91,10 @@ class GuidePage < ApplicationRecord
 
   def app_section_label
     APP_SECTION_LABELS.fetch(app_section)
+  end
+
+  def visible_to?(user)
+    self.class.sections_visible_to(user).include?(app_section)
   end
 
   def should_generate_new_friendly_id?

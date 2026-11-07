@@ -10,4 +10,13 @@ namespace :guide_pages do
   rescue GuidePageLoader::Error => e
     abort "Nothing loaded. #{e.message}"
   end
+
+  desc "Delete the User Guide pages listed in docs/user-guide/retired.yml"
+  task retire: :environment do
+    result = GuidePageRetirer.new(Rails.root.join("docs/user-guide")).call
+    puts "Removed (#{result[:removed].size}): #{result[:removed].join(', ')}"
+    puts "Already gone (#{result[:absent].size}): #{result[:absent].join(', ')}"
+  rescue GuidePageRetirer::Error => e
+    abort "Nothing retired. #{e.message}"
+  end
 end

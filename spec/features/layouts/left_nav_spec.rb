@@ -514,6 +514,23 @@ RSpec.describe "Left Nav", type: :feature do
       end
     end
 
+    describe "Dossier" do
+      it "Lists Dossier's own guide pages under How To, like the other apps" do
+        guide = create(:guide_page, title: "Your Timeline", app_section: "dossier")
+        visit dossier_path
+
+        within("[data-testid='left-nav']") do
+          expect(page).to have_link("Your Timeline", href: guide_page_path(guide))
+          expect(page).not_to have_link("User Guide", href: user_guide_path)
+        end
+      end
+
+      it "Falls back to the User Guide link while Dossier has no guide pages" do
+        visit dossier_path
+        within("[data-testid='left-nav']") { expect(page).to have_link("User Guide", href: user_guide_path) }
+      end
+    end
+
     describe "Guide Pages" do
       context "When 'Gary Guest' visits the guide pages index" do
         before { visit guide_pages_path }
@@ -539,14 +556,14 @@ RSpec.describe "Left Nav", type: :feature do
       context "When guide pages exist across multiple sections" do
         it "Shows a table of contents grouped by App Section, omitting empty sections" do
           core_page  = create(:guide_page, title: "Classification", app_section: "core")
-          admin_page = create(:guide_page, title: "Admin Overview",  app_section: "admin")
+          recipes_page = create(:guide_page, title: "Cookbook Overview", app_section: "recipes")
           visit guide_pages_path
 
           within("[data-testid='left-nav']") do
             expect(page).to have_selector("[data-testid='left-nav-guide-section-core-h3']", text: "Core")
             expect(page).to have_link("Classification", href: guide_page_path(core_page))
-            expect(page).to have_selector("[data-testid='left-nav-guide-section-admin-h3']", text: "Admin")
-            expect(page).to have_link("Admin Overview", href: guide_page_path(admin_page))
+            expect(page).to have_selector("[data-testid='left-nav-guide-section-recipes-h3']", text: "Cookbook")
+            expect(page).to have_link("Cookbook Overview", href: guide_page_path(recipes_page))
             expect(page).not_to have_selector("[data-testid='left-nav-guide-section-event-tracker-h3']")
             expect(page).not_to have_selector("[data-testid='left-nav-guide-section-blog-posts-h3']")
           end

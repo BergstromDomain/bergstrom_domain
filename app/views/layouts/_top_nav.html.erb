@@ -6,6 +6,7 @@
 
     <%= render "layouts/dropdown",
                label: "Apps",
+               testid: "top-nav-apps",
                items: [
                  { label: "Chronicle", path: chronicle_path },
                  { label: "Cookbook",  path: cookbook_path },
@@ -15,14 +16,17 @@
 
     <%= render "layouts/dropdown",
                label: "Info",
+               testid: "top-nav-info",
                items: [
-                 { label: "About",   path: about_path },
-                 { label: "Contact", path: contact_path }
+                 { label: "About",      path: about_path },
+                 { label: "Contact",    path: contact_path },
+                 { label: "User Guide", path: guide_pages_path }
                ] %>
 
     <% if authenticated? && current_user.system_admin? %>
       <%= render "layouts/dropdown",
                  label: "System Admin",
+                 testid: "top-nav-system-admin",
                  items: [
                    { label: "User Management", path: system_admin_users_path },
                    { label: "App Management",  path: nil }
@@ -41,7 +45,7 @@
           <%= lucide_icon "circle-user-round", size: 24 %>
           <%= lucide_icon "chevron-down", class: "dropdown__chevron" %>
         </button>
-        <ul class="dropdown__menu dropdown__menu--end" data-dropdown-target="menu">
+        <ul class="dropdown__menu dropdown__menu--end" data-dropdown-target="menu" data-testid="user-thumbnail-dropdown-menu">
           <li>
             <%= link_to "User Settings", settings_path, class: "dropdown__item", data: { testid: "user-settings-link" } %>
           </li>

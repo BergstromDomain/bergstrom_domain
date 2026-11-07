@@ -64,6 +64,8 @@ Combine conditions with `AND`, `OR` and brackets. `=`, `!=` and `CONTAINS` compa
 
 Type an ingredient and press **Enter** or a comma. It becomes a chip and the results update straight away. Add more to narrow the list, or remove a chip with its ×.
 
+![Find Recipes By Ingredients: chips for garlic and onion, the tally garlic 1 → onion 1, and the lasagna with its Matched line](images/find_by_ingredients.png)
+
 - A recipe matches when **every** ingredient appears somewhere in its ingredient list. "cream" matches "Sour cream" and "Cream cheese".
 - Plurals are forgiven: "Tomatoes" finds "Tomato".
 - Names are compared exactly as typed in each language. "Cream" won't find "grädde".
