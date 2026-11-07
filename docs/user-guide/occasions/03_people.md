@@ -14,6 +14,8 @@ The letters across the top jump to people whose last name starts with that lette
 
 Each row shows the person's picture and name, icons for the kinds of events they have, who added them and their Visibility. Choose an Event Type icon to see every event of that type.
 
+![People: the A to Z letters, then Erik Lind, Maja Lind and Ulrika User with their event icons and Visibility](images/people.png)
+
 Signed in, you also get **Visibility** checkboxes, which start from your **Default Visibility** in *Preferences*, and a **Mute Person** button on each row. See *Muting* in *Viewing Events*.
 
 ## A person's page
@@ -22,5 +24,7 @@ Shows the person's picture, description and Visibility, then:
 
 - **Events**: every event they're part of, ordered through the year.
 - **Social Media**: the platforms they're on, with their username on each.
+
+![Erik Lind's page: description, Visibility, Events and Social Media](images/person_page.png)
 
 Their owner, or an admin, can edit or delete them from here.

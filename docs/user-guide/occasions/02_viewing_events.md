@@ -14,6 +14,10 @@ Events are listed by the day and month they fall on, so each event shows up agai
 - **Events By Week** shows Monday to Sunday of the current week, with arrows to the previous and next week.
 - **Events By Month** opens on the current month. Choose another month from the row of month names.
 
+![Events By Week: Monday 2 to Sunday 8 November 2026, with Maja's Birthday on 5 November](images/events_by_week.png)
+
+![Events By Month for November: three events, each with its date, Event Type and people](images/events_by_month.png)
+
 Each row shows the event's image (or its Event Type's icon), its title, its date, its Event Type and the people in it. Choose the title to open the event, a person to open their page, or the Event Type icon to see every event of that type.
 
 The date includes the year when one is known, for example "12 May 1998", and leaves it out otherwise.
@@ -28,9 +32,13 @@ Signed in, you also get:
 - **Hide muted** and **Show all**. See *Muting* below.
 - A mute button on each row.
 
+![All Events, signed in: the Visibility checkboxes, Hide muted and Show all, and a mute button on each row](images/all_events.png)
+
 ## An event's page
 
 Shows the event's image and description, its date, Event Type, Visibility and people. Its owner, or an admin, can **Edit Event** or **Delete Event** from here. Deleting an event can't be undone.
+
+![Erik and Maja's Wedding: its description, date, Event Type, Visibility and people, then Back, Edit Event and Delete Event](images/event_page.png)
 
 ## Muting
 
