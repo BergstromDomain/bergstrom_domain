@@ -66,5 +66,5 @@ Personal projects (an Engagement whose Employment Type is Personal) appear on th
 
 ## Deleting
 
-- **Deleting an Engagement** hides it and its Assignments. You can restore it from **Actions › New › Deleted Engagements** for 30 days.
-- **Deleting an Assignment** is permanent, and **deletes its Achievements with it**. An Achievement can't be moved to another Assignment, so copy the text of any you want to keep and write them again under another Assignment first. Its Training moves up to the Engagement.
+- **Deleting an Engagement** hides it and its Assignments. You can restore it from **Actions › New › Deleted Engagements** for 30 days. Its Assignments come back with it.
+- **Deleting an Assignment** hides it, with its Achievements and Training. You can restore it from **Actions › New › Deleted Assignments** for 30 days, as long as it still fits within its Engagement's dates. After that it's gone for good, with its Achievements; its Training moves up to the Engagement.

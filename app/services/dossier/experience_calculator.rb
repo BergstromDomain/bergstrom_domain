@@ -121,7 +121,7 @@ class Dossier::ExperienceCalculator
   end
 
   def assignments
-    Dossier::Assignment.where(engagement_id: @user.dossier_engagements.kept.select(:id))
+    Dossier::Assignment.kept.where(engagement_id: @user.dossier_engagements.kept.select(:id))
                        .includes(engagement: :employment_type, assignment_skills: { skill: :parent },
                                  achievements: { achievement_skills: { skill: :parent } })
   end

@@ -29,3 +29,7 @@ production:
     class: PurgeDeletedDossierEngagementsJob
     queue: default
     schedule: every day at 3am
+  purge_deleted_dossier_assignments:
+    class: PurgeDeletedDossierAssignmentsJob
+    queue: default
+    schedule: every day at 3am

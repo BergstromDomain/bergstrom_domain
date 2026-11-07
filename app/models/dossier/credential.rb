@@ -53,8 +53,11 @@ class Dossier::Credential < ApplicationRecord
   delegate :training?, to: :credential_type, allow_nil: true
 
   scope :training, -> { joins(:credential_type).where(dossier_credential_types: { training: true }) }
-  # Not under a deleted Engagement.
-  scope :kept, -> { left_joins(:engagement).where(dossier_engagements: { deleted_at: nil }) }
+  # Not under a deleted Engagement or Assignment.
+  scope :kept, -> {
+    left_joins(:engagement, :assignment)
+      .where(dossier_engagements: { deleted_at: nil }, dossier_assignments: { deleted_at: nil })
+  }
 
   # Those completed between from and to (inclusive), newest first; a
   # month- or year-precision completion counts if any of it falls inside.
@@ -63,7 +66,7 @@ class Dossier::Credential < ApplicationRecord
   end
 
   def hidden?
-    engagement&.deleted_at.present?
+    engagement&.deleted_at.present? || assignment&.deleted_at.present? || false
   end
 
   def to_toast_label = title

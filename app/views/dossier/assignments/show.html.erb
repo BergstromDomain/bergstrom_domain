@@ -124,7 +124,7 @@
     <%= button_to dossier_assignment_path(@assignment),
           method: :delete,
           class: "btn btn-danger",
-          data: { turbo_confirm: "Delete #{@assignment.to_toast_label}? This cannot be undone." } do %>
+          data: { turbo_confirm: "Delete #{@assignment.to_toast_label} and its Achievements? You can restore them for 30 days." } do %>
       <%= lucide_icon("trash-2", size: 16) %> Delete Assignment
     <% end %>
   <% end %>

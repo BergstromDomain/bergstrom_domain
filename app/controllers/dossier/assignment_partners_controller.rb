@@ -50,7 +50,8 @@ class Dossier::AssignmentPartnersController < ApplicationController
   end
 
   def require_access
-    return if @assignment.private_details_visible_to?(current_user) && Policy.new(current_user, @assignment).can_update?
+    return if @assignment.private_details_visible_to?(current_user) && Policy.new(current_user, @assignment).can_update? &&
+              !@assignment.hidden?
 
     redirect_to dossier_engagements_path, alert: "Not authorised."
   end

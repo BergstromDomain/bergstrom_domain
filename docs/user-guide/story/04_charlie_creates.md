@@ -88,7 +88,7 @@ What happens next depends on the app:
 
   ![Optics has been successfully deleted. The post can be restored by Admin for 30 days.](images/charlie_post_deleted.png)
 
-- **Dossier Engagements and Achievements** are also kept for 30 days, but you restore them yourself: **Deleted Engagements** and **Deleted Achievements** are under Actions, with the days left for each.
+- **Dossier Engagements, Assignments and Achievements** are also kept for 30 days, but you restore them yourself: **Deleted Engagements**, **Deleted Assignments** and **Deleted Achievements** are under Actions, with the days left for each.
 
   ![Deleted Engagements: Research Assistant at Greenwich Observatory, 30 days remaining, with a restore button](images/charlie_deleted_engagements.png)
 

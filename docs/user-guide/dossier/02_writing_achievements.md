@@ -33,4 +33,4 @@ An Assignment's page lists its Achievements in order. Use the arrows in the **So
 
 Open an Achievement to **Edit Achievement** or **Delete Achievement**. Deleted Achievements are kept for 30 days: restore one from **Actions › New › Deleted Achievements**. After that it's gone for good.
 
-An Achievement can't be moved to another Assignment. Deleting an Assignment deletes its Achievements for good (see *Your Profile And Timeline*).
+An Achievement can't be moved to another Assignment. Deleting an Assignment hides its Achievements with it, and restoring the Assignment brings them back (see *Your Profile And Timeline*).

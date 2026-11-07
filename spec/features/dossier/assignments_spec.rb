@@ -57,6 +57,33 @@ RSpec.describe "Dossier Assignments", type: :feature do
       click_button "Delete Assignment"
       expect(page).to have_current_path(dossier_engagement_path(engagement))
       expect(page).to have_css("[data-testid='flash-success']", text: "Test Lead at Northwind Transport Authority has been successfully deleted")
+      expect(page).to have_css("[data-testid='flash-info']",
+        text: "You can restore it, with its Achievements, from Deleted Assignments for 30 days.")
+      expect(assignment.reload.deleted_at).to be_present
+    end
+
+    it "Restores a deleted Assignment from Deleted Assignments, with its Achievements" do
+      assignment  = create(:dossier_assignment, engagement: engagement, client: northwind, role: test_lead,
+                                                start_month: "2019-04", end_month: "2020-01")
+      achievement = create(:dossier_achievement, assignment: assignment, text: "Cut regression testing to one day")
+      assignment.soft_delete!
+      sign_in_as(charlie)
+      visit dossier_path
+      within("[data-testid='left-nav']") { click_link "Deleted Assignments" }
+
+      within("[data-testid='deleted-assignment-row']") do
+        expect(page).to have_selector("[data-testid='deleted-assignment-label']", text: "Test Lead at Northwind Transport Authority")
+        expect(page).to have_selector("[data-testid='deleted-assignment-engagement']", text: "Test Consultant at Consultancy A")
+        expect(page).to have_selector("[data-testid='deleted-assignment-achievements']", text: "1")
+        expect(page).to have_selector("[data-testid='deleted-assignment-days-remaining']", text: "30")
+        find("[data-testid='restore-assignment-#{assignment.id}']").click
+      end
+
+      expect(page).to have_css("[data-testid='flash-success']",
+        text: "Test Lead at Northwind Transport Authority has been successfully restored")
+      expect(page).to have_selector("[data-testid='empty-state']")
+      visit dossier_assignment_path(assignment)
+      expect(page).to have_content(achievement.text)
     end
 
     it "Saves the Tech Stack and shows it, with N/A for empty lists" do
@@ -85,6 +112,50 @@ RSpec.describe "Dossier Assignments", type: :feature do
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
+    it "Hides a deleted Assignment and its Achievements from the Timeline, Achievements and its own page" do
+      assignment = create(:dossier_assignment, engagement: engagement, client: northwind, role: test_lead,
+                                               project: "Ticketing Upgrade", start_month: "2019-04", end_month: "2020-01")
+      create(:dossier_achievement, assignment: assignment, text: "Cut regression testing to one day")
+      assignment.soft_delete!
+      sign_in_as(charlie)
+
+      visit dossier_engagements_path
+      expect(page).not_to have_content("Ticketing Upgrade")
+      visit dossier_engagement_path(engagement)
+      expect(page).not_to have_content("Ticketing Upgrade")
+      visit dossier_achievements_path
+      expect(page).not_to have_content("Cut regression testing to one day")
+      visit dossier_assignment_path(assignment)
+      expect(page).to have_current_path(dossier_engagements_path)
+    end
+
+    it "Leaves a deleted Assignment out of Experience and the CV" do
+      assignment = create(:dossier_assignment, engagement: engagement, client: northwind, role: test_lead,
+                                               start_month: "2019-04", end_month: "2020-01")
+      assignment.soft_delete!
+      create(:dossier_profile, user: charlie)
+
+      expect(Dossier::ExperienceCalculator.new(charlie).slice(:client).map(&:label)).not_to include(northwind.name)
+      expect(Dossier::CvDocument.new(charlie).experience.flat_map(&:assignments)).to be_empty
+    end
+
+    it "Doesn't let anyone add Colleagues to a deleted Assignment" do
+      assignment = create(:dossier_assignment, engagement: engagement)
+      assignment.soft_delete!
+      sign_in_as(charlie)
+
+      visit new_dossier_assignment_colleague_path(assignment)
+      expect(page).to have_current_path(dossier_engagements_path)
+    end
+
+    it "Doesn't let Chris see Charlie's Deleted Assignments" do
+      create(:dossier_assignment, engagement: engagement, client: northwind, role: test_lead,
+                                  start_month: "2019-04", end_month: "2020-01").soft_delete!
+      sign_in_as(chris)
+      visit deleted_dossier_assignments_path
+      expect(page).to have_selector("[data-testid='empty-state']")
+    end
+
     it "Shows an error for a Tech Stack list that is neither filled nor N/A" do
       sign_in_as(charlie)
       visit new_dossier_assignment_path(engagement_id: engagement.id)
@@ -165,6 +236,30 @@ RSpec.describe "Dossier Assignments", type: :feature do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
+    it "Won't restore an Assignment that no longer fits its Engagement's dates" do
+      assignment = create(:dossier_assignment, engagement: engagement, client: northwind, role: test_lead,
+                                               start_month: "2021-01", end_month: "2022-06")
+      assignment.soft_delete!
+      engagement.update!(end_month: "2020-06")
+      sign_in_as(charlie)
+
+      visit deleted_dossier_assignments_path
+      find("[data-testid='restore-assignment-#{assignment.id}']").click
+      expect(page).to have_css("[data-testid='flash-alert']",
+        text: "Test Lead at Northwind Transport Authority no longer fits within its Engagement's dates")
+      expect(assignment.reload.deleted_at).to be_present
+    end
+
+    it "Lists an Assignment whose Engagement is deleted under Deleted Engagements, not Deleted Assignments" do
+      assignment = create(:dossier_assignment, engagement: engagement)
+      assignment.soft_delete!
+      engagement.soft_delete!
+      sign_in_as(charlie)
+
+      visit deleted_dossier_assignments_path
+      expect(page).to have_selector("[data-testid='empty-state']")
+    end
+
     it "Shows a Role used by no Assignment of yours without the list" do
       sign_in_as(charlie)
       visit dossier_role_path(test_lead)

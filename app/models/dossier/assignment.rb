@@ -3,11 +3,16 @@
 # Where the work was done: client, project, role, dates and location, within
 # its Engagement's dates. user_id mirrors the Engagement's owner (for Policy and
 # Classifiable). With no Role, the Engagement's position title stands in.
+# Deleting is soft and hides its Achievements and Training too, like an
+# Engagement's; PurgeDeletedDossierAssignmentsJob removes it after
+# DELETION_RETENTION_PERIOD.
 class Dossier::Assignment < ApplicationRecord
   include Classifiable
   include Dossier::Dated
   include Dossier::TechStack
   include Dossier::CvSelectable
+
+  DELETION_RETENTION_PERIOD = 30.days
 
   belongs_to :engagement
   belongs_to :client,   class_name: "Dossier::Organisation"
@@ -30,6 +35,9 @@ class Dossier::Assignment < ApplicationRecord
 
   validate :fits_within_engagement
 
+  scope :kept,      -> { where(deleted_at: nil) }
+  scope :discarded, -> { where.not(deleted_at: nil) }
+
   def role_name
     role&.name || engagement&.position_title
   end
@@ -48,10 +56,22 @@ class Dossier::Assignment < ApplicationRecord
     start_on >= outer.start_on && (outer.end_on.nil? || (end_on && effective_end <= outer.effective_end))
   end
 
-  # An Assignment is deleted with its Engagement (it has no soft delete of its
-  # own), so Policy hides it from everyone but Admins until it's restored.
-  def deleted_at
-    engagement&.deleted_at
+  def soft_delete!
+    update_columns(deleted_at: Time.current)
+  end
+
+  def restore!
+    update_columns(deleted_at: nil)
+  end
+
+  def purge_at
+    deleted_at + DELETION_RETENTION_PERIOD if deleted_at
+  end
+
+  # Deleted itself, or with its Engagement: Policy hides it from everyone but
+  # Admins until it's restored.
+  def hidden?
+    deleted_at.present? || engagement&.deleted_at.present?
   end
 
   def to_toast_label

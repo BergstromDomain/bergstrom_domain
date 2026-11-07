@@ -5,6 +5,8 @@ require "rails_helper"
 # make that a reader could lose data over, or that decide what's on their
 # CV. If one fails, the app has changed under the guide: update the page.
 RSpec.describe "Dossier User Guide claims", type: :feature do
+  include ActiveSupport::Testing::TimeHelpers
+
   let(:charlie)    { create(:user, :content_creator) }
   let(:engagement) { create(:dossier_engagement, user: charlie, end_on: nil) }
   let(:assignment) { create(:dossier_assignment, engagement: engagement) }
@@ -25,11 +27,13 @@ RSpec.describe "Dossier User Guide claims", type: :feature do
 
   # 2) Negative path ──────────────────────────────────────────────────────────
   describe "Negative path" do
-    it "Deletes an Assignment's Achievements with it, for good" do
+    it "Hides a deleted Assignment's Achievements, and only purges them after 30 days" do
       sign_in_as(charlie)
       visit dossier_assignment_path(assignment)
       click_button "Delete Assignment"
+      expect(achievement.reload).to be_hidden
 
+      travel_to(31.days.from_now) { PurgeDeletedDossierAssignmentsJob.perform_now }
       expect(Dossier::Achievement.exists?(achievement.id)).to be(false)
     end
 
@@ -47,12 +51,24 @@ RSpec.describe "Dossier User Guide claims", type: :feature do
 
   # 3) Alternative path ───────────────────────────────────────────────────────
   describe "Alternative path" do
-    it "Moves an Assignment's Training up to its Engagement when the Assignment is deleted" do
+    it "Restores a deleted Assignment with its Achievements and Training" do
       course = create(:dossier_credential, user: charlie, engagement: engagement, assignment: assignment)
       sign_in_as(charlie)
       visit dossier_assignment_path(assignment)
       click_button "Delete Assignment"
+      expect(course.reload).to be_hidden
 
+      visit deleted_dossier_assignments_path
+      find("[data-testid='restore-assignment-#{assignment.id}']").click
+      expect(assignment.reload.achievements).to contain_exactly(achievement)
+      expect(course.reload).to have_attributes(hidden?: false, assignment_id: assignment.id)
+    end
+
+    it "Moves a purged Assignment's Training up to its Engagement" do
+      course = create(:dossier_credential, user: charlie, engagement: engagement, assignment: assignment)
+      assignment.soft_delete!
+
+      travel_to(31.days.from_now) { PurgeDeletedDossierAssignmentsJob.perform_now }
       expect(course.reload).to have_attributes(assignment_id: nil, engagement_id: engagement.id)
     end
   end

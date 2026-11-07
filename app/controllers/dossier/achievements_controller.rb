@@ -19,9 +19,10 @@ class Dossier::AchievementsController < ApplicationController
   end
 
   def deleted
-    # Not those under a deleted Engagement: they come back with it.
+    # Not those under a deleted Assignment or Engagement: they come back with it.
     @achievements = Dossier::Achievement.discarded.where(user: current_user)
                                         .joins(assignment: :engagement).merge(Dossier::Engagement.kept)
+                                        .merge(Dossier::Assignment.kept)
                                         .includes(assignment: :client).order(deleted_at: :desc)
   end
 
@@ -93,7 +94,7 @@ class Dossier::AchievementsController < ApplicationController
   private
 
   def assignment_choices
-    Dossier::Assignment.joins(:engagement).merge(current_user.dossier_engagements.kept)
+    Dossier::Assignment.kept.joins(:engagement).merge(current_user.dossier_engagements.kept)
                        .includes(:client, engagement: :employer).order("dossier_engagements.start_on DESC", start_on: :desc)
   end
 

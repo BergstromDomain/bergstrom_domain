@@ -1,0 +1,61 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Deleted Assignments</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Deleted Assignments are kept for 30 days before being permanently removed. Restoring one brings back its
+    Achievements and Training too. An Assignment deleted with its Engagement is under Deleted Engagements.
+  </p>
+</div>
+
+<% if @assignments.any? %>
+  <div class="data-table-wrapper">
+    <table class="data-table" data-testid="deleted-assignment-table">
+      <colgroup>
+        <col>
+        <col style="width: 16rem;">
+        <col style="width: 9rem;">
+        <col style="width: 9rem;">
+        <col style="width: 9rem;">
+        <col style="width: 5rem;">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Assignment</th>
+          <th>Engagement</th>
+          <th>Achievements</th>
+          <th>Deleted</th>
+          <th>Days remaining</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @assignments.each do |assignment| %>
+          <tr data-testid="deleted-assignment-row">
+            <td data-testid="deleted-assignment-label">
+              <%= assignment.to_toast_label %><br>
+              <small><%= assignment.date_range %></small>
+            </td>
+            <td data-testid="deleted-assignment-engagement"><%= assignment.engagement.to_toast_label %></td>
+            <td data-testid="deleted-assignment-achievements"><%= assignment.all_achievements.count { |a| a.deleted_at.nil? } %></td>
+            <td data-testid="deleted-assignment-deleted-at"><%= assignment.deleted_at.to_date.to_fs(:long) %></td>
+            <td data-testid="deleted-assignment-days-remaining"><%= ((assignment.purge_at - Time.current) / 1.day).ceil %></td>
+            <td class="data-table__icon-cell">
+              <%= button_to restore_dossier_assignment_path(assignment),
+                    method: :post,
+                    class: "icon-button icon-button--success",
+                    title: "Restore #{assignment.to_toast_label}",
+                    data: { testid: "restore-assignment-#{assignment.id}" } do %>
+                <%= lucide_icon("undo-2", size: 18) %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No deleted Assignments.</p>
+  </div>
+<% end %>

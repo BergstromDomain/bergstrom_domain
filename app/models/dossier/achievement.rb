@@ -59,10 +59,10 @@ class Dossier::Achievement < ApplicationRecord
     update_columns(deleted_at: nil)
   end
 
-  # Deleted itself, or its Engagement is (deleted_at alone is the
-  # Achievement's own soft delete).
+  # Deleted itself, or its Assignment or Engagement is (deleted_at alone is
+  # the Achievement's own soft delete).
   def hidden?
-    deleted_at.present? || assignment&.deleted_at.present?
+    deleted_at.present? || assignment&.hidden?
   end
 
   def purge_at

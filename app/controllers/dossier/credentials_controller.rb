@@ -76,7 +76,7 @@ class Dossier::CredentialsController < ApplicationController
   end
 
   def assignment_choices
-    Dossier::Assignment.joins(:engagement).merge(current_user.dossier_engagements.kept)
+    Dossier::Assignment.kept.joins(:engagement).merge(current_user.dossier_engagements.kept)
                        .includes(:client, engagement: :employer).order("dossier_engagements.start_on DESC", start_on: :desc)
   end
 
