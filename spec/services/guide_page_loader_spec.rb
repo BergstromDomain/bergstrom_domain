@@ -176,8 +176,15 @@ RSpec.describe GuidePageLoader do
       result = described_class.new(Rails.root.join("docs/user-guide/story")).call
 
       expect(result[:created]).to eq([ "Chapter 1: Gary Looks Around", "Chapter 2: Gary Signs Up", "Chapter 3: Ulrika Joins In",
-        "Chapter 4: Charlie Creates" ])
-      expect(GuidePage.story.in_reading_order.pluck(:position)).to eq([ 1, 2, 3, 4 ])
+        "Chapter 4: Charlie Creates", "Chapter 5: Adam Looks After the Site" ])
+      expect(GuidePage.story.in_reading_order.pluck(:position)).to eq([ 1, 2, 3, 4, 5 ])
+    end
+
+    it "Loads Sam's page from docs/user-guide/system_admin, in the system-admin-only section" do
+      result = described_class.new(Rails.root.join("docs/user-guide/system_admin")).call
+
+      expect(result[:created]).to eq([ "Sam Manages Users" ])
+      expect(GuidePage.find_by!(title: "Sam Manages Users").app_section).to eq("system_admin")
     end
 
     it "Loads every page in docs/user-guide/chronicle" do

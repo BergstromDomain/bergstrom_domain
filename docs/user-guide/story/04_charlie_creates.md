@@ -70,7 +70,7 @@ Every post, recipe, person and event has one of three visibilities, chosen by wh
 
 A few things to know:
 
-- **Contacts means *your* contacts.** When Ulrika and I connected, she started seeing my Contacts things. She doesn't see Contacts things from people she isn't connected to.
+- **Contacts means *your* contacts.** When Ulrika and I connected, Ulrika started seeing my Contacts things, but not Contacts things from anyone Ulrika isn't connected to.
 - **Admins see everything,** whatever its visibility.
 - **You can change it at any time.** Choose **Edit** and pick another visibility. The change takes effect straight away.
 - **Each app starts new things at a default visibility,** which you choose in that app's settings (see below).
@@ -117,4 +117,4 @@ The categories that content is filed under are **Reference Data**: Blog Categori
 
 The exception is Dossier, where Content Creators can add **Organisations** and **Skills** themselves (**Add An Organisation** and **Add A Skill**), because everyone's career is different.
 
-> ![Charlie](images/charlie_content_creator_avatar.png) There's no button for asking yet, so I asked Adam directly. He looks after Reference Data, and the next chapter is his.
+> ![Charlie](images/charlie_content_creator_avatar.png) There's no button for asking yet, so I asked Adam directly. Adam looks after Reference Data, and the next chapter is Adam's.

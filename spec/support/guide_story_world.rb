@@ -29,6 +29,21 @@ module GuideStoryWorld
       engagements: story_engagements(charlie))
   end
 
+  # Gary's sign-up request (chapter 2), waiting for Sam to review it.
+  def gary_signs_up
+    user = create(:user, first_name: "Gary", last_name: "Guest", status: :pending,
+      email_address: "gary@example.com", message_to_admin: "Hi! Ulrika and Charlie told me about the site.")
+    user.profile_image.attach(io: File.open(IMAGES.join("Test_User_Gary_Guest.png")), filename: "Test_User_Gary_Guest.png")
+    user
+  end
+
+  # The Optics post Charlie wrote and then deleted (chapter 4).
+  def charlie_deletes_optics(world)
+    create(:blog_post, :contacts, :published, user: world.charlie, blog_category: BlogCategory.find_by!(name: "Science"),
+      title: "Optics", subject: "Physics", topic: "Isaac Newton", body: "Light, colour and the prism.",
+      deleted_at: Time.current)
+  end
+
   private
 
   def story_user(first_name, last_name, role, portrait)

@@ -26,6 +26,7 @@
     <% if authenticated? && current_user.system_admin? %>
       <%= render "layouts/dropdown",
                  label: "System Admin",
+                 testid: "top-nav-system-admin",
                  items: [
                    { label: "User Management", path: system_admin_users_path },
                    { label: "App Management",  path: nil }

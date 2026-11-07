@@ -305,6 +305,10 @@ RSpec.describe "Top Nav", type: :feature do
         expect(page).to have_button("System Admin")
       end
 
+      it "Marks the 'System Admin' dropdown and its menu for the User Guide's screenshots" do
+        expect(page).to have_css("[data-testid='top-nav-system-admin'] [data-testid='top-nav-system-admin-menu']", visible: :all)
+      end
+
       it "Shows 'User Management' link in 'System Admin' dropdown menu" do
         click_button "System Admin"
         expect(page).to have_link("User Management", href: system_admin_users_path)

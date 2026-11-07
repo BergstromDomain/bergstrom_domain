@@ -135,6 +135,61 @@ RSpec.describe "User Guide story world", type: :feature do
       find("[data-testid='restore-engagement-#{engagement.id}']").click
       expect(engagement.reload.deleted_at).to be_nil
     end
+
+    it "Shows Adam all three of Charlie's posts, Restricted included" do
+      sign_in_as(world.adam)
+      visit blog_posts_path(category_id: BlogCategory.find_by!(name: "Science").id)
+
+      within("[data-testid='main-content']") do
+        %w[Isaac\ Newton Laws\ of\ Motion Universal\ Gravitation].each { |title| expect(page).to have_content(title) }
+      end
+    end
+
+    it "Lets Adam add a Blog Category" do
+      sign_in_as(world.adam)
+      visit chronicle_path
+      within("[data-testid='left-nav']") { click_link "Create A Blog Category" }
+      fill_in "blog_category[name]", with: "Astronomy"
+      fill_in "blog_category[description]", with: "Stars, planets and the people who watch them."
+      fill_in "blog_category[icon]", with: "telescope"
+      click_button "Create Blog Category"
+
+      expect(BlogCategory.find_by(name: "Astronomy")).to have_attributes(icon: "telescope")
+    end
+
+    it "Lets Adam restore Charlie's deleted post, with its comments and reactions" do
+      world.posts[:newton].update!(deleted_at: Time.current)
+      sign_in_as(world.adam)
+
+      visit chronicle_path
+      within("[data-testid='left-nav']") { click_link "Deleted Posts" }
+      find("[data-testid='restore-blog-post-#{world.posts[:newton].id}']").click
+
+      newton = world.posts[:newton].reload
+      expect(newton).to have_attributes(deleted_at: nil, published?: true)
+      expect([ newton.comments.count, newton.likes.count ]).to eq([ 2, 2 ])
+    end
+
+    it "Lets Sam approve Gary's request, as a User" do
+      gary = gary_signs_up
+      sign_in_as(world.sam)
+
+      visit system_admin_users_path(status: "pending")
+      within("[data-testid='user-row-#{gary.id}']") { click_link "View" }
+      expect(page).to have_content("Hi! Ulrika and Charlie told me about the site.")
+      click_button "Approve"
+
+      expect(gary.reload).to have_attributes(status: "active", role: "app_user")
+    end
+
+    it "Lets Sam make Ulrika a Content Creator" do
+      sign_in_as(world.sam)
+      visit system_admin_user_path(world.ulrika)
+      select "Content creator", from: "role"
+      click_button "Update Role"
+
+      expect(world.ulrika.reload).to be_content_creator
+    end
   end
 
   # 2) Negative path ──────────────────────────────────────────────────────────
@@ -216,6 +271,42 @@ RSpec.describe "User Guide story world", type: :feature do
       visit blog_post_path(draft)
       expect(page).not_to have_css("[data-testid='blog-post-title']", text: "Optics")
     end
+
+    it "Refuses to delete a Blog Category while a post uses it, even a deleted one" do
+      astronomy = create(:blog_category, name: "Astronomy", icon: "telescope", description: "Stars.")
+      create(:blog_post, :published, user: world.charlie, blog_category: astronomy, title: "Comets", deleted_at: Time.current)
+      sign_in_as(world.adam)
+
+      [ BlogCategory.find_by!(name: "Science"), astronomy ].each do |category|
+        visit blog_category_path(category)
+        click_button "Delete Blog Category"
+        expect(page).to have_content("Cannot delete record because dependent blog posts exist")
+        expect(BlogCategory.exists?(category.id)).to be(true)
+      end
+    end
+
+    it "Keeps User Management from Adam" do
+      sign_in_as(world.adam)
+      visit root_path
+      expect(page).not_to have_button("System Admin")
+
+      visit system_admin_users_path
+      expect(page).to have_content("You are not authorised to access that page.")
+    end
+
+    it "Doesn't show Adam anyone else's deleted Dossier engagements" do
+      world.engagements[:observatory].soft_delete!
+      sign_in_as(world.adam)
+
+      visit deleted_dossier_engagements_path
+      expect(page).not_to have_content("Research Assistant")
+    end
+
+    it "Doesn't let Sam suspend themselves" do
+      sign_in_as(world.sam)
+      visit system_admin_user_path(world.sam)
+      expect(page).not_to have_button("Suspend")
+    end
   end
 
   # 3) Alternative path ───────────────────────────────────────────────────────
@@ -254,6 +345,48 @@ RSpec.describe "User Guide story world", type: :feature do
       click_button "Delete"
 
       expect(Event.exists?(world.events[:majas_birthday].id)).to be(false)
+    end
+
+    it "Lets Adam edit Charlie's post and delete Ulrika's comment" do
+      sign_in_as(world.adam)
+      visit edit_blog_post_path(world.posts[:newton])
+      fill_in "Title", with: "Sir Isaac Newton"
+      click_button "Update Blog Post"
+      expect(world.posts[:newton].reload.title).to eq("Sir Isaac Newton")
+
+      question = world.posts[:newton].comments.find_by!(user: world.ulrika)
+      visit blog_post_path(world.posts[:newton])
+      find("[data-testid='delete-comment-#{question.id}']").click
+      expect(Comment.exists?(question.id)).to be(false)
+    end
+
+    it "Lets Sam reject Gary's request, deleting it" do
+      gary = gary_signs_up
+      sign_in_as(world.sam)
+      visit system_admin_user_path(gary)
+      click_button "Reject"
+
+      expect(User.exists?(gary.id)).to be(false)
+    end
+
+    it "Lets Sam suspend Ulrika, keeping Ulrika's comments, then reactivate" do
+      sign_in_as(world.sam)
+      visit system_admin_user_path(world.ulrika)
+      click_button "Suspend"
+      expect(world.ulrika.reload).to be_suspended
+      expect(Comment.where(user: world.ulrika).count).to eq(2)
+
+      click_button "Reactivate"
+      expect(world.ulrika.reload).to be_active
+    end
+
+    it "Lets Sam restore deleted recipes, like Adam" do
+      world.recipes[:lasagna].update!(deleted_at: Time.current)
+      sign_in_as(world.sam)
+
+      visit cookbook_path
+      within("[data-testid='left-nav']") { click_link "Deleted Recipes" }
+      expect(page).to have_content("Charlie's Lasagna")
     end
   end
 

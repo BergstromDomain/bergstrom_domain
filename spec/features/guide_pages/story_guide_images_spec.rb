@@ -211,4 +211,73 @@ RSpec.describe "Story Guide Images", type: :feature, js: true, guide_image: true
       capture_guide_image("cookbook-settings-panel", as: "story/charlie_cookbook_settings")
     end
   end
+
+  # ── Chapter 5: Adam Admin ─────────────────────────────────────────────────
+  describe "Adam Admin" do
+    before do
+      sign_in_as(world.adam)
+      expect(page).to have_css("[data-testid='user-thumbnail-dropdown']", wait: 8)
+    end
+
+    it "Captures the left menu an admin gets, and every post in Science" do
+      visit chronicle_path
+      page.execute_script("document.querySelector('[data-testid=\"left-nav\"]').style.height = 'auto'")
+      capture_guide_image("left-nav", as: "story/adam_chronicle_left_nav")
+
+      visit blog_posts_path(category_id: BlogCategory.find_by!(name: "Science").id)
+      capture_guide_image("browse-preview", as: "story/adam_blog_posts")
+    end
+
+    it "Captures adding a Blog Category, and refusing to delete one in use" do
+      visit new_blog_category_path
+      fill_in "blog_category[name]", with: "Astronomy"
+      fill_in "blog_category[description]", with: "Stars, planets and the people who watch them."
+      fill_in "blog_category[icon]", with: "telescope"
+      capture_guide_image(%w[new-panel-main new-panel-metadata], as: "story/adam_blog_category_form")
+
+      visit blog_category_path(BlogCategory.find_by!(name: "Science"))
+      click_button "Delete Blog Category"
+      expect(page).to have_css("[data-testid='confirm-dialog'][open]", wait: 8)
+      js_click("confirm-dialog-confirm")
+      expect(page).to have_css("[data-testid='toast-container']", wait: 8)
+      capture_guide_image("toast-container", as: "story/adam_blog_category_in_use")
+    end
+
+    it "Captures restoring Charlie's deleted post" do
+      charlie_deletes_optics(world)
+      visit deleted_blog_posts_path
+      capture_guide_image("deleted-blog-post-table", as: "story/adam_deleted_posts")
+    end
+  end
+
+  # ── Sam's chapter (system admins only) ────────────────────────────────────
+  describe "Sam SysAdmin" do
+    let!(:gary) { gary_signs_up }
+
+    before do
+      sign_in_as(world.sam)
+      expect(page).to have_css("[data-testid='user-thumbnail-dropdown']", wait: 8)
+    end
+
+    it "Captures the System Admin menu and Gary's pending request" do
+      open_dropdown("top-nav-system-admin")
+      capture_guide_image(%w[top-nav top-nav-system-admin-menu], as: "system_admin/sam_system_admin_menu")
+
+      visit system_admin_users_path(status: "pending")
+      capture_guide_image(%w[user-list-filters user-list], as: "system_admin/sam_pending_users")
+
+      visit system_admin_user_path(gary)
+      capture_guide_image(%w[user-details-panel user-actions-panel], as: "system_admin/sam_gary_request")
+
+      js_click("approve-button")
+      expect(page).to have_content("Gary Guest has been approved.", wait: 8)
+      capture_guide_image("user-details-panel", as: "system_admin/sam_gary_approved")
+    end
+
+    it "Captures changing Ulrika's role" do
+      visit system_admin_user_path(world.ulrika)
+      select "Content creator", from: "role"
+      capture_guide_image("user-role-panel", as: "system_admin/sam_change_role")
+    end
+  end
 end
