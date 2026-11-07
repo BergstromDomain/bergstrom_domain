@@ -33,7 +33,7 @@ Longer recipes can be split into several lists, each with its own heading. A las
 
 ### Method
 
-The steps, written in the **Raw** (Markdown) or **Formatted** editor. You can switch between them at any time, and either way it's saved as Markdown.
+The steps, written in the **Formatted** or **Raw** (Markdown) editor. You can switch between them at any time, and either way it's saved as Markdown. See *Writing In Markdown* in Chronicle's pages: it works the same way here.
 
 ## Draft and Publish
 

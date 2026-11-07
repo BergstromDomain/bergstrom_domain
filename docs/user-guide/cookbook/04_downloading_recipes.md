@@ -14,6 +14,8 @@ Every recipe's page has a **Download PDF** button. The PDF is laid out like a pr
 
 Choose **Actions › Import & Export › Download Recipes** in the left nav. Narrow the list with the same Basic or SQL filter as *Finding Recipes*, then:
 
+![Download Recipes: the filter, then Download PDFs and Download CSV](images/download.png)
+
 - **Download PDFs**: a ZIP file with one PDF per recipe, named after its title (a repeated title gets `_2`). You're asked to confirm how many recipes it will include.
 - **Download CSV**: one row per recipe, for a spreadsheet.
 
