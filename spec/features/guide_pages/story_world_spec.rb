@@ -392,11 +392,21 @@ RSpec.describe "User Guide story world", type: :feature do
 
   # 4) Edge cases ─────────────────────────────────────────────────────────────
   describe "Edge cases" do
+    it "Builds the world only from images committed to git, so CI has them too" do
+      files = GuideStoryWorld::PORTRAITS.values + GuideStoryWorld::HEROES.glob("*.png") +
+              [ GuideStoryWorld::IMAGES.join("cookbook/recipes/lasagna.jpeg") ]
+      untracked = files.reject do |file|
+        system("git", "ls-files", "--error-unmatch", file.to_s, out: File::NULL, err: File::NULL)
+      end
+
+      expect(untracked).to eq([])
+    end
+
     it "Leaves Gary's sign-up request pending, for Sam to review" do
       visit sign_up_path
       fill_in "First name", with: "Gary"
       fill_in "Last name", with: "Guest"
-      attach_file "Profile image", Rails.root.join("docs/test-data/images/Test_User_Gary_Guest.png")
+      attach_file "Profile image", GuideStoryWorld::PORTRAITS["Gary"]
       fill_in "Email address", with: "gary@example.com"
       fill_in "Password", with: "password123"
       fill_in "Password confirmation", with: "password123"

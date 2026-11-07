@@ -75,7 +75,7 @@ RSpec.describe "Story Guide Images", type: :feature, js: true, guide_image: true
       visit sign_up_path
       fill_in "First name", with: "Gary"
       fill_in "Last name", with: "Guest"
-      attach_file "Profile image", Rails.root.join("docs/test-data/images/Test_User_Gary_Guest.png"), make_visible: true
+      attach_file "Profile image", GuideStoryWorld::PORTRAITS["Gary"], make_visible: true
       fill_in "Email address", with: "gary@example.com"
       fill_in "Password", with: "password123"
       fill_in "Password confirmation", with: "password123"

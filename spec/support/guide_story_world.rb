@@ -10,16 +10,25 @@
 # "created" dates and Events By Day come out the same on every run.
 module GuideStoryWorld
   STORY_TIME = Time.zone.local(2026, 11, 2, 10, 0)
+  # Only files committed to git: CI checks out nothing else.
+  PORTRAITS  = {
+    "Charlie" => "docs/user-guide/story/images/charlie_content_creator_portrait.png",
+    "Ulrika"  => "docs/user-guide/story/images/ulrika_user_portrait.png",
+    "Adam"    => "docs/user-guide/story/images/adam_admin_portrait.png",
+    "Sam"     => "docs/user-guide/system_admin/images/sam_system_admin_portrait.png",
+    "Gary"    => "docs/user-guide/story/images/gary_guest_portrait.png"
+  }.transform_values { |path| Rails.root.join(path) }.freeze
+  HEROES     = Rails.root.join("spec/fixtures/files/guide_story")
   IMAGES     = Rails.root.join("docs/test-data/images")
 
   World = Struct.new(:charlie, :ulrika, :adam, :sam, :posts, :people, :events, :recipes, :engagements,
     keyword_init: true)
 
   def build_story_world
-    charlie = story_user("Charlie", "Content Creator", :content_creator, "Test_User_Charlie_Contect_Creator.png")
-    ulrika  = story_user("Ulrika", "User", :app_user, "Test_User_Ulrika_User.png")
-    adam    = story_user("Adam", "Admin", :admin, "Test_User_Adam_Admin.png")
-    sam     = story_user("Sam", "SysAdmin", :system_admin, "Test_User_Sam_System_Admin.png")
+    charlie = story_user("Charlie", "Content Creator", :content_creator)
+    ulrika  = story_user("Ulrika", "User", :app_user)
+    adam    = story_user("Adam", "Admin", :admin)
+    sam     = story_user("Sam", "SysAdmin", :system_admin)
 
     World.new(charlie: charlie, ulrika: ulrika, adam: adam, sam: sam,
       posts:   story_posts(charlie, ulrika, adam),
@@ -33,7 +42,7 @@ module GuideStoryWorld
   def gary_signs_up
     user = create(:user, first_name: "Gary", last_name: "Guest", status: :pending,
       email_address: "gary@example.com", message_to_admin: "Hi! Ulrika and Charlie told me about the site.")
-    user.profile_image.attach(io: File.open(IMAGES.join("Test_User_Gary_Guest.png")), filename: "Test_User_Gary_Guest.png")
+    user.profile_image.attach(io: File.open(PORTRAITS["Gary"]), filename: PORTRAITS["Gary"].basename.to_s)
     user
   end
 
@@ -46,10 +55,11 @@ module GuideStoryWorld
 
   private
 
-  def story_user(first_name, last_name, role, portrait)
+  def story_user(first_name, last_name, role)
     user = create(:user, first_name: first_name, last_name: last_name, role: role,
       email_address: "#{first_name.downcase}@example.com")
-    user.profile_image.attach(io: File.open(IMAGES.join(portrait)), filename: portrait)
+    portrait = PORTRAITS.fetch(first_name)
+    user.profile_image.attach(io: File.open(portrait), filename: portrait.basename.to_s)
     user
   end
 
@@ -77,7 +87,7 @@ module GuideStoryWorld
   def story_post(charlie, category, title, classification, hero, summary)
     post = build(:blog_post, classification, :published, user: charlie, blog_category: category,
       title: title, subject: "Physics", topic: "Isaac Newton", body: summary)
-    post.blog_image.attach(io: File.open(IMAGES.join("chronicle/blog-posts", hero)), filename: hero)
+    post.blog_image.attach(io: File.open(HEROES.join(hero)), filename: hero)
     post.save!
     post
   end
