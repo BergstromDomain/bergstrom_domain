@@ -32,7 +32,7 @@
       <p class="show-meta-cell__value" data-testid="achievement-skills">
         <% skills = @achievement.current_skills %>
         <%# One span: the cell is a flex row, whose gap would land before each comma. %>
-        <span><%= skills.any? ? safe_join(skills.map { |skill| link_to(skill.name, dossier_skill_path(skill)) }, ", ") : "—" %></span>
+        <span><%= skills.any? ? safe_join(skills.map { |skill| link_to(skill.display_name, dossier_skill_path(skill)) }, ", ") : "—" %></span>
       </p>
     </div>
   </div>

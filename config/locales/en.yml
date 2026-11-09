@@ -47,3 +47,6 @@ en:
       # "Cannot delete record because dependent sub-categories exist".
       dossier/skill_category:
         subcategories: "sub-categories"
+      # "Cannot delete record because dependent products exist" (a vendor's Skills).
+      dossier/organisation:
+        products: "products"

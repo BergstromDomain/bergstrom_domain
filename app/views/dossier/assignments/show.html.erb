@@ -69,7 +69,7 @@
             N/A
           <% else %>
             <%# One span: the cell is a flex row, whose gap would land before each comma. %>
-            <span><%= safe_join(@assignment.skills_in(slot).map { |skill| link_to(skill.name, dossier_skill_path(skill)) }, ", ") %></span>
+            <span><%= safe_join(@assignment.skills_in(slot).map { |skill| link_to(skill.display_name, dossier_skill_path(skill)) }, ", ") %></span>
           <% end %>
         </p>
       </div>

@@ -79,6 +79,16 @@ RSpec.describe "Dossier Skill experience", type: :feature do
       expect(group.all("[data-testid='my-skill-row'] td:first-child").map(&:text)).to eq([ "TCP/IP", "SIP" ])
       expect(group).to have_text("2 Skills")
     end
+
+    it "Shows a Skill with its vendor's name on My Skills and the Assignment's Tech Stack" do
+      excel.update!(vendor: create(:dossier_organisation, name: "Microsoft"), show_vendor_in_name: true)
+      sign_in_as(charlie)
+      visit dossier_my_skills_path
+
+      expect(page).to have_selector("[data-testid='my-skill-row']", text: "Microsoft Excel")
+      visit dossier_assignment_path(ticketing)
+      expect(page).to have_link("Microsoft Excel", href: dossier_skill_path(excel))
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────

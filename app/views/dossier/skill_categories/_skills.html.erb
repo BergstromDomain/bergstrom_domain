@@ -49,7 +49,7 @@
           <tbody>
             <% @skills.each do |skill| %>
               <tr data-testid="category-skill-row">
-                <td><%= link_to skill.name, dossier_skill_path(skill) %></td>
+                <td><%= link_to skill.display_name, dossier_skill_path(skill) %></td>
                 <% if @subcategories.any? %>
                   <td><%= skill.skill_category_id == @record.id ? "—" : link_to(skill.skill_category.name, dossier_skill_category_path(skill.skill_category)) %></td>
                 <% end %>

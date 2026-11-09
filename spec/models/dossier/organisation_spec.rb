@@ -17,6 +17,15 @@ RSpec.describe Dossier::Organisation, type: :model do
     it { is_expected.to belong_to(:industry).optional }
     it { is_expected.to have_many(:engagements).dependent(:restrict_with_error) }
     it { is_expected.to have_many(:client_assignments).dependent(:restrict_with_error) }
+    it { is_expected.to have_many(:products).class_name("Dossier::Skill").dependent(:restrict_with_error) }
+
+    it "Can't be deleted while it's a Skill's vendor" do
+      microsoft = create(:dossier_organisation, name: "Microsoft")
+      create(:dossier_skill, name: "Project", vendor: microsoft)
+
+      expect(microsoft.destroy).to be(false)
+      expect(microsoft.errors.full_messages).to include("Cannot delete record because dependent products exist")
+    end
   end
 
   it_behaves_like "Dossier named reference data", :dossier_organisation

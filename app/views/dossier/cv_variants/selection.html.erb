@@ -57,7 +57,7 @@
         <ul class="dossier-selection__list">
           <% skills.each do |skill| %>
             <li data-testid="selection-skill">
-              <%= render "selection_box", selection: @selection, kind: "skill", record: skill, label: skill.name %>
+              <%= render "selection_box", selection: @selection, kind: "skill", record: skill, label: skill.display_name %>
             </li>
           <% end %>
         </ul>

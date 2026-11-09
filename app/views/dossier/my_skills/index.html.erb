@@ -36,7 +36,7 @@
               <% end %>
               <% experiences.each do |experience| %>
                 <tr data-testid="my-skill-row">
-                  <td><%= link_to experience.skill.name, dossier_skill_path(experience.skill), class: "data-table__name-link" %></td>
+                  <td><%= link_to experience.skill.display_name, dossier_skill_path(experience.skill), class: "data-table__name-link" %></td>
                   <td data-testid="my-skill-years"><%= experience.duration || "—" %></td>
                   <td data-testid="my-skill-personal"><%= experience.personal_duration || "—" %></td>
                   <td><%= experience.last_used %></td>

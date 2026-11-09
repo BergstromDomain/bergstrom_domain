@@ -2,10 +2,13 @@
 class Dossier::OrganisationsController < Dossier::ReferenceDataController
   self.content_creators_can_create = true
 
-  # The signed-in user's own Credentials this Organisation issued, of any
-  # type, and their own Assignments where it's a Vendor or Customer.
+  # The Skills it makes (public), and the signed-in user's own Credentials
+  # this Organisation issued, of any type, and their own Assignments where
+  # it's a Vendor or Customer.
   def show
     super
+    # Sorted by shown name ("Excel" before "Microsoft Project").
+    @products = @record.products.to_a.sort_by { |skill| skill.display_name.downcase }
     return unless current_user
 
     @credentials = current_user.dossier_credentials.kept.where(provider: @record)

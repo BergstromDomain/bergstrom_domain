@@ -86,6 +86,22 @@ RSpec.describe Dossier::CvDocument do
       expect(cv.skills).to eq([ [ "Protocols & Standards", "TCP/IP; Video & Streaming: MPEG-2; VoIP: MGCP, SIP" ] ])
     end
 
+    it "Shows a Skill with its vendor's name in Skills, Tech Stacks and families" do
+      profile
+      microsoft = create(:dossier_organisation, name: "Microsoft")
+      systems = create(:dossier_skill_category, name: "Operating Systems")
+      windows = create(:dossier_skill, name: "Windows", skill_category: systems, vendor: microsoft, show_vendor_in_name: true)
+      create(:dossier_skill, name: "Windows XP", parent: windows)
+      create(:dossier_skill, name: "Project", skill_category: create(:dossier_skill_category, name: "Office"),
+                             vendor: microsoft, show_vendor_in_name: true)
+      create(:dossier_assignment, engagement: engagement, operating_systems_na: false, operating_systems_text: "Windows XP",
+                                  other_tools_na: false, other_tools_text: "Project")
+
+      expect(cv.skills).to eq([ [ "Office", "Microsoft Project" ], [ "Operating Systems", "Microsoft Windows (XP)" ] ])
+      expect(cv.experience.first.assignments.first.tech_stack)
+        .to eq([ [ "Operating Systems", "Microsoft Windows (XP)" ], [ "Other Tools", "Microsoft Project" ] ])
+    end
+
     it "Shows a Skill's versions as one family, in the order first used, in Skills and the Tech Stack" do
       profile
       systems = create(:dossier_skill_category, name: "Operating Systems")

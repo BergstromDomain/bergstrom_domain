@@ -11,12 +11,16 @@ class Dossier::Skill < ApplicationRecord
   has_many :assignment_skills, dependent: :restrict_with_error
   has_many :achievement_skills, dependent: :restrict_with_error
   has_many :credential_skills, dependent: :restrict_with_error
+  # Who makes it (Microsoft for Project); show_vendor_in_name shows it as
+  # "Microsoft Project".
+  belongs_to :vendor, class_name: "Dossier::Organisation", optional: true, inverse_of: :products
 
   before_validation :tidy_aliases
 
   validate :aliases_are_not_other_skills
   validate :name_is_not_another_skills_alias
   validate :parent_is_one_level_deep
+  validate :vendor_chosen_when_shown
 
   def self.find_by_name_or_alias(text)
     text = text.to_s.strip.downcase
@@ -44,10 +48,21 @@ class Dossier::Skill < ApplicationRecord
       move_links(credential_skills, target, :credential_id)
       names = [ name, *aliases ]
       target.description ||= description
+      target.assign_attributes(vendor: vendor, show_vendor_in_name: show_vendor_in_name) unless target.vendor
       destroy!
       target.update!(aliases: target.aliases + names)
     end
   end
+
+  # The name readers see: "Microsoft Project" (the vendor's abbreviation, or
+  # its name, first) when asked to show the vendor, otherwise just the name.
+  def display_name
+    return name unless show_vendor_in_name && vendor
+
+    "#{vendor.abbreviation.presence || vendor.name} #{name}"
+  end
+
+  def to_toast_label = display_name
 
   # The Skill a family is shown under: the parent, or itself.
   def family_root = parent || self
@@ -97,6 +112,10 @@ class Dossier::Skill < ApplicationRecord
     elsif persisted? && versions.exists?
       errors.add(:parent, "can't be set on a Skill that has versions")
     end
+  end
+
+  def vendor_chosen_when_shown
+    errors.add(:vendor, "must be chosen to show it in the name") if show_vendor_in_name && vendor.nil?
   end
 
   def tidy_aliases

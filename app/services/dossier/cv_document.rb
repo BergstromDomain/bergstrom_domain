@@ -145,11 +145,11 @@ class Dossier::CvDocument
   # first used.
   def family_name(root, members)
     versions = members.reject { |skill| skill == root }
-    return root.name if versions.empty?
+    return root.display_name if versions.empty?
 
     first_used = ->(skill) { experience_calculator.for_skill(skill)&.first_on || Date.new(9999) }
     labels = versions.sort_by { |skill| [ first_used.(skill), skill.name.downcase ] }.map(&:version_label)
-    "#{root.name} (#{labels.join(', ')})"
+    "#{root.display_name} (#{labels.join(', ')})"
   end
 
   def skill_line(category, families)

@@ -93,4 +93,56 @@ RSpec.describe "Dossier Skills", type: :feature do
       end
     end
   end
+
+  describe "Skill vendor" do
+    let!(:microsoft) { create(:dossier_organisation, name: "Microsoft") }
+    let!(:office)    { create(:dossier_skill_category, name: "Office & Collaboration") }
+
+    # 1) Happy Path ─────────────────────────────────────────────────────────────
+    describe "Happy Path" do
+      it "Lets Charlie create a Skill shown with its vendor's name" do
+        sign_in_as(create(:user, :content_creator))
+        visit new_path
+        fill_name("Project")
+        select "Office & Collaboration", from: "Skill Category"
+        select "Microsoft", from: "Vendor"
+        check "Show Vendor In Name"
+        click_button "Create Skill"
+
+        expect(page).to have_css("[data-testid='flash-success']", text: "Microsoft Project has been successfully created")
+        expect(page).to have_selector("h1.page-title", text: "Microsoft Project")
+        expect(page).to have_selector("[data-testid='detail-vendor'] a[href='#{dossier_organisation_path(microsoft)}']", text: "Microsoft")
+      end
+    end
+
+    # 2) Negative Path ──────────────────────────────────────────────────────────
+    describe "Negative Path" do
+      it "Shows an error when Show Vendor In Name is ticked without a Vendor" do
+        sign_in_as(create(:user, :content_creator))
+        visit new_path
+        fill_name("Project")
+        select "Office & Collaboration", from: "Skill Category"
+        check "Show Vendor In Name"
+        click_button "Create Skill"
+
+        expect(page).to have_selector("[data-testid='field-error']", text: "Vendor must be chosen to show it in the name")
+        expect(Dossier::Skill.count).to eq(0)
+      end
+    end
+
+    # 3) Alternative Path ───────────────────────────────────────────────────────
+    describe "Alternative Path" do
+      it "Lets Adam take the vendor off a Skill" do
+        project = create(:dossier_skill, name: "Project", skill_category: office, vendor: microsoft, show_vendor_in_name: true)
+        sign_in_as(create(:user, :admin))
+        visit edit_dossier_skill_path(project)
+        select "No Vendor", from: "Vendor"
+        uncheck "Show Vendor In Name"
+        click_button "Update Skill"
+
+        expect(page).to have_selector("h1.page-title", text: /\AProject\z/)
+        expect(page).to have_selector("[data-testid='detail-vendor']", text: "—")
+      end
+    end
+  end
 end

@@ -10,6 +10,8 @@ RSpec.describe Dossier::Skill, type: :model do
     it { is_expected.to have_db_column(:description).of_type(:text) }
     it { is_expected.to have_db_column(:slug).of_type(:string) }
     it { is_expected.to have_db_column(:parent_id).of_type(:integer) }
+    it { is_expected.to have_db_column(:vendor_id).of_type(:integer) }
+    it { is_expected.to have_db_column(:show_vendor_in_name).of_type(:boolean).with_options(null: false, default: false) }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
@@ -17,12 +19,27 @@ RSpec.describe Dossier::Skill, type: :model do
     it { is_expected.to belong_to(:skill_category) }
     it { is_expected.to belong_to(:parent).optional }
     it { is_expected.to have_many(:versions).dependent(:nullify) }
+    it { is_expected.to belong_to(:vendor).class_name("Dossier::Organisation").optional }
   end
 
   it_behaves_like "Dossier named reference data", :dossier_skill
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
+    it "Shows the vendor's name before its own when asked" do
+      microsoft = create(:dossier_organisation, name: "Microsoft")
+      skill = create(:dossier_skill, name: "Project", vendor: microsoft, show_vendor_in_name: true)
+
+      expect(skill.display_name).to eq("Microsoft Project")
+      expect(skill.to_toast_label).to eq("Microsoft Project")
+    end
+
+    it "Uses the vendor's abbreviation when it has one" do
+      aws = create(:dossier_organisation, name: "Amazon Web Services", abbreviation: "AWS")
+
+      expect(build(:dossier_skill, name: "S3", vendor: aws, show_vendor_in_name: true).display_name).to eq("AWS S3")
+    end
+
     it "Takes aliases as comma-separated text" do
       skill = create(:dossier_skill, name: "Selenium", aliases_text: "Selenium WebDriver, WebDriver")
       expect(skill.aliases).to eq([ "Selenium WebDriver", "WebDriver" ])
@@ -66,6 +83,13 @@ RSpec.describe Dossier::Skill, type: :model do
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
+    it "Needs a vendor to show the vendor in its name" do
+      skill = build(:dossier_skill, show_vendor_in_name: true)
+
+      expect(skill).not_to be_valid
+      expect(skill.errors[:vendor]).to include("must be chosen to show it in the name")
+    end
+
     it "Is invalid without a Skill Category" do
       skill = build(:dossier_skill, skill_category: nil)
       expect(skill).not_to be_valid
@@ -109,6 +133,25 @@ RSpec.describe Dossier::Skill, type: :model do
   describe "Alternative Path" do
     it "Is valid with no aliases" do
       expect(build(:dossier_skill, aliases_text: "")).to be_valid
+    end
+
+    it "Shows its name alone without a vendor, or when not asked to show it" do
+      atlassian = create(:dossier_organisation, name: "Atlassian")
+
+      expect(build(:dossier_skill, name: "Jira", vendor: atlassian).display_name).to eq("Jira")
+      expect(build(:dossier_skill, name: "Git").display_name).to eq("Git")
+    end
+
+    it "Keeps the kept Skill's vendor when merging, or takes the merged one's when it has none" do
+      microsoft = create(:dossier_organisation, name: "Microsoft")
+      oracle = create(:dossier_organisation, name: "Oracle")
+      kept = create(:dossier_skill, vendor: oracle)
+      create(:dossier_skill, vendor: microsoft).merge_into!(kept)
+      expect(kept.reload.vendor).to eq(oracle)
+
+      bare = create(:dossier_skill)
+      create(:dossier_skill, vendor: microsoft, show_vendor_in_name: true).merge_into!(bare)
+      expect(bare.reload).to have_attributes(vendor: microsoft, show_vendor_in_name: true)
     end
 
     it "Keeps its description when the kept Skill has none" do
