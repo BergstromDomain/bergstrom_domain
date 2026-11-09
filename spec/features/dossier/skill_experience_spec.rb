@@ -62,6 +62,23 @@ RSpec.describe "Dossier Skill experience", type: :feature do
         expect(find("[data-testid='my-skill-row']", text: "Jira")).to have_text("3+ years")
       end
     end
+
+    it "Groups My Career › Skills by top-level category, with sub-category headings" do
+      protocols = create(:dossier_skill_category, name: "Protocols & Standards")
+      voip = create(:dossier_skill_category, name: "VoIP", parent: protocols)
+      create(:dossier_skill, name: "SIP", skill_category: voip)
+      create(:dossier_skill, name: "TCP/IP", skill_category: protocols)
+      create(:dossier_assignment, engagement: engagement, start_month: "2019-01", end_month: "2019-06",
+                                  other_tools_na: false, other_tools_text: "SIP, TCP/IP")
+      sign_in_as(charlie)
+      visit dossier_my_skills_path
+
+      group = find("[data-testid='my-skills-category']", text: "Protocols & Standards")
+      expect(all("[data-testid='my-skills-category'] h2").map(&:text)).to eq([ "Methodologies", "Protocols & Standards", "Test Tools" ])
+      expect(group.all("[data-testid='my-skills-subcategory']").map(&:text)).to eq([ "VoIP" ])
+      expect(group.all("[data-testid='my-skill-row'] td:first-child").map(&:text)).to eq([ "TCP/IP", "SIP" ])
+      expect(group).to have_text("2 Skills")
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────

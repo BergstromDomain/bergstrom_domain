@@ -60,7 +60,7 @@ class Dossier::CvDocx
     return if skills.empty?
 
     @doc.paragraph("Skills", style: "Heading1")
-    skills.each { |category, names| labelled(category, names.join(", ")) }
+    skills.each { |category, line| labelled(category, line) }
   end
 
   def credentials

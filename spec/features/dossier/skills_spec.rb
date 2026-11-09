@@ -60,4 +60,37 @@ RSpec.describe "Dossier Skills", type: :feature do
       expect(all("[data-testid='reference-data-name']").map(&:text)).to eq(%w[Scrum Cypress Selenium])
     end
   end
+
+  describe "Skills in sub-categories" do
+    let!(:protocols) { create(:dossier_skill_category, name: "Protocols & Standards") }
+    let!(:voip)      { create(:dossier_skill_category, name: "VoIP", parent: protocols) }
+
+    # 1) Happy Path ─────────────────────────────────────────────────────────────
+    describe "Happy Path" do
+      it "Offers sub-categories as 'Parent › Sub', right after their parent" do
+        sign_in_as(create(:user, :content_creator))
+        visit new_path
+
+        expect(page).to have_select("Skill Category",
+                                    options: [ "Choose a Skill Category", "Protocols & Standards",
+                                               "Protocols & Standards › VoIP", "Test Tools" ])
+        fill_name("SIP")
+        select "Protocols & Standards › VoIP", from: "Skill Category"
+        click_button "Create Skill"
+
+        expect(page).to have_selector("[data-testid='detail-skill-category'] a[href='#{dossier_skill_category_path(voip)}']",
+                                      text: "Protocols & Standards › VoIP")
+      end
+
+      it "Groups the index under 'Parent › Sub' headings, in tree order" do
+        create(:dossier_skill, name: "SIP", skill_category: voip)
+        create(:dossier_skill, name: "TCP/IP", skill_category: protocols)
+        create(:dossier_skill, name: "Cypress", skill_category: test_tools)
+        visit index_path
+
+        expect(all("[data-testid='reference-data-group']").map(&:text))
+          .to eq([ "Protocols & Standards (1)", "Protocols & Standards › VoIP (1)", "Test Tools (1)" ])
+      end
+    end
+  end
 end

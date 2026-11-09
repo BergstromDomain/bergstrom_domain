@@ -53,15 +53,17 @@ class Dossier::SkillsController < Dossier::ReferenceDataController
     redirect_to dossier_skill_path(@record), alert: "Not authorised." unless current_user&.can_administer?
   end
 
-  # Grouped under their Skill Categories, alphabetically.
+  # Grouped under their Skill Categories, each top-level one followed by its
+  # sub-categories ("Protocols & Standards › VoIP").
   def index_groups
-    @records.includes(:skill_category).group_by(&:skill_category)
-            .sort_by { |category, _| category.name.downcase }
-            .map { |category, skills| [ category.name, skills ] }
+    @records.includes(skill_category: :parent).group_by(&:skill_category)
+            .sort_by { |category, _| category.tree_sort_key }
+            .map { |category, skills| [ category.full_name, skills ] }
   end
 
   def details(record)
-    [ [ "Skill Category", record.skill_category.name, "skill-category" ],
+    category = helpers.link_to(record.skill_category.full_name, dossier_skill_category_path(record.skill_category))
+    [ [ "Skill Category", category, "skill-category" ],
       [ "Aliases",        record.aliases_text.presence, "aliases" ],
       [ "Version Of",     (helpers.link_to(record.parent.name, dossier_skill_path(record.parent)) if record.parent), "version-of" ],
       [ "Versions",       helpers.safe_join(record.versions.map { |v| helpers.link_to(v.name, dossier_skill_path(v)) }, ", ").presence,

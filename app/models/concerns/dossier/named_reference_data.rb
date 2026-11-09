@@ -13,7 +13,8 @@ module Dossier
 
       normalizes :name, with: ->(name) { name.strip }
 
-      validates :name, presence: true, uniqueness: { case_sensitive: false }
+      validates :name, presence: true
+      validates :name, uniqueness: { case_sensitive: false }, unless: :name_unique_within_scope?
 
       scope :alphabetical, -> { order(Arel.sql("LOWER(#{table_name}.name) ASC")) }
 
@@ -25,6 +26,10 @@ module Dossier
         name_changed? || super
       end
     end
+
+    # True where a model checks its name's uniqueness itself, within a scope
+    # (Skill Categories: within their parent).
+    def name_unique_within_scope? = false
 
     def to_toast_label
       name

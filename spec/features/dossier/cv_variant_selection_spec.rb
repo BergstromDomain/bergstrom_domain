@@ -97,6 +97,18 @@ RSpec.describe "Dossier CV Variant Edit Selection", type: :feature do
       expect(box(old)).to be_checked
       expect(box(old_assignment)).not_to be_checked
     end
+
+    it "Groups Skills under 'Parent › Sub' headings, each sub-category after its parent" do
+      protocols = create(:dossier_skill_category, name: "Protocols & Standards")
+      create(:dossier_skill, name: "SIP", skill_category: create(:dossier_skill_category, name: "VoIP", parent: protocols))
+      create(:dossier_skill, name: "TCP/IP", skill_category: protocols)
+      assignment.update!(other_tools_na: false, other_tools_text: "SIP, TCP/IP")
+      sign_in_as(charlie)
+      visit selection_dossier_cv_variant_path(variant)
+
+      headings = find("[data-testid='selection-skills']").all("h3").map(&:text)
+      expect(headings.each_cons(2)).to include([ "Protocols & Standards", "Protocols & Standards › VoIP" ])
+    end
   end
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────

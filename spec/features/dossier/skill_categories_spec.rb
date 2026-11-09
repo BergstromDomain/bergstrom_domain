@@ -77,4 +77,109 @@ RSpec.describe "Dossier Skill Categories", type: :feature do
       end
     end
   end
+
+  describe "Sub-categories" do
+    let(:adam)      { create(:user, :admin) }
+    let(:protocols) { create(:dossier_skill_category, name: "Protocols & Standards") }
+
+    def table = find("[data-testid='category-skills']")
+    def rows  = table.all("[data-testid='category-skill-row']")
+
+    # 1) Happy Path ─────────────────────────────────────────────────────────────
+    describe "Happy Path" do
+      it "Lets Adam create a sub-category by choosing its Parent" do
+        protocols
+        sign_in_as(adam)
+        visit new_dossier_skill_category_path
+        fill_in "Name", with: "VoIP"
+        select "Protocols & Standards", from: "Parent"
+        click_button "Create Skill Category"
+
+        expect(page).to have_css("[data-testid='flash-success']", text: "Protocols & Standards › VoIP has been successfully created")
+        expect(page).to have_selector("[data-testid='detail-part-of'] a[href='#{dossier_skill_category_path(protocols)}']",
+                                      text: "Protocols & Standards")
+      end
+
+      it "Lists a top-level category's sub-categories and all their Skills" do
+        voip = create(:dossier_skill_category, name: "VoIP", parent: protocols)
+        create(:dossier_skill_category, name: "Web", parent: protocols)
+        create(:dossier_skill, name: "SIP", skill_category: voip)
+        create(:dossier_skill, name: "TCP/IP", skill_category: protocols)
+        visit dossier_skill_category_path(protocols)
+
+        panel = find("[data-testid='category-subcategories']")
+        expect(panel.all("[data-testid='category-subcategory-row']").map { |row| row.all("td").map(&:text) })
+          .to eq([ [ "VoIP", "1" ], [ "Web", "0" ] ])
+        expect(table).to have_selector("h2", text: "Skills (2)")
+        expect(rows.map { |row| row.all("td").first(2).map(&:text) }).to eq([ [ "SIP", "VoIP" ], [ "TCP/IP", "—" ] ])
+      end
+
+      it "Lists each sub-category right after its parent on the index" do
+        create(:dossier_skill_category, name: "VoIP", parent: protocols)
+        create(:dossier_skill_category, name: "AI Tools")
+        create(:dossier_skill_category, name: "Testing")
+        visit dossier_skill_categories_path
+
+        expect(all("[data-testid='reference-data-name']").map(&:text))
+          .to eq([ "AI Tools", "Protocols & Standards", "Protocols & Standards › VoIP", "Testing" ])
+      end
+    end
+
+    # 2) Negative Path ──────────────────────────────────────────────────────────
+    describe "Negative Path" do
+      it "Won't delete a category that has sub-categories" do
+        create(:dossier_skill_category, name: "VoIP", parent: protocols)
+        sign_in_as(adam)
+        visit dossier_skill_category_path(protocols)
+        click_button "Delete Skill Category"
+
+        expect(page).to have_content("Cannot delete record because dependent sub-categories exist")
+        expect(Dossier::SkillCategory.exists?(protocols.id)).to be(true)
+      end
+
+      it "Shows a top-level category no Part Of row and a sub-category no sub-categories panel" do
+        voip = create(:dossier_skill_category, name: "VoIP", parent: protocols)
+        visit dossier_skill_category_path(voip)
+
+        expect(page).to have_selector("h1.page-title", text: "Protocols & Standards › VoIP")
+        expect(page).not_to have_selector("[data-testid='category-subcategories']")
+        visit dossier_skill_category_path(protocols)
+        expect(page).to have_selector("[data-testid='detail-part-of']", text: "—")
+      end
+    end
+
+    # 3) Alternative Path ───────────────────────────────────────────────────────
+    describe "Alternative Path" do
+      it "Promotes a sub-category to top-level when Adam clears its Parent" do
+        voip = create(:dossier_skill_category, name: "VoIP", parent: protocols)
+        sign_in_as(adam)
+        visit edit_dossier_skill_category_path(voip)
+        select "None (top-level)", from: "Parent"
+        click_button "Update Skill Category"
+
+        expect(page).to have_selector("h1.page-title", text: /\AVoIP\z/)
+        expect(voip.reload.parent).to be_nil
+      end
+    end
+
+    # 4) Edge Cases ─────────────────────────────────────────────────────────────
+    describe "Edge Cases" do
+      it "Offers only other top-level categories as a Parent" do
+        create(:dossier_skill_category, name: "VoIP", parent: protocols)
+        create(:dossier_skill_category, name: "Testing")
+        sign_in_as(adam)
+        visit edit_dossier_skill_category_path(protocols)
+
+        expect(page).to have_select("Parent", options: [ "None (top-level)", "Testing" ])
+      end
+
+      it "Says so when neither the category nor its sub-categories have Skills" do
+        create(:dossier_skill_category, name: "VoIP", parent: protocols)
+        visit dossier_skill_category_path(protocols)
+
+        expect(page).to have_selector("[data-testid='category-subcategory-row']", text: "VoIP")
+        expect(table).to have_selector("[data-testid='category-skills-empty']", text: "No Skills in Protocols & Standards yet.")
+      end
+    end
+  end
 end

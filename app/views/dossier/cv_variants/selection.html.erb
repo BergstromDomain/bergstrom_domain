@@ -53,7 +53,7 @@
         <p>No Skills yet.</p>
       <% end %>
       <% @skill_groups.each do |category, skills| %>
-        <h3 class="show-meta-cell__label"><%= category.name %></h3>
+        <h3 class="show-meta-cell__label"><%= category.full_name %></h3>
         <ul class="dossier-selection__list">
           <% skills.each do |skill| %>
             <li data-testid="selection-skill">
