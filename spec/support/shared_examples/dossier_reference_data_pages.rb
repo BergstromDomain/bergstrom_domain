@@ -40,7 +40,7 @@ RSpec.shared_examples "Dossier reference data pages" do |content_creators_can_cr
       expect(page).to have_css("[data-testid='flash-success']", text: "#{record_name} has been successfully created")
     end
 
-    it "Lets an admin edit one, with a toast" do
+    it "Lets an admin edit one, with a toast, and moves it to its new URL" do
       record = create(factory)
       sign_in_as(admin)
       visit polymorphic_path(record)
@@ -50,6 +50,8 @@ RSpec.shared_examples "Dossier reference data pages" do |content_creators_can_cr
 
       expect(page).to have_selector("h1.page-title", text: record_name)
       expect(page).to have_css("[data-testid='flash-success']", text: "#{record_name} has been successfully updated")
+      expect(record.reload.slug).to eq(record_name.parameterize)
+      expect(page).to have_current_path(polymorphic_path(record))
     end
 
     it "Lets an admin delete an unused one, with a toast" do
