@@ -10,9 +10,10 @@ class Dossier::SkillCategory < ApplicationRecord
   friendly_id :slug_candidates, use: [ :slugged, :history ]
 
   belongs_to :parent, class_name: "Dossier::SkillCategory", optional: true
-  has_many :subcategories, -> { order(Arel.sql("LOWER(name)")) }, class_name: "Dossier::SkillCategory",
-                                                                 foreign_key: :parent_id, inverse_of: :parent,
-                                                                 dependent: :restrict_with_error
+  # In position order, then A–Z for those without one.
+  has_many :subcategories, -> { order(Arel.sql("position ASC NULLS LAST, LOWER(name)")) },
+           class_name: "Dossier::SkillCategory", foreign_key: :parent_id, inverse_of: :parent,
+           dependent: :restrict_with_error
   has_many :skills, dependent: :restrict_with_error
 
   validates :name, uniqueness: { case_sensitive: false, scope: :parent_id }
@@ -40,6 +41,9 @@ class Dossier::SkillCategory < ApplicationRecord
   def tree_sort_key
     parent ? [ parent.name.downcase, 1, name.downcase ] : [ name.downcase, 0, "" ]
   end
+
+  # Among its siblings: by position, then A–Z for those without one.
+  def display_sort_key = [ position ? 0 : 1, position.to_i, name.downcase ]
 
   def name_unique_within_scope? = true
 

@@ -5,7 +5,8 @@
 # changed as lines of text. Safe to run again: a second run changes nothing.
 #
 #   vendors:            [{ name, abbreviation }] — found by name or abbreviation, else created
-#   categories:         [{ name, was: [old names], description, subcategories: [{ name, was, description }] }]
+#   categories:         [{ name, was: [old names], description, subcategories: [{ name, was, description }] }],
+#                       numbered in the order listed (their position)
 #   merge:              [{ into, from: [names] }] — Skill#merge_into!, before the Skills below
 #   skills:             [{ name, find: [old names], category: "Top › Sub", aliases, remove_aliases,
 #                          vendor, show_vendor, version_of, description }]
@@ -38,7 +39,7 @@ class Dossier::SkillTaxonomy
   def apply!(dry_run: false)
     ActiveRecord::Base.transaction do
       list("vendors").each { |row| vendor(row) }
-      list("categories").each { |row| category(row, parent: nil) }
+      list("categories").each.with_index(1) { |row, position| category(row, parent: nil, position: position) }
       list("merge").each { |row| merge(row) }
       list("skills").each { |row| skill(row) }
       list("split").each { |row| split(row) }
@@ -68,15 +69,15 @@ class Dossier::SkillTaxonomy
   end
 
   # ── Categories ────────────────────────────────────────────────────────────
-  def category(row, parent:)
+  def category(row, parent:, position:)
     path = [ parent&.name, row["name"] ].compact.join(SEPARATOR)
     record = self.class.find_category(path) || old_category(row) || Dossier::SkillCategory.new
     created = record.new_record?
-    record.assign_attributes(name: row["name"], parent: parent)
+    record.assign_attributes(name: row["name"], parent: parent, position: position)
     record.description = row["description"] if record.description.blank? && row["description"].present?
     save!(record, path)
     note(created ? "Created Skill Category #{path}" : "Updated Skill Category #{path}") if changed?(record, created)
-    Array(row["subcategories"]).each { |sub| category(sub, parent: record) }
+    Array(row["subcategories"]).each.with_index(1) { |sub, index| category(sub, parent: record, position: index) }
   end
 
   def old_category(row)

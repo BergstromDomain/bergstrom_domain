@@ -1093,7 +1093,8 @@ CREATE TABLE public.dossier_skill_categories (
     slug character varying,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    parent_id bigint
+    parent_id bigint,
+    "position" integer
 );
 
 
@@ -4330,6 +4331,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261110022133'),
 ('20261109213744'),
 ('20261109213122'),
 ('20261107120000'),

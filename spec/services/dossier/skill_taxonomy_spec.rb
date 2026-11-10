@@ -11,6 +11,16 @@ RSpec.describe Dossier::SkillTaxonomy do
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
+    it "Numbers categories and their sub-categories in the order listed" do
+      apply(categories: [ { name: "Testing", subcategories: [ { name: "Test Automation" }, { name: "Test Documentation" } ] },
+                          { name: "AI Tools" } ])
+
+      expect(category("Testing").position).to eq(1)
+      expect(category("AI Tools").position).to eq(2)
+      expect(category("Testing › Test Automation").position).to eq(1)
+      expect(category("Testing › Test Documentation").position).to eq(2)
+    end
+
     it "Renames a category found by an old name, and its slug follows" do
       old = create(:dossier_skill_category, name: "CI/CD")
       apply(categories: [ { name: "Development Tools", was: [ "CI/CD" ] } ])
@@ -24,7 +34,7 @@ RSpec.describe Dossier::SkillTaxonomy do
                             subcategories: [ { name: "Version Control" }, { name: "IDEs & Editors", was: [ "IDEs & Editors" ] } ] } ])
 
       top = category("Development Tools")
-      expect(top.subcategories.map(&:name)).to eq([ "IDEs & Editors", "Version Control" ])
+      expect(top.subcategories.map(&:name)).to eq([ "Version Control", "IDEs & Editors" ])
       expect(ides.reload.parent).to eq(top)
     end
 
