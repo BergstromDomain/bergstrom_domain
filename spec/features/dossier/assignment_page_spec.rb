@@ -38,7 +38,7 @@ RSpec.describe "Dossier Assignment page", type: :feature do
 
   def summary = find("[data-testid='assignment-summary-panel']")
   def blocks = all("[data-testid='tech-stack-block']")
-  def columns(block) = block.all("th").map(&:text)
+  def headings(block) = block.all("th").map(&:text)
   def cells(block) = block.all("td").map(&:text)
   def panel_order = all(".show-panel[data-testid]").map { |panel| panel["data-testid"] }
 
@@ -74,20 +74,30 @@ RSpec.describe "Dossier Assignment page", type: :feature do
       expect(page).to have_selector("[data-testid='assignment-project']", text: "Energy Components Upgrade")
     end
 
-    it "Shows the Tech Stack as a table per category, in order, with a column per sub-category" do
+    it "Shows the Tech Stack as a table per category, in order: the category as its label, a column per sub-category" do
       sign_in_as(charlie)
       visit dossier_assignment_path(assignment)
 
-      expect(blocks.map { |block| columns(block) }).to eq([
+      expect(blocks.map { |block| headings(block) }).to eq([
         [ "Testing", "Test & Issue Management" ], [ "Operating Systems" ], [ "Databases", "Query Languages" ]
       ])
-      expect(blocks.map { |block| cells(block) }).to eq([ [ "", "Quality Center" ], [ "Windows (XP)" ], [ "", "PL/SQL" ] ])
+      expect(blocks.map { |block| cells(block) }).to eq([ [ "Quality Center" ], [ "Windows (XP)" ], [ "PL/SQL" ] ])
       within(find("[data-testid='tech-stack']")) do
         expect(page).not_to have_text("Energy Components")
         expect(page).to have_link("Windows")
         click_link "XP"
       end
       expect(page).to have_selector("[data-testid='reference-data-name']", text: "XP")
+    end
+
+    it "Heads a category's own Skills 'General' when it has sub-category Skills too" do
+      create(:dossier_skill, name: "Test Strategy", skill_category: testing)
+      assignment.update!(test_tools_text: "Quality Center, Test Strategy")
+      sign_in_as(charlie)
+      visit dossier_assignment_path(assignment)
+
+      expect(headings(blocks.first)).to eq([ "Testing", "General", "Test & Issue Management" ])
+      expect(cells(blocks.first)).to eq([ "Test Strategy", "Quality Center" ])
     end
 
     it "Shows Training as a table: Title, Issued By, Dates and Skills" do

@@ -3566,12 +3566,35 @@ textarea.form-control {
   margin-top: var(--space-md);
 }
 
+/* Fixed layout: the category label is the same width in every block, so
+   the blocks line up, and the columns share the rest equally. */
+.dossier-tech-stack-table {
+  table-layout: fixed;
+}
+
 .dossier-tech-stack-table th {
   white-space: normal;
 }
 
-/* The first column is the category itself: the block's label. */
-.dossier-tech-stack-table th:first-child {
+.dossier-tech-stack-table__category {
+  width: 16rem;
+  vertical-align: middle;
   color: var(--color-text-primary);
   font-weight: var(--font-weight-bold);
+  background-color: var(--color-surface-raised);
+  border-right: 1px solid var(--color-border);
+}
+
+.dossier-tech-stack-table__heading {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-raised);
+}
+
+/* Two-row blocks: no line under the label, no hover tint on the Skills row. */
+.dossier-tech-stack-table tbody tr:hover {
+  background-color: transparent;
+}
+
+@media (max-width: 640px) {
+  .dossier-tech-stack-table__category { width: 8rem; }
 }

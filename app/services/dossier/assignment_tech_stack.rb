@@ -2,8 +2,9 @@
 
 # An Assignment's Tech Stack as its page shows it: the System Under Test on its
 # own (in the order entered), and every other Skill in a block per top-level Skill Category (in
-# position order). A block's first column holds the Skills filed under the
-# category itself, then a column per sub-category that has any. A Skill's
+# position order). A block's columns: the Skills filed under the category
+# itself (no heading), when there are any, then a column per sub-category
+# that has Skills. A Skill's
 # versions show with it as one family ("Windows (XP, 7)"), filed under the
 # parent's category; a Skill on several lists shows once.
 class Dossier::AssignmentTechStack
@@ -29,10 +30,11 @@ class Dossier::AssignmentTechStack
 
   def block(top, families)
     by_category = families.group_by { |family| family.root.skill_category }
-    own = Column.new(heading: top.name, families: by_category.delete(top) || [])
+    own = by_category.delete(top)
     subcategories = by_category.keys.sort_by(&:display_sort_key)
     Block.new(category: top,
-              columns: [ own, *subcategories.map { |sub| Column.new(heading: sub.name, families: by_category.fetch(sub)) } ])
+              columns: [ (Column.new(heading: nil, families: own) if own),
+                         *subcategories.map { |sub| Column.new(heading: sub.name, families: by_category.fetch(sub)) } ].compact)
   end
 
   def top_of(category) = category.parent || category

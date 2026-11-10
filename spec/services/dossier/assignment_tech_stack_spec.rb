@@ -17,7 +17,7 @@ RSpec.describe Dossier::AssignmentTechStack do
     create(:dossier_assignment, **attributes)
   end
 
-  # [heading, [family labels]] per column, e.g. ["Testing", ["Jira"]]
+  # [heading, [family labels]] per column, e.g. ["Test Automation", ["Selenium"]]; nil heads the category's own Skills
   def layout(stack)
     stack.blocks.map do |block|
       [ block.category.name, block.columns.map { |column| [ column.heading, column.families.map { |f| label(f) } ] } ]
@@ -31,7 +31,7 @@ RSpec.describe Dossier::AssignmentTechStack do
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    it "Groups Skills into a block per top-level category, its own Skills first, then a column per sub-category in order" do
+    it "Groups Skills into a block per top-level category, its own Skills first (no heading), then a column per sub-category in order" do
       skill("Testing Strategy", testing)
       skill("Selenium", automation)
       skill("Jira", management)
@@ -40,9 +40,9 @@ RSpec.describe Dossier::AssignmentTechStack do
       assignment = assignment_with(test_tools: "Selenium, Jira, Qtest, Testing Strategy", operating_systems: "Windows")
 
       expect(layout(described_class.new(assignment))).to eq([
-        [ "Testing", [ [ "Testing", [ "Testing Strategy" ] ], [ "Test Automation", [ "Selenium" ] ],
+        [ "Testing", [ [ nil, [ "Testing Strategy" ] ], [ "Test Automation", [ "Selenium" ] ],
                        [ "Test & Issue Management", [ "Jira", "Qtest" ] ] ] ],
-        [ "Operating Systems", [ [ "Operating Systems", [ "Windows" ] ] ] ]
+        [ "Operating Systems", [ [ nil, [ "Windows" ] ] ] ]
       ])
     end
 
@@ -67,12 +67,12 @@ RSpec.describe Dossier::AssignmentTechStack do
       expect(stack.systems_under_test).to be_empty
     end
 
-    it "Leaves out sub-categories with no Skills" do
+    it "Leaves out sub-categories with no Skills, and the category's own column when it has none" do
       documents
       skill("Jira", management)
 
       expect(layout(described_class.new(assignment_with(test_tools: "Jira"))))
-        .to eq([ [ "Testing", [ [ "Testing", [] ], [ "Test & Issue Management", [ "Jira" ] ] ] ] ])
+        .to eq([ [ "Testing", [ [ "Test & Issue Management", [ "Jira" ] ] ] ] ])
     end
   end
 
@@ -109,7 +109,7 @@ RSpec.describe Dossier::AssignmentTechStack do
       assignment = assignment_with(operating_systems: "Windows (XP, 7), Linux")
 
       expect(layout(described_class.new(assignment)))
-        .to eq([ [ "Operating Systems", [ [ "Operating Systems", [ "Linux", "Windows (7, XP)" ] ] ] ] ])
+        .to eq([ [ "Operating Systems", [ [ nil, [ "Linux", "Windows (7, XP)" ] ] ] ] ])
     end
 
     it "Shows a Skill on several lists once" do
@@ -117,14 +117,14 @@ RSpec.describe Dossier::AssignmentTechStack do
       assignment = assignment_with(test_tools: "Jira", other_tools: "Jira")
 
       expect(layout(described_class.new(assignment)))
-        .to eq([ [ "Testing", [ [ "Testing", [] ], [ "Test & Issue Management", [ "Jira" ] ] ] ] ])
+        .to eq([ [ "Testing", [ [ "Test & Issue Management", [ "Jira" ] ] ] ] ])
     end
 
     it "Shows the vendor's name where the Skill asks for it" do
       microsoft = create(:dossier_organisation, name: "Microsoft")
       skill("Test Manager", management, vendor: microsoft, show_vendor_in_name: true)
 
-      expect(layout(described_class.new(assignment_with(test_tools: "Test Manager"))).dig(0, 1, 1, 1))
+      expect(layout(described_class.new(assignment_with(test_tools: "Test Manager"))).dig(0, 1, 0, 1))
         .to eq([ "Microsoft Test Manager" ])
     end
   end

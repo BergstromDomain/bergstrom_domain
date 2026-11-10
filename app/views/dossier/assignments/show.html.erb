@@ -110,21 +110,28 @@
     <div class="show-panel__section">
       <h2 class="show-panel__heading">Tech Stack</h2>
       <% blocks.each do |block| %>
+        <%# The category labels the row; sub-category headings sit above their Skills. %>
+        <% headed = block.columns.any?(&:heading) %>
         <div class="data-table-wrapper dossier-tech-stack-block" data-testid="tech-stack-block">
           <table class="data-table dossier-tech-stack-table">
-            <thead>
-              <tr>
-                <% block.columns.each do |column| %>
-                  <th><%= column.heading %></th>
-                <% end %>
-              </tr>
-            </thead>
             <tbody>
               <tr>
-                <% block.columns.each do |column| %>
-                  <td><%= skill_family_links(column.families) if column.families.any? %></td>
+                <th scope="row" class="dossier-tech-stack-table__category" <%= "rowspan=2" if headed %>><%= block.category.name %></th>
+                <% if headed %>
+                  <% block.columns.each do |column| %>
+                    <th scope="col" class="dossier-tech-stack-table__heading"><%= column.heading || "General" %></th>
+                  <% end %>
+                <% else %>
+                  <td><%= skill_family_links(block.columns.first.families) %></td>
                 <% end %>
               </tr>
+              <% if headed %>
+                <tr>
+                  <% block.columns.each do |column| %>
+                    <td><%= skill_family_links(column.families) %></td>
+                  <% end %>
+                </tr>
+              <% end %>
             </tbody>
           </table>
         </div>
