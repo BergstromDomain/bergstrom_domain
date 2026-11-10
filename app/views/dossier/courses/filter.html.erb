@@ -1,0 +1,61 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Filter Courses</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Your Courses, every status, narrowed by any of these; click a column heading to sort.
+  </p>
+</div>
+
+<%= form_with url: dossier_filter_courses_path, method: :get do %>
+  <div class="show-panel" data-testid="course-filters">
+    <div class="form-row">
+      <div class="form-group">
+        <%= label_tag :provider_id, "Issued By" %>
+        <%= select_tag :provider_id, options_from_collection_for_select(@providers, :to_param, :name, @filter[:provider_id]),
+              include_blank: "Any", class: "form-control", data: { testid: "filter-provider" } %>
+      </div>
+      <div class="form-group">
+        <%= label_tag :status, "Status" %>
+        <%= select_tag :status, options_for_select(Dossier::Credential::STATUS_LABELS.invert, @filter[:status]),
+              include_blank: "Any", class: "form-control", data: { testid: "filter-status" } %>
+      </div>
+      <div class="form-group">
+        <%= label_tag :skill_id, "Skill" %>
+        <%= select_tag :skill_id, options_from_collection_for_select(@skills, :id, :display_name, @filter[:skill_id]),
+              include_blank: "Any", class: "form-control", data: { testid: "filter-skill" } %>
+      </div>
+      <div class="form-group">
+        <%= label_tag :year, "Year Completed" %>
+        <%= number_field_tag :year, @filter[:year], in: 1900..2100, placeholder: "e.g. 2022",
+              class: "form-control", data: { testid: "filter-year" } %>
+      </div>
+      <div class="form-group">
+        <%= label_tag :q, "Title" %>
+        <%= search_field_tag :q, @filter[:q], placeholder: "Words in the title", class: "form-control",
+              data: { testid: "filter-q" } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="show-panel show-panel--actions">
+    <button type="submit" class="btn btn-primary" data-testid="apply-filters-button">
+      <%= lucide_icon("filter", size: 16) %> Apply Filters
+    </button>
+    <%= link_to dossier_filter_courses_path, class: "btn btn-secondary", data: { testid: "clear-filters-link" } do %>
+      <%= lucide_icon("x", size: 16) %> Clear Filters
+    <% end %>
+  </div>
+<% end %>
+
+<details class="show-panel show-panel--collapsible" open data-testid="filter-results">
+  <summary class="show-panel__heading">
+    Courses <span class="show-panel__count" data-testid="filter-count">(<%= pluralize(@courses.size, "Course") %>)</span>
+  </summary>
+  <% if @courses.any? %>
+    <%= render "dossier/credentials/table", credentials: @courses, taken_during: true, status: true, sort: @sort,
+          provider_links: true, table_testid: "credentials-table", row_testid: "credential-row" %>
+  <% else %>
+    <div class="empty-state" data-testid="empty-state"><p>No Courses match these filters.</p></div>
+  <% end %>
+</details>

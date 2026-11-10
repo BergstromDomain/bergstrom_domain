@@ -3615,3 +3615,93 @@ textarea.form-control {
 .dossier-colleagues #customers {
   margin-top: var(--space-xl);
 }
+
+/* ============================================================
+   Collapsible panels — a .show-panel that is a <details>, its header the
+   <summary>: open by default (the `open` attribute), a click folds it.
+   ============================================================ */
+
+.show-panel--collapsible > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.show-panel--collapsible > summary::-webkit-details-marker {
+  display: none;
+}
+
+.show-panel--collapsible > summary::before {
+  content: "▸";
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.show-panel--collapsible[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.show-panel--collapsible:not([open]) > summary {
+  margin-bottom: 0;
+}
+
+.show-panel__empty,
+.show-panel__count {
+  color: var(--color-text-muted);
+}
+
+/* Credentials tables: the same fixed column widths everywhere, so the
+   tables on one page line up; long text wraps instead of widening a column. */
+.dossier-credentials-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.dossier-credentials-table th,
+.dossier-credentials-table td {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.dossier-credentials-col--title        { width: 30%; }
+.dossier-credentials-col--provider     { width: 15%; }
+.dossier-credentials-col--dates        { width: 15%; }
+.dossier-credentials-col--taken-during { width: 20%; }
+.dossier-credentials-col--skills       { width: 20%; }
+.dossier-credentials-col--status       { width: 10%; }
+
+/* A Credential's certificate previews: images and PDFs side by side. */
+.dossier-certificates {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-md);
+}
+
+.dossier-certificate {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.dossier-certificate__image {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.dossier-certificate__pdf {
+  width: 100%;
+  height: 420px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.dossier-certificate__caption {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}

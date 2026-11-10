@@ -54,4 +54,42 @@ module DossierHelper
     note = { 5 => "highest", 3 => "default", 1 => "lowest" }[importance]
     note ? "#{importance} (#{note})" : importance.to_s
   end
+
+  # Where a Credential was taken: a link to its Assignment or Engagement, else
+  # "<Profile name> Personal Development".
+  def credential_taken_during(credential, assignment_label: :heading)
+    if credential.assignment
+      link_to credential.assignment.public_send(assignment_label), dossier_assignment_path(credential.assignment)
+    elsif credential.engagement
+      link_to credential.engagement.to_toast_label, dossier_engagement_path(credential.engagement)
+    else
+      personal_development_label(credential)
+    end
+  end
+
+  # The text credential_taken_during shows, for sorting.
+  def credential_taken_during_label(credential)
+    credential.assignment&.heading || credential.engagement&.to_toast_label || personal_development_label(credential)
+  end
+
+  # Looked up once per user, from their Profile's display name.
+  def personal_development_label(credential)
+    (@personal_development ||= {})[credential.user_id] ||= begin
+      user = credential.user_id == current_user&.id ? current_user : credential.user
+      "#{Dossier::Profile.for(user).display_name} Personal Development"
+    end
+  end
+
+  # A Credentials table's column heading: a link sorting by it (again to
+  # reverse), with an arrow on the active column. Plain text without a sort.
+  def credential_sort_link(sort, column)
+    label = Dossier::CredentialSort::COLUMNS.fetch(column)
+    return label if sort.nil?
+
+    active = sort.active?(column)
+    direction = active && sort.direction == "asc" ? "desc" : "asc"
+    arrow = active ? (sort.direction == "asc" ? " ▲" : " ▼") : ""
+    query = request.query_parameters.merge("sort" => column, "direction" => direction)
+    link_to "#{label}#{arrow}", "#{request.path}?#{query.to_query}", data: { testid: "sort-#{column}" }
+  end
 end

@@ -119,7 +119,7 @@ RSpec.describe "Dossier Credentials", type: :feature do
       visit dossier_credentials_path
 
       expect(page).to have_selector("h1.page-title", text: "Credentials")
-      groups = all("[data-testid='credential-group']").map { |group| group.find("h2").text }
+      groups = all("[data-testid='credential-group']").map { |group| group.find("summary").text }
       expect(groups).to eq(%w[Degree Certification Course])
       within(all("[data-testid='credential-group']").last) do
         expect(all("[data-testid='credential-row']").map { |row| row.find("a", match: :first).text })
@@ -219,7 +219,7 @@ RSpec.describe "Dossier Credentials", type: :feature do
       click_button "Add Credential"
 
       expect(page).to have_current_path(dossier_credentials_path)
-      expect(find("[data-testid='credential-taken-during']")).to have_text("—")
+      expect(find("[data-testid='credential-taken-during']")).to have_text("#{charlie.first_name} #{charlie.last_name} Personal Development")
 
       click_link "Ruby on Rails Essential Training"
       click_link "Edit Credential"

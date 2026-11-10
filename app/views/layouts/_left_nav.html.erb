@@ -537,9 +537,19 @@
           <%= lucide_icon("chart-bar", size: 15) %>
           <span>Experience</span>
         <% end %>
+
+        <h3 class="left-nav-h3" data-testid="left-nav-credentials-h3">Credentials</h3>
         <%= link_to dossier_credentials_path, class: "left-nav-link" do %>
           <%= lucide_icon("graduation-cap", size: 15) %>
           <span>Credentials</span>
+        <% end %>
+        <%= link_to dossier_browse_courses_path, class: "left-nav-link" do %>
+          <%= lucide_icon("library", size: 15) %>
+          <span>Browse Courses</span>
+        <% end %>
+        <%= link_to dossier_filter_courses_path, class: "left-nav-link" do %>
+          <%= lucide_icon("filter", size: 15) %>
+          <span>Filter Courses</span>
         <% end %>
 
         <h3 class="left-nav-h3" data-testid="left-nav-my-cvs-h3">My CVs</h3>
