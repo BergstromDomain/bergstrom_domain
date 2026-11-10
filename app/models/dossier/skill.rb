@@ -15,7 +15,11 @@ class Dossier::Skill < ApplicationRecord
   # "Microsoft Project".
   belongs_to :vendor, class_name: "Dossier::Organisation", optional: true, inverse_of: :products
 
+  # A version's slug starts with its parent's name: /dossier/skills/windows-xp.
+  friendly_id :slug_name, use: [ :slugged, :history ]
+
   before_validation :tidy_aliases
+  after_update :reslug_versions, if: :saved_change_to_name?
 
   validate :aliases_are_not_other_skills
   validate :name_is_not_another_skills_alias
@@ -64,6 +68,18 @@ class Dossier::Skill < ApplicationRecord
 
   def to_toast_label = display_name
 
+  # "Windows XP" for XP under Windows; just the name when it isn't a version
+  # or already starts with its parent's (iOS 3 under iOS).
+  def slug_name
+    parent && version_label == name ? "#{parent.name} #{name}" : name
+  end
+
+  # Replaces the one NamedReferenceData defines on the class, so it repeats
+  # its name check.
+  def should_generate_new_friendly_id?
+    name_changed? || parent_id_changed? || super
+  end
+
   # The Skill a family is shown under: the parent, or itself.
   def family_root = parent || self
 
@@ -99,7 +115,12 @@ class Dossier::Skill < ApplicationRecord
   def move_versions(target)
     target.parent = nil if target.parent_id == id
     root = target.parent || target
-    versions.where.not(id: target.id).update_all(parent_id: root.id, updated_at: Time.current)
+    versions.where.not(id: target.id).find_each { |version| version.update!(parent: root) }
+  end
+
+  # The old slugs stay in the history, so old links still work.
+  def reslug_versions
+    versions.each { |version| version.update!(slug: nil) }
   end
 
   def parent_is_one_level_deep

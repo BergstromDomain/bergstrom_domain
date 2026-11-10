@@ -40,6 +40,17 @@ RSpec.describe Dossier::Skill, type: :model do
       expect(build(:dossier_skill, name: "S3", vendor: aws, show_vendor_in_name: true).display_name).to eq("AWS S3")
     end
 
+    it "Gives a version a slug starting with its parent's name, its old slug still finding it" do
+      windows = create(:dossier_skill, name: "Windows")
+      xp = create(:dossier_skill, name: "XP")
+      old_slug = xp.slug
+
+      xp.update!(parent: windows)
+
+      expect(xp.slug).to eq("windows-xp")
+      expect(described_class.friendly.find(old_slug)).to eq(xp)
+    end
+
     it "Takes aliases as comma-separated text" do
       skill = create(:dossier_skill, name: "Selenium", aliases_text: "Selenium WebDriver, WebDriver")
       expect(skill.aliases).to eq([ "Selenium WebDriver", "WebDriver" ])
@@ -154,6 +165,20 @@ RSpec.describe Dossier::Skill, type: :model do
       expect(bare.reload).to have_attributes(vendor: microsoft, show_vendor_in_name: true)
     end
 
+    it "Doesn't repeat the parent's name when the version's name starts with it" do
+      ios = create(:dossier_skill, name: "iOS")
+
+      expect(create(:dossier_skill, name: "iOS 3", parent: ios).slug).to eq("ios-3")
+    end
+
+    it "Drops the parent's name from its slug when it stops being a version" do
+      xp = create(:dossier_skill, name: "XP", parent: create(:dossier_skill, name: "Windows"))
+
+      xp.update!(parent: nil)
+
+      expect(xp.slug).to eq("xp")
+    end
+
     it "Keeps its description when the kept Skill has none" do
       kept = create(:dossier_skill, description: nil)
       create(:dossier_skill, description: "A test tool.").merge_into!(kept)
@@ -191,6 +216,35 @@ RSpec.describe Dossier::Skill, type: :model do
       expect(xp.reload.parent).to eq(windows)
       windows.destroy!
       expect(xp.reload.parent).to be_nil
+    end
+
+    it "Gives its versions new slugs when renamed, keeping their old ones" do
+      windows = create(:dossier_skill, name: "Windows")
+      xp = create(:dossier_skill, name: "XP", parent: windows)
+
+      windows.update!(name: "Microsoft Windows")
+
+      expect(xp.reload.slug).to eq("microsoft-windows-xp")
+      expect(described_class.friendly.find("windows-xp")).to eq(xp)
+    end
+
+    it "Leaves its versions' slugs alone when only its description changes" do
+      windows = create(:dossier_skill, name: "Windows")
+      xp = create(:dossier_skill, name: "XP", parent: windows)
+
+      windows.update!(description: "An operating system.")
+
+      expect(xp.reload.slug).to eq("windows-xp")
+      expect(xp.slugs.count).to eq(1)
+    end
+
+    it "Gives versions handed over in a merge their new parent's name in their slug" do
+      old = create(:dossier_skill, name: "MS Windows")
+      xp = create(:dossier_skill, name: "XP", parent: old)
+
+      old.merge_into!(create(:dossier_skill, name: "Windows"))
+
+      expect(xp.reload.slug).to eq("windows-xp")
     end
 
     it "Returns nil for a blank lookup" do
