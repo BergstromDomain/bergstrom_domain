@@ -3,7 +3,7 @@
 # The signed-in user's Courses (Credentials of a training type), every
 # status: Browse Courses drills down by provider (Issued By); Filter Courses
 # narrows by provider, status, Skill, year completed and title, in a sortable
-# table. Both are the owner's own, like My Career › Credentials.
+# table. Both are the owner's own, like Credentials › Credentials.
 class Dossier::CoursesController < ApplicationController
   include Navigable
   include Browsable

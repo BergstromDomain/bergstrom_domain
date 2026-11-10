@@ -1,7 +1,7 @@
 # app/models/dossier/credential_type.rb
 
 # What kind of Credential it is: Degree, Certification, Course… Admin-managed
-# reference data (Q-D9). Position orders the groups on My Career › Credentials;
+# reference data (Q-D9). Position orders the groups on Credentials › Credentials;
 # a training type (Course, Workshop) shows in the Training panels on Engagement
 # and Assignment pages and on Skill pages.
 class Dossier::CredentialType < ApplicationRecord
