@@ -313,6 +313,26 @@ RSpec.describe "Eager loading", type: :request do
       end
     end
 
+    it "Loads a Credential's Show (for another user), Edit, Update and Delete without unused eager loading" do
+      credential = create(:dossier_credential, user: create(:user, :content_creator), classification: "unrestricted",
+                                               skills_text: "Jira, Excel", provider: create(:dossier_organisation))
+      credential.files.attach([ fixture_file_upload("test_image.png", "image/png"),
+                                fixture_file_upload("test_certificate.pdf", "application/pdf") ])
+      chris = create(:user, :content_creator)
+      plain = create(:dossier_credential, user: adam, skills_text: "Scrum")
+      sign_in_as(chris)
+      without_n_plus_one_queries { get dossier_credential_path(credential) }
+      expect(response).to have_http_status(:ok)
+
+      sign_in_as(adam)
+      without_n_plus_one_queries { get dossier_credential_path(plain) }
+      without_n_plus_one_queries { get edit_dossier_credential_path(credential) }
+      without_n_plus_one_queries { patch dossier_credential_path(credential), params: { dossier_credential: { title: "Renamed" } } }
+      expect(response).to redirect_to(dossier_credential_path(credential))
+      without_n_plus_one_queries { delete dossier_credential_path(credential) }
+      expect(response).to have_http_status(:redirect)
+    end
+
     it "Loads My Career › Experience without N+1 queries" do
       2.times do
         engagement = create(:dossier_engagement, user: adam, start_month: "2015-01", end_month: "2022-12")

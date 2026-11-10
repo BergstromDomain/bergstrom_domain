@@ -28,7 +28,12 @@ class Dossier::CredentialsController < ApplicationController
   end
 
   def show
-    redirect_to dossier_credentials_path, alert: "Not authorised." unless Policy.new(current_user, @credential).can_read?
+    return redirect_to(dossier_credentials_path, alert: "Not authorised.") unless Policy.new(current_user, @credential).can_read?
+
+    # The certificate previews, only for those who see them.
+    if @credential.files_visible_to?(current_user)
+      ActiveRecord::Associations::Preloader.new(records: [ @credential ], associations: { files_attachments: :blob }).call
+    end
   end
 
   def new
@@ -108,8 +113,10 @@ class Dossier::CredentialsController < ApplicationController
     redirect_to dossier_path, alert: "Not authorised." unless Policy.new(current_user, :dossier).can_create?
   end
 
+  # Only what each action reads: Show and Edit list the Skills.
   def set_credential
-    @credential = Dossier::Credential.includes(credential_skills: :skill, files_attachments: :blob).find(params[:id])
+    scope = %w[show edit].include?(action_name) ? Dossier::Credential.includes(credential_skills: :skill) : Dossier::Credential
+    @credential = scope.find(params[:id])
   end
 
   def credential_params
