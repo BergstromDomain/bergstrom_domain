@@ -29,7 +29,7 @@ Choose **Actions › New › Add A Credential**, or **Add Training** on an Engag
 ![Credentials › Credentials: BSc Physics under Degree, and Teaching Physics Through Experiments under Course](images/credentials.png)
 
 - Courses and other Training list only the **Completed** ones. **Issued By** opens Browse Courses at that provider.
-- **Taken During** names the Engagement or Assignment, or "<your name> Personal Development" when there's neither.
+- **Taken During** names the Engagement or Assignment, or **Personal Development** when there's neither.
 - An expired Credential is marked **Expired** in the list.
 - A Credential's page warns you when it has expired, or expires within 90 days.
 - Training shows on the Engagement and Assignment it was taken during, and on the page of each Skill it covers. It doesn't add to your years of experience.
@@ -41,7 +41,7 @@ Choose **Actions › New › Add A Credential**, or **Add Training** on an Engag
 
 ## A Credential's Page
 
-Its frames are **Description**, **Details**, **Verification** (only when it has a Credential ID or Verification URL; Edit always has the fields) and **Certificates**, each folding away when you click its heading.
+Its frames are **Description**, with your certificates beside it (click one to open it), **Details** and **Verification**. Each folds away when you click its heading. **Expires** and **Hours** show only when they're set, and Verification only when there's a Credential ID or Verification URL; **Edit Credential** always has every field, in the same order as the page.
 
 ## Deleting
 

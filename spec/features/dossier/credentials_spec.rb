@@ -219,7 +219,7 @@ RSpec.describe "Dossier Credentials", type: :feature do
       click_button "Add Credential"
 
       expect(page).to have_current_path(dossier_credentials_path)
-      expect(find("[data-testid='credential-taken-during']")).to have_text("#{charlie.first_name} #{charlie.last_name} Personal Development")
+      expect(find("[data-testid='credential-taken-during']").text.strip).to eq("Personal Development")
 
       click_link "Ruby on Rails Essential Training"
       click_link "Edit Credential"

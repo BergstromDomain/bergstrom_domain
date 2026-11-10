@@ -55,29 +55,24 @@ module DossierHelper
     note ? "#{importance} (#{note})" : importance.to_s
   end
 
+  # Taken During for a Credential with no Engagement or Assignment.
+  PERSONAL_DEVELOPMENT = "Personal Development"
+
   # Where a Credential was taken: a link to its Assignment or Engagement, else
-  # "<Profile name> Personal Development".
+  # "Personal Development".
   def credential_taken_during(credential, assignment_label: :heading)
     if credential.assignment
       link_to credential.assignment.public_send(assignment_label), dossier_assignment_path(credential.assignment)
     elsif credential.engagement
       link_to credential.engagement.to_toast_label, dossier_engagement_path(credential.engagement)
     else
-      personal_development_label(credential)
+      PERSONAL_DEVELOPMENT
     end
   end
 
   # The text credential_taken_during shows, for sorting.
   def credential_taken_during_label(credential)
-    credential.assignment&.heading || credential.engagement&.to_toast_label || personal_development_label(credential)
-  end
-
-  # Looked up once per user, from their Profile's display name.
-  def personal_development_label(credential)
-    (@personal_development ||= {})[credential.user_id] ||= begin
-      user = credential.user_id == current_user&.id ? current_user : credential.user
-      "#{Dossier::Profile.for(user).display_name} Personal Development"
-    end
+    credential.assignment&.heading || credential.engagement&.to_toast_label || PERSONAL_DEVELOPMENT
   end
 
   # A Credentials table's column heading: a link sorting by it (again to

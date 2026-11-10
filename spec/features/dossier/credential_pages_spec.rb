@@ -63,14 +63,14 @@ RSpec.describe "Dossier Credential pages", type: :feature do
       expect(page).to have_selector("[data-testid='browse-preview-heading']", text: "Courses in LinkedIn Learning (1)")
     end
 
-    it "Shows '<name> Personal Development' as Taken During for a stand-alone Credential" do
+    it "Shows 'Personal Development' as Taken During for a stand-alone Credential" do
       add_course("Learning Docker")
       sign_in_as(charlie)
       visit dossier_credentials_path
 
-      expect(find("[data-testid='credential-taken-during']")).to have_text("Charlie Creator Personal Development")
+      expect(find("[data-testid='credential-taken-during']").text.strip).to eq("Personal Development")
       click_link "Learning Docker"
-      expect(find("[data-testid='credential-taken-during']")).to have_text("Charlie Creator Personal Development")
+      expect(find("[data-testid='credential-taken-during']").text.strip).to eq("Personal Development")
     end
 
     it "Sets a status on Edit, which takes a Course off the Credentials list" do
@@ -89,30 +89,48 @@ RSpec.describe "Dossier Credential pages", type: :feature do
       expect(page).not_to have_link("Learning Docker")
     end
 
-    it "Shows a Credential's frames with headers, all open" do
-      add_course("Learning Docker", description: "Containers from scratch.", certificate_number: "AZ-1")
+    it "Shows a Credential's frames with headers, all open, Expires and Hours only when set" do
+      add_course("Learning Docker", description: "Containers from scratch.", certificate_number: "AZ-1", hours: 2.5)
       sign_in_as(charlie)
       visit dossier_credential_path(Dossier::Credential.last)
 
       frames = all("details.show-panel")
       expect(frames.map { |frame| frame.find("summary").text }).to eq(%w[Description Details Verification])
       expect(frames.map { |frame| frame[:open] }).to all(be_truthy)
+      expect(page).to have_selector("[data-testid='credential-hours']", text: "2.5")
+      expect(page).not_to have_selector("[data-testid='credential-expires']")
     end
 
-    it "Previews an image and a PDF certificate for the owner" do
-      credential = add_course("Learning Docker")
+    it "Shows the certificates beside the description, each preview linking to its file" do
+      credential = add_course("Learning Docker", description: "Containers from scratch.")
       credential.files.attach([ fixture_file_upload("test_image.png", "image/png"),
                                 fixture_file_upload("test_certificate.pdf", "application/pdf") ])
+      image, pdf = credential.files.map { |file| dossier_credential_file_path(credential, file) }
       sign_in_as(charlie)
       visit dossier_credential_path(credential)
 
-      within("[data-testid='credential-files']") do
-        expect(find("img[data-testid='certificate-preview-image']")[:src])
-          .to end_with(dossier_credential_file_path(credential, credential.files.first))
-        expect(find("iframe[data-testid='certificate-preview-pdf']")[:src])
-          .to end_with(dossier_credential_file_path(credential, credential.files.second))
-        expect(page).to have_link("test_certificate.pdf")
+      within("[data-testid='show-panel-main']") do
+        expect(page).to have_selector("[data-testid='credential-description']", text: "Containers from scratch.")
+        within("[data-testid='credential-files']") do
+          expect(find("a[href='#{image}'] img[data-testid='certificate-preview-image']")[:src]).to end_with(image)
+          expect(find("a[href='#{pdf}'] iframe[data-testid='certificate-preview-pdf']")[:src]).to end_with(pdf)
+        end
       end
+      expect(all("details.show-panel").map { |frame| frame.find("summary").text }).not_to include("Certificates")
+    end
+
+    it "Orders the Edit form like the page: Description, Details, Verification" do
+      sign_in_as(charlie)
+      visit edit_dossier_credential_path(add_course("Learning Docker"))
+
+      labels = ->(testid) { find("[data-testid='#{testid}']").all("label").map(&:text).reject { |text| text.start_with?("Keep ") } }
+      expect(labels.call("edit-panel-main")).to eq([ "Title", "Description", "Certificates" ])
+      expect(labels.call("edit-panel-details")).to eq([ "Type", "Status", "Issued By",
+                                                        "Started Year", "Started Month", "Started Day",
+                                                        "Completed Year", "Completed Month", "Completed Day",
+                                                        "Expires Year", "Expires Month", "Expires Day",
+                                                        "Hours", "Engagement", "Assignment", "Skills" ])
+      expect(labels.call("edit-panel-verification")).to eq([ "Credential ID", "Verification URL" ])
     end
 
     it "Browses Courses by provider, every status, with the status shown" do

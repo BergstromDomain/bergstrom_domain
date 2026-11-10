@@ -3672,11 +3672,36 @@ textarea.form-control {
 .dossier-credentials-col--skills       { width: 20%; }
 .dossier-credentials-col--status       { width: 10%; }
 
-/* A Credential's certificate previews: images and PDFs side by side. */
-.dossier-certificates {
+/* A Credential's Description frame: the description, and beside it (when
+   the viewer may see them) the certificate previews, stacked; one column
+   on a narrow screen. */
+.dossier-credential-description--with-files {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .dossier-credential-description--with-files {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.dossier-certificates {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-md);
+}
+
+/* The whole preview opens the file; the PDF viewer itself takes no clicks. */
+.dossier-certificate__link {
+  display: block;
+  cursor: zoom-in;
+}
+
+.dossier-certificate__link .dossier-certificate__pdf {
+  pointer-events: none;
 }
 
 .dossier-certificate {
@@ -3695,7 +3720,8 @@ textarea.form-control {
 
 .dossier-certificate__pdf {
   width: 100%;
-  height: 420px;
+  aspect-ratio: 1.414 / 1;
+  height: auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
 }
