@@ -29,6 +29,11 @@ module Dossier
       protocols:         "Protocols"
     }.freeze
 
+    # The form's order, matching the Assignment page: System Under Test, then
+    # Testing, the other tools, Methods & Processes, Operating Systems and
+    # Protocols & Standards.
+    FORM_ORDER = %i[systems_under_test test_tools other_tools methodologies operating_systems protocols].freeze
+
     ALL_NA = SLOTS.values.to_h { |plural| [ :"#{plural}_na", true ] }.freeze
 
     UNCATEGORISED = "Uncategorised"

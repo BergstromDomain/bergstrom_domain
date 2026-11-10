@@ -56,7 +56,8 @@
         Skills in the Uncategorised Skill Category.
       </p>
     </div>
-    <% Dossier::TechStack::LABELS.each do |plural, label| %>
+    <% Dossier::TechStack::FORM_ORDER.each do |plural| %>
+      <% label = Dossier::TechStack::LABELS.fetch(plural) %>
       <% errors = assignment.errors[:"#{plural}_text"] %>
       <div class="show-panel__section">
         <div class="form-group">

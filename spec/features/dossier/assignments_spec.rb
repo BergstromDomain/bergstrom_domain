@@ -107,6 +107,15 @@ RSpec.describe "Dossier Assignments", type: :feature do
       expect(page).to have_selector("[data-testid='reference-data-name']", text: "Ticketing platform")
       expect(page).to have_selector("[data-testid='related-assignments']", text: "NTA")
     end
+
+    it "Lists the Tech Stack fields in the order the page shows them" do
+      assignment = create(:dossier_assignment, engagement: engagement, client: northwind)
+      sign_in_as(charlie)
+      visit edit_dossier_assignment_path(assignment)
+
+      labels = find("[data-testid='edit-panel-tech-stack']").all("label.show-panel__heading").map(&:text)
+      expect(labels).to eq([ "System Under Test", "Test Tools", "Other Tools", "Methodology", "Operating Systems", "Protocols" ])
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────

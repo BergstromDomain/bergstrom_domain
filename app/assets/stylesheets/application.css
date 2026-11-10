@@ -3307,7 +3307,7 @@ textarea.form-control {
    Edit/Delete buttons (.row-actions) line up on the right. */
 .dossier-partner-actions {
   margin-left: auto;
-  padding-right: calc(var(--space-md) + 1px);
+  padding-right: calc(var(--space-sm) + 1px);
 }
 
 .dossier-partner-staff {
