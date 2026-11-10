@@ -3547,3 +3547,31 @@ textarea.form-control {
 .dossier-skill-group__summary::-webkit-details-marker {
   display: none;
 }
+
+/* Assignment page: Summary cells stack full width; the Colleagues frame's
+   Client / Vendor / Customer sections; a Tech Stack table per category. */
+.dossier-assignment-summary .show-meta-cell + .show-meta-cell,
+.dossier-assignment-summary .show-meta-cell + .show-meta-row {
+  margin-top: var(--space-md);
+}
+
+.show-panel__subheading {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.dossier-tech-stack-block + .dossier-tech-stack-block {
+  margin-top: var(--space-md);
+}
+
+.dossier-tech-stack-table th {
+  white-space: normal;
+}
+
+/* The first column is the category itself: the block's label. */
+.dossier-tech-stack-table th:first-child {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-bold);
+}

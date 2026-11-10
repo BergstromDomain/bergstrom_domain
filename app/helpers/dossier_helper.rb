@@ -14,6 +14,20 @@ module DossierHelper
     link_to url, url, target: "_blank", rel: "noopener"
   end
 
+  # "Windows (XP, 7)" for a Dossier::AssignmentTechStack::Family, each Skill
+  # linked; families joined with commas. One span, so a flex cell's gap
+  # doesn't land before each comma.
+  def skill_family_links(families)
+    links = families.map do |family|
+      root = link_to(family.root.display_name, dossier_skill_path(family.root))
+      next root if family.versions.empty?
+
+      versions = family.versions.map { |version| link_to(version.version_label, dossier_skill_path(version)) }
+      safe_join([ root, " (", safe_join(versions, ", "), ")" ])
+    end
+    tag.span(safe_join(links, ", "))
+  end
+
   # What the Profile's three summaries are for, for an info tip.
   def profile_summaries_info
     safe_join([

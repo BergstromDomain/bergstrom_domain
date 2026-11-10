@@ -117,6 +117,31 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads an Assignment's Tech Stack, Training, Vendors and Customers without N+1 queries" do
+      testing = create(:dossier_skill_category, name: "Testing", position: 1)
+      tools = create(:dossier_skill_category, name: "Test Tools", parent: testing)
+      systems = create(:dossier_skill_category, name: "Operating Systems")
+      microsoft = create(:dossier_organisation, name: "Microsoft")
+      windows = create(:dossier_skill, name: "Windows", skill_category: systems, vendor: microsoft, show_vendor_in_name: true)
+      %w[XP 7].each { |version| create(:dossier_skill, name: version, skill_category: systems, parent: windows) }
+      %w[Jira Qtest].each { |name| create(:dossier_skill, name: name, skill_category: tools, vendor: microsoft) }
+      engagement = create(:dossier_engagement, user: adam)
+      assignment = create(:dossier_assignment, engagement: engagement,
+                                               systems_under_test_na: false, systems_under_test_text: "Ticketing, Portal",
+                                               test_tools_na: false, test_tools_text: "Jira, Qtest",
+                                               operating_systems_na: false, operating_systems_text: "Windows (XP, 7)")
+      2.times do
+        create(:dossier_credential, user: adam, engagement: engagement, assignment: assignment, skills_text: "Jira, Qtest",
+                                    provider: create(:dossier_organisation))
+        create(:dossier_assignment_partner, assignment: assignment)
+        create(:dossier_assignment_partner, :customer, assignment: assignment)
+      end
+
+      without_n_plus_one_queries { get dossier_assignment_path(assignment) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "Loads the Achievements page without N+1 queries" do
       2.times do
         assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam))

@@ -37,7 +37,7 @@ RSpec.describe "Dossier Assignments", type: :feature do
       fill_in "Project", with: "Ticketing Upgrade"
       click_button "Create Assignment"
 
-      expect(page).to have_selector("h1.page-title", text: "Test Lead at Northwind Transport Authority")
+      expect(page).to have_selector("h1.page-title", exact_text: "Northwind Transport Authority - Ticketing Upgrade")
       expect(page).to have_css("[data-testid='flash-success']", text: "Test Lead at Northwind Transport Authority has been successfully created")
       expect(page).to have_selector("[data-testid='assignment-client']", text: "Northwind Transport Authority (NTA)")
       expect(page).to have_selector("[data-testid='assignment-location']", text: "Brisbane, Australia (remote)")
@@ -86,7 +86,7 @@ RSpec.describe "Dossier Assignments", type: :feature do
       expect(page).to have_content(achievement.text)
     end
 
-    it "Saves the Tech Stack and shows it, with N/A for empty lists" do
+    it "Saves the Tech Stack and shows it, new Skills under Uncategorised" do
       create(:dossier_skill_category, name: "Uncategorised")
       sign_in_as(charlie)
       visit new_dossier_assignment_path(engagement_id: engagement.id)
@@ -96,15 +96,14 @@ RSpec.describe "Dossier Assignments", type: :feature do
       click_button "Create Assignment"
 
       within("[data-testid='tech-stack']") do
-        expect(page).to have_selector("[data-testid='tech-stack-systems-under-test']", text: "Ticketing platform")
-        expect(page).to have_link("Ticketing platform")
-        expect(page).to have_link("Jira")
-        expect(page).to have_link("Robot Framework")
+        block = find("[data-testid='tech-stack-block']")
+        expect(block.all("th").map(&:text)).to eq([ "Uncategorised" ])
+        expect(block).to have_link("Jira")
+        expect(block).to have_link("Robot Framework")
         # One flex item, so the cell's flex gap can't open a space before each comma.
-        expect(page).to have_selector("[data-testid='tech-stack-test-tools'] > span", exact_text: "Jira, Robot Framework")
-        expect(page).to have_selector("[data-testid='tech-stack-protocols']", text: "N/A")
-        click_link "Ticketing platform"
+        expect(block).to have_selector("td > span", exact_text: "Jira, Robot Framework")
       end
+      within("[data-testid='assignment-systems-under-test']") { click_link "Ticketing platform" }
       expect(page).to have_selector("[data-testid='reference-data-name']", text: "Ticketing platform")
       expect(page).to have_selector("[data-testid='related-assignments']", text: "NTA")
     end
@@ -201,7 +200,8 @@ RSpec.describe "Dossier Assignments", type: :feature do
       fill_assignment
       click_button "Create Assignment"
 
-      expect(page).to have_selector("h1.page-title", text: "Test Lead at Northwind Transport Authority")
+      expect(page).to have_selector("h1.page-title", exact_text: "Northwind Transport Authority")
+      expect(page).to have_selector("[data-testid='assignment-role']", text: "Test Lead")
     end
 
     it "Uses the position title when no Role is chosen" do
@@ -211,7 +211,7 @@ RSpec.describe "Dossier Assignments", type: :feature do
       select "Same as position title", from: "Role"
       click_button "Create Assignment"
 
-      expect(page).to have_selector("h1.page-title", text: "Test Consultant at Northwind Transport Authority")
+      expect(page).to have_selector("[data-testid='assignment-role']", text: "Test Consultant")
     end
     it "Links the Client, Role and Location to pages listing your Assignments with them" do
       assignment = create(:dossier_assignment, engagement: engagement, client: northwind, role: test_lead,

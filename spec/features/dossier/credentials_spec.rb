@@ -45,8 +45,8 @@ RSpec.describe "Dossier Credentials", type: :feature do
       expect(page).to have_current_path(dossier_assignment_path(assignment))
       expect(page).to have_css("[data-testid='flash-success']", text: "Excel VBA Essential Training has been successfully created")
       within("[data-testid='training-panel']") do
-        expect(page).to have_selector("[data-testid='training-row']", text: "Excel VBA Essential Training · LinkedIn Learning")
-        expect(page).to have_selector("[data-testid='training-row']", text: "May 2019")
+        expect(find("[data-testid='training-row']").all("td").map(&:text))
+          .to eq([ "Excel VBA Essential Training", "LinkedIn Learning", "May 2019", "Excel VBA, Jira" ])
       end
 
       visit dossier_engagement_path(engagement)

@@ -1,19 +1,54 @@
 <% policy = Policy.new(current_user, @assignment) %>
+<% private_details = @assignment.private_details_visible_to?(current_user) %>
+<% tech_stack = Dossier::AssignmentTechStack.new(@assignment) %>
 <div class="page-header">
   <div class="page-header__top page-header__top--centered">
-    <h1 class="page-title"><%= @assignment.to_toast_label %></h1>
+    <h1 class="page-title"><%= @assignment.title %></h1>
   </div>
 </div>
 
-<%# Main div — summary %>
-<% if @assignment.summary %>
-  <div class="show-panel" data-testid="show-panel-main">
-    <div class="show-panel__section">
-      <h2 class="show-panel__heading">Summary</h2>
-      <p data-testid="assignment-summary"><%= @assignment.summary %></p>
+<%# Summary div — about the client, the project and what was tested %>
+<div class="show-panel dossier-assignment-summary" data-testid="assignment-summary-panel">
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">Summary</h2>
+    <% if @assignment.client.description.present? %>
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label">Client Description</h3>
+        <p class="show-meta-cell__value" data-testid="assignment-client-description"><%= @assignment.client.description %></p>
+      </div>
+    <% end %>
+    <% if @assignment.summary %>
+      <div class="show-meta-cell">
+        <h3 class="show-meta-cell__label">Project Description</h3>
+        <p class="show-meta-cell__value" data-testid="assignment-summary"><%= @assignment.summary %></p>
+      </div>
+    <% end %>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">System Under Test</h3>
+      <p class="show-meta-cell__value" data-testid="assignment-systems-under-test">
+        <% if @assignment.systems_under_test_na %>
+          N/A
+        <% else %>
+          <%= skill_family_links(tech_stack.systems_under_test) %>
+        <% end %>
+      </p>
     </div>
+    <%# Vendors and Customers are private: the owner and Admins only. %>
+    <% partners = private_details ? [ [ "Vendor", "vendors", @assignment.vendors ], [ "Customer", "customers", @assignment.customers ] ].select { |*, list| list.any? } : [] %>
+    <% if partners.any? %>
+      <div class="show-meta-row">
+        <% partners.each do |label, key, list| %>
+          <div class="show-meta-cell">
+            <h3 class="show-meta-cell__label"><%= label %></h3>
+            <p class="show-meta-cell__value" data-testid="assignment-<%= key %>">
+              <span><%= safe_join(list.map { |partner| link_to(partner.organisation.name, dossier_organisation_path(partner.organisation)) }, ", ") %></span>
+            </p>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
   </div>
-<% end %>
+</div>
 
 <%# Metadata div %>
 <div class="show-panel" data-testid="show-panel-metadata">
@@ -55,28 +90,6 @@
   </div>
 </div>
 
-<%# Tech Stack div %>
-<div class="show-panel" data-testid="tech-stack">
-  <div class="show-panel__section">
-    <h2 class="show-panel__heading">Tech Stack</h2>
-  </div>
-  <div class="show-meta-row">
-    <% Dossier::TechStack::SLOTS.each do |slot, plural| %>
-      <div class="show-meta-cell">
-        <h3 class="show-meta-cell__label"><%= Dossier::TechStack::LABELS.fetch(plural) %></h3>
-        <p class="show-meta-cell__value" data-testid="tech-stack-<%= plural.to_s.dasherize %>">
-          <% if @assignment.public_send(:"#{plural}_na") %>
-            N/A
-          <% else %>
-            <%# One span: the cell is a flex row, whose gap would land before each comma. %>
-            <span><%= safe_join(@assignment.skills_in(slot).map { |skill| link_to(skill.display_name, dossier_skill_path(skill)) }, ", ") %></span>
-          <% end %>
-        </p>
-      </div>
-    <% end %>
-  </div>
-</div>
-
 <%# Achievements div — the CV bullet points, in order %>
 <div class="show-panel" id="achievements" data-testid="assignment-achievements">
   <div class="show-panel__section">
@@ -90,12 +103,41 @@
   </div>
 </div>
 
-<%# Training div %>
-<%= render "dossier/credentials/panel", credentials: @assignment.credentials.training.newest_first.includes(:provider) %>
+<%# Tech Stack div — a table per Skill Category, in position order; System Under Test is in the Summary %>
+<% blocks = tech_stack.blocks %>
+<% if blocks.any? %>
+  <div class="show-panel" data-testid="tech-stack">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Tech Stack</h2>
+      <% blocks.each do |block| %>
+        <div class="data-table-wrapper dossier-tech-stack-block" data-testid="tech-stack-block">
+          <table class="data-table dossier-tech-stack-table">
+            <thead>
+              <tr>
+                <% block.columns.each do |column| %>
+                  <th><%= column.heading %></th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <% block.columns.each do |column| %>
+                  <td><%= skill_family_links(column.families) if column.families.any? %></td>
+                <% end %>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
 
-<% if @assignment.private_details_visible_to?(current_user) %>
+<%# Training div %>
+<%= render "dossier/credentials/panel", credentials: @assignment.credentials.training.newest_first.includes(:provider, credential_skills: :skill) %>
+
+<% if private_details %>
   <%= render "colleagues", assignment: @assignment, editable: policy.can_update? %>
-  <%= render "partners", assignment: @assignment, editable: policy.can_update? %>
 <% end %>
 
 <%# Actions div %>

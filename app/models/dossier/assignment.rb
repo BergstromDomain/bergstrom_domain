@@ -48,6 +48,12 @@ class Dossier::Assignment < ApplicationRecord
     [ client&.short_name, project ].compact.join(" - ")
   end
 
+  # "APA Group - Energy Components Upgrade": the page title, with the client's
+  # full name.
+  def title
+    [ client&.name, project ].compact.join(" - ")
+  end
+
   # Colleagues, Vendors and Customers: the owner and Admins only, whatever
   # the classification, and never on a CV.
   def private_details_visible_to?(user) = user.present? && (user_id == user.id || user.can_administer?)

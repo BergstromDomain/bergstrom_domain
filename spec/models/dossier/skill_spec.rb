@@ -179,6 +179,17 @@ RSpec.describe Dossier::Skill, type: :model do
       expect(xp.slug).to eq("xp")
     end
 
+    it "Preloads the vendor only for Skills that show it in their name" do
+      microsoft = create(:dossier_organisation, name: "Microsoft")
+      project = create(:dossier_skill, name: "Project", vendor: microsoft, show_vendor_in_name: true)
+      excel = create(:dossier_skill, name: "Excel", vendor: microsoft)
+      skills = described_class.where(id: [ project.id, excel.id ]).to_a
+
+      expect(described_class.preload_vendors(skills)).to eq(skills)
+      expect(skills.find { |skill| skill.name == "Project" }.association(:vendor)).to be_loaded
+      expect(skills.find { |skill| skill.name == "Excel" }.association(:vendor)).not_to be_loaded
+    end
+
     it "Keeps its description when the kept Skill has none" do
       kept = create(:dossier_skill, description: nil)
       create(:dossier_skill, description: "A test tool.").merge_into!(kept)

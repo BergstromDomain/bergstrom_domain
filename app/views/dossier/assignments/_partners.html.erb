@@ -1,13 +1,13 @@
-<%# Vendors and Customers, a panel each — private: the caller shows them to the owner and Admins only. Locals: assignment, editable %>
+<%# Vendors and Customers, a section each of the Colleagues frame — private: the caller shows them to the owner and Admins only. Locals: assignment, editable %>
 <div id="partners" data-testid="assignment-partners">
   <% [ [ "vendor", "Vendors", assignment.vendors ], [ "customer", "Customers", assignment.customers ] ].each do |kind, heading, partners| %>
-    <div class="show-panel" id="<%= heading.downcase %>" data-testid="<%= heading.downcase %>">
+    <div id="<%= heading.downcase %>" data-testid="<%= heading.downcase %>">
       <div class="show-panel__section">
-        <h2 class="show-panel__heading">
-          <%= heading %>
+        <h3 class="show-panel__subheading">
+          <%= heading.singularize %>
           <%= render "shared/info_tip", testid: "#{kind}s-info",
                 text: "#{kind == 'vendor' ? 'Who else built part of it' : 'Who buys or uses the result'}. Only you and Admins see this, and it's never on a CV." %>
-        </h2>
+        </h3>
         <% if partners.any? %>
           <ul class="dossier-assignment-list">
             <% partners.each do |partner| %>
