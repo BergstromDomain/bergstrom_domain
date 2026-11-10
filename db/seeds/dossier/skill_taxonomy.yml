@@ -1,0 +1,580 @@
+# db/seeds/dossier/skill_taxonomy.yml
+#
+# The Dossier Skill taxonomy, applied with:
+#   DRY_RUN=1 bin/rails dossier:skills:apply   # report only
+#   bin/rails dossier:skills:apply
+# See Dossier::SkillTaxonomy for the format. Safe to run again. Skills and
+# categories not listed here (e.g. System Under Test) are left alone.
+# Agreed in docs/context-prompts/active/Dossier_Skills_Taxonomy.md (2026-11-10).
+
+vendors:
+  - { name: Microsoft }
+  - { name: Amazon Web Services, abbreviation: AWS }
+  - { name: SAP }
+  - { name: Oracle }
+  - { name: IBM }
+  - { name: Atlassian }
+  - { name: National Instruments }
+  - { name: Salesforce }
+  - { name: Tricentis }
+  - { name: SmartBear }
+  - { name: Google }
+  - { name: Apple }
+  - { name: Adobe }
+  - { name: Anthropic }
+  - { name: PinnacleQM }
+
+categories:
+  - name: AI Tools
+    was: [AI]
+  - name: Development Tools
+    was: [CI/CD]
+    subcategories:
+      - { name: Version Control }
+      - { name: Build & CI/CD }
+      - { name: IDEs & Editors, was: [IDEs & Editors] }
+  - name: Programming
+    was: [Programming & Scripting]
+    subcategories:
+      - { name: Languages }
+      - { name: Frameworks & Platforms }
+  - name: Databases
+    was: [Databases & Database Tools]
+    subcategories:
+      - { name: Database Systems }
+      - { name: Database Tools }
+      - { name: Query Languages }
+  - name: Infrastructure & DevOps
+    was: [DevOps]
+    subcategories:
+      - { name: Cloud Computing, was: [Cloud] }
+      - { name: Servers, was: [Servers & Virtualizations] }
+      - { name: Integration & Messaging }
+      - { name: Virtualisation & Containers }
+      - { name: DevOps & Infrastructure as Code }
+      - { name: Network Tools, was: [Network] }
+  - name: Operating Systems
+  - name: Protocols & Standards
+    was: [Protocols]
+    subcategories:
+      - { name: Networking }
+      - { name: Web }
+      - { name: VoIP }
+      - { name: Video & Streaming }
+      - { name: Smart Cards & Payments }
+      - { name: Healthcare }
+      - { name: Instrument Control }
+  - name: Business Applications
+    subcategories:
+      - { name: CRM, was: [CRM] }
+      - { name: ERP, was: [ERP] }
+      - { name: BI & Data Warehousing }
+      - { name: Other, description: "Client-specific systems tested on Assignments." }
+  - name: Office & Collaboration
+    was: [Office & Project]
+  - name: Test & Measurement Instruments
+    was: [Instruments]
+  - name: Testing
+    subcategories:
+      - { name: Test Automation, was: [Test Automation] }
+      - { name: Test & Issue Management, was: [Test Management] }
+      - { name: Test Types & Techniques, was: [Test Types] }
+      - { name: Test Documentation, was: [Technical Writing] }
+  - name: Methods & Processes
+
+skills:
+  # ── AI Tools ──────────────────────────────────────────────────────────────
+  - { name: Claude Code, category: AI Tools, vendor: Anthropic,
+      description: "Anthropic's agentic coding assistant that reads, edits and runs code from the terminal or IDE." }
+  - { name: Copilot, find: [Microsoft Copilot], category: AI Tools, vendor: Microsoft, show_vendor: true, aliases: [Microsoft Copilot],
+      description: "Microsoft's AI assistant in Windows and Microsoft 365 for drafting, summarising and answering questions." }
+
+  # ── Development Tools › Version Control ───────────────────────────────────
+  - { name: Git, category: Development Tools › Version Control,
+      description: "Distributed version control system for tracking changes to source code." }
+  - { name: GitHub, category: Development Tools › Version Control,
+      description: "Git hosting platform with pull requests, code review, issues and Actions CI." }
+  - { name: Bitbucket, category: Development Tools › Version Control, vendor: Atlassian,
+      description: "Atlassian's Git repository hosting with pull requests and Pipelines CI." }
+  - { name: Subversion, category: Development Tools › Version Control, aliases: [SVN],
+      description: "Apache's centralised version control system (SVN)." }
+  - { name: ClearCase, category: Development Tools › Version Control, vendor: IBM,
+      description: "IBM Rational's version control and configuration management tool." }
+  - { name: TortoiseSVN, category: Development Tools › Version Control, aliases: [Tortoise],
+      description: "Windows Explorer extension that gives Subversion a graphical client." }
+  - { name: Gerrit, category: Development Tools › Version Control,
+      description: "Web-based code review tool for Git that gates changes before they're merged." }
+
+  # ── Development Tools › Build & CI/CD ─────────────────────────────────────
+  - { name: Maven, category: Development Tools › Build & CI/CD,
+      description: "Apache build automation and dependency management tool for Java projects." }
+  - { name: Archiva, category: Development Tools › Build & CI/CD,
+      description: "Apache repository manager for storing and serving build artifacts such as Maven packages." }
+  - { name: Hudson, category: Development Tools › Build & CI/CD, aliases: [Jenkins],
+      description: "Continuous integration server that builds and tests code automatically; Jenkins is its successor." }
+  - { name: TeamCity, category: Development Tools › Build & CI/CD,
+      description: "JetBrains' continuous integration and build management server." }
+  - { name: CruiseControl, category: Development Tools › Build & CI/CD, aliases: [Cruise Control],
+      description: "Early open-source continuous integration server that builds a project on every commit." }
+
+  # ── Development Tools › IDEs & Editors ────────────────────────────────────
+  - { name: Atom, category: Development Tools › IDEs & Editors,
+      description: "GitHub's open-source, hackable text editor, now discontinued." }
+  - { name: Dreamweaver, find: [DreamWeawer], category: Development Tools › IDEs & Editors, vendor: Adobe,
+      description: "Adobe's web design and HTML editor with visual and code views." }
+  - { name: Eclipse, category: Development Tools › IDEs & Editors,
+      description: "Open-source IDE, mainly for Java, extended through plug-ins." }
+  - { name: Emacs, category: Development Tools › IDEs & Editors,
+      description: "Extensible, programmable text editor popular on Unix." }
+  - { name: gedit, category: Development Tools › IDEs & Editors,
+      description: "The GNOME desktop's simple graphical text editor." }
+  - { name: nano, category: Development Tools › IDEs & Editors,
+      description: "Small, easy-to-use terminal text editor on Unix-like systems." }
+  - { name: NetBeans, category: Development Tools › IDEs & Editors,
+      description: "Apache's open-source IDE for Java, PHP and web development." }
+  - { name: Notepad++, category: Development Tools › IDEs & Editors, aliases: [Notepad ++],
+      description: "Free Windows source-code editor with syntax highlighting and tabs." }
+  - { name: vi, category: Development Tools › IDEs & Editors,
+      description: "The classic modal text editor found on every Unix system." }
+  - { name: Vim, category: Development Tools › IDEs & Editors,
+      description: "Improved, extensible version of the vi editor." }
+  - { name: Visual Studio Code, find: [VS Code], category: Development Tools › IDEs & Editors, vendor: Microsoft, aliases: [VS Code],
+      description: "Microsoft's free, extensible source-code editor with debugging and Git built in." }
+  - { name: FrontPage, category: Development Tools › IDEs & Editors, vendor: Microsoft, show_vendor: true, aliases: [Microsoft FrontPage],
+      description: "Microsoft's discontinued WYSIWYG website editor." }
+
+  # ── Programming › Languages ───────────────────────────────────────────────
+  - { name: Bash, category: Programming › Languages,
+      description: "Unix shell and scripting language for automating command-line tasks." }
+  - { name: Delphi, category: Programming › Languages,
+      description: "Object Pascal language and IDE for building Windows applications." }
+  - { name: Groovy, category: Programming › Languages,
+      description: "Dynamic scripting language for the Java platform, used in Gradle and Jenkins pipelines." }
+  - { name: Java, category: Programming › Languages,
+      description: "Object-oriented, platform-independent programming language that runs on the JVM." }
+  - { name: JavaScript, category: Programming › Languages,
+      description: "The scripting language of the web, running in browsers and on servers with Node.js." }
+  - { name: MATLAB, category: Programming › Languages,
+      description: "Numerical computing environment and language for engineering and data analysis." }
+  - { name: Pascal, category: Programming › Languages,
+      description: "Structured programming language and the basis of Delphi's Object Pascal." }
+  - { name: PHP, category: Programming › Languages,
+      description: "Server-side scripting language for building web applications." }
+  - { name: Python, category: Programming › Languages,
+      description: "General-purpose language used for scripting, automation, data work and web development." }
+  - { name: Ruby, category: Programming › Languages,
+      description: "Dynamic, object-oriented language focused on developer productivity." }
+  - { name: Visual Basic, category: Programming › Languages, vendor: Microsoft, aliases: [VB],
+      description: "Microsoft's event-driven language for building Windows applications." }
+  - { name: Visual Basic for Applications, find: [Visual Basic Application], category: Programming › Languages, vendor: Microsoft,
+      aliases: [VBA, Visual Basic Application],
+      description: "Microsoft's macro language for automating Excel, Word and other Office applications." }
+  - { name: Regular Expressions, category: Programming › Languages, aliases: [RegExp, Reg Exp],
+      description: "Pattern language for searching, matching and replacing text." }
+
+  # ── Programming › Frameworks & Platforms ──────────────────────────────────
+  - { name: .NET, category: Programming › Frameworks & Platforms, vendor: Microsoft, aliases: [MS.NET, Microsoft .NET],
+      description: "Microsoft's framework and runtime for building Windows, web and cloud applications." }
+  - { name: Hibernate, category: Programming › Frameworks & Platforms,
+      description: "Object-relational mapping framework that maps Java objects to database tables." }
+  - { name: Java Card, find: [JavaCard], category: Programming › Frameworks & Platforms, aliases: [JavaCard],
+      description: "Java platform for running small applets securely on smart cards and SIM cards." }
+  - { name: Ruby on Rails, category: Programming › Frameworks & Platforms, aliases: [Rails],
+      description: "Ruby web framework built on convention over configuration and the MVC pattern." }
+  - { name: Spring, category: Programming › Frameworks & Platforms,
+      description: "Java framework for building enterprise and web applications with dependency injection." }
+
+  # ── Databases ─────────────────────────────────────────────────────────────
+  - { name: Access, category: Databases › Database Systems, vendor: Microsoft, show_vendor: true, aliases: [Microsoft Access, MS Access],
+      description: "Microsoft's desktop relational database with forms and reports." }
+  - { name: MySQL, category: Databases › Database Systems,
+      description: "Popular open-source relational database." }
+  - { name: Oracle Database, find: [Oracle], category: Databases › Database Systems, vendor: Oracle, aliases: [Oracle],
+      description: "Oracle's enterprise relational database management system." }
+  - { name: PostgreSQL, category: Databases › Database Systems, aliases: [Postgres, PostgrSQL],
+      description: "Advanced open-source relational database." }
+  - { name: SQL Server, category: Databases › Database Systems, vendor: Microsoft, show_vendor: true, aliases: [MS SQL, Microsoft SQL Server],
+      description: "Microsoft's relational database management system." }
+  - { name: Netezza, category: Databases › Database Systems, vendor: IBM, show_vendor: true, aliases: [IBM Netezza],
+      description: "IBM's data warehouse appliance for fast analytics on large data sets." }
+  - { name: SQL Developer, find: [Oracle SQL Developer], category: Databases › Database Tools, vendor: Oracle, show_vendor: true,
+      aliases: [Oracle SQL Developer],
+      description: "Oracle's free IDE for writing SQL and managing Oracle databases." }
+  - { name: SQL Server Management Studio, category: Databases › Database Tools, vendor: Microsoft, aliases: [SSMS],
+      description: "Microsoft's tool for managing SQL Server databases and writing queries." }
+  - { name: Aginity Workbench, find: [Aginity Workbench for Netezza], category: Databases › Database Tools,
+      aliases: [Aginity, Coginiti, Aginity Workbench for Netezza],
+      description: "SQL workbench for querying and managing data warehouses such as Netezza; now known as Coginiti." }
+  - { name: SQL, category: Databases › Query Languages, aliases: [Structured Query Language],
+      description: "Standard language for querying and changing data in relational databases." }
+  - { name: PL/SQL, category: Databases › Query Languages, vendor: Oracle,
+      description: "Oracle's procedural extension of SQL for stored procedures and triggers." }
+
+  # ── Infrastructure & DevOps ───────────────────────────────────────────────
+  - { name: Cloud9, find: [AWS Cloud9], category: Infrastructure & DevOps › Cloud Computing, vendor: AWS, show_vendor: true,
+      aliases: [AWS Cloud9], description: "AWS's browser-based IDE for writing, running and debugging code." }
+  - { name: Cognito, find: [AWS Cognito], category: Infrastructure & DevOps › Cloud Computing, vendor: AWS, show_vendor: true,
+      aliases: [AWS Cognito], description: "AWS service for user sign-up, sign-in and access control in apps." }
+  - { name: EC2, find: [AWS EC2], category: Infrastructure & DevOps › Cloud Computing, vendor: AWS, show_vendor: true,
+      aliases: [AWS EC2], description: "AWS Elastic Compute Cloud: virtual servers that scale on demand." }
+  - { name: ECS, find: [AWS ECS], category: Infrastructure & DevOps › Cloud Computing, vendor: AWS, show_vendor: true,
+      aliases: [AWS ECS], description: "AWS Elastic Container Service for running Docker containers." }
+  - { name: Lambda, find: [AWS Lambda], category: Infrastructure & DevOps › Cloud Computing, vendor: AWS, show_vendor: true,
+      aliases: [AWS Lambda], description: "AWS serverless compute that runs code in response to events." }
+  - { name: S3, find: [AWS S3], category: Infrastructure & DevOps › Cloud Computing, vendor: AWS, show_vendor: true,
+      aliases: [AWS S3, AWSS3], description: "AWS Simple Storage Service for storing objects and files." }
+  - { name: Apache, category: Infrastructure & DevOps › Servers, aliases: [Apache HTTP Server],
+      description: "Open-source web server (Apache HTTP Server)." }
+  - { name: Tomcat, category: Infrastructure & DevOps › Servers,
+      description: "Apache's Java servlet container for running Java web applications." }
+  - { name: Terracotta, category: Infrastructure & DevOps › Servers,
+      description: "Distributed caching and clustering platform for Java applications." }
+  - { name: Keepalived, category: Infrastructure & DevOps › Servers,
+      description: "Linux tool for load balancing and high availability with VRRP failover." }
+  - { name: ActiveMQ, category: Infrastructure & DevOps › Integration & Messaging,
+      description: "Apache message broker for asynchronous messaging between applications (JMS)." }
+  - { name: MuleSoft, category: Infrastructure & DevOps › Integration & Messaging, vendor: Salesforce,
+      description: "Integration platform (Anypoint) for connecting applications, data and APIs." }
+  - { name: VMware, category: Infrastructure & DevOps › Virtualisation & Containers,
+      description: "Virtualisation platform for running virtual machines on servers and desktops." }
+  - { name: VirtualBox, category: Infrastructure & DevOps › Virtualisation & Containers, vendor: Oracle,
+      description: "Oracle's free desktop virtualisation software for running virtual machines." }
+  - { name: Citrix, category: Infrastructure & DevOps › Virtualisation & Containers,
+      description: "Virtual desktop and application delivery platform for remote access." }
+  - { name: Docker, category: Infrastructure & DevOps › Virtualisation & Containers,
+      description: "Platform for packaging and running applications in containers." }
+  - { name: Ansible, category: Infrastructure & DevOps › DevOps & Infrastructure as Code,
+      description: "Agentless automation tool for configuration management and deployment." }
+  - { name: Chef, category: Infrastructure & DevOps › DevOps & Infrastructure as Code,
+      description: "Configuration management tool that defines infrastructure as Ruby code." }
+  - { name: Puppet, category: Infrastructure & DevOps › DevOps & Infrastructure as Code, aliases: [Puppets],
+      description: "Configuration management tool that keeps servers in a declared state." }
+  - { name: Terraform, category: Infrastructure & DevOps › DevOps & Infrastructure as Code,
+      description: "HashiCorp's infrastructure-as-code tool for provisioning cloud resources." }
+  - { name: Azure DevOps, category: Infrastructure & DevOps › DevOps & Infrastructure as Code, vendor: Microsoft,
+      description: "Microsoft's suite for planning, source control, CI/CD pipelines and test management." }
+  - { name: PuTTY, find: [Putty], category: Infrastructure & DevOps › Network Tools,
+      description: "Free SSH and Telnet client for Windows." }
+  - { name: Wireshark, category: Infrastructure & DevOps › Network Tools,
+      description: "Network protocol analyser for capturing and inspecting traffic." }
+
+  # ── Operating Systems ─────────────────────────────────────────────────────
+  - { name: Windows, category: Operating Systems, vendor: Microsoft,
+      description: "Microsoft's desktop and server operating system." }
+  - { name: 3.x, category: Operating Systems, version_of: Windows, aliases: [Windows 3, Windows 3.x],
+      description: "Windows 3.x, Microsoft's early graphical environment for MS-DOS." }
+  - { name: "95", category: Operating Systems, version_of: Windows, aliases: [Windows 95],
+      description: "Windows 95, which introduced the Start menu and taskbar." }
+  - { name: "98", category: Operating Systems, version_of: Windows, aliases: [Windows 98],
+      description: "Windows 98, the successor to Windows 95." }
+  - { name: NT, category: Operating Systems, version_of: Windows, aliases: [Windows NT],
+      description: "Windows NT, Microsoft's business operating system line." }
+  - { name: XP, category: Operating Systems, version_of: Windows, aliases: [Windows XP], remove_aliases: ["Windows (XP"],
+      description: "Windows XP, Microsoft's long-lived desktop release of 2001." }
+  - { name: Vista, category: Operating Systems, version_of: Windows, aliases: [Windows Vista], remove_aliases: ["Vista)"],
+      description: "Windows Vista, released in 2007." }
+  - { name: "7", category: Operating Systems, version_of: Windows, aliases: [Windows 7],
+      description: "Windows 7, released in 2009." }
+  - { name: "8", category: Operating Systems, version_of: Windows, aliases: [Windows 8],
+      description: "Windows 8, with its touch-first Start screen." }
+  - { name: "8.1", category: Operating Systems, version_of: Windows, aliases: [Windows 8.1],
+      description: "Windows 8.1, the update to Windows 8." }
+  - { name: "10", category: Operating Systems, version_of: Windows, aliases: [Windows 10],
+      description: "Windows 10, released in 2015." }
+  - { name: "11", category: Operating Systems, version_of: Windows, aliases: [Windows 11],
+      description: "Windows 11, released in 2021." }
+  - { name: Server, category: Operating Systems, version_of: Windows, aliases: [Windows Server],
+      description: "Windows Server, Microsoft's server operating system." }
+  - { name: Linux, category: Operating Systems,
+      description: "Open-source Unix-like operating system and its distributions." }
+  - { name: Embedded, category: Operating Systems, version_of: Linux, aliases: [Embedded Linux],
+      description: "Linux built into devices such as set-top boxes and routers." }
+  - { name: Fedora, category: Operating Systems, version_of: Linux,
+      description: "Red Hat-sponsored community Linux distribution." }
+  - { name: Red Hat, category: Operating Systems, version_of: Linux, aliases: [Red Hat Enterprise Linux, RHEL], remove_aliases: ["Red Hat)"],
+      description: "Red Hat Enterprise Linux, a commercial distribution for servers." }
+  - { name: SUSE, category: Operating Systems, version_of: Linux,
+      description: "SUSE Linux Enterprise, a commercial distribution for servers." }
+  - { name: Ubuntu, category: Operating Systems, version_of: Linux,
+      description: "Popular Debian-based Linux distribution from Canonical." }
+  - { name: Android, category: Operating Systems, vendor: Google,
+      description: "Google's Linux-based operating system for phones and tablets." }
+  - { name: Eclair, category: Operating Systems, version_of: Android, aliases: [Android Eclair],
+      description: "Android 2.0–2.1 (Eclair)." }
+  - { name: Honeycomb, category: Operating Systems, version_of: Android, aliases: [Android Honeycomb],
+      description: "Android 3.x (Honeycomb), built for tablets." }
+  - { name: Ice Cream Sandwich, category: Operating Systems, version_of: Android, aliases: [Android Ice Cream Sandwich],
+      description: "Android 4.0 (Ice Cream Sandwich)." }
+  - { name: Jelly Bean, category: Operating Systems, version_of: Android, aliases: [Android Jelly Bean],
+      description: "Android 4.1–4.3 (Jelly Bean)." }
+  - { name: iOS, category: Operating Systems, vendor: Apple, aliases: [iPhone OS],
+      description: "Apple's operating system for iPhone and iPad, called iPhone OS until version 4." }
+  - { name: iOS 3, category: Operating Systems, version_of: iOS, aliases: [iPhone OS 3, iPhone OS 3.x],
+      description: "iPhone OS 3, released in 2009." }
+  - { name: pSOS, find: [Real-time OS (pSOS)], category: Operating Systems, aliases: [Real-time OS (pSOS)],
+      description: "Real-time operating system for embedded systems such as telecom equipment." }
+  - { name: Cygwin, category: Operating Systems,
+      description: "Unix-like environment and tools for Windows." }
+
+  # ── Protocols & Standards ─────────────────────────────────────────────────
+  - { name: TCP/IP, category: Protocols & Standards › Networking, aliases: [TCP, IP],
+      description: "The Internet's core protocol suite for addressing and reliable data delivery." }
+  - { name: DHCP, category: Protocols & Standards › Networking,
+      description: "Protocol that automatically assigns IP addresses to devices on a network." }
+  - { name: SSH, find: [SSH/SCP], category: Protocols & Standards › Networking, aliases: [SSH/SCP, SCP, Secure Copy],
+      description: "Secure Shell: encrypted remote login and file copying (SCP)." }
+  - { name: SSL/TLS, category: Protocols & Standards › Networking, aliases: [SSL, TLS],
+      description: "Cryptographic protocols that encrypt traffic between clients and servers." }
+  - { name: TR-069, category: Protocols & Standards › Networking, aliases: [CWMP],
+      description: "Broadband Forum protocol for remotely managing home gateways and set-top boxes." }
+  - { name: HTML, category: Protocols & Standards › Web,
+      description: "Markup language for structuring web pages." }
+  - { name: CSS, category: Protocols & Standards › Web, aliases: [Cascading Style Sheets],
+      description: "Style sheet language for the layout and look of web pages." }
+  - { name: AJAX, category: Protocols & Standards › Web, aliases: [Asynchronous JavaScript and XML],
+      description: "Technique for updating parts of a web page without reloading it." }
+  - { name: XML, category: Protocols & Standards › Web,
+      description: "Markup language for structured data exchange." }
+  - { name: SVG, category: Protocols & Standards › Web,
+      description: "XML-based vector image format for the web." }
+  - { name: SOAP, category: Protocols & Standards › Web,
+      description: "XML-based protocol for web service messages." }
+  - { name: HTTP, category: Protocols & Standards › Web,
+      description: "The protocol web browsers and servers use to exchange pages and data." }
+  - { name: HTTPS, category: Protocols & Standards › Web,
+      description: "HTTP encrypted with TLS." }
+  - { name: SIP, category: Protocols & Standards › VoIP,
+      description: "Signalling protocol for setting up voice and video calls over IP." }
+  - { name: MGCP, category: Protocols & Standards › VoIP,
+      description: "Media Gateway Control Protocol for controlling VoIP gateways." }
+  - { name: H.323, category: Protocols & Standards › VoIP,
+      description: "ITU standard for voice and video calls over IP networks." }
+  - { name: MPEG-2, category: Protocols & Standards › Video & Streaming,
+      description: "Video and audio compression standard used in digital TV and DVDs." }
+  - { name: MPEG-4, category: Protocols & Standards › Video & Streaming, aliases: [MPEG-4 Part 2],
+      description: "Audio and video compression standard used for streaming and mobile video." }
+  - { name: MPEG-TS, category: Protocols & Standards › Video & Streaming, aliases: [MPEG transport stream],
+      description: "Transport stream container for broadcasting audio, video and data." }
+  - { name: H.264, find: [MPEG-4/AVC], category: Protocols & Standards › Video & Streaming,
+      aliases: [AVC, MPEG-4/AVC, MPEG-4 Part 10],
+      description: "Widely used video compression standard (MPEG-4 AVC) for HD TV and streaming." }
+  - { name: SCP02, category: Protocols & Standards › Smart Cards & Payments,
+      description: "GlobalPlatform Secure Channel Protocol 02 for secure communication with smart cards." }
+  - { name: SCP80, category: Protocols & Standards › Smart Cards & Payments,
+      description: "ETSI secure channel protocol for over-the-air SIM card management." }
+  - { name: NFC, category: Protocols & Standards › Smart Cards & Payments,
+      description: "Near Field Communication: short-range wireless used for contactless payments and tickets." }
+  - { name: EMV, category: Protocols & Standards › Smart Cards & Payments,
+      description: "Chip card payment standard from Europay, Mastercard and Visa." }
+  - { name: GlobalPlatform, category: Protocols & Standards › Smart Cards & Payments,
+      description: "Specifications for securely managing applications on chips such as SIM and payment cards." }
+  - { name: HL7, category: Protocols & Standards › Healthcare,
+      description: "Health Level Seven: the standard for exchanging clinical data between healthcare systems." }
+  - { name: GPIB, category: Protocols & Standards › Instrument Control, aliases: [IEEE-488],
+      description: "General Purpose Interface Bus (IEEE-488) for controlling test and measurement instruments." }
+
+  # ── Business Applications ─────────────────────────────────────────────────
+  - { name: Salesforce, category: Business Applications › CRM, vendor: Salesforce,
+      description: "Cloud CRM platform for sales, service and customer data." }
+  - { name: BI, find: [SAP BI], category: Business Applications › BI & Data Warehousing, vendor: SAP, show_vendor: true,
+      aliases: [SAP BI], description: "SAP's business intelligence tools for reporting and analytics." }
+  - { name: BI Portal, find: [SAP BI Portal], category: Business Applications › BI & Data Warehousing, vendor: SAP, show_vendor: true,
+      aliases: [SAP BI Portal], description: "SAP's web portal for BI reports and dashboards." }
+  - { name: BW, find: [SAP BW], category: Business Applications › BI & Data Warehousing, vendor: SAP, show_vendor: true,
+      aliases: [SAP BW, SAP Business Warehouse], description: "SAP Business Warehouse, SAP's data warehouse for reporting." }
+  - { name: HANA Enterprise Cloud, find: [SAP HANA Enterprise Cloud], category: Business Applications › BI & Data Warehousing,
+      vendor: SAP, show_vendor: true, aliases: [SAP HANA Enterprise Cloud],
+      description: "SAP's managed cloud service for running SAP HANA and SAP applications." }
+  - { name: JD Edwards EnterpriseOne, category: Business Applications › Other, vendor: Oracle, aliases: [JD Edwards, JDE],
+      description: "Oracle's ERP suite for finance, supply chain and asset management." }
+  - { name: Mapaz ERP, category: Business Applications › Other,
+      description: "On-premise ERP software designed mainly for manufacturing firms." }
+
+  # ── Office & Collaboration ────────────────────────────────────────────────
+  - { name: Office, category: Office & Collaboration, vendor: Microsoft, show_vendor: true, aliases: [Microsoft Office, MS Office],
+      description: "Microsoft's suite of desktop productivity applications." }
+  - { name: Office 2013, category: Office & Collaboration, version_of: Office,
+      description: "The 2013 release of Microsoft Office." }
+  - { name: Word, category: Office & Collaboration, vendor: Microsoft, aliases: [Microsoft Word, MS Word],
+      description: "Microsoft's word processor." }
+  - { name: Excel, category: Office & Collaboration, vendor: Microsoft, aliases: [Microsoft Excel, MS Excel],
+      description: "Microsoft's spreadsheet application." }
+  - { name: PowerPoint, category: Office & Collaboration, vendor: Microsoft, aliases: [Microsoft PowerPoint],
+      description: "Microsoft's presentation software." }
+  - { name: Outlook, category: Office & Collaboration, vendor: Microsoft, aliases: [Microsoft Outlook],
+      description: "Microsoft's email and calendar client." }
+  - { name: Project, category: Office & Collaboration, vendor: Microsoft, show_vendor: true, aliases: [Microsoft Project, MS Project],
+      description: "Microsoft's project planning and scheduling tool." }
+  - { name: Visio, category: Office & Collaboration, vendor: Microsoft, aliases: [Microsoft Visio],
+      description: "Microsoft's diagramming tool for flowcharts and architecture diagrams." }
+  - { name: SharePoint, category: Office & Collaboration, vendor: Microsoft,
+      description: "Microsoft's platform for intranets, document management and team sites." }
+  - { name: Teams, category: Office & Collaboration, vendor: Microsoft, show_vendor: true, aliases: [Microsoft Teams, MS Teams],
+      description: "Microsoft's chat, meeting and collaboration app." }
+  - { name: Lync, category: Office & Collaboration, vendor: Microsoft, show_vendor: true, aliases: [Microsoft Lync, Skype for Business],
+      description: "Microsoft's instant messaging and online meeting client, later Skype for Business." }
+  - { name: Confluence, category: Office & Collaboration, vendor: Atlassian,
+      description: "Atlassian's team wiki for documentation and knowledge sharing." }
+  - { name: Lucid, category: Office & Collaboration, aliases: [Lucidchart],
+      description: "Online diagramming and visual collaboration tools (Lucidchart)." }
+  - { name: LaTeX, category: Office & Collaboration,
+      description: "Document preparation system for typesetting technical and scientific documents." }
+  - { name: Telemetry Log, category: Office & Collaboration }
+
+  # ── Test & Measurement Instruments ────────────────────────────────────────
+  - { name: Bit Error Rate Testers, category: Test & Measurement Instruments, aliases: [BER, BER Testers],
+      description: "Instruments that measure the error rate of digital transmission links." }
+  - { name: Jitter Analysers, category: Test & Measurement Instruments, aliases: [Jitter Analyzers],
+      description: "Instruments that measure timing variation (jitter) in high-speed signals." }
+  - { name: Multimeters, category: Test & Measurement Instruments, aliases: [Volt Meters, Ampere Meters, Voltmeters, Ammeters],
+      description: "Instruments for measuring voltage, current and resistance." }
+  - { name: Oscilloscopes, category: Test & Measurement Instruments,
+      description: "Instruments that display electrical signals over time." }
+  - { name: Power Supplies, category: Test & Measurement Instruments, aliases: [Agilent E3631A],
+      description: "Programmable bench power supplies used to power devices under test." }
+  - { name: Spectrum Analysers, category: Test & Measurement Instruments, aliases: [Spectrum Analyzers, Frequency Analysers],
+      description: "Instruments that measure signal power across frequencies." }
+  - { name: IngMar Medical, category: Test & Measurement Instruments }
+
+  # ── Testing › Test Automation ─────────────────────────────────────────────
+  - { name: CDRouter, category: Testing › Test Automation,
+      description: "QA Cafe's automated test tool for broadband routers and gateways." }
+  - { name: Capybara, category: Testing › Test Automation,
+      description: "Ruby library for driving web apps in acceptance tests." }
+  - { name: Cucumber, category: Testing › Test Automation,
+      description: "BDD tool that runs plain-language Gherkin scenarios as automated tests." }
+  - { name: Cypress, category: Testing › Test Automation,
+      description: "JavaScript end-to-end testing framework that runs in the browser." }
+  - { name: Enginuity, category: Testing › Test Automation }
+  - { name: HealthTest, category: Testing › Test Automation }
+  - { name: JMeter, find: [Jmeter], category: Testing › Test Automation,
+      description: "Apache tool for load and performance testing." }
+  - { name: JUnit, category: Testing › Test Automation,
+      description: "Unit testing framework for Java." }
+  - { name: LabVIEW, category: Testing › Test Automation, vendor: National Instruments,
+      description: "National Instruments' graphical programming environment for test, measurement and control." }
+  - { name: LabWindows/CVI, category: Testing › Test Automation, vendor: National Instruments,
+      description: "National Instruments' ANSI C environment for test and measurement applications." }
+  - { name: Postman, category: Testing › Test Automation,
+      description: "API platform for building, testing and documenting HTTP APIs." }
+  - { name: Provar, category: Testing › Test Automation,
+      description: "Test automation tool built for Salesforce applications." }
+  - { name: Robot Framework, category: Testing › Test Automation,
+      description: "Keyword-driven open-source test automation framework." }
+  - { name: RSpec, category: Testing › Test Automation,
+      description: "Behaviour-driven testing framework for Ruby." }
+  - { name: Selenium, category: Testing › Test Automation,
+      description: "Browser automation framework for testing web applications." }
+  - { name: soapUI, category: Testing › Test Automation, vendor: SmartBear,
+      description: "SmartBear's tool for testing SOAP and REST web services." }
+  - { name: TestStand, category: Testing › Test Automation, vendor: National Instruments,
+      description: "National Instruments' test management software for sequencing automated tests." }
+  - { name: Tosca, category: Testing › Test Automation, vendor: Tricentis,
+      description: "Tricentis' model-based test automation tool." }
+
+  # ── Testing › Test & Issue Management ─────────────────────────────────────
+  - { name: ClearQuest, category: Testing › Test & Issue Management, vendor: IBM,
+      description: "IBM Rational's defect and change tracking tool." }
+  - { name: InfraEnterprise, category: Testing › Test & Issue Management }
+  - { name: IssueTrak, category: Testing › Test & Issue Management,
+      description: "Issue tracking and help desk software." }
+  - { name: Jira, category: Testing › Test & Issue Management, vendor: Atlassian,
+      description: "Atlassian's issue and project tracking tool for agile teams." }
+  - { name: Mantis, category: Testing › Test & Issue Management, aliases: [MantisBT],
+      description: "Open-source web-based bug tracker." }
+  - { name: QMFactory, category: Testing › Test & Issue Management, vendor: PinnacleQM }
+  - { name: qTest, category: Testing › Test & Issue Management, vendor: Tricentis,
+      description: "Tricentis' test management platform." }
+  - { name: Quality Centre, category: Testing › Test & Issue Management,
+      description: "HP (later Micro Focus) test management tool, now ALM." }
+  - { name: RequisitePro, category: Testing › Test & Issue Management, vendor: IBM,
+      description: "IBM Rational's requirements management tool." }
+  - { name: Team Foundation Server, category: Testing › Test & Issue Management, vendor: Microsoft,
+      description: "Microsoft's server for source control, work tracking and builds, now Azure DevOps Server." }
+  - { name: TestRail, category: Testing › Test & Issue Management,
+      description: "Web-based test case management tool." }
+  - { name: Zephyr, category: Testing › Test & Issue Management, vendor: SmartBear,
+      description: "Test management add-on for Jira." }
+
+  # ── Testing › Test Types & Techniques ─────────────────────────────────────
+  - { name: Black box testing, category: Testing › Test Types & Techniques,
+      description: "Testing behaviour against the specification without looking at the code." }
+  - { name: Exploratory testing, category: Testing › Test Types & Techniques,
+      description: "Learning, test design and execution at the same time, guided by the tester's skill." }
+  - { name: Functional testing, category: Testing › Test Types & Techniques,
+      description: "Testing that each function works as specified." }
+  - { name: Integration testing, find: [Integration test], category: Testing › Test Types & Techniques,
+      description: "Testing how components or systems work together." }
+  - { name: Load testing, category: Testing › Test Types & Techniques,
+      description: "Testing behaviour under expected and peak numbers of users." }
+  - { name: Penetration testing, category: Testing › Test Types & Techniques, aliases: [Pen testing],
+      description: "Simulated attacks to find exploitable security weaknesses." }
+  - { name: Performance testing, find: [Performance test], category: Testing › Test Types & Techniques,
+      description: "Testing speed, responsiveness and stability under a workload." }
+  - { name: Regression testing, find: [Regression test], category: Testing › Test Types & Techniques,
+      description: "Re-testing after changes to make sure nothing that worked is broken." }
+  - { name: Scripted testing, category: Testing › Test Types & Techniques,
+      description: "Running pre-written test cases with defined steps and expected results." }
+  - { name: Security testing, category: Testing › Test Types & Techniques,
+      description: "Testing that data and functions are protected from threats." }
+  - { name: Stress testing, category: Testing › Test Types & Techniques,
+      description: "Testing beyond normal capacity to find the breaking point." }
+  - { name: System integration testing, category: Testing › Test Types & Techniques, aliases: [SIT],
+      description: "Testing the interfaces and data flows between integrated systems." }
+  - { name: System testing, find: [System test], category: Testing › Test Types & Techniques,
+      description: "Testing the complete, integrated system against its requirements." }
+  - { name: Unit testing, find: [Unit test], category: Testing › Test Types & Techniques,
+      description: "Testing individual units of code in isolation." }
+  - { name: User acceptance testing, find: [User acceptance test], category: Testing › Test Types & Techniques, aliases: [UAT],
+      description: "Testing by users to confirm the system meets their needs before release." }
+  - { name: White box testing, category: Testing › Test Types & Techniques,
+      description: "Testing based on the code's internal structure and paths." }
+
+  # ── Testing › Test Documentation ──────────────────────────────────────────
+  - { name: Test Case, category: Testing › Test Documentation,
+      description: "A set of steps, data and expected results that checks one condition." }
+  - { name: Test Plan, category: Testing › Test Documentation,
+      description: "Document describing the scope, approach, resources and schedule of testing." }
+  - { name: Test Specification, category: Testing › Test Documentation,
+      description: "Document detailing the test design, cases and procedures for a test item." }
+  - { name: Test Strategy, category: Testing › Test Documentation,
+      description: "High-level document describing the overall testing approach." }
+  - { name: Test Summary Report, category: Testing › Test Documentation,
+      description: "Report summarising test results and quality at the end of a test phase." }
+  - { name: Requirement Specifications, category: Testing › Test Documentation, aliases: [RS, "1301"],
+      description: "Documents that define what a system must do." }
+  - { name: Presentations, category: Testing › Test Documentation, aliases: [Presentation],
+      description: "Presenting test plans, progress and results to stakeholders." }
+
+  # ── Methods & Processes ───────────────────────────────────────────────────
+  - { name: Agile, category: Methods & Processes,
+      description: "Iterative approach to delivering software in small increments with frequent feedback." }
+  - { name: Scrum, category: Methods & Processes,
+      description: "Agile framework of time-boxed sprints, roles and ceremonies." }
+  - { name: Kanban, category: Methods & Processes,
+      description: "Agile method that visualises work on a board and limits work in progress." }
+  - { name: Hybrid, category: Methods & Processes,
+      description: "A mix of agile and waterfall practices." }
+  - { name: Waterfall, category: Methods & Processes,
+      description: "Sequential development model where each phase finishes before the next starts." }
+  - { name: V-model, category: Methods & Processes,
+      description: "Development model that pairs each design phase with a matching test level." }
+  - { name: PROPS, category: Methods & Processes,
+      description: "Ericsson's project management model for running projects through gates and phases." }
+  - { name: Test Driven Development, category: Methods & Processes, aliases: [TDD],
+      description: "Writing a failing test first, then the code to make it pass, then refactoring." }
+  - { name: Quality Assurance, category: Methods & Processes, aliases: [QA],
+      description: "Activities that make sure processes and products meet quality standards." }
+  - { name: Defect Management, category: Methods & Processes,
+      description: "Logging, triaging, tracking and closing defects through their life cycle." }
+  - { name: Test Management, category: Methods & Processes,
+      description: "Planning, estimating, monitoring and controlling testing activities." }
+  - { name: Project Management, category: Methods & Processes,
+      description: "Planning and leading projects to deliver on scope, time and budget." }
+
+split:
+  - { from: SCP02/SCP80, into: [SCP02, SCP80] }
+
+delete_skills:
+  - Windows (NT, XP, Vista, 8.1, 10, 11)
+  - Linux (Ubuntu, Red Hat, Embedded, SUSE)

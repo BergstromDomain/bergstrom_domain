@@ -14,7 +14,7 @@
         <% if achievement.impact && achievement.current_skills.any? %>·<% end %>
         <% if achievement.current_skills.any? %>
           <span data-testid="achievement-row-skills"><strong>Skills:</strong>
-            <%= safe_join(achievement.current_skills.map { |skill| link_to(skill.name, dossier_skill_path(skill)) }, ", ") %></span>
+            <%= safe_join(achievement.current_skills.map { |skill| link_to(skill.display_name, dossier_skill_path(skill)) }, ", ") %></span>
         <% end %>
       </p>
     <% end %>

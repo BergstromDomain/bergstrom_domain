@@ -8,11 +8,11 @@
 </div>
 
 <% if @groups.any? %>
-  <% @groups.each do |category, experiences| %>
+  <% @groups.each do |category, subgroups| %>
     <details class="show-panel dossier-skill-group" open data-testid="my-skills-category">
       <summary class="dossier-skill-group__summary" data-testid="my-skills-toggle-<%= category.id %>">
         <h2 class="show-panel__heading"><%= category.name %></h2>
-        <span class="dossier-skill-group__count"><%= pluralize(experiences.size, "Skill") %></span>
+        <span class="dossier-skill-group__count"><%= pluralize(subgroups.sum { |_, list| list.size }, "Skill") %></span>
       </summary>
       <div class="show-panel__section">
         <div class="data-table-wrapper">
@@ -27,10 +27,16 @@
                 <th class="text-center">Training</th>
               </tr>
             </thead>
+            <% subgroups.each do |subcategory, experiences| %>
             <tbody>
+              <% if subcategory %>
+                <tr class="data-table__group">
+                  <th colspan="6" data-testid="my-skills-subcategory"><%= subcategory.name %></th>
+                </tr>
+              <% end %>
               <% experiences.each do |experience| %>
                 <tr data-testid="my-skill-row">
-                  <td><%= link_to experience.skill.name, dossier_skill_path(experience.skill), class: "data-table__name-link" %></td>
+                  <td><%= link_to experience.skill.display_name, dossier_skill_path(experience.skill), class: "data-table__name-link" %></td>
                   <td data-testid="my-skill-years"><%= experience.duration || "—" %></td>
                   <td data-testid="my-skill-personal"><%= experience.personal_duration || "—" %></td>
                   <td><%= experience.last_used %></td>
@@ -39,6 +45,7 @@
                 </tr>
               <% end %>
             </tbody>
+            <% end %>
           </table>
         </div>
       </div>

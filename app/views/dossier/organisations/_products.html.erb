@@ -1,0 +1,13 @@
+<%# The Skills this Organisation makes (@products), by their shown names; public. %>
+<% if @products.any? %>
+  <div class="show-panel" data-testid="organisation-products">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Products (<%= @products.size %>)</h2>
+      <ul class="dossier-assignment-list">
+        <% @products.each do |skill| %>
+          <li><%= link_to skill.display_name, dossier_skill_path(skill) %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>

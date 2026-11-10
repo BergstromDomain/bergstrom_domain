@@ -101,8 +101,8 @@
   <% if (skills = @cv.skills).any? %>
     <section class="cv-skills">
       <h2>Skills</h2>
-      <% skills.each do |category, names| %>
-        <p><span class="cv-tech-stack-label"><%= category %>:</span> <%= names.join(", ") %></p>
+      <% skills.each do |category, line| %>
+        <p><span class="cv-tech-stack-label"><%= category %>:</span> <%= line %></p>
       <% end %>
     </section>
   <% end %>

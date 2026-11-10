@@ -42,17 +42,18 @@ class Dossier::CvDocument
   def experience        = jobs.reject(&:first).map(&:last)
   def personal_projects = jobs.select(&:first).map(&:last)
 
-  # [[category name, [skill names, most years first]], …], categories A–Z.
-  # A Skill's versions show as one family under its category: "Windows (XP,
-  # Vista)".
+  # [[top-level category name, line], …], categories A–Z. The line lists the
+  # category's own Skills, most years first, then each sub-category's A–Z:
+  # "TCP/IP; VoIP: SIP, MGCP". A Skill's versions show as one family:
+  # "Windows (XP, Vista)".
   def skills
     experiences = experience_calculator.skills
     experiences = experiences.select { |experience| @selection.included?(experience.skill) } if @selection
     families = experiences.map(&:skill).group_by(&:family_root)
-    ActiveRecord::Associations::Preloader.new(records: families.keys, associations: :skill_category).call
-    families.group_by { |root, _| root.skill_category.name }
-            .sort_by { |category, _| category.downcase }
-            .map { |category, list| [ category, list.map { |root, members| family_name(root, members) } ] }
+    ActiveRecord::Associations::Preloader.new(records: families.keys, associations: { skill_category: :parent }).call
+    families.group_by { |root, _| root.skill_category.parent || root.skill_category }
+            .sort_by { |category, _| category.name.downcase }
+            .map { |category, list| [ category.name, skill_line(category, list) ] }
   end
 
   def credentials
@@ -144,12 +145,22 @@ class Dossier::CvDocument
   # first used.
   def family_name(root, members)
     versions = members.reject { |skill| skill == root }
-    return root.name if versions.empty?
+    return root.display_name if versions.empty?
 
     first_used = ->(skill) { experience_calculator.for_skill(skill)&.first_on || Date.new(9999) }
     labels = versions.sort_by { |skill| [ first_used.(skill), skill.name.downcase ] }.map(&:version_label)
-    "#{root.name} (#{labels.join(', ')})"
+    "#{root.display_name} (#{labels.join(', ')})"
   end
+
+  def skill_line(category, families)
+    by_category = families.group_by { |root, _| root.skill_category }
+    own = by_category.delete(category)
+    subcategories = by_category.sort_by { |subcategory, _| subcategory.name.downcase }
+                               .map { |subcategory, list| "#{subcategory.name}: #{family_names(list)}" }
+    [ (family_names(own) if own), *subcategories ].compact.join("; ")
+  end
+
+  def family_names(families) = families.map { |root, members| family_name(root, members) }.join(", ")
 
   def credential_entry(credential)
     Credential.new(title: credential.title, provider: credential.provider&.name,

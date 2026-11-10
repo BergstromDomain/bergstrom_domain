@@ -1,4 +1,31 @@
-<%# The category's Skills (@skills); @skill_experience (Skill → experience or nil) only when signed in. %>
+<%# A top-level category's sub-categories (@subcategories), then its Skills and
+    theirs (@skills); @skill_experience (Skill → experience or nil) only when signed in. %>
+<% if @subcategories.any? %>
+  <div class="show-panel" data-testid="category-subcategories">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Sub-Categories (<%= @subcategories.size %>)</h2>
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Sub-Category</th>
+              <th class="text-center">Skills</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @subcategories.each do |subcategory| %>
+              <tr data-testid="category-subcategory-row">
+                <td><%= link_to subcategory.name, dossier_skill_category_path(subcategory) %></td>
+                <td class="text-center"><%= @skills.count { |skill| skill.skill_category_id == subcategory.id } %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<% end %>
+
 <div class="show-panel" data-testid="category-skills">
   <div class="show-panel__section">
     <h2 class="show-panel__heading">Skills (<%= @skills.size %>)</h2>
@@ -8,6 +35,9 @@
           <thead>
             <tr>
               <th>Skill</th>
+              <% if @subcategories.any? %>
+                <th>Sub-Category</th>
+              <% end %>
               <th>Version Of</th>
               <th>Aliases</th>
               <% if @skill_experience %>
@@ -19,7 +49,10 @@
           <tbody>
             <% @skills.each do |skill| %>
               <tr data-testid="category-skill-row">
-                <td><%= link_to skill.name, dossier_skill_path(skill) %></td>
+                <td><%= link_to skill.display_name, dossier_skill_path(skill) %></td>
+                <% if @subcategories.any? %>
+                  <td><%= skill.skill_category_id == @record.id ? "—" : link_to(skill.skill_category.name, dossier_skill_category_path(skill.skill_category)) %></td>
+                <% end %>
                 <td><%= skill.parent ? link_to(skill.parent.name, dossier_skill_path(skill.parent)) : "—" %></td>
                 <td><%= skill.aliases_text.presence || "—" %></td>
                 <% if @skill_experience %>

@@ -1092,7 +1092,8 @@ CREATE TABLE public.dossier_skill_categories (
     description text,
     slug character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    parent_id bigint
 );
 
 
@@ -1128,7 +1129,9 @@ CREATE TABLE public.dossier_skills (
     slug character varying,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    parent_id bigint
+    parent_id bigint,
+    vendor_id bigint,
+    show_vendor_in_name boolean DEFAULT false NOT NULL
 );
 
 
@@ -3291,10 +3294,17 @@ CREATE UNIQUE INDEX index_dossier_roles_on_slug ON public.dossier_roles USING bt
 
 
 --
--- Name: index_dossier_skill_categories_on_lower_name; Type: INDEX; Schema: public; Owner: -
+-- Name: index_dossier_skill_categories_on_parent_and_lower_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_dossier_skill_categories_on_lower_name ON public.dossier_skill_categories USING btree (lower((name)::text));
+CREATE UNIQUE INDEX index_dossier_skill_categories_on_parent_and_lower_name ON public.dossier_skill_categories USING btree (COALESCE(parent_id, (0)::bigint), lower((name)::text));
+
+
+--
+-- Name: index_dossier_skill_categories_on_parent_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_skill_categories_on_parent_id ON public.dossier_skill_categories USING btree (parent_id);
 
 
 --
@@ -3330,6 +3340,13 @@ CREATE INDEX index_dossier_skills_on_skill_category_id ON public.dossier_skills 
 --
 
 CREATE UNIQUE INDEX index_dossier_skills_on_slug ON public.dossier_skills USING btree (slug);
+
+
+--
+-- Name: index_dossier_skills_on_vendor_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_skills_on_vendor_id ON public.dossier_skills USING btree (vendor_id);
 
 
 --
@@ -4227,11 +4244,27 @@ ALTER TABLE ONLY public.dossier_assignments
 
 
 --
+-- Name: dossier_skills fk_rails_e2823c0a1f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_skills
+    ADD CONSTRAINT fk_rails_e2823c0a1f FOREIGN KEY (vendor_id) REFERENCES public.dossier_organisations(id);
+
+
+--
 -- Name: recipe_cuisines fk_rails_e3a7342ca7; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.recipe_cuisines
     ADD CONSTRAINT fk_rails_e3a7342ca7 FOREIGN KEY (cuisine_id) REFERENCES public.cuisines(id);
+
+
+--
+-- Name: dossier_skill_categories fk_rails_e472873bf3; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_skill_categories
+    ADD CONSTRAINT fk_rails_e472873bf3 FOREIGN KEY (parent_id) REFERENCES public.dossier_skill_categories(id);
 
 
 --
@@ -4297,6 +4330,8 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261109213744'),
+('20261109213122'),
 ('20261107120000'),
 ('20261106140000'),
 ('20261106130000'),

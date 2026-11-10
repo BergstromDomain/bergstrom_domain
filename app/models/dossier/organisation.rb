@@ -1,7 +1,8 @@
 # app/models/dossier/organisation.rb
 
-# An employer, client, education provider or credential issuer — which of
-# these it is follows from where it's used, so one record can be all of them.
+# An employer, client, education provider, credential issuer or a Skill's
+# vendor — which of these it is follows from where it's used, so one record
+# can be all of them.
 class Dossier::Organisation < ApplicationRecord
   include Dossier::NamedReferenceData
 
@@ -15,6 +16,10 @@ class Dossier::Organisation < ApplicationRecord
   # Vendor or Customer on someone's Assignment (private links).
   has_many :assignment_partners, class_name: "Dossier::AssignmentPartner",
                                  dependent: :restrict_with_error, inverse_of: :organisation
+  # The Skills it makes (Microsoft → Project, Excel): public, unlike the
+  # private Vendor links above.
+  has_many :products, -> { order(Arel.sql("LOWER(dossier_skills.name)")) }, class_name: "Dossier::Skill",
+                      foreign_key: :vendor_id, dependent: :restrict_with_error, inverse_of: :vendor
 
   normalizes :abbreviation, :website_url, with: ->(value) { value.strip.presence }
 

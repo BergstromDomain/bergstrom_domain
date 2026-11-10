@@ -152,6 +152,78 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    context "with Skills in sub-categories" do
+      let(:protocols) { create(:dossier_skill_category, name: "Protocols & Standards") }
+
+      before do
+        %w[VoIP Web].each_with_index do |name, i|
+          sub = create(:dossier_skill_category, name: name, parent: protocols)
+          create_list(:dossier_skill, 2, skill_category: sub)
+          create(:dossier_skill, name: "Direct #{i}", skill_category: protocols)
+        end
+        create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam), other_tools_na: false,
+                                    other_tools_text: Dossier::Skill.pluck(:name).join(", "))
+      end
+
+      it "Loads a top-level Skill Category page without N+1 queries" do
+        without_n_plus_one_queries { get dossier_skill_category_path(protocols) }
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "Loads the Skills and Skill Categories indexes without N+1 queries" do
+        without_n_plus_one_queries { get dossier_skills_path }
+        without_n_plus_one_queries { get dossier_skill_categories_path }
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "Loads My Career › Skills grouped by sub-category without N+1 queries" do
+        without_n_plus_one_queries { get dossier_my_skills_path }
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context "with Skills shown with their vendor's name" do
+      let(:category) { create(:dossier_skill_category) }
+      let(:assignment) do
+        create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam), other_tools_na: false,
+                                    other_tools_text: Dossier::Skill.pluck(:name).join(", "))
+      end
+
+      before do
+        %w[Microsoft Oracle].each do |vendor|
+          organisation = create(:dossier_organisation, name: vendor)
+          create_list(:dossier_skill, 2, skill_category: category, vendor: organisation, show_vendor_in_name: true)
+        end
+        create(:dossier_achievement, assignment: assignment, skills_text: Dossier::Skill.pluck(:name).join(", "))
+      end
+
+      it "Loads the Skills index, a Skill Category and My Skills without N+1 queries" do
+        without_n_plus_one_queries { get dossier_skills_path }
+        without_n_plus_one_queries { get dossier_skill_category_path(category) }
+        without_n_plus_one_queries { get dossier_my_skills_path }
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "Loads an Assignment, its Achievements and the Achievements page without N+1 queries" do
+        without_n_plus_one_queries { get dossier_assignment_path(assignment) }
+        without_n_plus_one_queries { get dossier_achievements_path }
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "Builds the master CV without N+1 queries" do
+        create(:dossier_profile, user: adam)
+
+        without_n_plus_one_queries { get dossier_master_cv_path }
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
     it "Loads a Skill page with your experience without N+1 queries" do
       2.times do
         assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam),

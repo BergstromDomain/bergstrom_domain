@@ -119,4 +119,43 @@ RSpec.describe "Dossier Organisations", type: :feature do
       expect(page).not_to have_selector("[data-testid='organisation-credentials']")
     end
   end
+
+  describe "Products (Organisation as a Skill's vendor)" do
+    let!(:microsoft) { create(:dossier_organisation, name: "Microsoft") }
+
+    # 1) Happy Path ─────────────────────────────────────────────────────────────
+    describe "Happy Path" do
+      it "Lists the Skills it makes as Products, by their shown names, to Gary too" do
+        project = create(:dossier_skill, name: "Project", vendor: microsoft, show_vendor_in_name: true)
+        create(:dossier_skill, name: "Excel", vendor: microsoft)
+        visit dossier_organisation_path(microsoft)
+
+        products = find("[data-testid='organisation-products']")
+        expect(products.all("li").map(&:text)).to eq([ "Excel", "Microsoft Project" ])
+        expect(products).to have_link("Microsoft Project", href: dossier_skill_path(project))
+      end
+    end
+
+    # 2) Negative Path ──────────────────────────────────────────────────────────
+    describe "Negative Path" do
+      it "Won't delete an Organisation that is a Skill's vendor" do
+        create(:dossier_skill, name: "Project", vendor: microsoft)
+        sign_in_as(create(:user, :admin))
+        visit dossier_organisation_path(microsoft)
+        click_button "Delete Organisation"
+
+        expect(page).to have_content("Cannot delete record because dependent products exist")
+        expect(Dossier::Organisation.exists?(microsoft.id)).to be(true)
+      end
+    end
+
+    # 4) Edge Cases ─────────────────────────────────────────────────────────────
+    describe "Edge Cases" do
+      it "Shows no Products panel when it makes no Skills" do
+        visit dossier_organisation_path(microsoft)
+
+        expect(page).not_to have_selector("[data-testid='organisation-products']")
+      end
+    end
+  end
 end

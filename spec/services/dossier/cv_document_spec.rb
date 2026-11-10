@@ -69,7 +69,37 @@ RSpec.describe Dossier::CvDocument do
       create(:dossier_assignment, engagement: engagement, test_tools_na: false, test_tools_text: "Jira",
                                   methodologies_na: false, methodologies_text: "Agile")
 
-      expect(cv.skills).to eq([ [ "Methodologies", [ "Agile" ] ], [ "Test Tools", [ "Jira" ] ] ])
+      expect(cv.skills).to eq([ [ "Methodologies", "Agile" ], [ "Test Tools", "Jira" ] ])
+    end
+
+    it "Lists a top-level category once, its own Skills first, then each sub-category's" do
+      profile
+      protocols = create(:dossier_skill_category, name: "Protocols & Standards")
+      voip = create(:dossier_skill_category, name: "VoIP", parent: protocols)
+      video = create(:dossier_skill_category, name: "Video & Streaming", parent: protocols)
+      create(:dossier_skill, name: "TCP/IP", skill_category: protocols)
+      create(:dossier_skill, name: "SIP", skill_category: voip)
+      create(:dossier_skill, name: "MGCP", skill_category: voip)
+      create(:dossier_skill, name: "MPEG-2", skill_category: video)
+      create(:dossier_assignment, engagement: engagement, other_tools_na: false, other_tools_text: "SIP, MGCP, MPEG-2, TCP/IP")
+
+      expect(cv.skills).to eq([ [ "Protocols & Standards", "TCP/IP; Video & Streaming: MPEG-2; VoIP: MGCP, SIP" ] ])
+    end
+
+    it "Shows a Skill with its vendor's name in Skills, Tech Stacks and families" do
+      profile
+      microsoft = create(:dossier_organisation, name: "Microsoft")
+      systems = create(:dossier_skill_category, name: "Operating Systems")
+      windows = create(:dossier_skill, name: "Windows", skill_category: systems, vendor: microsoft, show_vendor_in_name: true)
+      create(:dossier_skill, name: "Windows XP", parent: windows)
+      create(:dossier_skill, name: "Project", skill_category: create(:dossier_skill_category, name: "Office"),
+                             vendor: microsoft, show_vendor_in_name: true)
+      create(:dossier_assignment, engagement: engagement, operating_systems_na: false, operating_systems_text: "Windows XP",
+                                  other_tools_na: false, other_tools_text: "Project")
+
+      expect(cv.skills).to eq([ [ "Office", "Microsoft Project" ], [ "Operating Systems", "Microsoft Windows (XP)" ] ])
+      expect(cv.experience.first.assignments.first.tech_stack)
+        .to eq([ [ "Operating Systems", "Microsoft Windows (XP)" ], [ "Other Tools", "Microsoft Project" ] ])
     end
 
     it "Shows a Skill's versions as one family, in the order first used, in Skills and the Tech Stack" do
@@ -85,7 +115,7 @@ RSpec.describe Dossier::CvDocument do
       create(:dossier_assignment, engagement: job, start_month: "2008-01", end_month: "2012-12",
                                   operating_systems_na: false, operating_systems_text: "Windows Vista, Windows XP, Windows")
 
-      expect(cv.skills).to eq([ [ "Operating Systems", [ "Windows (XP, Vista)", "Linux" ] ] ])
+      expect(cv.skills).to eq([ [ "Operating Systems", "Windows (XP, Vista), Linux" ] ])
       stacks = cv.experience.first.assignments.map(&:tech_stack)
       expect(stacks).to eq([ [ [ "Operating Systems", "Windows (XP, Vista)" ] ], [ [ "Operating Systems", "Windows (XP), Linux" ] ] ])
       expect(linux.versions).to be_empty
@@ -101,7 +131,7 @@ RSpec.describe Dossier::CvDocument do
       variant = create(:dossier_cv_variant, user: user)
       variant.items.create!(item: vista, included: false)
 
-      expect(described_class.new(user, today: today, variant: variant).skills).to eq([ [ "Operating Systems", [ "Windows (XP)" ] ] ])
+      expect(described_class.new(user, today: today, variant: variant).skills).to eq([ [ "Operating Systems", "Windows (XP)" ] ])
     end
 
     it "Groups Credentials by Credential Type in type order, all training types together" do
@@ -204,7 +234,7 @@ RSpec.describe Dossier::CvDocument do
       create(:dossier_assignment, engagement: engagement, test_tools_na: false, test_tools_text: "Jira, qTest")
       variant.items.create!(item: jira, included: false)
 
-      expect(described_class.new(user, today: today, variant: variant).skills).to eq([ [ "Test Tools", [ "qTest" ] ] ])
+      expect(described_class.new(user, today: today, variant: variant).skills).to eq([ [ "Test Tools", "qTest" ] ])
     end
 
     it "Falls back to the terse summary" do
