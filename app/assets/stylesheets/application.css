@@ -3598,3 +3598,20 @@ textarea.form-control {
 @media (max-width: 640px) {
   .dossier-tech-stack-table__category { width: 8rem; }
 }
+
+/* Colleagues frame: room between each table and the button under it, and
+   between the Client, Vendor and Customer sections. */
+.dossier-colleagues .data-table-wrapper,
+.dossier-colleagues .dossier-partner-staff .data-table-wrapper {
+  margin-bottom: var(--space-md);
+}
+
+.dossier-colleagues .dossier-partner-staff {
+  margin-bottom: var(--space-md);
+}
+
+.dossier-colleagues #client-colleagues,
+.dossier-colleagues #vendors,
+.dossier-colleagues #customers {
+  margin-top: var(--space-xl);
+}
