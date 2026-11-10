@@ -24,7 +24,7 @@ RSpec.describe Dossier::CourseScan do
   end
 
   def scan(**options)
-    described_class.new(root, text_of: ->(path) { texts[path.to_s] }, **options).courses
+    described_class.new(root, text_of: ->(path) { texts[path.to_s] }, tracker_urls: {}, **options).courses
   end
 
   def course(title) = scan.find { |entry| entry["title"] == title }
@@ -115,6 +115,73 @@ RSpec.describe Dossier::CourseScan do
       touch("LinkedIn Learning/Agile/Scrum_Advanced/Summary/notes.md")
 
       expect(scan.map { |entry| entry["title"] }).to eq([ "Scrum Advanced", "Scrum The Basics" ])
+    end
+  end
+
+  describe "Verification URLs from the course tracker" do
+    let(:ods_xml) do
+      <<~XML
+        <office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+            xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
+            xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+          <office:body><office:spreadsheet><table:table>
+            <table:table-row>
+              <table:table-cell><text:p>Provider</text:p></table:table-cell>
+              <table:table-cell><text:p>Course</text:p></table:table-cell>
+              <table:table-cell><text:p>Verification URL</text:p></table:table-cell>
+            </table:table-row>
+            <table:table-row>
+              <table:table-cell><text:p>LinkedIn Learning</text:p></table:table-cell>
+              <table:table-cell><text:p>Scrum The Basics</text:p></table:table-cell>
+              <table:table-cell><text:p>https://www.linkedin.com/learning/certificates/abc</text:p></table:table-cell>
+            </table:table-row>
+            <table:table-row>
+              <table:table-cell table:number-columns-repeated="2"><text:p>x</text:p></table:table-cell>
+              <table:table-cell/>
+            </table:table-row>
+            <table:table-row>
+              <table:table-cell><text:p>LinkedIn Learning</text:p></table:table-cell>
+              <table:table-cell><text:p><text:a xlink:href="https://www.linkedin.com/learning/certificates/def">Scrum Advanced</text:a></text:p></table:table-cell>
+              <table:table-cell/>
+            </table:table-row>
+          </table:table></office:spreadsheet></office:body>
+        </office:document-content>
+      XML
+    end
+
+    it "Reads each course's URL from a URL column or the row's link" do
+      expect(described_class.tracker_urls(ods_xml)).to eq(
+        "scrumthebasics" => "https://www.linkedin.com/learning/certificates/abc",
+        "scrumadvanced" => "https://www.linkedin.com/learning/certificates/def"
+      )
+    end
+
+    it "Fills in a course's Verification URL from the tracker, matching the title without punctuation" do
+      certificate("LinkedIn Learning/Agile/Scrum_The_Basics/Certificates/c.pdf",
+                  text: "Congratulations, Niklas Bergstrom\nScrum: The Basics\nCourse completed on Sep 10, 2018")
+      urls = described_class.tracker_urls(ods_xml)
+
+      expect(scan(tracker_urls: urls).first["verification_url"]).to eq("https://www.linkedin.com/learning/certificates/abc")
+    end
+
+    it "Reads the tracker in the root folder with unzip, and nothing when unzip is missing or fails" do
+      touch(described_class::TRACKER)
+      ok = instance_double(Process::Status, success?: true)
+      allow(Open3).to receive(:capture2).with("unzip", "-p", root.join(described_class::TRACKER).to_s, "content.xml")
+                                        .and_return([ ods_xml, ok ])
+      expect(described_class.new(root).send(:tracker_urls_in, root)).to include("scrumadvanced")
+
+      allow(Open3).to receive(:capture2).and_return([ "", instance_double(Process::Status, success?: false) ])
+      expect(described_class.new(root).send(:tracker_urls_in, root)).to eq({})
+      allow(Open3).to receive(:capture2).and_raise(Errno::ENOENT)
+      expect(described_class.new(root).send(:tracker_urls_in, root)).to eq({})
+    end
+
+    it "Finds no URLs in a tracker without them, or without a tracker" do
+      xml = ods_xml.gsub(%r{https://[^<"]+}, "").gsub("Verification URL", "Notes")
+
+      expect(described_class.tracker_urls(xml)).to eq({})
+      expect(described_class.new(root).send(:tracker_urls_in, root)).to eq({})
     end
   end
 

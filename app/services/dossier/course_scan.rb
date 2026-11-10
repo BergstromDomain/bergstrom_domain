@@ -11,7 +11,10 @@
 # Learning, Skillsoft, UiPath), else from the folder name and the file's date
 # (a Udemy certificate's number and link come from its file name). One without
 # is In Progress, started when its oldest file was. Skills are the existing
-# ones named in the title. Folders of the same course merge into one.
+# ones named in the title. Folders of the same course merge into one. A
+# Verification URL comes from the course tracker in the root folder
+# ("Online Training Courses.ods") when it has one for the course: a URL
+# column, or a link in the course's row.
 class Dossier::CourseScan
   SKIPPED = %w[Meetups Seminars _TEMPLATE_ _gsdata_].freeze
   NO_PROVIDER = %w[Misc].freeze
@@ -25,11 +28,46 @@ class Dossier::CourseScan
   COMMON_WORDS = %w[Project Teams].freeze
   UDEMY_NUMBER = /\A(UC-[A-Z0-9-]+)\.pdf\z/i
 
+  TRACKER = "Online Training Courses.ods"
+
   # text_of: reads a PDF's text (pdftotext by default; nil when it has none).
-  def initialize(root, text_of: method(:pdf_text))
+  # tracker_urls: { normalised title => URL } (by default from the TRACKER).
+  def initialize(root, text_of: method(:pdf_text), tracker_urls: nil)
     @root = Pathname(root)
     @text_of = text_of
+    @tracker_urls = tracker_urls || tracker_urls_in(@root)
   end
+
+  # "Scrum: The Basics" and "Scrum_The_Basics" match.
+  def self.normalise(title) = title.to_s.downcase.gsub(/[^a-z0-9]/, "")
+
+  # { normalised course title => URL } from an ODS sheet's content.xml: the
+  # header row names a "Course" column, and a URL column ("URL",
+  # "Verification URL", "Link") or failing that any link in the row gives it.
+  def self.tracker_urls(xml)
+    rows = Nokogiri::XML(xml).xpath("//table:table-row").map { |row| tracker_cells(row) }
+    header = rows.index { |cells| cells.any? { |text, _| text.casecmp?("Course") } }
+    return {} unless header
+
+    titles = rows[header].index { |text, _| text.casecmp?("Course") }
+    urls = rows[header].index { |text, _| text.match?(/\b(url|link)\b/i) }
+    rows.drop(header + 1).each_with_object({}) do |cells, found|
+      title = cells.dig(titles, 0)
+      column = urls && cells.dig(urls, 0)
+      url = column&.match?(%r{\Ahttps?://}) ? column : cells.filter_map(&:last).first
+      found[normalise(title)] = url if title.present? && url.present?
+    end
+  end
+
+  # [[text, link]…], a repeated cell once per column it covers (capped: a
+  # sheet's last cell often repeats to the edge of the sheet).
+  def self.tracker_cells(row)
+    row.xpath("table:table-cell|table:covered-table-cell").flat_map do |cell|
+      repeat = [ cell["table:number-columns-repeated"].to_i, 1 ].max.clamp(1, 50)
+      [ [ cell.text.strip, cell.at_xpath(".//text:a")&.[]("xlink:href") ] ] * repeat
+    end
+  end
+  private_class_method :tracker_cells
 
   # Manifest entries (string-keyed hashes), in folder order.
   def courses
@@ -81,7 +119,8 @@ class Dossier::CourseScan
       "status" => certificates.any? ? "completed" : "in_progress",
       "started" => started.iso8601, "completed" => completed&.iso8601, "precision" => precision || "month",
       "certificate_number" => number,
-      "verification_url" => (number.start_with?("UC-") ? "https://www.udemy.com/certificate/#{number}/" : nil if number),
+      "verification_url" => udemy_url(number) || @tracker_urls[self.class.normalise(title)] ||
+                            @tracker_urls[self.class.normalise(folder.basename.to_s)],
       "skills" => skills_in(title), "certificates" => certificates.map { |file| relative(file) } }
   end
 
@@ -137,6 +176,18 @@ class Dossier::CourseScan
   def skills_in(title)
     @skill_names ||= (Dossier::Skill.pluck(:name).uniq - COMMON_WORDS).select { |name| name.length > 2 }
     @skill_names.select { |name| title.match?(/(?<![\w])#{Regexp.escape(name)}(?![\w])/i) }.sort_by(&:downcase)
+  end
+
+  def udemy_url(number) = ("https://www.udemy.com/certificate/#{number}/" if number&.start_with?("UC-"))
+
+  def tracker_urls_in(root)
+    tracker = root.join(TRACKER)
+    return {} unless tracker.file?
+
+    xml, status = Open3.capture2("unzip", "-p", tracker.to_s, "content.xml")
+    status.success? ? self.class.tracker_urls(xml) : {}
+  rescue Errno::ENOENT
+    {}
   end
 
   def relative(path) = path.relative_path_from(@root).to_s
