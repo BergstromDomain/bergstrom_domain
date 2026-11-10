@@ -713,7 +713,7 @@ CREATE TABLE public.dossier_credentials (
     provider_id bigint,
     engagement_id bigint,
     assignment_id bigint,
-    start_on date NOT NULL,
+    start_on date,
     start_precision character varying DEFAULT 'month'::character varying NOT NULL,
     end_on date,
     end_precision character varying DEFAULT 'month'::character varying NOT NULL,
@@ -726,7 +726,8 @@ CREATE TABLE public.dossier_credentials (
     expires_on date,
     expires_precision character varying DEFAULT 'month'::character varying NOT NULL,
     certificate_number character varying,
-    verification_url character varying
+    verification_url character varying,
+    status character varying NOT NULL
 );
 
 
@@ -3141,6 +3142,13 @@ CREATE INDEX index_dossier_credentials_on_user_id ON public.dossier_credentials 
 
 
 --
+-- Name: index_dossier_credentials_on_user_id_and_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_credentials_on_user_id_and_status ON public.dossier_credentials USING btree (user_id, status);
+
+
+--
 -- Name: index_dossier_cv_variant_items_on_item; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4331,6 +4339,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261110194137'),
 ('20261110022133'),
 ('20261109213744'),
 ('20261109213122'),

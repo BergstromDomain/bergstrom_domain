@@ -127,7 +127,7 @@ class Dossier::ExperienceCalculator
   end
 
   def training
-    @user.dossier_credentials.training.kept.newest_first.includes(credential_skills: { skill: :parent })
+    @user.dossier_credentials.training.kept.started.newest_first.includes(credential_skills: { skill: :parent })
   end
 
   def uses
