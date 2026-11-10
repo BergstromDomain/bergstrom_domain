@@ -117,6 +117,19 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Edits, updates, deletes and restores an Assignment without loading what it doesn't use" do
+      assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam),
+                                               test_tools_na: false, test_tools_text: "Jira, Selenium")
+      2.times { create(:dossier_achievement, assignment: assignment, skills_text: "Jira, Excel") }
+
+      without_n_plus_one_queries { get edit_dossier_assignment_path(assignment) }
+      without_n_plus_one_queries { patch dossier_assignment_path(assignment), params: { dossier_assignment: { project: "Upgrade" } } }
+      without_n_plus_one_queries { delete dossier_assignment_path(assignment) }
+      without_n_plus_one_queries { post restore_dossier_assignment_path(assignment) }
+
+      expect(assignment.reload).to have_attributes(project: "Upgrade", deleted_at: nil)
+    end
+
     it "Loads an Assignment's Tech Stack, Training, Vendors and Customers without N+1 queries" do
       testing = create(:dossier_skill_category, name: "Testing", position: 1)
       tools = create(:dossier_skill_category, name: "Test Tools", parent: testing)

@@ -92,8 +92,17 @@ class Dossier::AssignmentsController < ApplicationController
   end
 
   def set_assignment
-    @assignment = Dossier::Assignment.includes(:client, assignment_skills: :skill,
-                                                         achievements: { achievement_skills: :skill }).find(params[:id])
+    @assignment = assignment_scope.find(params[:id])
+  end
+
+  # Only what each action reads, so nothing is loaded unused: the page shows
+  # the client, Tech Stack and Achievements; the form edits the Tech Stack.
+  def assignment_scope
+    case action_name
+    when "show" then Dossier::Assignment.includes(:client, assignment_skills: :skill, achievements: { achievement_skills: :skill })
+    when "edit", "update" then Dossier::Assignment.includes(assignment_skills: :skill)
+    else Dossier::Assignment
+    end
   end
 
   def assignment_params
