@@ -45,7 +45,7 @@ Then add Assignments with **Add Assignment** on the Engagement's page, or **Acti
 
 ![Charlie's Assignment at Woolsthorpe School: Client, Project, Role, Dates, Location and Engagement, then the Tech Stack](images/assignment_page.png)
 
-Each Assignment has a **Tech Stack**: what you worked with, in six lists (System Under Test, Operating Systems, Methodology, Test Tools, Other Tools and Protocols). Type the items separated by commas. Each list needs at least one item or its **N/A** box ticked. The lists are built around software work, so tick N/A for any that don't fit your job.
+Each Assignment has a **Tech Stack**: what you worked with. Name the **System Under Test**, or tick its **N/A** box. Below it is a field for each Skill Category, such as Testing, Databases and Operating Systems, in the order the Assignment page shows them, plus **Other Skills** for anything else. Type the items separated by commas and leave the rest empty. A new name becomes a Skill in that field's category; an existing Skill keeps its own.
 
 An Assignment's page also has panels for its **Achievements**, **Training**, **Colleagues**, and **Vendors & Customers**. Colleagues, vendors, customers and their staff are private notes: only you and admins see them, and they never appear on a CV.
 

@@ -47,29 +47,43 @@
           hint: "Optional, terse form." %>
   </div>
 
-  <%# Tech Stack div — every list filled or N/A %>
+  <%# Tech Stack div — the System Under Test (or N/A), then a field per Skill Category, in the page's order %>
   <div class="show-panel" data-testid="<%= panel %>-panel-tech-stack">
     <div class="show-panel__section">
       <h2 class="show-panel__heading">Tech Stack</h2>
       <p class="form-hint">
-        Every list needs at least one item, or N/A. Separate items with commas; new names become
-        Skills in the Uncategorised Skill Category.
+        Name the System Under Test, or tick N/A. Fill in any of the other fields, separating items with commas:
+        a new name becomes a Skill in that field's Skill Category, and an existing Skill keeps its own.
       </p>
     </div>
-    <% Dossier::TechStack::FORM_ORDER.each do |plural| %>
-      <% label = Dossier::TechStack::LABELS.fetch(plural) %>
-      <% errors = assignment.errors[:"#{plural}_text"] %>
+    <% errors = assignment.errors[:systems_under_test_text] %>
+    <div class="show-panel__section">
+      <div class="form-group">
+        <%= f.label :systems_under_test_text, "System Under Test", class: "show-panel__heading" %>
+        <%= f.text_field :systems_under_test_text,
+              class: "form-control #{'form-control--error' if errors.any?}",
+              data: { testid: "systems-under-test-field" } %>
+        <label class="form-check">
+          <%= f.check_box :systems_under_test_na, data: { testid: "systems-under-test-na-field" } %> N/A
+        </label>
+        <% if errors.any? %>
+          <span class="field-error" data-testid="field-error"><%= errors.first %></span>
+        <% end %>
+      </div>
+    </div>
+    <% fields = Dossier::TechStack.form_categories.includes(:subcategories).map do |category|
+         [ category.id.to_s, category.name, category.subcategories.map(&:name).join(" · ").presence ]
+       end %>
+    <% fields << [ Dossier::TechStack::OTHER, "Other Skills", "Skills in any other Skill Category; new names go to Uncategorised." ] %>
+    <% fields.each do |key, label, hint| %>
+      <% field_id = "dossier_assignment_category_skills_text_#{key}" %>
       <div class="show-panel__section">
         <div class="form-group">
-          <%= f.label :"#{plural}_text", label, class: "show-panel__heading" %>
-          <%= f.text_field :"#{plural}_text",
-                class: "form-control #{'form-control--error' if errors.any?}",
-                data: { testid: "#{plural.to_s.dasherize}-field" } %>
-          <label class="form-check">
-            <%= f.check_box :"#{plural}_na", data: { testid: "#{plural.to_s.dasherize}-na-field" } %> N/A
-          </label>
-          <% if errors.any? %>
-            <span class="field-error" data-testid="field-error"><%= errors.first %></span>
+          <%= label_tag field_id, label, class: "show-panel__heading" %>
+          <%= text_field_tag "dossier_assignment[category_skills_text][#{key}]", assignment.category_skills_text(key),
+                id: field_id, class: "form-control", data: { testid: "category-skills-field" } %>
+          <% if hint %>
+            <p class="form-hint"><%= hint %></p>
           <% end %>
         </div>
       </div>

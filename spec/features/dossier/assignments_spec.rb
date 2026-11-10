@@ -20,9 +20,6 @@ RSpec.describe "Dossier Assignments", type: :feature do
     fill_in_dossier_month "Start", with: start_month
     fill_in_dossier_month "End", with: end_month
     fill_in "System Under Test", with: "Ticketing platform"
-    %w[operating-systems methodologies test-tools other-tools protocols].each do |list|
-      find("[data-testid='#{list}-na-field']").check
-    end
   end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
@@ -86,18 +83,19 @@ RSpec.describe "Dossier Assignments", type: :feature do
       expect(page).to have_content(achievement.text)
     end
 
-    it "Saves the Tech Stack and shows it, new Skills under Uncategorised" do
+    it "Saves the Tech Stack by Skill Category, new Skills in the field's category, and shows it" do
       create(:dossier_skill_category, name: "Uncategorised")
+      create(:dossier_skill_category, name: "Testing", position: 1)
       sign_in_as(charlie)
       visit new_dossier_assignment_path(engagement_id: engagement.id)
       fill_assignment
-      find("[data-testid='test-tools-na-field']").uncheck
-      fill_in "Test Tools", with: "Jira, Robot Framework"
+      fill_in "Testing", with: "Jira, Robot Framework"
       click_button "Create Assignment"
 
+      expect(Dossier::Skill.find_by(name: "Jira").skill_category.name).to eq("Testing")
       within("[data-testid='tech-stack']") do
         block = find("[data-testid='tech-stack-block']")
-        expect(block.all("th").map(&:text)).to eq([ "Uncategorised" ])
+        expect(block.all("th").map(&:text)).to eq([ "Testing" ])
         expect(block).to have_link("Jira")
         expect(block).to have_link("Robot Framework")
         # One flex item, so the cell's flex gap can't open a space before each comma.
@@ -108,13 +106,29 @@ RSpec.describe "Dossier Assignments", type: :feature do
       expect(page).to have_selector("[data-testid='related-assignments']", text: "NTA")
     end
 
-    it "Lists the Tech Stack fields in the order the page shows them" do
-      assignment = create(:dossier_assignment, engagement: engagement, client: northwind)
+    it "Edits the Tech Stack in a field per Skill Category, in the page's order, with the sub-categories as hints" do
+      testing = create(:dossier_skill_category, name: "Testing", position: 1)
+      create(:dossier_skill_category, name: "Test Automation", parent: testing, position: 1)
+      databases = create(:dossier_skill_category, name: "Databases", position: 2)
+      create(:dossier_skill_category, name: "Uncategorised")
+      create(:dossier_skill, name: "Oracle", skill_category: databases)
+      assignment = create(:dossier_assignment, engagement: engagement, client: northwind,
+                                               other_tools_na: false, other_tools_text: "Oracle")
       sign_in_as(charlie)
       visit edit_dossier_assignment_path(assignment)
 
-      labels = find("[data-testid='edit-panel-tech-stack']").all("label.show-panel__heading").map(&:text)
-      expect(labels).to eq([ "System Under Test", "Test Tools", "Other Tools", "Methodology", "Operating Systems", "Protocols" ])
+      panel = find("[data-testid='edit-panel-tech-stack']")
+      expect(panel.all("label.show-panel__heading").map(&:text)).to eq([ "System Under Test", "Testing", "Databases", "Other Skills" ])
+      expect(panel).to have_text("Test Automation")
+      expect(page).to have_field("Databases", with: "Oracle")
+
+      fill_in "System Under Test", with: "Ticketing platform"
+      uncheck "N/A"
+      fill_in "Databases", with: "Oracle, Snowflake"
+      click_button "Update Assignment"
+
+      expect(find("[data-testid='tech-stack-block']")).to have_link("Snowflake")
+      expect(Dossier::Skill.find_by(name: "Snowflake").skill_category).to eq(databases)
     end
   end
 
@@ -164,14 +178,14 @@ RSpec.describe "Dossier Assignments", type: :feature do
       expect(page).to have_selector("[data-testid='empty-state']")
     end
 
-    it "Shows an error for a Tech Stack list that is neither filled nor N/A" do
+    it "Shows an error when the System Under Test is neither filled nor N/A" do
       sign_in_as(charlie)
       visit new_dossier_assignment_path(engagement_id: engagement.id)
       fill_assignment
-      find("[data-testid='protocols-na-field']").uncheck
+      fill_in "System Under Test", with: ""
       click_button "Create Assignment"
 
-      expect(page).to have_content("Protocols needs at least one item, or tick N/A")
+      expect(page).to have_content("System Under Test needs at least one item, or tick N/A")
       expect(Dossier::Assignment.count).to eq(0)
     end
 

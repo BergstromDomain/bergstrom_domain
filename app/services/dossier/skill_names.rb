@@ -5,8 +5,9 @@
 # brackets. Each name is matched by name or alias; "Name (a, b)" that isn't a
 # Skill itself means versions a and b of Name: an existing version of it by
 # its label, else "Name a" by name or alias, else a new Uncategorised Skill
-# "Name a" that is a version of Name. Unknown names become new Uncategorised
-# Skills, one per name however often it's typed.
+# "Name a" that is a version of Name. Unknown names become new Skills in the
+# given category (Uncategorised by default), one per name however often it's
+# typed.
 class Dossier::SkillNames
   VERSIONS = /\A(?<name>[^()]+?)\s*\((?<versions>[^()]+)\)\z/
 
@@ -14,8 +15,8 @@ class Dossier::SkillNames
     @new_skills = {}
   end
 
-  def skills(text)
-    split(text).flat_map { |name| resolve(name) }.uniq
+  def skills(text, category: nil)
+    split(text).flat_map { |name| resolve(name, category) }.uniq
   end
 
   private
@@ -29,26 +30,30 @@ class Dossier::SkillNames
     end.map(&:strip).compact_blank.uniq(&:downcase)
   end
 
-  def resolve(name)
+  def resolve(name, category)
     existing = Dossier::Skill.find_by_name_or_alias(name)
     return [ existing ] if existing
 
     match = VERSIONS.match(name)
-    return [ find_or_build(name) ] unless match
+    return [ find_or_build(name, category) ] unless match
 
-    parent = find_or_build(match[:name].strip)
-    match[:versions].split(",").map(&:strip).compact_blank.uniq(&:downcase).map { |label| version(parent, label) }
+    parent = find_or_build(match[:name].strip, category)
+    match[:versions].split(",").map(&:strip).compact_blank.uniq(&:downcase).map { |label| version(parent, label, category) }
   end
 
-  def version(parent, label)
+  def version(parent, label, category)
     full_name = "#{parent.name} #{label}"
     known = parent.persisted? && parent.versions.find { |skill| skill.version_label.casecmp?(label) }
     known || Dossier::Skill.find_by_name_or_alias(full_name) ||
-      find_or_build(full_name, parent: (parent unless parent.parent_id))
+      find_or_build(full_name, category, parent: (parent unless parent.parent_id))
   end
 
-  def find_or_build(name, parent: nil)
-    @new_skills[name.downcase] ||= Dossier::Skill.find_by_name_or_alias(name) ||
-                                   Dossier::Skill.new_uncategorised(name).tap { |skill| skill.parent = parent }
+  def find_or_build(name, category, parent: nil)
+    @new_skills[name.downcase] ||= Dossier::Skill.find_by_name_or_alias(name) || new_skill(name, category, parent)
+  end
+
+  def new_skill(name, category, parent)
+    skill = category ? Dossier::Skill.new(name: name, skill_category: category) : Dossier::Skill.new_uncategorised(name)
+    skill.tap { |s| s.parent = parent }
   end
 end
