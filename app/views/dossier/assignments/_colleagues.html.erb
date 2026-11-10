@@ -1,10 +1,13 @@
-<%# Colleagues div — private: the caller shows it to the owner and Admins only. Locals: assignment, editable %>
-<div class="show-panel" id="colleagues" data-testid="assignment-colleagues">
+<%# Colleagues div: the client's people, then the Vendors' and Customers' — private: the caller shows it to the owner and Admins only. Locals: assignment, editable %>
+<div class="show-panel dossier-colleagues" id="colleagues" data-testid="assignment-colleagues">
   <div class="show-panel__section">
     <h2 class="show-panel__heading">
       Colleagues
       <%= render "shared/info_tip", text: "Only you and Admins see this, and it's never on a CV.", testid: "colleagues-info" %>
     </h2>
+  </div>
+  <div class="show-panel__section" id="client-colleagues">
+    <h3 class="show-panel__subheading">Client</h3>
     <% if assignment.colleagues.any? %>
       <%= render "dossier/shared/contacts_table", contacts: assignment.colleagues, editable: editable,
             table_testid: "colleagues-table", row_testid: "colleague-row",
@@ -19,4 +22,5 @@
       <% end %>
     <% end %>
   </div>
+  <%= render "partners", assignment: assignment, editable: editable %>
 </div>

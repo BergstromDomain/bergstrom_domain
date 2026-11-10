@@ -62,6 +62,12 @@ RSpec.describe Dossier::Assignment, type: :model do
       expect(assignment.to_toast_label).to eq("Test Manager at Northwind")
     end
 
+    it "Is titled 'Client - Project' with the client's full name on its own page" do
+      assignment = build(:dossier_assignment, engagement: engagement, project: "Energy Components Upgrade",
+                                              client: build(:dossier_organisation, name: "APA Group", abbreviation: "APA"))
+      expect(assignment.title).to eq("APA Group - Energy Components Upgrade")
+    end
+
     it "Is headed 'Client - Project' on the Timeline" do
       assignment = build(:dossier_assignment, engagement: engagement, project: "  Market Services ",
                                               client: build(:dossier_organisation, name: "Northwind"))
@@ -126,6 +132,12 @@ RSpec.describe Dossier::Assignment, type: :model do
                                               client: build(:dossier_organisation, name: "Northwind"))
       expect(assignment.project).to be_nil
       expect(assignment.heading).to eq("Northwind")
+    end
+
+    it "Is titled by the client's full name alone when it has no Project" do
+      assignment = build(:dossier_assignment, engagement: engagement, project: nil,
+                                              client: build(:dossier_organisation, name: "APA Group", abbreviation: "APA"))
+      expect(assignment.title).to eq("APA Group")
     end
 
     it "Heads the row with the client's abbreviation when it has one" do

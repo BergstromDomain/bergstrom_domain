@@ -8,6 +8,7 @@ RSpec.describe Dossier::SkillCategory, type: :model do
     it { is_expected.to have_db_column(:description).of_type(:text) }
     it { is_expected.to have_db_column(:slug).of_type(:string) }
     it { is_expected.to have_db_column(:parent_id).of_type(:integer) }
+    it { is_expected.to have_db_column(:position).of_type(:integer) }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
@@ -40,6 +41,23 @@ RSpec.describe Dossier::SkillCategory, type: :model do
 
         expect(protocols.subcategories).to eq([ voip, web ])
         expect(described_class.top_level).to eq([ protocols ])
+      end
+
+      it "Lists sub-categories by position first, then A–Z for those without one" do
+        web = create(:dossier_skill_category, name: "Web", parent: protocols, position: 1)
+        voip = create(:dossier_skill_category, name: "VoIP", parent: protocols, position: 2)
+        healthcare = create(:dossier_skill_category, name: "Healthcare", parent: protocols)
+        apps = create(:dossier_skill_category, name: "Apps", parent: protocols)
+
+        expect(protocols.subcategories).to eq([ web, voip, apps, healthcare ])
+      end
+
+      it "Sorts top-level categories by position, then A–Z for those without one" do
+        testing = create(:dossier_skill_category, name: "Testing", position: 1)
+        ai = create(:dossier_skill_category, name: "AI Tools", position: 2)
+        uncategorised = create(:dossier_skill_category, name: "Uncategorised")
+
+        expect([ uncategorised, protocols, ai, testing ].sort_by(&:display_sort_key)).to eq([ testing, ai, protocols, uncategorised ])
       end
 
       it "Names a sub-category in full as 'Parent › Sub', a top-level one by its name" do

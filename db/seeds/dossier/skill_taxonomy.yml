@@ -25,14 +25,33 @@ vendors:
   - { name: PinnacleQM }
 
 categories:
-  - name: AI Tools
-    was: [AI]
+  - name: Testing
+    subcategories:
+      - { name: Test Automation, was: [Test Automation] }
+      - { name: Test & Issue Management, was: [Test Management] }
+      - { name: Test Types & Techniques, was: [Test Types] }
+      - { name: Test Documentation, was: [Technical Writing] }
+  - name: Test & Measurement Instruments
+    was: [Instruments]
   - name: Development Tools
     was: [CI/CD]
     subcategories:
       - { name: Version Control }
       - { name: Build & CI/CD }
       - { name: IDEs & Editors, was: [IDEs & Editors] }
+  - name: AI Tools
+    was: [AI]
+  - name: Infrastructure & DevOps
+    was: [DevOps]
+    subcategories:
+      - { name: Cloud Computing, was: [Cloud] }
+      - { name: Servers, was: [Servers & Virtualizations] }
+      - { name: Integration & Messaging }
+      - { name: Virtualisation & Containers }
+      - { name: DevOps & Infrastructure as Code }
+      - { name: Network Tools, was: [Network] }
+  - name: Office & Collaboration
+    was: [Office & Project]
   - name: Programming
     was: [Programming & Scripting]
     subcategories:
@@ -44,15 +63,13 @@ categories:
       - { name: Database Systems }
       - { name: Database Tools }
       - { name: Query Languages }
-  - name: Infrastructure & DevOps
-    was: [DevOps]
+  - name: Business Applications
     subcategories:
-      - { name: Cloud Computing, was: [Cloud] }
-      - { name: Servers, was: [Servers & Virtualizations] }
-      - { name: Integration & Messaging }
-      - { name: Virtualisation & Containers }
-      - { name: DevOps & Infrastructure as Code }
-      - { name: Network Tools, was: [Network] }
+      - { name: CRM, was: [CRM] }
+      - { name: ERP, was: [ERP] }
+      - { name: BI & Data Warehousing }
+      - { name: Other, description: "Client-specific systems tested on Assignments." }
+  - name: Methods & Processes
   - name: Operating Systems
   - name: Protocols & Standards
     was: [Protocols]
@@ -64,23 +81,6 @@ categories:
       - { name: Smart Cards & Payments }
       - { name: Healthcare }
       - { name: Instrument Control }
-  - name: Business Applications
-    subcategories:
-      - { name: CRM, was: [CRM] }
-      - { name: ERP, was: [ERP] }
-      - { name: BI & Data Warehousing }
-      - { name: Other, description: "Client-specific systems tested on Assignments." }
-  - name: Office & Collaboration
-    was: [Office & Project]
-  - name: Test & Measurement Instruments
-    was: [Instruments]
-  - name: Testing
-    subcategories:
-      - { name: Test Automation, was: [Test Automation] }
-      - { name: Test & Issue Management, was: [Test Management] }
-      - { name: Test Types & Techniques, was: [Test Types] }
-      - { name: Test Documentation, was: [Technical Writing] }
-  - name: Methods & Processes
 
 skills:
   # ── AI Tools ──────────────────────────────────────────────────────────────

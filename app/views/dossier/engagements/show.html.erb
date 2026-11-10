@@ -51,7 +51,7 @@
 </div>
 
 <%# Training div — courses taken during this Engagement, on any of its Assignments %>
-<%= render "dossier/credentials/panel", credentials: @engagement.credentials.training.newest_first.includes(:provider) %>
+<%= render "dossier/credentials/panel", credentials: @engagement.credentials.training.newest_first.includes(:provider, credential_skills: :skill) %>
 
 <%# Actions div %>
 <div class="show-panel show-panel--actions" data-testid="show-panel-actions">

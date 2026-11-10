@@ -3307,7 +3307,7 @@ textarea.form-control {
    Edit/Delete buttons (.row-actions) line up on the right. */
 .dossier-partner-actions {
   margin-left: auto;
-  padding-right: calc(var(--space-md) + 1px);
+  padding-right: calc(var(--space-sm) + 1px);
 }
 
 .dossier-partner-staff {
@@ -3546,4 +3546,72 @@ textarea.form-control {
 
 .dossier-skill-group__summary::-webkit-details-marker {
   display: none;
+}
+
+/* Assignment page: Summary cells stack full width; the Colleagues frame's
+   Client / Vendor / Customer sections; a Tech Stack table per category. */
+.dossier-assignment-summary .show-meta-cell + .show-meta-cell,
+.dossier-assignment-summary .show-meta-cell + .show-meta-row {
+  margin-top: var(--space-md);
+}
+
+.show-panel__subheading {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.dossier-tech-stack-block + .dossier-tech-stack-block {
+  margin-top: var(--space-md);
+}
+
+/* Fixed layout: the category label is the same width in every block, so
+   the blocks line up, and the columns share the rest equally. */
+.dossier-tech-stack-table {
+  table-layout: fixed;
+}
+
+.dossier-tech-stack-table th {
+  white-space: normal;
+}
+
+.dossier-tech-stack-table__category {
+  width: 16rem;
+  vertical-align: middle;
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-bold);
+  background-color: var(--color-surface-raised);
+  border-right: 1px solid var(--color-border);
+}
+
+.dossier-tech-stack-table__heading {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-raised);
+}
+
+/* Two-row blocks: no line under the label, no hover tint on the Skills row. */
+.dossier-tech-stack-table tbody tr:hover {
+  background-color: transparent;
+}
+
+@media (max-width: 640px) {
+  .dossier-tech-stack-table__category { width: 8rem; }
+}
+
+/* Colleagues frame: room between each table and the button under it, and
+   between the Client, Vendor and Customer sections. */
+.dossier-colleagues .data-table-wrapper,
+.dossier-colleagues .dossier-partner-staff .data-table-wrapper {
+  margin-bottom: var(--space-md);
+}
+
+.dossier-colleagues .dossier-partner-staff {
+  margin-bottom: var(--space-md);
+}
+
+.dossier-colleagues #client-colleagues,
+.dossier-colleagues #vendors,
+.dossier-colleagues #customers {
+  margin-top: var(--space-xl);
 }

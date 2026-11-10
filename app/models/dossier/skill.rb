@@ -33,6 +33,14 @@ class Dossier::Skill < ApplicationRecord
     find_by("LOWER(name) = :text OR :text = ANY (SELECT LOWER(a) FROM unnest(aliases) AS a)", text: text)
   end
 
+  # Loads the vendor of each Skill that shows it in its name (display_name),
+  # and only those, so nothing is loaded unused.
+  def self.preload_vendors(skills)
+    shown = skills.select(&:show_vendor_in_name)
+    ActiveRecord::Associations::Preloader.new(records: shown, associations: :vendor).call if shown.any?
+    skills
+  end
+
   # An unsaved Skill for a name typed in a Tech Stack or Achievement, to be
   # filed properly later.
   def self.new_uncategorised(name)
