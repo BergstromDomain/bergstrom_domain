@@ -1,0 +1,44 @@
+# db/seeds/dossier/course_providers.yml
+#
+# Short descriptions of the organisations that issued Credentials (courses,
+# certifications, degrees), applied with bin/rails dossier:courses:apply.
+# A provider missing from the database is added; a description someone has
+# already written is kept.
+- name: LinkedIn Learning
+  description: LinkedIn's online learning platform (formerly Lynda.com), with expert-led video courses in software, business and creative skills, each ending in a certificate of completion.
+- name: Udemy
+  description: An online course marketplace where independent instructors publish video courses on programming, IT and business topics.
+- name: Skillsoft
+  description: A corporate e-learning company whose online courses (delivered through SkillPort) cover IT, business and leadership skills.
+- name: UiPath
+  description: A robotic process automation (RPA) software company whose UiPath Academy offers free training and diplomas for developers, business analysts and implementation managers.
+- name: Linux Training Academy
+  description: An online training site, founded by Jason Cannon, teaching Linux administration and shell scripting.
+- name: KTH, Royal Institute of Technology
+  description: Sweden's largest technical university, in Stockholm, founded in 1827, offering engineering and architecture degrees.
+- name: San Diego State University
+  description: A public research university in San Diego, California, part of the California State University system.
+- name: Swedish Software Testing Board
+  description: The Swedish member board of ISTQB, which runs and certifies the ISTQB software testing qualifications in Sweden.
+- name: Scrum Alliance
+  description: A non-profit membership and certification body for Scrum and agile practitioners, issuing certifications such as Certified ScrumMaster.
+- name: ICAgile
+  description: The International Consortium for Agile, an accreditation and certification body whose ICAgile Certified Professional track covers agile practice.
+- name: Satisfice
+  description: James Bach's testing consultancy, which teaches the Rapid Software Testing methodology.
+- name: GlobalPlatform
+  description: An industry association that publishes the specifications for secure chip technology, such as smart cards and trusted execution environments.
+- name: Crisp
+  description: A Stockholm consultancy of agile coaches and developers that also runs public courses on agile methods.
+- name: Informator
+  description: A Swedish IT training company running courses in software development, testing and project management.
+- name: Astrakan
+  description: A Swedish training and consulting company in Stockholm, specialising in project management, requirements and agile ways of working.
+- name: IBC Forum
+  description: A Swedish provider of courses and conferences for managers and leaders.
+- name: ENEA
+  description: A Swedish software company (Enea AB) known for real-time operating systems and telecom software, which also ran technical training courses.
+- name: Ericsson Project Management Institute
+  description: Ericsson's internal institute that trained the company's project managers, including in the PROPS project management model.
+- name: Databiten
+  description: A Swedish IT training company that ran programming courses, such as Borland Delphi.
