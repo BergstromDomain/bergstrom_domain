@@ -26,6 +26,16 @@ RSpec.describe "Dossier Courses", type: :request do
       expect(response.body).to include("Learning Docker")
       expect(response.body).not_to include("Learning Chef")
     end
+    it "Sorts the filtered Courses by Taken During, Personal Development included" do
+      engagement = create(:dossier_engagement, user: charlie, employer: create(:dossier_organisation, name: "Acme"),
+                                               position_title: "Test Lead")
+      course(title: "With Engagement", engagement: engagement)
+      course(title: "On My Own")
+      sign_in_as(charlie)
+
+      get dossier_filter_courses_path(sort: "taken_during", direction: "desc")
+      expect(response.body.index("With Engagement")).to be < response.body.index("On My Own")
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────

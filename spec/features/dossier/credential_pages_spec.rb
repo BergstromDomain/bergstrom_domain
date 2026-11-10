@@ -167,6 +167,17 @@ RSpec.describe "Dossier Credential pages", type: :feature do
       expect(page).not_to have_selector("[data-testid='certificate-preview-image']")
     end
 
+    it "Shows the error for Completed without a Completed date, keeping the form" do
+      credential = add_course("Learning Chef", status: "in_progress", end_on: nil)
+      sign_in_as(charlie)
+      visit edit_dossier_credential_path(credential)
+      select "Completed", from: "Status"
+      click_button "Update Credential"
+
+      expect(page).to have_selector("[data-testid='field-error']", text: "is needed when the status is Completed")
+      expect(credential.reload).to be_in_progress
+    end
+
     it "Never lists another user's Courses in Browse or Filter Courses" do
       create(:dossier_credential, user: chris, credential_type: course, title: "Chris's Course", provider: linkedin)
       add_course("Learning Docker")
