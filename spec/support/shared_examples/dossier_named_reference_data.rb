@@ -1,7 +1,8 @@
 # spec/support/shared_examples/dossier_named_reference_data.rb
 
 # Shared model examples for Dossier reference data identified by a unique name
-# (Industry, Role, Skill Category, Employment Type, Organisation, Skill).
+# (Industry, Role, Skill Category, Employment Type, Organisation, Skill,
+# Credential Type).
 RSpec.shared_examples "Dossier named reference data" do |factory|
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path (named reference data)" do
@@ -13,6 +14,13 @@ RSpec.shared_examples "Dossier named reference data" do |factory|
       record = create(factory, name: "Quality Assurance")
       expect(record.to_toast_label).to eq("Quality Assurance")
       expect(record.slug).to eq("quality-assurance")
+    end
+
+    it "Gives a renamed record a new slug from its new name" do
+      record = create(factory, name: "Build & Development")
+      record.update!(name: "IDEs & Editors")
+      expect(record.reload.slug).to eq("ides-editors")
+      expect(described_class.friendly.find("ides-editors")).to eq(record)
     end
   end
 
@@ -30,6 +38,12 @@ RSpec.shared_examples "Dossier named reference data" do |factory|
       expect(record).not_to be_valid
       expect(record.errors[:name]).to include("has already been taken")
     end
+
+    it "Keeps its slug when only the description changes" do
+      record = create(factory, name: "Quality Assurance")
+      expect { record.update!(description: "Checks the work") }.not_to change { FriendlyId::Slug.count }
+      expect(record.reload.slug).to eq("quality-assurance")
+    end
   end
 
   # 3) Alternative Path ───────────────────────────────────────────────────────
@@ -45,6 +59,13 @@ RSpec.shared_examples "Dossier named reference data" do |factory|
   describe "Edge Cases (named reference data)" do
     it "Strips surrounding whitespace from the name" do
       expect(create(factory, name: "  Quality Assurance  ").name).to eq("Quality Assurance")
+    end
+
+    it "Keeps the same slug when only the name's case changes" do
+      record = create(factory, name: "Databases")
+      record.update!(name: "DATABASES")
+      expect(record.reload.slug).to eq("databases")
+      expect(described_class.friendly.find("databases")).to eq(record)
     end
 
     it "Sorts case-insensitively by name" do
