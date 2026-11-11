@@ -1,12 +1,14 @@
-# app/services/dossier/professional_skills.rb
+# app/services/dossier/soft_skills.rb
 
-# The "Professional Skills" category (soft) and its Skills, merged from a job
-# ad's soft-skill criteria; the ad's own wording is each Skill's aliases, so
-# typing it on an Achievement links the Skill. Safe to run again: it adds
-# what's missing and leaves what's there, edits included. A Skill already in
-# another category under the same name stays where it is.
-class Dossier::ProfessionalSkills
-  CATEGORY = "Professional Skills"
+# The "Soft Skills" category and its Skills, merged from a job ad's
+# soft-skill criteria; the ad's own wording is each Skill's aliases, so typing
+# it links the Skill. Safe to run again: it adds what's missing and leaves
+# what's there, edits included. A Skill already in another category under the
+# same name stays where it is. The category was first called "Professional
+# Skills": one by that name is renamed.
+class Dossier::SoftSkills
+  CATEGORY = "Soft Skills"
+  EARLIER_NAME = "Professional Skills"
 
   # name => [description, aliases]
   SKILLS = {
@@ -47,9 +49,8 @@ class Dossier::ProfessionalSkills
   # The category, with every Skill added that wasn't there.
   def self.seed!
     Dossier::SkillCategory.transaction do
-      category = Dossier::SkillCategory.top_level.find_by("LOWER(name) = ?", CATEGORY.downcase) ||
-                 Dossier::SkillCategory.new(name: CATEGORY)
-      category.update!(soft: true)
+      category = find_category(CATEGORY) || find_category(EARLIER_NAME) || Dossier::SkillCategory.new
+      category.update!(name: category.name&.casecmp?(CATEGORY) ? category.name : CATEGORY, soft: true)
       SKILLS.each do |name, (description, aliases)|
         next if Dossier::Skill.find_by_name_or_alias(name)
 
@@ -59,4 +60,9 @@ class Dossier::ProfessionalSkills
       category
     end
   end
+
+  def self.find_category(name)
+    Dossier::SkillCategory.top_level.find_by("LOWER(name) = ?", name.downcase)
+  end
+  private_class_method :find_category
 end

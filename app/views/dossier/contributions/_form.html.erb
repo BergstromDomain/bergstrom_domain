@@ -52,9 +52,7 @@
           hint: "Optional: the title you were billed under, e.g. \"Test Manager, Elysium Digital\"." %>
     <%= render "dossier/shared/field", f: f, record: contribution, attribute: :url, label: "Link",
           hint: "Optional: the recording, slides or event page." %>
-    <%= render "dossier/shared/field", f: f, record: contribution, attribute: :skills_text, label: "Skills",
-          error_attribute: :contribution_skills,
-          hint: "Optional. Separate Skills with commas, e.g. \"Robot Framework, Knowledge Sharing\"; new names become Skills in the Uncategorised Skill Category." %>
+    <%= render "dossier/shared/skill_fields", f: f, record: contribution, error_attribute: :contribution_skills %>
     <%= render "dossier/shared/field", f: f, record: contribution, attribute: :engagement_id, label: "During",
           error_attribute: :engagement,
           field: f.select(:engagement_id, engagement_choices.map { |e| [ "#{e.to_toast_label} (#{e.date_range})", e.id ] },

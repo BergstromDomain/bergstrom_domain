@@ -34,7 +34,7 @@ class Dossier::Contribution < ApplicationRecord
   belongs_to :engagement, optional: true
   has_many :contribution_skills, -> { order(:id) }, dependent: :destroy, autosave: true, inverse_of: :contribution
   has_many :skills, through: :contribution_skills
-  skill_tags :contribution_skills
+  skill_tags :contribution_skills, soft_boxes: true
   has_many_attached :files
 
   normalizes :title, with: ->(value) { value.strip }

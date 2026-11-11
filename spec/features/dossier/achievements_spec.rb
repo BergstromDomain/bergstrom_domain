@@ -26,7 +26,7 @@ RSpec.describe "Dossier Achievements", type: :feature do
       fill_in "Achievement", with: "Ran daily defect triage to prioritise UAT defects."
       fill_in "Impact", with: "40% fewer production defects"
       select "5 (highest)", from: "Importance"
-      fill_in "Skills", with: "Jira, Excel"
+      fill_in "Technical Skills", with: "Jira, Excel"
       click_button "Create Achievement"
 
       expect(page).to have_current_path(dossier_assignment_path(assignment))

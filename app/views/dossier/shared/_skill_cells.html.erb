@@ -1,0 +1,10 @@
+<%# A Show page's Soft Skills and Technical Skills cells. Locals: record (with Dossier::SkillTags), testid (e.g. "achievement") %>
+<% [ [ "Soft Skills", record.soft_skills, "#{testid}-soft-skills" ], [ "Technical Skills", record.technical_skills, "#{testid}-skills" ] ].each do |label, skills, cell_testid| %>
+  <div class="show-meta-cell">
+    <h3 class="show-meta-cell__label"><%= label %></h3>
+    <p class="show-meta-cell__value" data-testid="<%= cell_testid %>">
+      <%# One span: the cell is a flex row, whose gap would land before each comma. %>
+      <span><%= skills.any? ? safe_join(skills.map { |skill| link_to(skill.display_name, dossier_skill_path(skill)) }, ", ") : "—" %></span>
+    </p>
+  </div>
+<% end %>

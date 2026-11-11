@@ -29,9 +29,7 @@
           field: f.select(:importance, Dossier::Achievement::IMPORTANCE.to_a.reverse.map { |i| [ importance_label(i), i ] },
                           {}, class: "form-control", data: { testid: "importance-field" }),
           hint: "How strongly this belongs on a CV; CVs pick the most important bullets first." %>
-    <%= render "dossier/shared/field", f: f, record: achievement, attribute: :skills_text, label: "Skills",
-          error_attribute: :achievement_skills,
-          hint: "Optional. Separate Skills with commas; new names become Skills in the Uncategorised Skill Category." %>
+    <%= render "dossier/shared/skill_fields", f: f, record: achievement, error_attribute: :achievement_skills %>
   </div>
 
   <%# Actions div %>

@@ -1,22 +1,27 @@
 <%#
-  One Achievement in the bulleted table (see _table): its text with impact
-  and Skills, then importance. Locals: achievement; moves (nil, or
+  One Achievement in the bulleted table (see _table): its text with its
+  Situation, Impact and Soft Skills (not its Technical Skills), then
+  importance. Locals: achievement; moves (nil, or
   { first:, last: } to show Up/Down).
 %>
 <tr class="dossier-achievement" data-testid="achievement-row">
   <td class="dossier-achievement__body">
     <%= link_to achievement.text, dossier_achievement_path(achievement), data: { testid: "achievement-link" } %>
-    <% if achievement.impact || achievement.current_skills.any? %>
-      <p class="dossier-achievement__meta">
-        <% if achievement.impact %>
-          <span data-testid="achievement-row-impact"><strong>Impact:</strong> <%= achievement.impact %></span>
-        <% end %>
-        <% if achievement.impact && achievement.current_skills.any? %>·<% end %>
-        <% if achievement.current_skills.any? %>
-          <span data-testid="achievement-row-skills"><strong>Skills:</strong>
-            <%= safe_join(achievement.current_skills.map { |skill| link_to(skill.display_name, dossier_skill_path(skill)) }, ", ") %></span>
-        <% end %>
-      </p>
+    <%# In STAR order: the Situation (owner and Admins only), the Impact (the Result), and the Soft Skills it shows %>
+    <% parts = [] %>
+    <% if achievement.situation_visible_to?(current_user) %>
+      <% parts << tag.span(safe_join([ tag.strong("Situation:"), " ", achievement.situation ]), data: { testid: "achievement-row-situation" }) %>
+    <% end %>
+    <% if achievement.impact %>
+      <% parts << tag.span(safe_join([ tag.strong("Impact:"), " ", achievement.impact ]), data: { testid: "achievement-row-impact" }) %>
+    <% end %>
+    <% soft_skills = achievement.soft_skills %>
+    <% if soft_skills.any? %>
+      <% links = safe_join(soft_skills.map { |skill| link_to(skill.display_name, dossier_skill_path(skill)) }, ", ") %>
+      <% parts << tag.span(safe_join([ tag.strong("Soft Skills:"), " ", links ]), data: { testid: "achievement-row-skills" }) %>
+    <% end %>
+    <% if parts.any? %>
+      <p class="dossier-achievement__meta"><%= safe_join(parts, " · ") %></p>
     <% end %>
   </td>
   <td class="text-center" data-testid="achievement-row-importance"><%= achievement.importance %></td>

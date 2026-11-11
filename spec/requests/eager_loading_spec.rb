@@ -276,18 +276,29 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it "Loads a Professional Skill's examples, and My Skills with them, without N+1 queries" do
-      Dossier::ProfessionalSkills.seed!
-      3.times do
+    it "Loads a Soft Skill's examples, My Career › Soft Skills and Achievement rows without N+1 queries" do
+      Dossier::SoftSkills.seed!
+      soft_ids = Dossier::Skill.soft.where(name: [ "Leadership", "Knowledge Sharing" ]).ids
+      assignments = Array.new(3) do
         assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam),
                                                  client: create(:dossier_organisation), role: create(:dossier_role))
-        create(:dossier_achievement, assignment: assignment, skills_text: "Leadership, Knowledge Sharing",
-                                     situation: "Context", impact: "Result")
+        2.times do
+          create(:dossier_achievement, assignment: assignment, skills_text: "Jira", soft_skill_ids: soft_ids,
+                                       situation: "Context", impact: "Result")
+        end
+        create(:dossier_contribution, user: adam, event: create(:dossier_organisation), soft_skill_ids: soft_ids)
+        assignment
       end
 
       without_n_plus_one_queries { get dossier_skill_path(Dossier::Skill.find_by!(name: "Leadership")) }
       expect(response).to have_http_status(:ok)
+      without_n_plus_one_queries { get dossier_soft_skills_path }
+      expect(response).to have_http_status(:ok)
       without_n_plus_one_queries { get dossier_my_skills_path }
+      expect(response).to have_http_status(:ok)
+      without_n_plus_one_queries { get dossier_assignment_path(assignments.first) }
+      expect(response).to have_http_status(:ok)
+      without_n_plus_one_queries { get dossier_achievements_path }
       expect(response).to have_http_status(:ok)
     end
 

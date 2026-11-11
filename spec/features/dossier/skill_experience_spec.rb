@@ -49,10 +49,10 @@ RSpec.describe "Dossier Skill experience", type: :feature do
       end
     end
 
-    it "Lists every Skill you've used on My Career › Skills, by category, most years first" do
+    it "Lists every Skill you've used on My Career › Technical Skills, by category, most years first" do
       sign_in_as(charlie)
       visit dossier_path
-      within("[data-testid='left-nav']") { click_link "Skills", match: :first }
+      within("[data-testid='left-nav']") { click_link "Technical Skills" }
 
       expect(page).to have_current_path(dossier_my_skills_path)
       categories = all("[data-testid='my-skills-category']").map { |c| c.find("h2").text }

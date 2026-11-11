@@ -18,7 +18,7 @@ class Dossier::SkillsController < Dossier::ReferenceDataController
     return unless @record.soft?
 
     # A soft Skill shows its example Achievements with their Assignments.
-    ActiveRecord::Associations::Preloader.new(records: @experience.achievements, associations: { assignment: :client }).call
+    ActiveRecord::Associations::Preloader.new(records: @experience.achievements, associations: { assignment: %i[client role] }).call
   end
 
   # Merging folds this Skill into the one chosen to keep (Admin only).
