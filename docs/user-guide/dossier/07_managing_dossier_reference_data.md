@@ -12,7 +12,7 @@ Dossier's Reference Data is shared by everyone who uses it. Everyone can view it
 - **Roles:** what someone did for a client, such as Teacher or Test Lead.
 - **Locations:** a **City** and **Country**.
 - **Employment Types:** a name, plus two boxes. **Permanent** gives each new Engagement one Assignment automatically, with the employer as client. **Personal** marks hobby projects: their years count as personal experience, and the Timeline doesn't treat them as work.
-- **Credential Types:** a name, a **Sort Order** (lower numbers come first on My Career › Credentials) and a **Training** box for courses and workshops.
+- **Credential Types:** a name, a **Sort Order** (lower numbers come first on Credentials › Credentials) and a **Training** box for courses and workshops.
 - **Skills:** a **Name**, **Skill Category**, **Aliases** (other spellings, comma-separated) and an optional **Version Of**. Content Creators can add Skills; only admins edit or delete them.
 
 Names must be unique, ignoring capitals. For a Location, that's its City and Country together.

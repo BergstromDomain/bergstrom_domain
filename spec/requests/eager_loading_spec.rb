@@ -290,6 +290,49 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads a Credential with certificate previews, and Browse and Filter Courses, without N+1 queries" do
+      credential = nil
+      2.times do
+        assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam))
+        provider = create(:dossier_organisation)
+        credential = create(:dossier_credential, user: adam, provider: provider, assignment: assignment, skills_text: "Jira, Excel")
+        create(:dossier_credential, user: adam, provider: provider, status: "in_progress", end_on: nil,
+                                    engagement: create(:dossier_engagement, user: adam), skills_text: "Scrum")
+        create(:dossier_credential, user: adam, provider: provider, status: "todo", start_on: nil, end_on: nil)
+        create(:dossier_credential, user: adam, engagement: create(:dossier_engagement, user: adam), skills_text: "Chef")
+      end
+      credential.files.attach([ fixture_file_upload("test_image.png", "image/png"),
+                                fixture_file_upload("test_certificate.pdf", "application/pdf") ])
+
+      [ dossier_credential_path(credential), dossier_browse_courses_path,
+        dossier_browse_courses_path(provider_id: credential.provider.to_param),
+        dossier_filter_courses_path, dossier_filter_courses_path(sort: "skills", status: "in_progress"),
+        dossier_credentials_path(sort: "taken_during", direction: "desc") ].each do |path|
+        without_n_plus_one_queries { get path }
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    it "Loads a Credential's Show (for another user), Edit, Update and Delete without unused eager loading" do
+      credential = create(:dossier_credential, user: create(:user, :content_creator), classification: "unrestricted",
+                                               skills_text: "Jira, Excel", provider: create(:dossier_organisation))
+      credential.files.attach([ fixture_file_upload("test_image.png", "image/png"),
+                                fixture_file_upload("test_certificate.pdf", "application/pdf") ])
+      chris = create(:user, :content_creator)
+      plain = create(:dossier_credential, user: adam, skills_text: "Scrum")
+      sign_in_as(chris)
+      without_n_plus_one_queries { get dossier_credential_path(credential) }
+      expect(response).to have_http_status(:ok)
+
+      sign_in_as(adam)
+      without_n_plus_one_queries { get dossier_credential_path(plain) }
+      without_n_plus_one_queries { get edit_dossier_credential_path(credential) }
+      without_n_plus_one_queries { patch dossier_credential_path(credential), params: { dossier_credential: { title: "Renamed" } } }
+      expect(response).to redirect_to(dossier_credential_path(credential))
+      without_n_plus_one_queries { delete dossier_credential_path(credential) }
+      expect(response).to have_http_status(:redirect)
+    end
+
     it "Loads My Career › Experience without N+1 queries" do
       2.times do
         engagement = create(:dossier_engagement, user: adam, start_month: "2015-01", end_month: "2022-12")

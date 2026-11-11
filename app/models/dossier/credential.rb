@@ -2,7 +2,8 @@
 
 # A degree, certification, course… of a Credential Type, issued by an
 # Organisation (the provider, labelled "Issued By"), with Started/Completed
-# dates (no Completed yet means in progress), an optional expiry, certificate
+# dates, a status (To Do, In Progress, Completed: unset, it follows the dates),
+# an optional expiry, certificate
 # number and verification URL, hours, Skills and a description. Credentials of
 # a training type are "Training". A Credential can sit under an Engagement, and
 # one of its Assignments, or stand alone (bench time, gaps). It's hidden while
@@ -20,7 +21,11 @@ class Dossier::Credential < ApplicationRecord
   # classification (they can carry personal details).
   FILE_TYPES = %w[application/pdf image/jpeg image/png].freeze
 
+  STATUS_LABELS = { "todo" => "To Do", "in_progress" => "In Progress", "completed" => "Completed" }.freeze
+
   URL_FORMAT = { with: %r{\Ahttps?://\S+\z}i, message: "must start with http:// or https://" }.freeze
+
+  enum :status, STATUS_LABELS.keys.index_with(&:itself), validate: true
 
   self.year_precision = true
   dated_edge :expires
@@ -39,8 +44,9 @@ class Dossier::Credential < ApplicationRecord
   normalizes :description, with: ->(value) { value.strip.presence }
   normalizes :certificate_number, :verification_url, with: ->(value) { value.strip.presence }
 
-  # An Assignment implies its Engagement.
+  # An Assignment implies its Engagement; no status chosen follows the dates.
   before_validation { self.engagement = assignment.engagement if assignment }
+  before_validation { self.status ||= end_on ? "completed" : "in_progress" }
 
   validates :title, presence: true
   validates :verification_url, format: URL_FORMAT, allow_nil: true
@@ -49,9 +55,12 @@ class Dossier::Credential < ApplicationRecord
   validates :hours, numericality: { greater_than: 0 }, allow_nil: true
   validate  :links_belong_to_user
   validate  :expires_after_start
+  validate  :completed_date_matches_status
 
   delegate :training?, to: :credential_type, allow_nil: true
 
+  # Begun at least: To Do stays off the CV and out of Skill experience.
+  scope :started, -> { where.not(status: "todo") }
   scope :training, -> { joins(:credential_type).where(dossier_credential_types: { training: true }) }
   # Not under a deleted Engagement or Assignment.
   scope :kept, -> {
@@ -73,8 +82,15 @@ class Dossier::Credential < ApplicationRecord
 
   def files_visible_to?(user) = user.present? && (user_id == user.id || user.can_administer?)
 
-  # Like date_range, but an unfinished course is "Mar 2024 – in progress".
-  def dates = current? ? "#{formatted_start} – in progress" : date_range
+  def status_label = STATUS_LABELS[status]
+
+  # Like date_range, but an unfinished course is "Mar 2024 – in progress",
+  # and one not started yet "—".
+  def dates
+    return "—" if start_on.nil?
+
+    current? ? "#{formatted_start} – in progress" : date_range
+  end
 
   def formatted_expiry = expires_on && format_dossier_date(expires_on, expires_precision)
 
@@ -103,6 +119,16 @@ class Dossier::Credential < ApplicationRecord
   end
 
   private
+
+  def start_required? = !todo?
+
+  def completed_date_matches_status
+    if completed? && end_on.nil? && @bad_date&.dig(:end).nil?
+      errors.add(:end_month, "is needed when the status is Completed")
+    elsif !completed? && end_on.present?
+      errors.add(:end_month, "must be empty until the status is Completed")
+    end
+  end
 
   def expires_after_start
     return if expires_on.nil? || start_on.nil?

@@ -1,7 +1,9 @@
 # app/controllers/dossier/credentials_controller.rb
 
 # The signed-in user's Credentials (degrees, certifications, courses…), at
-# /dossier/credentials, grouped by Credential Type. New takes an optional
+# /dossier/credentials, grouped by Credential Type; training types list only
+# Completed ones (Browse and Filter Courses list the rest). Every table sorts
+# by ?sort=&direction=. New takes an optional
 # engagement_id or assignment_id to preselect where it sits (from those pages'
 # "Add Training" buttons), and creating returns there.
 class Dossier::CredentialsController < ApplicationController
@@ -12,14 +14,26 @@ class Dossier::CredentialsController < ApplicationController
   helper_method :engagement_choices, :assignment_choices
 
   def index
-    credentials = current_user.dossier_credentials.kept.newest_first
-                              .includes(:credential_type, :provider, { engagement: :employer },
-                                        assignment: :client, credential_skills: :skill)
-    @groups = credentials.group_by(&:credential_type).sort_by { |type, _| [ type.position, type.name.downcase ] }
+    mine = current_user.dossier_credentials.kept
+    listed = Dossier::Credential.where(status: "completed")
+                                .or(Dossier::Credential.where(credential_type_id: Dossier::CredentialType.where(training: false).select(:id)))
+    credentials = mine.merge(listed).newest_first
+                      .includes(:provider, { engagement: :employer }, assignment: :client, credential_skills: :skill)
+                      .group_by(&:credential_type_id)
+    @sort = Dossier::CredentialSort.new(params[:sort], params[:direction],
+                                        taken_during: ->(credential) { helpers.credential_taken_during_label(credential) })
+    # Every type the user has, even one with nothing Completed (its frame says so).
+    @groups = Dossier::CredentialType.where(id: mine.select(:credential_type_id)).in_order
+                                     .map { |type| [ type, @sort.apply(credentials.fetch(type.id, [])) ] }
   end
 
   def show
-    redirect_to dossier_credentials_path, alert: "Not authorised." unless Policy.new(current_user, @credential).can_read?
+    return redirect_to(dossier_credentials_path, alert: "Not authorised.") unless Policy.new(current_user, @credential).can_read?
+
+    # The certificate previews, only for those who see them.
+    if @credential.files_visible_to?(current_user)
+      ActiveRecord::Associations::Preloader.new(records: [ @credential ], associations: { files_attachments: :blob }).call
+    end
   end
 
   def new
@@ -99,8 +113,10 @@ class Dossier::CredentialsController < ApplicationController
     redirect_to dossier_path, alert: "Not authorised." unless Policy.new(current_user, :dossier).can_create?
   end
 
+  # Only what each action reads: Show and Edit list the Skills.
   def set_credential
-    @credential = Dossier::Credential.includes(credential_skills: :skill, files_attachments: :blob).find(params[:id])
+    scope = %w[show edit].include?(action_name) ? Dossier::Credential.includes(credential_skills: :skill) : Dossier::Credential
+    @credential = scope.find(params[:id])
   end
 
   def credential_params
@@ -109,6 +125,6 @@ class Dossier::CredentialsController < ApplicationController
                                                :end_year, :end_month_number, :end_day,
                                                :expires_year, :expires_month_number, :expires_day,
                                                :certificate_number, :verification_url,
-                                               :hours, :skills_text, :description, files: [])
+                                               :hours, :skills_text, :description, :status, files: [])
   end
 end

@@ -107,6 +107,8 @@ Rails.application.routes.draw do
     resources :credentials do
       resources :files, only: :show, controller: "credential_files"
     end
+    get "courses/browse", to: "courses#browse", as: :browse_courses
+    get "courses/filter", to: "courses#filter", as: :filter_courses
     resources :engagements do
       get  :deleted, on: :collection
       post :restore, on: :member

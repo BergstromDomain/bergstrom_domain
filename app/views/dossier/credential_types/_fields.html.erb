@@ -1,7 +1,7 @@
 <%= render "dossier/shared/field", f: f, record: record, attribute: :name, label: "Name" %>
 <%= render "dossier/shared/field", f: f, record: record, attribute: :position, label: "Sort Order",
       field: f.number_field(:position, min: 0, step: 1, class: "form-control", data: { testid: "position-field" }),
-      hint: "Lower numbers come first on My Career › Credentials, e.g. Degree 1, Certification 3, Course 4." %>
+      hint: "Lower numbers come first on Credentials › Credentials, e.g. Degree 1, Certification 3, Course 4." %>
 <%= render "dossier/shared/field", f: f, record: record, attribute: :training, label: "Training",
       field: f.check_box(:training, data: { testid: "training-field" }),
       hint: "Tick for courses and workshops: they show in the Training panels on Engagement, Assignment and Skill pages." %>

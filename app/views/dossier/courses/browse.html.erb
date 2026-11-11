@@ -1,0 +1,26 @@
+<div class="page-header">
+  <div class="page-header__top">
+    <h1 class="page-title" data-testid="browse-root">Browse Courses</h1>
+  </div>
+  <p class="page-header__subtitle">Your Courses by who issued them, every status: To Do, In Progress and Completed.</p>
+</div>
+
+<% if @browse_tree.leaf? %>
+  <%= render "shared/browse/breadcrumb", tree: @browse_tree, root_label: @browse_root_label %>
+<% else %>
+  <%= render "shared/browse/tree", tree: @browse_tree, root_label: @browse_root_label %>
+<% end %>
+
+<% if @courses %>
+  <section class="browse-preview" data-testid="browse-preview">
+    <h2 class="browse-preview__heading" data-testid="browse-preview-heading">
+      Courses in <%= @browse_tree.path.last.label %> (<%= @browse_tree.path.last.count %>)
+    </h2>
+    <% if @courses.any? %>
+      <%= render "dossier/credentials/table", credentials: @courses, taken_during: true, status: true,
+            table_testid: "credentials-table", row_testid: "credential-row" %>
+    <% else %>
+      <div class="empty-state" data-testid="empty-state"><p>No Courses here yet.</p></div>
+    <% end %>
+  </section>
+<% end %>

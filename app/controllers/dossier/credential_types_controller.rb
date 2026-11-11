@@ -4,7 +4,7 @@ class Dossier::CredentialTypesController < Dossier::ReferenceDataController
 
   def model_class          = Dossier::CredentialType
   def permitted_attributes = %i[name description position training]
-  def subtitle             = "Kinds of Credential, in the order My Career › Credentials groups them. Training types also show in the Training panels."
+  def subtitle             = "Kinds of Credential, in the order Credentials › Credentials groups them. Training types also show in the Training panels."
   def index_groups         = [ [ nil, model_class.in_order ] ]
 
   def details(record)

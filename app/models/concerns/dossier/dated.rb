@@ -82,6 +82,9 @@ module Dossier
 
     private
 
+    # A model may let the start be blank (e.g. a Credential not started yet).
+    def start_required? = true
+
     def format_dossier_date(date, precision)
       date.strftime({ "day" => "%-d %b %Y", "year" => "%Y" }.fetch(precision, "%b %Y"))
     end
@@ -151,7 +154,7 @@ module Dossier
         message = part == :day ? "is not a day in that month" : "needs a four-digit year and a month, e.g. 2019 and May"
         errors.add(:"#{edge}_#{part}", message)
       end
-      errors.add(:start_month, :blank) if start_on.nil? && @bad_date&.dig(:start).nil?
+      errors.add(:start_month, :blank) if start_on.nil? && @bad_date&.dig(:start).nil? && start_required?
       return if start_on.nil? || end_on.nil?
 
       errors.add(:end_month, "must not be before the start") if effective_end < start_on
