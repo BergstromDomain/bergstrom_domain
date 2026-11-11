@@ -291,7 +291,7 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it "Loads Contributions and a Contribution without N+1 queries" do
+    it "Loads Contributions, a Contribution and its Edit page without N+1 queries" do
       engagement = create(:dossier_engagement, user: adam)
       talks = Array.new(3) do |n|
         create(:dossier_contribution, user: adam, kind: n.zero? ? "article" : "talk", event: create(:dossier_organisation),
@@ -302,6 +302,8 @@ RSpec.describe "Eager loading", type: :request do
       without_n_plus_one_queries { get dossier_contributions_path }
       expect(response).to have_http_status(:ok)
       without_n_plus_one_queries { get dossier_contribution_path(talks.last) }
+      expect(response).to have_http_status(:ok)
+      without_n_plus_one_queries { get edit_dossier_contribution_path(talks.last) }
       expect(response).to have_http_status(:ok)
     end
 

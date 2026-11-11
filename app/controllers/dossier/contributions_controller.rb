@@ -96,10 +96,12 @@ class Dossier::ContributionsController < ApplicationController
     redirect_to dossier_path, alert: "Not authorised." unless Policy.new(current_user, :dossier).can_create?
   end
 
-  # Kept ones only: a deleted one is a 404 until it's restored.
+  # Kept ones only: a deleted one is a 404 until it's restored. The event and
+  # Engagement aren't preloaded: one record loads each with one query, and
+  # Edit (whose selects use the ids) never reads them.
   def set_contribution
     scope = Dossier::Contribution.kept
-    scope = scope.includes(:event, :engagement, contribution_skills: :skill) if %w[show edit].include?(action_name)
+    scope = scope.includes(contribution_skills: :skill) if %w[show edit].include?(action_name)
     @contribution = scope.find(params[:id])
   end
 
