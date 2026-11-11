@@ -1,0 +1,22 @@
+<%# The Soft Skills ticks and the typed Technical Skills, for a record with Dossier::SkillTags' soft_boxes. Locals: f, record, error_attribute %>
+<% soft_skills = Dossier::Skill.soft.to_a %>
+<% if soft_skills.any? %>
+  <div class="show-panel__section" data-testid="soft-skills-field">
+    <h2 class="show-panel__heading">
+      Soft Skills
+      <%= render "shared/info_tip", text: "Tick the soft skills this shows, so it's an example of them on My Career › Soft Skills.",
+            testid: "soft-skills-info" %>
+    </h2>
+    <div class="form-group dossier-soft-skill-checks">
+      <%= f.collection_check_boxes :soft_skill_ids, soft_skills, :id, :display_name do |box| %>
+        <div class="form-check" title="<%= box.object.description %>">
+          <%= box.check_box(data: { testid: "soft-skill-check-#{box.object.id}" }) %>
+          <%= box.label %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+<%= render "dossier/shared/field", f: f, record: record, attribute: :skills_text, label: "Technical Skills",
+      error_attribute: error_attribute,
+      hint: "Optional. Tools, languages and methods, separated by commas; new names become Skills in the Uncategorised Skill Category." %>

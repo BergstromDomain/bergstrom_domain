@@ -1,0 +1,35 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Soft Skills</h1>
+  </div>
+  <p class="page-header__subtitle page-header__subtitle--centered">
+    Each Soft Skill with your examples of it: the Achievements and Contributions you've ticked it on. Use them when an
+    application or interview asks for one. Situations are seen only by you and Admins, and Soft Skills are never on a CV.
+  </p>
+</div>
+
+<% if @entries.any? %>
+  <% @entries.each do |entry| %>
+    <details class="show-panel dossier-skill-group" open data-testid="soft-skill-<%= entry.skill.id %>">
+      <summary class="dossier-skill-group__summary">
+        <h2 class="show-panel__heading" data-testid="soft-skill-heading"><%= entry.skill.display_name %></h2>
+        <span class="dossier-skill-group__count"><%= pluralize(entry.size, "example") %></span>
+      </summary>
+      <div class="show-panel__section">
+        <p class="form-hint">
+          <%= entry.skill.description %>
+          <%= link_to "Open #{entry.skill.display_name}", dossier_skill_path(entry.skill) %>
+        </p>
+        <% if entry.size.positive? %>
+          <%= render "dossier/skills/example_list", achievements: entry.achievements, contributions: entry.contributions %>
+        <% else %>
+          <p data-testid="soft-skill-empty">No examples yet.</p>
+        <% end %>
+      </div>
+    </details>
+  <% end %>
+<% else %>
+  <div class="empty-state" data-testid="empty-state">
+    <p>No Soft Skills yet. An Admin can mark a Skill Category as Soft Skills, then you can tick its Skills on your Achievements and Contributions.</p>
+  </div>
+<% end %>

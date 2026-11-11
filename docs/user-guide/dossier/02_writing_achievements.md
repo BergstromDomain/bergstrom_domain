@@ -18,11 +18,12 @@ Choose **Add Achievement** on an Assignment's page, or **Actions › New › Wri
 - **Achievement:** one bullet point, in short form without "I": "Raised the Year 12 physics pass rate." It reads the same on every CV, whatever voice the CV uses.
 - **Impact** (optional): a measurable result, such as "from 72% to 91%". CVs show it after the text.
 - **Importance:** 1 to 5, 3 by default. CVs include the most important Achievements first, so this is how you choose what makes a short CV.
-- **Skills** (optional): the Skills it shows, separated by commas. A name Dossier doesn't know becomes a new Skill in the **Uncategorised** category. Tagging an Achievement with a Skill counts that Assignment towards your years with it. Tag soft skills too, such as **Leadership** or **Stakeholder Management**: see Professional Skills under Skills and Experience.
+- **Soft Skills** (optional): tick the soft skills it shows, such as **Leadership** or **Stakeholder Management**. Each one you tick makes this Achievement an example of it: see Soft Skills under Skills and Experience.
+- **Technical Skills** (optional): the tools, languages and methods it shows, separated by commas. A name Dossier doesn't know becomes a new Skill in the **Uncategorised** category. Tagging an Achievement with a Skill counts that Assignment towards your years with it.
 
 ## Your Achievements
 
-An Assignment's page lists its Achievements in order. Use the arrows in the **Sort** column to move one up or down. CVs keep this order.
+An Assignment's page lists its Achievements in order. Under each one are its **Situation** (only you and Admins see it), **Impact** and **Soft Skills**, in the order of a STAR answer (Situation, Task, Action, Result): the Achievement itself is the Task and Action, and its Impact the Result. Its Technical Skills are on its own page. Use the arrows in the **Sort** column to move one up or down. CVs keep this order.
 
 ![The Achievements panel on an Assignment's page, with Importance and the Sort arrows](images/assignment_achievements.png)
 

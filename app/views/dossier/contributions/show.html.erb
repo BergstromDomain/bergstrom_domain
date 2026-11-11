@@ -78,14 +78,7 @@
         <%= @contribution.engagement ? link_to(@contribution.engagement.to_toast_label, dossier_engagement_path(@contribution.engagement)) : "None" %>
       </p>
     </div>
-    <div class="show-meta-cell">
-      <h3 class="show-meta-cell__label">Skills</h3>
-      <p class="show-meta-cell__value" data-testid="contribution-skills">
-        <% skills = @contribution.current_skills %>
-        <%# One span: the cell is a flex row, whose gap would land before each comma. %>
-        <span><%= skills.any? ? safe_join(skills.map { |skill| link_to(skill.display_name, dossier_skill_path(skill)) }, ", ") : "—" %></span>
-      </p>
-    </div>
+    <%= render "dossier/shared/skill_cells", record: @contribution, testid: "contribution" %>
   </div>
 </details>
 

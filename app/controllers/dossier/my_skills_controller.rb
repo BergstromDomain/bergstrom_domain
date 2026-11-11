@@ -1,8 +1,8 @@
 # app/controllers/dossier/my_skills_controller.rb
 
-# My Career › Skills: every Skill the signed-in user has used, grouped by
-# Skill Category, with their years of experience; professional (soft) Skills
-# apart, by how many example Achievements show them.
+# My Career › Technical Skills: every technical Skill the signed-in user has
+# used, grouped by Skill Category, with their years of experience. Soft Skills
+# are on My Career › Soft Skills.
 class Dossier::MySkillsController < ApplicationController
   include Navigable
   before_action :require_dossier_access
@@ -14,7 +14,6 @@ class Dossier::MySkillsController < ApplicationController
     calculator = Dossier::ExperienceCalculator.new(current_user)
     experiences = calculator.technical_skills
     ActiveRecord::Associations::Preloader.new(records: experiences.map(&:skill), associations: { skill_category: :parent }).call
-    @professional = calculator.professional_skills.sort_by { |e| [ -e.achievements.size, e.skill.name.downcase ] }
     @groups = experiences.group_by { |experience| experience.skill.skill_category.parent || experience.skill.skill_category }
                          .sort_by { |category, _| category.name.downcase }
                          .map { |category, list| [ category, subgroups(category, list) ] }

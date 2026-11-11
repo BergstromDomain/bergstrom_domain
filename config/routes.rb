@@ -103,6 +103,7 @@ Rails.application.routes.draw do
     get "timeline/:from/:to", to: "periods#show", as: :period,
                               constraints: { from: /\d{4}-\d{2}-\d{2}/, to: /\d{4}-\d{2}-\d{2}/ }
     get "my-skills", to: "my_skills#index", as: :my_skills
+    get "soft-skills", to: "soft_skills#index", as: :soft_skills
     get "experience", to: "experience#index", as: :experience
     resources :credentials do
       resources :files, only: :show, controller: "credential_files"

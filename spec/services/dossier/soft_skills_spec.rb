@@ -1,10 +1,10 @@
-# spec/services/dossier/professional_skills_spec.rb
+# spec/services/dossier/soft_skills_spec.rb
 require "rails_helper"
 
-# Dossier::ProfessionalSkills seeds the "Professional Skills" category and
+# Dossier::SoftSkills seeds the "Soft Skills" category and
 # its Skills; soft Skills stay off the CV's skills table and a CV Variant's
 # Skill choices, and an Achievement's situation never reaches a CV.
-RSpec.describe Dossier::ProfessionalSkills do
+RSpec.describe Dossier::SoftSkills do
   let(:user) { create(:user, :content_creator) }
   let(:today) { Date.new(2026, 11, 11) }
 
@@ -20,7 +20,7 @@ RSpec.describe Dossier::ProfessionalSkills do
   describe "Happy Path" do
     it "Seeds a soft category with nine Skills, the ad's wording as aliases" do
       described_class.seed!
-      category = Dossier::SkillCategory.find_by!(name: "Professional Skills")
+      category = Dossier::SkillCategory.find_by!(name: "Soft Skills")
 
       expect(category).to be_soft
       expect(category.skills.pluck(:name)).to match_array(described_class::SKILLS.keys)
@@ -36,7 +36,7 @@ RSpec.describe Dossier::ProfessionalSkills do
 
       expect(cv.skills.flat_map { |_, line| line }.join).to include("Jira")
       expect(cv.skills.flat_map { |heading, line| [ heading, line ] }.join).not_to include("Leadership")
-      expect(cv.skills.map(&:first)).not_to include("Professional Skills")
+      expect(cv.skills.map(&:first)).not_to include("Soft Skills")
       expect(cv.experience.first.assignments.first.achievements).to eq([ "Ran daily defect triage" ])
       docx = docx_parts(Dossier::CvDocx.new(cv).render).values.join
       expect(docx).not_to include("Defects sat unowned")
@@ -58,12 +58,22 @@ RSpec.describe Dossier::ProfessionalSkills do
 
   # 3) Alternative Paths ───────────────────────────────────────────────────────
   describe "Alternative Paths" do
-    it "Uses a Professional Skills category that's already there, marking it soft" do
-      existing = create(:dossier_skill_category, name: "professional skills")
+    it "Uses a Soft Skills category that's already there, marking it soft" do
+      existing = create(:dossier_skill_category, name: "soft skills")
       described_class.seed!
 
       expect(existing.reload).to be_soft
-      expect(Dossier::SkillCategory.where("LOWER(name) = 'professional skills'").count).to eq(1)
+      expect(Dossier::SkillCategory.where("LOWER(name) = 'soft skills'").count).to eq(1)
+    end
+
+    it "Renames the earlier Professional Skills category to Soft Skills, keeping its Skills" do
+      earlier = create(:dossier_skill_category, name: "Professional Skills", soft: true)
+      leadership = create(:dossier_skill, name: "Leadership", skill_category: earlier)
+      described_class.seed!
+
+      expect(earlier.reload.name).to eq("Soft Skills")
+      expect(leadership.reload.skill_category).to eq(earlier)
+      expect(Dossier::SkillCategory.where(name: [ "Soft Skills", "Professional Skills" ]).count).to eq(1)
     end
   end
 

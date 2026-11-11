@@ -27,6 +27,9 @@ class Dossier::Skill < ApplicationRecord
   validate :parent_is_one_level_deep
   validate :vendor_chosen_when_shown
 
+  # Every Soft Skill (in a soft category, or a sub-category of one), A–Z.
+  def self.soft = where(skill_category_id: Dossier::SkillCategory.soft_ids).alphabetical
+
   def self.find_by_name_or_alias(text)
     text = text.to_s.strip.downcase
     return if text.empty?
@@ -93,7 +96,7 @@ class Dossier::Skill < ApplicationRecord
   # The Skill a family is shown under: the parent, or itself.
   def family_root = parent || self
 
-  # A professional (soft) skill, such as Leadership (SkillCategory#soft_skills?).
+  # A Soft Skill, such as Leadership (SkillCategory#soft_skills?).
   def soft? = skill_category.soft_skills?
 
   # What sets a version apart: "XP" for Windows XP under Windows; the whole

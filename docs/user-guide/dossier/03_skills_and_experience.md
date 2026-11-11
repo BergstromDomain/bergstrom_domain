@@ -18,21 +18,21 @@ Dossier works out your years of experience from your dates, so you never have to
 
 ## Your Skills
 
-**My Career › Skills** lists every Skill in your Tech Stacks and Achievements, grouped by Skill Category, most years first.
+**My Career › Technical Skills** lists every technical Skill in your Tech Stacks and Achievements, grouped by Skill Category, most years first.
 
-![My Career › Skills: Excel and Python under Software, Inquiry-Based Learning under Teaching Methods, with Years, Personal, Last Used, Assignments and Training](images/my_skills.png)
+![My Career › Technical Skills: Excel and Python under Software, Inquiry-Based Learning under Teaching Methods, with Years, Personal, Last Used, Assignments and Training](images/my_skills.png)
 
 An Assignment uses a Skill when the Skill is in its Tech Stack or tagged on one of its Achievements.
 
 Choose a Skill to open its page. Everyone can see a Skill's name and description, but only you see **Your Experience** with it, and the Assignments, Achievements and Training that use it.
 
-## Professional Skills
+## Soft Skills
 
-Soft skills, such as **Leadership**, **Stakeholder Management** or **Communication & Presentation**, live in the **Professional Skills** category. Tag your Achievements with them as you would any Skill. The wording job ads use also works: typing "Flexibility and Adaptability" tags **Adaptability**.
+Soft skills, such as **Leadership**, **Stakeholder Management** or **Communication & Presentation**, live in the **Soft Skills** category. Tick them on an Achievement's or a Contribution's form, under **Soft Skills**. Typing one in Technical Skills works too, as does the wording job ads use: typing "Flexibility and Adaptability" tags **Adaptability**.
 
-They aren't counted in years. **My Career › Skills** lists them first, with how many Achievements show each one (**Examples**) and when the latest was. A Professional Skill's page lists **Your Examples**: each Achievement with its Situation, Impact and Assignment, most important first. That's where to look when an application or interview asks for an example of a skill. Professional Skills never appear in a CV's skills.
+They aren't counted in years. **My Career › Soft Skills** lists every Soft Skill with your examples of it: each Achievement with its Situation, Impact and Assignment, most important first, then each Contribution. A Soft Skill with none says **No examples yet**. That's where to look when an application or interview asks for an example of a skill. A Soft Skill's own page lists its Achievements too, under **Your Examples**. Soft Skills never appear in a CV's skills.
 
-Admins can make any Skill Category soft, by ticking **Professional (Soft) Skills** on its Edit page. Its sub-categories are then soft too.
+Admins can make any Skill Category soft, by ticking **Soft Skills** on its Edit page. Its sub-categories are then soft too.
 
 ![Python's page: Your Experience, 2+ years, last used Jun 2019, 1 Assignment, 0 Training](images/skill_experience.png)
 

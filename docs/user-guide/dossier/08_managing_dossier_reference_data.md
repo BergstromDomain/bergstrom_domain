@@ -8,7 +8,7 @@ Dossier's Reference Data is shared by everyone who uses it. Everyone can view it
 ## What Each One Holds
 
 - **Organisations:** employers, clients, issuers and training providers. A **Name**, an optional **Abbreviation** (headings show the full name with it, running text uses the abbreviation), an **Industry** and a **Website**. Content Creators can add Organisations themselves; only admins edit or delete them.
-- **Industries** and **Skill Categories:** a name and an optional description. A Skill Category can also be a sub-category, and can be marked **Professional (Soft) Skills**.
+- **Industries** and **Skill Categories:** a name and an optional description. A Skill Category can also be a sub-category, and can be marked **Soft Skills**.
 - **Roles:** what someone did for a client, such as Teacher or Test Lead.
 - **Locations:** a **City** and **Country**.
 - **Employment Types:** a name, plus two boxes. **Permanent** gives each new Engagement one Assignment automatically, with the employer as client. **Personal** marks hobby projects: their years count as personal experience, and the Timeline doesn't treat them as work.

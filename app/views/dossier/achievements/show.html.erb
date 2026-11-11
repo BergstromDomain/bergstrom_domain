@@ -11,7 +11,7 @@
 
 <%# Main div — the bullet point, and its situation for the owner and Admins only %>
 <div class="show-panel" data-testid="show-panel-main">
-  <% if @achievement.situation && current_user && (@achievement.user_id == current_user.id || current_user.can_administer?) %>
+  <% if @achievement.situation_visible_to?(current_user) %>
     <div class="show-panel__section">
       <h2 class="show-panel__heading">
         Situation
@@ -36,14 +36,7 @@
       <h3 class="show-meta-cell__label">Importance</h3>
       <p class="show-meta-cell__value" data-testid="achievement-importance"><%= importance_label(@achievement.importance) %></p>
     </div>
-    <div class="show-meta-cell">
-      <h3 class="show-meta-cell__label">Skills</h3>
-      <p class="show-meta-cell__value" data-testid="achievement-skills">
-        <% skills = @achievement.current_skills %>
-        <%# One span: the cell is a flex row, whose gap would land before each comma. %>
-        <span><%= skills.any? ? safe_join(skills.map { |skill| link_to(skill.display_name, dossier_skill_path(skill)) }, ", ") : "—" %></span>
-      </p>
-    </div>
+    <%= render "dossier/shared/skill_cells", record: @achievement, testid: "achievement" %>
   </div>
 </div>
 

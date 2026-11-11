@@ -30,6 +30,6 @@ class Dossier::SkillCategoriesController < Dossier::ReferenceDataController
   def details(record)
     part_of = record.parent && helpers.link_to(record.parent.name, dossier_skill_category_path(record.parent))
     [ [ "Part Of", part_of, "part-of" ],
-      [ "Professional Skills", record.soft_skills? ? "Yes" : "No", "soft" ] ]
+      [ "Soft Skills", record.soft_skills? ? "Yes" : "No", "soft" ] ]
   end
 end

@@ -2,9 +2,9 @@
 
 namespace :dossier do
   namespace :skills do
-    desc "Add the Professional Skills category (soft) and its Skills, leaving any already there"
-    task professional: :environment do
-      category = Dossier::ProfessionalSkills.seed!
+    desc "Add the Soft Skills category and its Skills (renaming Professional Skills), leaving any already there"
+    task soft: :environment do
+      category = Dossier::SoftSkills.seed!
       puts "#{category.name}: #{category.skills.order(:name).pluck(:name).join(', ')}"
     end
 

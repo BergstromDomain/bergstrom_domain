@@ -18,7 +18,7 @@ class Dossier::Achievement < ApplicationRecord
   belongs_to :assignment
   has_many :achievement_skills, -> { order(:id) }, dependent: :destroy, autosave: true, inverse_of: :achievement
   has_many :skills, through: :achievement_skills
-  skill_tags :achievement_skills
+  skill_tags :achievement_skills, soft_boxes: true
 
   normalizes :text, with: ->(value) { value.strip }
   normalizes :impact, :situation, with: ->(value) { value.strip.presence }
@@ -68,6 +68,11 @@ class Dossier::Achievement < ApplicationRecord
 
   def purge_at
     deleted_at + DELETION_RETENTION_PERIOD if deleted_at
+  end
+
+  # The situation is private: only the owner and Admins see it, never on a CV.
+  def situation_visible_to?(user)
+    situation.present? && user.present? && (user_id == user.id || user.can_administer?)
   end
 
   def to_toast_label

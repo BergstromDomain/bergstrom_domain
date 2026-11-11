@@ -107,6 +107,7 @@ class Dossier::ContributionsController < ApplicationController
 
   def contribution_params
     params.require(:dossier_contribution).permit(:kind, :title, :event_id, :start_year, :start_month_number, :start_day,
-                                                 :location, :url, :presented_as, :description, :skills_text, files: [])
+                                                 :location, :url, :presented_as, :description, :skills_text,
+                                                 soft_skill_ids: [], files: [])
   end
 end

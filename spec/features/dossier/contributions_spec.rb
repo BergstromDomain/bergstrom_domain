@@ -31,7 +31,7 @@ RSpec.describe "Dossier Contributions", type: :feature do
       fill_in "Location", with: "Gold Tower, Level 27, 10 Eagle St, Brisbane City"
       fill_in "Presented As", with: "Test Manager, Elysium Digital"
       fill_in "Link", with: "https://www.meetup.com/all-things-testing-brisbane/"
-      fill_in "Skills", with: "Robot Framework, Knowledge Sharing"
+      fill_in "Technical Skills", with: "Robot Framework, Knowledge Sharing"
       select "Test Manager at Elysium Digital (Sep 2024 – Present)", from: "During"
       attach_file "Files", file_fixture("test_image.png")
       click_button "Add Contribution"

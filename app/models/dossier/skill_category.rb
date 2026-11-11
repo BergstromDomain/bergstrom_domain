@@ -3,7 +3,7 @@
 # Groups Skills. A category can sit under a top-level one as a sub-category
 # (VoIP under Protocols & Standards), one level deep; names are unique within
 # their parent, so "Other" can exist under several parents. A soft category
-# (Professional Skills) holds soft skills such as Leadership: they're shown by
+# (Soft Skills) holds soft skills such as Leadership: they're shown by
 # their example Achievements, not years, and stay off the CV's skills table.
 # Its sub-categories are soft too.
 class Dossier::SkillCategory < ApplicationRecord
