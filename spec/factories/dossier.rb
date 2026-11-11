@@ -128,6 +128,15 @@ FactoryBot.define do
     person { dossier_contact_person(name, assignment.user || assignment.engagement.user) }
   end
 
+  # A consultant you worked with during the Engagement, on no shared Assignment.
+  factory :dossier_engagement_colleague, class: "Dossier::EngagementColleague" do
+    transient do
+      sequence(:name) { |n| "Engagement Colleague #{n}" }
+    end
+    association :engagement, factory: :dossier_engagement
+    person { dossier_contact_person(name, engagement.user) }
+  end
+
   factory :dossier_assignment_partner, class: "Dossier::AssignmentPartner" do
     association :assignment, factory: :dossier_assignment
     association :organisation, factory: :dossier_organisation

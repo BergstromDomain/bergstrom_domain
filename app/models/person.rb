@@ -28,6 +28,7 @@ class Person < ApplicationRecord
   # who is one can't be deleted until they're removed there.
   has_many :dossier_colleagues, class_name: "Dossier::Colleague", dependent: nil
   has_many :dossier_staff_members, class_name: "Dossier::StaffMember", dependent: nil
+  has_many :dossier_engagement_colleagues, class_name: "Dossier::EngagementColleague", dependent: nil
 
   before_destroy :keep_if_a_dossier_contact, prepend: true
 
@@ -112,9 +113,9 @@ class Person < ApplicationRecord
   end
 
   def keep_if_a_dossier_contact
-    return unless dossier_colleagues.exists? || dossier_staff_members.exists?
+    return unless dossier_colleagues.exists? || dossier_staff_members.exists? || dossier_engagement_colleagues.exists?
 
-    errors.add(:base, "#{full_name} is a Colleague or Staff member on a Dossier Assignment: remove them there first.")
+    errors.add(:base, "#{full_name} is a Colleague or Staff member in Dossier: remove them there first.")
     throw :abort
   end
 

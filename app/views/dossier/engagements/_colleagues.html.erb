@@ -1,0 +1,23 @@
+<%# Colleagues div: consultants you worked with during the Engagement, on no shared Assignment — private: the caller shows it to the owner and Admins only. Locals: engagement, editable %>
+<div class="show-panel dossier-colleagues" id="colleagues" data-testid="engagement-colleagues">
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">
+      Colleagues
+      <%= render "shared/info_tip", text: "People you worked with during this Engagement but on no Assignment you shared. Only you and Admins see this, and it's never on a CV.", testid: "engagement-colleagues-info" %>
+    </h2>
+    <% colleagues = engagement.colleagues.preload(Dossier::ContactDetails::PRELOAD).to_a %>
+    <% if colleagues.any? %>
+      <%= render "dossier/shared/contacts_table", contacts: colleagues, editable: editable,
+            table_testid: "engagement-colleagues-table", row_testid: "engagement-colleague-row",
+            edit_path: ->(colleague) { edit_dossier_engagement_colleague_path(engagement, colleague) },
+            delete_path: ->(colleague) { dossier_engagement_colleague_path(engagement, colleague) } %>
+    <% else %>
+      <p data-testid="engagement-colleagues-empty">No Colleagues yet.</p>
+    <% end %>
+    <% if editable %>
+      <%= link_to new_dossier_engagement_colleague_path(engagement), class: "btn btn-primary-action" do %>
+        <%= lucide_icon("user-plus", size: 16) %> Add A Colleague
+      <% end %>
+    <% end %>
+  </div>
+</div>

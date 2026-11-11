@@ -3,7 +3,8 @@
 # For the Colleague and Staff member forms (Dossier::ContactDetails): the New
 # page finds People you can see by name (?q=) and links the one picked
 # (?person_id=); without one, the form's name adds a new Restricted Person
-# owned by the Assignment's owner. The form edits the linked Person's name,
+# owned by the Engagement's or Assignment's owner (contact_owner, which the
+# controller defines). The form edits the linked Person's name,
 # Work Email and LinkedIn directly when you may update that Person, and only
 # shows them otherwise.
 module Dossier::LinksPeople
@@ -40,7 +41,7 @@ module Dossier::LinksPeople
   end
 
   # The contact's own fields, and the Person's when they may be changed: a new
-  # Person is Restricted and the Assignment owner's.
+  # Person is Restricted and contact_owner's.
   def assign_contact(contact, attributes)
     attributes = attributes.to_h
     person_attributes = attributes.delete("person_attributes") || {}
@@ -50,7 +51,7 @@ module Dossier::LinksPeople
 
     person.assign_attributes(person_attributes)
     if person.new_record?
-      person.assign_attributes(user: @assignment.user, classification: "restricted")
+      person.assign_attributes(user: contact_owner, classification: "restricted")
     else
       person.updater = current_user
     end

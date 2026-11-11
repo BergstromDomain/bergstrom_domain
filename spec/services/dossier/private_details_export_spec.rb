@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-# Colleagues, Vendors, Customers and their Staff are private (Block 12): no CV — master or
+# Colleagues (an Assignment's or an Engagement's), Vendors, Customers and their Staff are private (Block 12): no CV — master or
 # CV Variant, Word or PDF — may ever carry them.
 RSpec.describe "Dossier private Assignment details on exports" do
   let(:user) { create(:user, :content_creator) }
@@ -11,7 +11,7 @@ RSpec.describe "Dossier private Assignment details on exports" do
     [ "Zelda Secretname", "Quiet Lead", "zelda@hidden.example", "linkedin.com/in/zelda-secret",
       "Knows where the bodies are", "Hidden Vendor Pty", "Built the secret portal", "Hidden Customer Co", "Uses it quietly",
       "Vera Vendorstaff", "Release Wrangler", "vera@vendor.example", "linkedin.com/in/vera-secret",
-      "Never ships on Fridays" ]
+      "Never ships on Fridays", "Bea Benchmate", "Bench Buddy", "Shared the bench in 2024" ]
   end
 
   before do
@@ -29,6 +29,8 @@ RSpec.describe "Dossier private Assignment details on exports" do
                            linkedin_url: "https://linkedin.com/in/vera-secret")
     create(:dossier_staff_member, assignment_partner: vendor, person: vera, position: "Release Wrangler",
                                   comment: "Never ships on Fridays")
+    create(:dossier_engagement_colleague, engagement: engagement, name: "Bea Benchmate", position: "Bench Buddy",
+                                          comment: "Shared the bench in 2024")
     create(:dossier_assignment_partner, :customer, assignment: assignment, scope: "Uses it quietly",
                                                    organisation: create(:dossier_organisation, name: "Hidden Customer Co"))
   end

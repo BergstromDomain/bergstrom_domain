@@ -20,7 +20,7 @@ Content Creators and above can add people and events, from **Actions › New** i
 
 Social media accounts are added when editing a person, not when creating one. Choose **Edit** on their page, pick a **Platform** and type their **username**. A person can have one account on each platform. Their LinkedIn account is also where a Dossier Colleague's LinkedIn profile is kept.
 
-A person who is a Colleague or Staff member on a Dossier Assignment can't be deleted until they're removed from it.
+A person who is a Colleague or Staff member in Dossier, on an Engagement or an Assignment, can't be deleted until they're removed from it.
 
 ## Create Event
 
