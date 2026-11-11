@@ -1,7 +1,8 @@
 # app/models/dossier/achievement.rb
 
 # A CV bullet point: one terse text under an Assignment ("Ran daily defect
-# triage…"), with an optional impact, an importance (1–5, which later picks
+# triage…"), with an optional impact, the situation it came from (for
+# interview-style examples, never on a CV), an importance (1–5, which later picks
 # a CV's default bullets) and Skill tags. Kept in the user's order within its
 # Assignment. user_id mirrors the Assignment's owner (for Policy and
 # Classifiable). Deleting is soft; PurgeDeletedDossierAchievementsJob removes
@@ -20,7 +21,7 @@ class Dossier::Achievement < ApplicationRecord
   skill_tags :achievement_skills
 
   normalizes :text, with: ->(value) { value.strip }
-  normalizes :impact, with: ->(value) { value.strip.presence }
+  normalizes :impact, :situation, with: ->(value) { value.strip.presence }
 
   before_validation { self.user_id = assignment&.user_id }
   before_create { self.position ||= (siblings.maximum(:position) || 0) + 1 }

@@ -7,6 +7,41 @@
   </p>
 </div>
 
+<% if @professional.any? %>
+  <details class="show-panel dossier-skill-group" open data-testid="my-professional-skills">
+    <summary class="dossier-skill-group__summary">
+      <h2 class="show-panel__heading">
+        Professional Skills
+        <%= render "shared/info_tip", text: "Soft skills, counted by the Achievements you've tagged with them. Open one for its examples. They're never on a CV.",
+              testid: "my-professional-skills-info" %>
+      </h2>
+      <span class="dossier-skill-group__count"><%= pluralize(@professional.size, "Skill") %></span>
+    </summary>
+    <div class="show-panel__section">
+      <div class="data-table-wrapper">
+        <table class="data-table dossier-skill-table">
+          <thead>
+            <tr>
+              <th>Skill</th>
+              <th class="text-center">Examples</th>
+              <th>Latest</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @professional.each do |experience| %>
+              <tr data-testid="my-professional-skill-row">
+                <td><%= link_to experience.skill.display_name, dossier_skill_path(experience.skill), class: "data-table__name-link" %></td>
+                <td class="text-center" data-testid="my-professional-skill-examples"><%= experience.achievements.size %></td>
+                <td><%= experience.last_used %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+<% end %>
+
 <% if @groups.any? %>
   <% @groups.each do |category, subgroups| %>
     <details class="show-panel dossier-skill-group" open data-testid="my-skills-category">
@@ -51,7 +86,7 @@
       </div>
     </details>
   <% end %>
-<% else %>
+<% elsif @professional.empty? %>
   <div class="empty-state" data-testid="empty-state">
     <p>No Skills yet. They come from your Assignments' Tech Stacks, your Achievements' Skills and your Training.</p>
   </div>

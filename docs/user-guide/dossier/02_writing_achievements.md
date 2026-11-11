@@ -14,10 +14,11 @@ Choose **Add Achievement** on an Assignment's page, or **Actions › New › Wri
 
 ![The Write An Achievement form: Assignment, Achievement, Impact, Importance and Skills](images/achievement_form.png)
 
+- **Situation** (optional): the context, for interview-style examples, such as "Two vendors blamed each other for outages." Only you and admins see it, and it's never on a CV.
 - **Achievement:** one bullet point, in short form without "I": "Raised the Year 12 physics pass rate." It reads the same on every CV, whatever voice the CV uses.
 - **Impact** (optional): a measurable result, such as "from 72% to 91%". CVs show it after the text.
 - **Importance:** 1 to 5, 3 by default. CVs include the most important Achievements first, so this is how you choose what makes a short CV.
-- **Skills** (optional): the Skills it shows, separated by commas. A name Dossier doesn't know becomes a new Skill in the **Uncategorised** category. Tagging an Achievement with a Skill counts that Assignment towards your years with it.
+- **Skills** (optional): the Skills it shows, separated by commas. A name Dossier doesn't know becomes a new Skill in the **Uncategorised** category. Tagging an Achievement with a Skill counts that Assignment towards your years with it. Tag soft skills too, such as **Leadership** or **Stakeholder Management**: see Professional Skills under Skills and Experience.
 
 ## Your Achievements
 

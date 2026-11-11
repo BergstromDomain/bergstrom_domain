@@ -1,0 +1,27 @@
+<%# A professional (soft) Skill's examples: the signed-in user's Achievements tagged with it, most important first, each with its situation, impact and Assignment. Locals: experience %>
+<div class="show-panel" data-testid="skill-examples">
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">
+      Your Examples
+      <%= render "shared/info_tip", text: "Achievements you've tagged with this Skill. Situations are seen only by you and Admins.",
+            testid: "skill-examples-info" %>
+    </h2>
+    <ul class="dossier-skill-examples">
+      <% experience.achievements.sort_by { |a| [ -a.importance, a.assignment.start_on ] }.each do |achievement| %>
+        <li class="dossier-skill-example" data-testid="skill-example">
+          <p class="dossier-skill-example__text"><%= link_to achievement.text, dossier_achievement_path(achievement) %></p>
+          <% if achievement.situation %>
+            <p data-testid="skill-example-situation"><strong>Situation:</strong> <%= achievement.situation %></p>
+          <% end %>
+          <% if achievement.impact %>
+            <p data-testid="skill-example-impact"><strong>Impact:</strong> <%= achievement.impact %></p>
+          <% end %>
+          <p class="form-hint">
+            <%= link_to achievement.assignment.to_toast_label, dossier_assignment_path(achievement.assignment) %>,
+            <%= achievement.assignment.date_range %>
+          </p>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>

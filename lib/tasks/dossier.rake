@@ -2,6 +2,12 @@
 
 namespace :dossier do
   namespace :skills do
+    desc "Add the Professional Skills category (soft) and its Skills, leaving any already there"
+    task professional: :environment do
+      category = Dossier::ProfessionalSkills.seed!
+      puts "#{category.name}: #{category.skills.order(:name).pluck(:name).join(', ')}"
+    end
+
     desc "Apply the Skill taxonomy (default db/seeds/dossier/skill_taxonomy.yml); DRY_RUN=1 reports without saving"
     task :apply, [ :path ] => :environment do |_task, args|
       path = args[:path].presence || Rails.root.join("db/seeds/dossier/skill_taxonomy.yml")

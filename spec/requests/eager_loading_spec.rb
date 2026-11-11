@@ -276,6 +276,21 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads a Professional Skill's examples, and My Skills with them, without N+1 queries" do
+      Dossier::ProfessionalSkills.seed!
+      3.times do
+        assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam),
+                                                 client: create(:dossier_organisation), role: create(:dossier_role))
+        create(:dossier_achievement, assignment: assignment, skills_text: "Leadership, Knowledge Sharing",
+                                     situation: "Context", impact: "Result")
+      end
+
+      without_n_plus_one_queries { get dossier_skill_path(Dossier::Skill.find_by!(name: "Leadership")) }
+      expect(response).to have_http_status(:ok)
+      without_n_plus_one_queries { get dossier_my_skills_path }
+      expect(response).to have_http_status(:ok)
+    end
+
     it "Loads My Career › Credentials without N+1 queries" do
       2.times do
         assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam))

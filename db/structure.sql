@@ -456,7 +456,8 @@ CREATE TABLE public.dossier_achievements (
     classification character varying DEFAULT 'restricted'::character varying NOT NULL,
     deleted_at timestamp(6) without time zone,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    situation text
 );
 
 
@@ -1092,7 +1093,8 @@ CREATE TABLE public.dossier_skill_categories (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     parent_id bigint,
-    "position" integer
+    "position" integer,
+    soft boolean DEFAULT false NOT NULL
 );
 
 
@@ -4364,6 +4366,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261111150000'),
 ('20261111090000'),
 ('20261110194137'),
 ('20261110022133'),

@@ -19,7 +19,7 @@ class Dossier::SkillCategoriesController < Dossier::ReferenceDataController
   private
 
   def model_class          = Dossier::SkillCategory
-  def permitted_attributes = %i[name description parent_id]
+  def permitted_attributes = %i[name description parent_id soft]
   def subtitle             = "Skill Categories group Skills, e.g. Test Tools, Methodology or Protocols. " \
                              "A category can have sub-categories, one level deep."
   def show_panels          = "dossier/skill_categories/skills"
@@ -29,6 +29,7 @@ class Dossier::SkillCategoriesController < Dossier::ReferenceDataController
 
   def details(record)
     part_of = record.parent && helpers.link_to(record.parent.name, dossier_skill_category_path(record.parent))
-    [ [ "Part Of", part_of, "part-of" ] ]
+    [ [ "Part Of", part_of, "part-of" ],
+      [ "Professional Skills", record.soft_skills? ? "Yes" : "No", "soft" ] ]
   end
 end
