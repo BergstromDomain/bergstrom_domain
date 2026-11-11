@@ -19,6 +19,9 @@ class Dossier::Engagement < ApplicationRecord
   has_many   :all_assignments, class_name: "Dossier::Assignment", dependent: :destroy
   has_many   :assignments, -> { kept }, inverse_of: :engagement
   has_many   :credentials, dependent: :destroy
+  # Consultants you worked with during it, though on no shared Assignment.
+  has_many   :colleagues, -> { joins(:person).order(*Dossier::ContactDetails::ORDER, "dossier_engagement_colleagues.id") },
+             class_name: "Dossier::EngagementColleague", inverse_of: :engagement, dependent: :delete_all
 
   normalizes :position_title, with: ->(value) { value.strip }
   normalizes :summary, with: ->(value) { value.strip.presence }
@@ -39,6 +42,9 @@ class Dossier::Engagement < ApplicationRecord
   def personal?
     employment_type&.personal? || false
   end
+
+  # Its Colleagues are the owner's and Admins' alone, whatever its classification.
+  def private_details_visible_to?(user) = user.present? && (user_id == user.id || user.can_administer?)
 
   def soft_delete!
     update_columns(deleted_at: Time.current)

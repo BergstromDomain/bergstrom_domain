@@ -50,6 +50,8 @@ class Dossier::ColleaguesController < ApplicationController
 
   private
 
+  def contact_owner = @assignment.user
+
   def set_assignment
     @assignment = Dossier::Assignment.find(params[:assignment_id])
   end

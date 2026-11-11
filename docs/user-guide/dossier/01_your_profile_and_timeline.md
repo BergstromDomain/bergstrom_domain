@@ -51,6 +51,8 @@ An Assignment's page also has panels for its **Achievements**, **Training**, **C
 
 Each Colleague or Staff member is a person in **Occasions › People**. On **Add A Colleague** (or **Add Staff**), start typing a name under **Find A Person** and choose **Select** to link someone already in People. If they aren't there, fill in their name and they're added as a new **Restricted** person, so only you and admins see them. Their name, **Email** (their Work Email) and **LinkedIn** belong to the person, so they're the same on every Assignment, and you can change them from the Colleague's form if the person is yours. **Position** and **Comment** belong to this Assignment. Deleting a Colleague keeps the person.
 
+An Engagement's page has a **Colleagues** panel too, for people you worked with during that Engagement but on no Assignment you shared, such as fellow consultants at the same employer. You add, find and edit them the same way, with **Add A Colleague** on the Engagement's page. The same person can be a Colleague on the Engagement and on any of its Assignments.
+
 ## The Timeline
 
 **My Career › Timeline** lists your Engagements newest first, each with its Assignments.

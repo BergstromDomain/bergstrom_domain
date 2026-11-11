@@ -51,6 +51,8 @@ class Dossier::StaffMembersController < ApplicationController
 
   private
 
+  def contact_owner = @assignment.user
+
   # Only this Assignment's Vendor or Customer: another's id is a 404.
   def set_partner
     @assignment = Dossier::Assignment.find(params[:assignment_id])

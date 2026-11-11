@@ -1,7 +1,15 @@
-<%# Colleagues or Staff (Dossier::ContactDetails) as a table.
+<%# Colleagues or Staff (Dossier::ContactDetails) as a table, with the same fixed column widths everywhere, so the tables on a page line up.
     Locals: contacts, row_testid, table_testid, editable, edit_path (contact → path), delete_path (contact → path) %>
 <div class="data-table-wrapper">
-  <table class="data-table" data-testid="<%= table_testid %>">
+  <table class="data-table dossier-contacts-table" data-testid="<%= table_testid %>">
+    <colgroup>
+      <col class="dossier-contacts-col--name">
+      <col class="dossier-contacts-col--position">
+      <col class="dossier-contacts-col--email">
+      <col class="dossier-contacts-col--linkedin">
+      <col class="dossier-contacts-col--comment">
+      <% if editable %><col class="dossier-contacts-col--actions"><% end %>
+    </colgroup>
     <thead>
       <tr>
         <th>Name</th>

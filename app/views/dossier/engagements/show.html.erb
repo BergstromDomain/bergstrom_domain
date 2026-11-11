@@ -53,6 +53,10 @@
 <%# Training div — courses taken during this Engagement, on any of its Assignments %>
 <%= render "dossier/credentials/panel", credentials: @engagement.credentials.training.newest_first.includes(:provider, credential_skills: :skill) %>
 
+<% if @engagement.private_details_visible_to?(current_user) %>
+  <%= render "colleagues", engagement: @engagement, editable: policy.can_update? && @engagement.deleted_at.nil? %>
+<% end %>
+
 <%# Actions div %>
 <div class="show-panel show-panel--actions" data-testid="show-panel-actions">
   <%= link_to dossier_engagements_path, class: "btn btn-secondary" do %>

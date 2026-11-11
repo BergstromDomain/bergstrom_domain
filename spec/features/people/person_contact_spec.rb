@@ -47,7 +47,7 @@ RSpec.describe "Person Contact", type: :feature do
       click_button "Delete Person"
 
       expect(page).to have_current_path(person_path(person))
-      expect(page).to have_text("Anna Andersson is a Colleague or Staff member on a Dossier Assignment: remove them there first.")
+      expect(page).to have_text("Anna Andersson is a Colleague or Staff member in Dossier: remove them there first.")
       expect(Person.exists?(person.id)).to be(true)
     end
   end

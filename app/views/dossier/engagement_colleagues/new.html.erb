@@ -1,0 +1,14 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Add A Colleague</h1>
+  </div>
+</div>
+
+<% unless @colleague.person.persisted? %>
+  <div class="resource-form">
+    <%= render "dossier/shared/person_search", url: new_dossier_engagement_colleague_path(@engagement),
+          query: @query, people: @people_found %>
+  </div>
+<% end %>
+
+<%= render "form", colleague: @colleague, panel: "new", submit_label: "Add Colleague" %>

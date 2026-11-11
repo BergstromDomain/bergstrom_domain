@@ -112,6 +112,7 @@ Rails.application.routes.draw do
     resources :engagements do
       get  :deleted, on: :collection
       post :restore, on: :member
+      resources :colleagues, except: %i[index show], controller: "engagement_colleagues"
     end
     resources :assignments, except: :index do
       get  :deleted, on: :collection

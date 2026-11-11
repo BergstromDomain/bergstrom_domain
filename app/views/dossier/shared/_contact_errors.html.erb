@@ -1,5 +1,5 @@
 <%# A Colleague's or Staff member's errors, its Person's in their own words. Locals: record, noun %>
-<% messages = record.errors.reject { |error| error.attribute.to_s.start_with?("person") }.map(&:full_message) %>
+<% messages = record.errors.reject { |error| error.attribute.to_s.start_with?("person.") }.map(&:full_message) %>
 <% messages += record.person.errors.full_messages if record.person %>
 <% if messages.any? %>
   <div class="form-errors" data-testid="form-errors">

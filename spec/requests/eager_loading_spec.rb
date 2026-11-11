@@ -421,6 +421,16 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads an Engagement's Colleagues without N+1 queries" do
+      engagement = create(:dossier_engagement, user: adam)
+      create_list(:dossier_engagement_colleague, 3, engagement: engagement)
+        .each { |colleague| colleague.person.update!(linkedin_url: "https://www.linkedin.com/in/#{colleague.person.slug}") }
+
+      without_n_plus_one_queries { get dossier_engagement_path(engagement) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "Loads an Organisation's Vendor and Customer Assignments without N+1 queries" do
       pwc = create(:dossier_organisation, name: "PwC")
       engagement = create(:dossier_engagement, user: adam)

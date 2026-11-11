@@ -860,6 +860,40 @@ ALTER SEQUENCE public.dossier_employment_types_id_seq OWNED BY public.dossier_em
 
 
 --
+-- Name: dossier_engagement_colleagues; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_engagement_colleagues (
+    id bigint NOT NULL,
+    engagement_id bigint NOT NULL,
+    person_id bigint NOT NULL,
+    "position" character varying,
+    comment text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_engagement_colleagues_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_engagement_colleagues_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_engagement_colleagues_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_engagement_colleagues_id_seq OWNED BY public.dossier_engagement_colleagues.id;
+
+
+--
 -- Name: dossier_engagements; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2131,6 +2165,13 @@ ALTER TABLE ONLY public.dossier_employment_types ALTER COLUMN id SET DEFAULT nex
 
 
 --
+-- Name: dossier_engagement_colleagues id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_engagement_colleagues ALTER COLUMN id SET DEFAULT nextval('public.dossier_engagement_colleagues_id_seq'::regclass);
+
+
+--
 -- Name: dossier_engagements id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2540,6 +2581,14 @@ ALTER TABLE ONLY public.dossier_employment_types
 
 
 --
+-- Name: dossier_engagement_colleagues dossier_engagement_colleagues_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_engagement_colleagues
+    ADD CONSTRAINT dossier_engagement_colleagues_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: dossier_engagements dossier_engagements_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2800,6 +2849,13 @@ ALTER TABLE ONLY public.users
 --
 
 CREATE UNIQUE INDEX idx_on_achievement_id_skill_id_e49d09dc5c ON public.dossier_achievement_skills USING btree (achievement_id, skill_id);
+
+
+--
+-- Name: idx_on_engagement_id_person_id_a68f3329b0; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_on_engagement_id_person_id_a68f3329b0 ON public.dossier_engagement_colleagues USING btree (engagement_id, person_id);
 
 
 --
@@ -3199,6 +3255,20 @@ CREATE UNIQUE INDEX index_dossier_employment_types_on_lower_name ON public.dossi
 --
 
 CREATE UNIQUE INDEX index_dossier_employment_types_on_slug ON public.dossier_employment_types USING btree (slug);
+
+
+--
+-- Name: index_dossier_engagement_colleagues_on_engagement_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_engagement_colleagues_on_engagement_id ON public.dossier_engagement_colleagues USING btree (engagement_id);
+
+
+--
+-- Name: index_dossier_engagement_colleagues_on_person_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_engagement_colleagues_on_person_id ON public.dossier_engagement_colleagues USING btree (person_id);
 
 
 --
@@ -3920,6 +3990,14 @@ ALTER TABLE ONLY public.comments
 
 
 --
+-- Name: dossier_engagement_colleagues fk_rails_3b27351ecf; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_engagement_colleagues
+    ADD CONSTRAINT fk_rails_3b27351ecf FOREIGN KEY (engagement_id) REFERENCES public.dossier_engagements(id);
+
+
+--
 -- Name: dossier_organisations fk_rails_3df8f0251e; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4021,6 +4099,14 @@ ALTER TABLE ONLY public.dossier_assignment_skills
 
 ALTER TABLE ONLY public.blog_post_authors
     ADD CONSTRAINT fk_rails_70d1b5e3c1 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: dossier_engagement_colleagues fk_rails_72e0cb18dc; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_engagement_colleagues
+    ADD CONSTRAINT fk_rails_72e0cb18dc FOREIGN KEY (person_id) REFERENCES public.people(id);
 
 
 --
@@ -4367,6 +4453,7 @@ SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
 ('20261111150000'),
+('20261111120000'),
 ('20261111090000'),
 ('20261110194137'),
 ('20261110022133'),

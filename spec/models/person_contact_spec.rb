@@ -37,7 +37,7 @@ RSpec.describe Person, type: :model do
       create(:dossier_colleague, person: person)
 
       expect(person.destroy).to be(false)
-      expect(person.errors[:base].first).to match(/Anna Andersson is a Colleague or Staff member on a Dossier Assignment/)
+      expect(person.errors[:base].first).to match(/Anna Andersson is a Colleague or Staff member in Dossier/)
       expect(Person.exists?(person.id)).to be(true)
     end
   end
