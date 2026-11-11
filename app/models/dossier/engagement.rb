@@ -19,6 +19,8 @@ class Dossier::Engagement < ApplicationRecord
   has_many   :all_assignments, class_name: "Dossier::Assignment", dependent: :destroy
   has_many   :assignments, -> { kept }, inverse_of: :engagement
   has_many   :credentials, dependent: :destroy
+  # Made during it, for context only: they stay if it goes.
+  has_many   :contributions, dependent: :nullify
   # Consultants you worked with during it, though on no shared Assignment.
   has_many   :colleagues, -> { joins(:person).order(*Dossier::ContactDetails::ORDER, "dossier_engagement_colleagues.id") },
              class_name: "Dossier::EngagementColleague", inverse_of: :engagement, dependent: :delete_all

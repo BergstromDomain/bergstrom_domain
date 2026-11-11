@@ -11,6 +11,7 @@ class Dossier::Skill < ApplicationRecord
   has_many :assignment_skills, dependent: :restrict_with_error
   has_many :achievement_skills, dependent: :restrict_with_error
   has_many :credential_skills, dependent: :restrict_with_error
+  has_many :contribution_skills, dependent: :restrict_with_error
   # Who makes it (Microsoft for Project); show_vendor_in_name shows it as
   # "Microsoft Project".
   belongs_to :vendor, class_name: "Dossier::Organisation", optional: true, inverse_of: :products
@@ -47,7 +48,7 @@ class Dossier::Skill < ApplicationRecord
     new(name: name, skill_category: Dossier::SkillCategory.find_or_create_by!(name: Dossier::TechStack::UNCATEGORISED))
   end
 
-  # Folds a duplicate into target: Tech Stack, Achievement and Training links move
+  # Folds a duplicate into target: Tech Stack, Achievement, Training and Contribution links move
   # across (dropping any target already has), this Skill's name and aliases
   # become target's aliases, and this Skill is deleted.
   def merge_into!(target)
@@ -58,6 +59,7 @@ class Dossier::Skill < ApplicationRecord
       move_links(assignment_skills, target, :assignment_id, :stack_slot)
       move_links(achievement_skills, target, :achievement_id)
       move_links(credential_skills, target, :credential_id)
+      move_links(contribution_skills, target, :contribution_id)
       names = [ name, *aliases ]
       target.description ||= description
       target.assign_attributes(vendor: vendor, show_vendor_in_name: show_vendor_in_name) unless target.vendor

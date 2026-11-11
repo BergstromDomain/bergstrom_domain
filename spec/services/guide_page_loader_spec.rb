@@ -184,9 +184,9 @@ RSpec.describe GuidePageLoader do
       result = described_class.new(Rails.root.join("docs/user-guide/dossier")).call
 
       expect(result[:created]).to eq([ "Your Profile And Timeline", "Writing Achievements", "Skills And Experience",
-        "Credentials And Training", "CVs And CV Variants", "Importing A Master CV", "Managing Dossier Reference Data" ])
+        "Credentials And Training", "Contributions", "CVs And CV Variants", "Importing A Master CV", "Managing Dossier Reference Data" ])
       expect(GuidePage.find_by!(title: "Managing Dossier Reference Data").app_section).to eq("admin")
-      expect(GuidePage.dossier.count).to eq(6)
+      expect(GuidePage.dossier.count).to eq(7)
     end
 
     it "Loads Sam's page from docs/user-guide/system_admin, in the system-admin-only section" do

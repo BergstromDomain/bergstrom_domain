@@ -1,0 +1,8 @@
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title">Edit Contribution</h1>
+  </div>
+</div>
+
+<%= render "form", contribution: @contribution, panel: "edit", submit_label: "Save Contribution",
+      cancel_path: dossier_contribution_path(@contribution) %>

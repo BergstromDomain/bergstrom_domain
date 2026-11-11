@@ -97,6 +97,14 @@ FactoryBot.define do
     end
   end
 
+  factory :dossier_contribution, class: "Dossier::Contribution" do
+    association :user, factory: [ :user, :content_creator ]
+    kind { "talk" }
+    sequence(:title) { |n| "Getting Started With Robot Framework #{n}" }
+    start_on        { Date.new(2024, 11, 19) }
+    start_precision { "day" }
+  end
+
   factory :dossier_credential, class: "Dossier::Credential" do
     association :user, factory: [ :user, :content_creator ]
     # A course by default: one shared Course type, as seeded.

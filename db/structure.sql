@@ -634,6 +634,83 @@ ALTER SEQUENCE public.dossier_colleagues_id_seq OWNED BY public.dossier_colleagu
 
 
 --
+-- Name: dossier_contribution_skills; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_contribution_skills (
+    id bigint NOT NULL,
+    contribution_id bigint NOT NULL,
+    skill_id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_contribution_skills_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_contribution_skills_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_contribution_skills_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_contribution_skills_id_seq OWNED BY public.dossier_contribution_skills.id;
+
+
+--
+-- Name: dossier_contributions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dossier_contributions (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    kind character varying DEFAULT 'talk'::character varying NOT NULL,
+    title character varying NOT NULL,
+    event_id bigint,
+    start_on date,
+    start_precision character varying DEFAULT 'month'::character varying NOT NULL,
+    end_on date,
+    end_precision character varying DEFAULT 'month'::character varying NOT NULL,
+    location character varying,
+    url character varying,
+    presented_as character varying,
+    description text,
+    engagement_id bigint,
+    classification character varying DEFAULT 'restricted'::character varying NOT NULL,
+    deleted_at timestamp(6) without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: dossier_contributions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dossier_contributions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dossier_contributions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dossier_contributions_id_seq OWNED BY public.dossier_contributions.id;
+
+
+--
 -- Name: dossier_credential_skills; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2123,6 +2200,20 @@ ALTER TABLE ONLY public.dossier_colleagues ALTER COLUMN id SET DEFAULT nextval('
 
 
 --
+-- Name: dossier_contribution_skills id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_contribution_skills ALTER COLUMN id SET DEFAULT nextval('public.dossier_contribution_skills_id_seq'::regclass);
+
+
+--
+-- Name: dossier_contributions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_contributions ALTER COLUMN id SET DEFAULT nextval('public.dossier_contributions_id_seq'::regclass);
+
+
+--
 -- Name: dossier_credential_skills id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2533,6 +2624,22 @@ ALTER TABLE ONLY public.dossier_colleagues
 
 
 --
+-- Name: dossier_contribution_skills dossier_contribution_skills_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_contribution_skills
+    ADD CONSTRAINT dossier_contribution_skills_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dossier_contributions dossier_contributions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_contributions
+    ADD CONSTRAINT dossier_contributions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: dossier_credential_skills dossier_credential_skills_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2852,6 +2959,13 @@ CREATE UNIQUE INDEX idx_on_achievement_id_skill_id_e49d09dc5c ON public.dossier_
 
 
 --
+-- Name: idx_on_contribution_id_skill_id_4da350203b; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_on_contribution_id_skill_id_4da350203b ON public.dossier_contribution_skills USING btree (contribution_id, skill_id);
+
+
+--
 -- Name: idx_on_engagement_id_person_id_a68f3329b0; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3129,6 +3243,48 @@ CREATE INDEX index_dossier_colleagues_on_assignment_id ON public.dossier_colleag
 --
 
 CREATE INDEX index_dossier_colleagues_on_person_id ON public.dossier_colleagues USING btree (person_id);
+
+
+--
+-- Name: index_dossier_contribution_skills_on_contribution_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_contribution_skills_on_contribution_id ON public.dossier_contribution_skills USING btree (contribution_id);
+
+
+--
+-- Name: index_dossier_contribution_skills_on_skill_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_contribution_skills_on_skill_id ON public.dossier_contribution_skills USING btree (skill_id);
+
+
+--
+-- Name: index_dossier_contributions_on_deleted_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_contributions_on_deleted_at ON public.dossier_contributions USING btree (deleted_at);
+
+
+--
+-- Name: index_dossier_contributions_on_engagement_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_contributions_on_engagement_id ON public.dossier_contributions USING btree (engagement_id);
+
+
+--
+-- Name: index_dossier_contributions_on_event_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_contributions_on_event_id ON public.dossier_contributions USING btree (event_id);
+
+
+--
+-- Name: index_dossier_contributions_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_contributions_on_user_id ON public.dossier_contributions USING btree (user_id);
 
 
 --
@@ -3862,6 +4018,14 @@ ALTER TABLE ONLY public.dossier_achievements
 
 
 --
+-- Name: dossier_contributions fk_rails_031295fc17; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_contributions
+    ADD CONSTRAINT fk_rails_031295fc17 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: comments fk_rails_03de2dc08c; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3894,6 +4058,14 @@ ALTER TABLE ONLY public.dossier_skills
 
 
 --
+-- Name: dossier_contribution_skills fk_rails_0b116da5aa; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_contribution_skills
+    ADD CONSTRAINT fk_rails_0b116da5aa FOREIGN KEY (skill_id) REFERENCES public.dossier_skills(id);
+
+
+--
 -- Name: dossier_cv_variant_items fk_rails_0c2abfe759; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3915,6 +4087,14 @@ ALTER TABLE ONLY public.dossier_colleagues
 
 ALTER TABLE ONLY public.events
     ADD CONSTRAINT fk_rails_0cb5590091 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: dossier_contributions fk_rails_117af1d33d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_contributions
+    ADD CONSTRAINT fk_rails_117af1d33d FOREIGN KEY (engagement_id) REFERENCES public.dossier_engagements(id);
 
 
 --
@@ -4254,6 +4434,14 @@ ALTER TABLE ONLY public.person_mutes
 
 
 --
+-- Name: dossier_contributions fk_rails_b2242c594b; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_contributions
+    ADD CONSTRAINT fk_rails_b2242c594b FOREIGN KEY (event_id) REFERENCES public.dossier_organisations(id);
+
+
+--
 -- Name: people fk_rails_b39dcee1e8; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4358,6 +4546,14 @@ ALTER TABLE ONLY public.ingredients
 
 
 --
+-- Name: dossier_contribution_skills fk_rails_dcd0724d75; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_contribution_skills
+    ADD CONSTRAINT fk_rails_dcd0724d75 FOREIGN KEY (contribution_id) REFERENCES public.dossier_contributions(id);
+
+
+--
 -- Name: dossier_assignments fk_rails_e016043032; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4452,6 +4648,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261112090000'),
 ('20261111150000'),
 ('20261111120000'),
 ('20261111090000'),
