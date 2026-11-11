@@ -231,13 +231,13 @@ RSpec.describe Dossier::Import do
       expect(result.created["Vendor"]).to eq([ "Secret Vendor on Test Lead at Department of Examples" ])
     end
 
-    it "Imports a vendor's staff as its private Staff members" do
+    it "Imports a vendor's staff as its private Staff members, each a new Restricted Person" do
       result = import.import!
 
       member = Dossier::AssignmentPartner.sole.staff_members.sole
-      expect(member).to have_attributes(name: "Vera Vendor", position: "Delivery Lead", email: "vera@vendor.example",
-                                        linkedin_url: "https://linkedin.com/in/vera", mobile: "+61 400 222 333",
-                                        comment: "Ran the releases")
+      expect(member).to have_attributes(name: "Vera Vendor", position: "Delivery Lead", work_email: "vera@vendor.example",
+                                        linkedin_url: "https://www.linkedin.com/in/vera", comment: "Ran the releases")
+      expect(member.person).to have_attributes(user: admin, classification: "restricted")
       expect(result.created["Staff Member"]).to eq([ "Vera Vendor at Secret Vendor on Test Lead at Department of Examples" ])
     end
   end
@@ -421,15 +421,23 @@ RSpec.describe Dossier::Import do
       expect(Dossier::AssignmentPartner.sole).to have_attributes(kind: "vendor", scope: nil)
     end
 
+    it "Links a vendor's staff to the Person already in People of that name, ignoring the mobile" do
+      vera = create(:person, first_name: "vera", last_name: "vendor")
+      import.import!
+
+      expect(Dossier::StaffMember.sole.person).to eq(vera)
+      expect(Person.count).to eq(1)
+    end
+
     it "Adds missing Staff to a Vendor that already exists, matching names case-insensitively" do
       import.import!
-      Dossier::StaffMember.sole.update!(name: "VERA VENDOR")
+      Dossier::StaffMember.sole.person.update!(first_name: "VERA", last_name: "VENDOR")
       more = yaml.sub("staff: [ { name: Vera Vendor", "staff: [ { name: Sam Second }, { name: Vera Vendor")
 
       result = described_class.new(admin, more).import!
 
       expect(result.created["Staff Member"]).to eq([ "Sam Second at Secret Vendor on Test Lead at Department of Examples" ])
-      expect(Dossier::StaffMember.pluck(:name)).to contain_exactly("VERA VENDOR", "Sam Second")
+      expect(Dossier::StaffMember.all.map(&:name)).to contain_exactly("VERA VENDOR", "Sam Second")
     end
 
     it "Reads Windows (XP, Vista) in a Tech Stack as versions of Windows, not broken Skills" do

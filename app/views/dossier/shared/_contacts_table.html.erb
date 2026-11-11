@@ -6,7 +6,6 @@
       <tr>
         <th>Name</th>
         <th>Position</th>
-        <th>Mobile</th>
         <th>Email</th>
         <th>LinkedIn</th>
         <th>Comment</th>
@@ -16,10 +15,9 @@
     <tbody>
       <% contacts.each do |contact| %>
         <tr data-testid="<%= row_testid %>">
-          <td><%= contact.name %></td>
+          <td><%= link_to contact.name, person_path(contact.person), data: { testid: "contact-person-link" } %></td>
           <td><%= contact.position || "—" %></td>
-          <td><%= contact.mobile || "—" %></td>
-          <td><%= contact.email ? mail_to(contact.email) : "—" %></td>
+          <td><%= contact.work_email ? mail_to(contact.work_email) : "—" %></td>
           <td><%= contact.linkedin_url ? link_to("LinkedIn", contact.linkedin_url, target: "_blank", rel: "noopener") : "—" %></td>
           <td><%= contact.comment || "—" %></td>
           <% if editable %>

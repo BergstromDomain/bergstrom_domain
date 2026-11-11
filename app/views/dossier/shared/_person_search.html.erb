@@ -1,0 +1,37 @@
+<%# The New Colleague / Staff page's search for a Person to link (Dossier::LinksPeople).
+    Locals: url (the New page), query, people %>
+<div class="show-panel" data-testid="person-search-panel">
+  <h2 class="show-panel__heading">Find A Person</h2>
+  <%= form_with url: url, method: :get,
+        data: { controller: "debounced-search", action: "input->debounced-search#submit", turbo_frame: "person_search_results" },
+        html: { autocomplete: "off" } do %>
+    <div class="form-field">
+      <label for="q" class="sr-only">Search People by name</label>
+      <%= text_field_tag :q, query, placeholder: "Start typing a name…", class: "form-control",
+            data: { testid: "person-search-input" } %>
+    </div>
+    <noscript><button type="submit" class="btn btn-secondary">Search</button></noscript>
+  <% end %>
+
+  <%= turbo_frame_tag "person_search_results", data: { testid: "person-search-results" } do %>
+    <% if people.any? %>
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <tbody>
+            <% people.each do |person| %>
+              <tr data-testid="person-search-row">
+                <td><%= person.full_name %></td>
+                <td class="data-table__actions">
+                  <%= link_to "Select", "#{url}?#{{ person_id: person.id }.to_query}", class: "btn btn-secondary",
+                        data: { turbo_frame: "_top", testid: "select-person-#{person.id}" } %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% elsif query.to_s.length >= 2 %>
+      <p class="empty-state" data-testid="person-search-empty">No one in People called “<%= query %>”. Add them below.</p>
+    <% end %>
+  <% end %>
+</div>

@@ -22,6 +22,21 @@
   <% end %>
 </div>
 
+<%# Contact panel — only when there's a Work Email %>
+<% if @person.work_email %>
+  <div class="show-panel" data-testid="show-panel-contact">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Contact</h2>
+      <div class="show-meta-row">
+        <div class="show-meta-cell">
+          <h3 class="show-meta-cell__label">Work Email</h3>
+          <p class="show-meta-cell__value" data-testid="person-work-email"><%= mail_to @person.work_email %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
 <%# Metadata panel %>
 <div class="show-panel" data-testid="show-panel-metadata">
   <div class="show-meta-row">

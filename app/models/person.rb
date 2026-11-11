@@ -15,12 +15,21 @@ class Person < ApplicationRecord
   # can't be extended to include the three extra Swedish letters.
   BUCKET_LETTERS = ("A".."Z").to_a + %w[Å Ä Ö]
 
+  # A LinkedIn profile URL's username: linkedin.com/in/<username>.
+  LINKEDIN_PROFILE = %r{linkedin\.com/in/([^/?#]+)}i
+
   # ── Associations ──────────────────────────────────────────────────────────
   has_many :event_people, dependent: :destroy
   has_many :events, through: :event_people
   has_many :person_mutes, dependent: :destroy
   has_many :person_social_media_accounts, dependent: :destroy
   has_many :social_media_platforms, through: :person_social_media_accounts
+  # Dossier: the Assignments' Colleagues and Staff this Person is. A Person
+  # who is one can't be deleted until they're removed there.
+  has_many :dossier_colleagues, class_name: "Dossier::Colleague", dependent: nil
+  has_many :dossier_staff_members, class_name: "Dossier::StaffMember", dependent: nil
+
+  before_destroy :keep_if_a_dossier_contact, prepend: true
 
   accepts_nested_attributes_for :person_social_media_accounts,
     allow_destroy: true,
@@ -30,8 +39,11 @@ class Person < ApplicationRecord
     attachable.variant :thumbnail, resize_to_fill: [ 200, 200 ]
   end
 
+  normalizes :work_email, with: ->(value) { value.strip.presence }
+
   # ── Validations ──────────────────────────────────────────────────────────
   validates :first_name, presence: true
+  validates :work_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_nil: true
   validate  :full_name_must_be_unique
   validate  :social_media_platforms_must_be_unique
 
@@ -63,12 +75,48 @@ class Person < ApplicationRecord
     full_name
   end
 
+  # ── LinkedIn ──────────────────────────────────────────────────────────────
+  # The Person's LinkedIn account (Social Media) as a profile URL: its
+  # username is the part after linkedin.com/in/, or a whole URL that isn't one.
+  def linkedin_url
+    username = linkedin_account&.username
+    return if username.blank?
+
+    username.match?(%r{\Ahttps?://}i) ? username : "https://www.linkedin.com/in/#{username}"
+  end
+
+  # A profile URL (or just its username) sets the LinkedIn account; blank
+  # removes it. Saved with the Person.
+  def linkedin_url=(value)
+    value = value.to_s.strip
+    account = linkedin_account
+    if value.empty?
+      account&.mark_for_destruction
+    else
+      account ||= person_social_media_accounts.build(social_media_platform: SocialMediaPlatform.linkedin)
+      account.username = value[LINKEDIN_PROFILE, 1] || value
+    end
+  end
+
   # ── Instance methods ──────────────────────────────────────────────────────
   def should_generate_new_friendly_id?
     first_name_changed? || middle_name_changed? || last_name_changed? || super
   end
 
   private
+
+  def linkedin_account
+    person_social_media_accounts.find do |account|
+      !account.marked_for_destruction? && account.social_media_platform&.name&.casecmp?("LinkedIn")
+    end
+  end
+
+  def keep_if_a_dossier_contact
+    return unless dossier_colleagues.exists? || dossier_staff_members.exists?
+
+    errors.add(:base, "#{full_name} is a Colleague or Staff member on a Dossier Assignment: remove them there first.")
+    throw :abort
+  end
 
   # PersonSocialMediaAccount's own uniqueness validation only queries the
   # database, so it can't see two not-yet-saved sibling rows built together

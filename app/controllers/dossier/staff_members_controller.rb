@@ -5,20 +5,26 @@
 # Assignment get in.
 class Dossier::StaffMembersController < ApplicationController
   include Navigable
+  include Dossier::LinksPeople
   before_action :set_partner
   before_action :require_access
   before_action :set_staff_member, only: %i[edit update destroy]
 
   def new
     @staff_member = @partner.staff_members.build
+    pick_person(@staff_member, params[:person_id])
+    find_people
   end
 
   def create
-    @staff_member = @partner.staff_members.build(staff_member_params)
+    @staff_member = @partner.staff_members.build
+    pick_person(@staff_member, params.dig(:dossier_staff_member, :person_id))
+    assign_contact(@staff_member, staff_member_params)
     if @staff_member.save
       toast_created(@staff_member)
       redirect_to partners_path
     else
+      find_people
       render :new, status: :unprocessable_entity
     end
   end
@@ -28,7 +34,8 @@ class Dossier::StaffMembersController < ApplicationController
 
   def update
     previous_label = @staff_member.to_toast_label
-    if @staff_member.update(staff_member_params)
+    assign_contact(@staff_member, staff_member_params)
+    if @staff_member.save
       toast_updated(@staff_member, previous_label: previous_label)
       redirect_to partners_path
     else
@@ -59,12 +66,12 @@ class Dossier::StaffMembersController < ApplicationController
 
   # Only this Vendor's or Customer's: another's id is a 404.
   def set_staff_member
-    @staff_member = @partner.staff_members.find(params[:id])
+    @staff_member = @partner.staff_members.includes(Dossier::ContactDetails::PRELOAD).find(params[:id])
   end
 
   def partners_path = dossier_assignment_path(@assignment, anchor: @partner.kind.pluralize)
 
   def staff_member_params
-    params.require(:dossier_staff_member).permit(*Dossier::ContactDetails::FIELDS)
+    contact_params(:dossier_staff_member)
   end
 end

@@ -49,6 +49,8 @@ Each Assignment has a **Tech Stack**: what you worked with. Name the **System Un
 
 An Assignment's page also has panels for its **Achievements**, **Training**, **Colleagues**, and **Vendors & Customers**. Colleagues, vendors, customers and their staff are private notes: only you and admins see them, and they never appear on a CV.
 
+Each Colleague or Staff member is a person in **Occasions › People**. On **Add A Colleague** (or **Add Staff**), start typing a name under **Find A Person** and choose **Select** to link someone already in People. If they aren't there, fill in their name and they're added as a new **Restricted** person, so only you and admins see them. Their name, **Email** (their Work Email) and **LinkedIn** belong to the person, so they're the same on every Assignment, and you can change them from the Colleague's form if the person is yours. **Position** and **Comment** belong to this Assignment. Deleting a Colleague keeps the person.
+
 ## The Timeline
 
 **My Career › Timeline** lists your Engagements newest first, each with its Assignments.

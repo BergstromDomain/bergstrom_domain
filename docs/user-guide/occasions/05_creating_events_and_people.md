@@ -13,11 +13,14 @@ Content Creators and above can add people and events, from **Actions › New** i
 - **First Name** (required), **Middle Name** and **Last Name**. The full name must be unique across Occasions, whoever added the other person.
 - **Person image**: a JPEG, PNG or WebP smaller than 5MB.
 - **Description**.
+- **Work Email**: optional. Anyone who can see the person sees it.
 - **Visibility**: Unrestricted, Contacts or Restricted. It starts as your **Default Classification** (see *Occasions Settings*).
 
 ### Social media
 
-Social media accounts are added when editing a person, not when creating one. Choose **Edit** on their page, pick a **Platform** and type their **username**. A person can have one account on each platform.
+Social media accounts are added when editing a person, not when creating one. Choose **Edit** on their page, pick a **Platform** and type their **username**. A person can have one account on each platform. Their LinkedIn account is also where a Dossier Colleague's LinkedIn profile is kept.
+
+A person who is a Colleague or Staff member on a Dossier Assignment can't be deleted until they're removed from it.
 
 ## Create Event
 

@@ -93,9 +93,12 @@ class PeopleController < ApplicationController
       return
     end
 
-    @person.destroy
-    toast_deleted(@person)
-    redirect_to people_path
+    if @person.destroy
+      toast_deleted(@person)
+      redirect_to people_path
+    else
+      redirect_to @person, alert: @person.errors.full_messages.to_sentence
+    end
   end
 
   def mute
@@ -139,6 +142,7 @@ class PeopleController < ApplicationController
       :middle_name,
       :last_name,
       :description,
+      :work_email,
       :classification,
       :image,
       person_social_media_accounts_attributes: %i[id social_media_platform_id username _destroy]

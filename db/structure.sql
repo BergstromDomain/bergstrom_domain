@@ -605,14 +605,11 @@ ALTER SEQUENCE public.dossier_assignments_id_seq OWNED BY public.dossier_assignm
 CREATE TABLE public.dossier_colleagues (
     id bigint NOT NULL,
     assignment_id bigint NOT NULL,
-    name character varying NOT NULL,
     "position" character varying,
-    mobile character varying,
-    email character varying,
-    linkedin_url character varying,
     comment text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    person_id bigint NOT NULL
 );
 
 
@@ -1163,14 +1160,11 @@ ALTER SEQUENCE public.dossier_skills_id_seq OWNED BY public.dossier_skills.id;
 CREATE TABLE public.dossier_staff_members (
     id bigint NOT NULL,
     assignment_partner_id bigint NOT NULL,
-    name character varying NOT NULL,
     "position" character varying,
-    mobile character varying,
-    email character varying,
-    linkedin_url character varying,
     comment text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    person_id bigint NOT NULL
 );
 
 
@@ -1620,7 +1614,8 @@ CREATE TABLE public.people (
     slug character varying,
     user_id bigint NOT NULL,
     classification character varying DEFAULT 'contacts'::character varying NOT NULL,
-    updater_id bigint
+    updater_id bigint,
+    work_email character varying
 );
 
 
@@ -3072,6 +3067,13 @@ CREATE INDEX index_dossier_colleagues_on_assignment_id ON public.dossier_colleag
 
 
 --
+-- Name: index_dossier_colleagues_on_person_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_colleagues_on_person_id ON public.dossier_colleagues USING btree (person_id);
+
+
+--
 -- Name: index_dossier_credential_skills_on_credential_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3363,6 +3365,13 @@ CREATE INDEX index_dossier_skills_on_vendor_id ON public.dossier_skills USING bt
 --
 
 CREATE INDEX index_dossier_staff_members_on_assignment_partner_id ON public.dossier_staff_members USING btree (assignment_partner_id);
+
+
+--
+-- Name: index_dossier_staff_members_on_person_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_staff_members_on_person_id ON public.dossier_staff_members USING btree (person_id);
 
 
 --
@@ -3821,6 +3830,14 @@ ALTER TABLE ONLY public.dossier_cv_variant_items
 
 
 --
+-- Name: dossier_colleagues fk_rails_0c8c2d0545; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_colleagues
+    ADD CONSTRAINT fk_rails_0c8c2d0545 FOREIGN KEY (person_id) REFERENCES public.people(id);
+
+
+--
 -- Name: events fk_rails_0cb5590091; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3970,6 +3987,14 @@ ALTER TABLE ONLY public.dossier_assignments
 
 ALTER TABLE ONLY public.dossier_staff_members
     ADD CONSTRAINT fk_rails_6824cba56e FOREIGN KEY (assignment_partner_id) REFERENCES public.dossier_assignment_partners(id) ON DELETE CASCADE;
+
+
+--
+-- Name: dossier_staff_members fk_rails_6ade34d949; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dossier_staff_members
+    ADD CONSTRAINT fk_rails_6ade34d949 FOREIGN KEY (person_id) REFERENCES public.people(id);
 
 
 --
@@ -4339,6 +4364,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261111090000'),
 ('20261110194137'),
 ('20261110022133'),
 ('20261109213744'),

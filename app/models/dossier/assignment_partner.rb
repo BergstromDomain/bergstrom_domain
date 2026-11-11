@@ -13,7 +13,7 @@ class Dossier::AssignmentPartner < ApplicationRecord
 
   belongs_to :assignment
   belongs_to :organisation, class_name: "Dossier::Organisation"
-  has_many   :staff_members, -> { order(Arel.sql("LOWER(dossier_staff_members.name)"), :id) },
+  has_many   :staff_members, -> { joins(:person).order(*Dossier::ContactDetails::ORDER, "dossier_staff_members.id") },
              class_name: "Dossier::StaffMember", dependent: :delete_all
 
   normalizes :scope, with: ->(value) { value.strip.presence }

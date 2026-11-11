@@ -4,5 +4,12 @@
   </div>
 </div>
 
+<% unless @staff_member.person.persisted? %>
+  <div class="resource-form">
+    <%= render "dossier/shared/person_search", url: new_dossier_assignment_partner_staff_member_path(@assignment, @partner),
+          query: @query, people: @people_found %>
+  </div>
+<% end %>
+
 <%= render "form", assignment: @assignment, partner: @partner, staff_member: @staff_member, panel: "new",
       submit_label: "Add Staff Member" %>

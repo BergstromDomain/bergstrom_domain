@@ -1,12 +1,13 @@
 <%# Locals: colleague, panel ("new"/"edit"), submit_label %>
 <% url = colleague.persisted? ? dossier_assignment_colleague_path(colleague.assignment, colleague) : dossier_assignment_colleagues_path(colleague.assignment) %>
 <%= form_with model: colleague, url: url, class: "resource-form" do |f| %>
-  <%= render "dossier/shared/form_errors", record: colleague, noun: "colleague" %>
+  <%= render "dossier/shared/contact_errors", record: colleague, noun: "colleague" %>
 
   <div class="show-panel" data-testid="<%= panel %>-panel-main">
     <p class="form-hint">On <%= link_to colleague.assignment.to_toast_label, dossier_assignment_path(colleague.assignment) %>.
       Only you and Admins see Colleagues, and they're never on a CV.</p>
-    <%= render "dossier/shared/contact_fields", f: f, record: colleague %>
+    <%= render "dossier/shared/contact_fields", f: f, record: colleague,
+          change_path: (new_dossier_assignment_colleague_path(colleague.assignment) if colleague.new_record?) %>
   </div>
 
   <div class="show-panel show-panel--actions" data-testid="<%= panel %>-panel-actions">

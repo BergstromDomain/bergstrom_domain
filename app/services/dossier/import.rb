@@ -29,9 +29,10 @@ class Dossier::Import
   DEGREE_TITLE = /degree|bachelor|master of|diploma|doctor|ph\.?d/i
   THESIS_TITLE = /\A(?:\w+ )?thesis\b/i
   NA = "N/A"
-  # A vendor's staff: YAML key → Dossier::StaffMember attribute.
-  STAFF_FIELDS = { "name" => :name, "position" => :position, "mobile" => :mobile, "email" => :email,
-                   "linkedin" => :linkedin_url, "comment" => :comment }.freeze
+  # A vendor's staff: YAML key → Dossier::StaffMember attribute, and → its
+  # Person's (a mobile isn't kept).
+  STAFF_FIELDS = { "position" => :position, "comment" => :comment }.freeze
+  STAFF_PERSON_FIELDS = { "email" => :work_email, "linkedin" => :linkedin_url }.freeze
 
   # The master list tags items with their source CV: "Provar (D)", "Test Tools (P tools)".
   SOURCE_TAG = /\s*\([A-Z](?: [a-z]+)?\)\z/
@@ -223,21 +224,33 @@ class Dossier::Import
     end
   end
 
-  # staff: a vendor's list of { name, position, mobile, email, linkedin,
-  # comment }. Matched by name (any case), so a re-import adds only new ones.
+  # staff: a vendor's list of { name, position, email, linkedin, comment }
+  # (a mobile is ignored). Each is a Person: the one of that full name (any
+  # case), else a new Restricted one with the email and LinkedIn. Matched by
+  # name, so a re-import adds only new ones.
   def import_staff(partner, partner_label, rows)
     return unless rows.is_a?(Array)
 
     rows.each do |row|
-      next unless row.is_a?(Hash) && (name = row["name"].to_s.strip).present?
+      next unless row.is_a?(Hash) && (name = row["name"].to_s.squish).present?
 
       label = "#{name} at #{partner_label}"
-      if (existing = partner.staff_members.find_by("LOWER(name) = ?", name.downcase))
+      if (existing = partner.staff_members.includes(:person).find { |member| member.name.casecmp?(name) })
         note_existing("Staff Member", label, existing)
       else
-        attributes = STAFF_FIELDS.to_h { |key, attribute| [ attribute, row[key].to_s ] }
-        save(partner.staff_members.build(attributes), "Staff Member", label)
+        member = partner.staff_members.build(STAFF_FIELDS.to_h { |key, attribute| [ attribute, row[key].to_s ] })
+        member.person = staff_person(name, row)
+        save(member, "Staff Member", label)
       end
+    end
+  end
+
+  def staff_person(name, row)
+    Person.all.find { |person| person.full_name.casecmp?(name) } || begin
+      *first, last = name.split
+      first, last = [ last ], nil if first.empty?
+      Person.new(first_name: first.join(" "), last_name: last, user: @user, classification: "restricted",
+                 **STAFF_PERSON_FIELDS.to_h { |key, attribute| [ attribute, row[key].to_s ] })
     end
   end
 

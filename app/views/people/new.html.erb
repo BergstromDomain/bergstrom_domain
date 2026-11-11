@@ -84,6 +84,23 @@
     </div>
   </div>
 
+  <%# Contact panel %>
+  <div class="show-panel" data-testid="new-panel-contact">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Contact</h2>
+      <div class="form-group">
+        <%= f.label :work_email, "Work Email" %>
+        <%= f.email_field :work_email,
+              class: "form-control #{'form-control--error' if @person.errors[:work_email].any?}",
+              data: { testid: "work-email-field" } %>
+        <% if @person.errors[:work_email].any? %>
+          <span class="field-error" data-testid="field-error"><%= @person.errors[:work_email].first %></span>
+        <% end %>
+        <p class="form-hint">Optional. Anyone who can see this Person sees it.</p>
+      </div>
+    </div>
+  </div>
+
   <%# Metadata panel %>
   <div class="show-panel" data-testid="new-panel-metadata">
     <div class="show-meta-row">

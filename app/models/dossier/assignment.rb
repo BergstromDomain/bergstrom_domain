@@ -24,10 +24,11 @@ class Dossier::Assignment < ApplicationRecord
   # Its Training stays with the Engagement.
   has_many   :credentials, dependent: :nullify
   # Private details (Block 12): only the owner and Admins see them.
-  has_many   :colleagues, -> { order(Arel.sql("LOWER(dossier_colleagues.name)"), :id) }, dependent: :delete_all
+  has_many   :colleagues, -> { joins(:person).order(*Dossier::ContactDetails::ORDER, "dossier_colleagues.id") },
+             dependent: :delete_all
   has_many   :partners, class_name: "Dossier::AssignmentPartner", dependent: :delete_all
-  has_many   :vendors,   -> { vendor.by_name.includes(:staff_members) },   class_name: "Dossier::AssignmentPartner"
-  has_many   :customers, -> { customer.by_name.includes(:staff_members) }, class_name: "Dossier::AssignmentPartner"
+  has_many   :vendors,   -> { vendor.by_name.includes(staff_members: Dossier::ContactDetails::PRELOAD) }, class_name: "Dossier::AssignmentPartner"
+  has_many   :customers, -> { customer.by_name.includes(staff_members: Dossier::ContactDetails::PRELOAD) }, class_name: "Dossier::AssignmentPartner"
 
   normalizes :summary, :project, with: ->(value) { value.strip.presence }
 
