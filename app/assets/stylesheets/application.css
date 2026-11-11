@@ -3731,3 +3731,23 @@ textarea.form-control {
   justify-content: space-between;
   gap: var(--space-sm);
 }
+
+/* Colleagues and Staff tables: the same fixed column widths everywhere, so
+   the Client's and each Vendor's or Customer's tables line up; long text
+   wraps instead of widening a column. */
+.dossier-contacts-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.dossier-contacts-table th,
+.dossier-contacts-table td {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.dossier-contacts-col--name     { width: 18%; }
+.dossier-contacts-col--position { width: 24%; }
+.dossier-contacts-col--email    { width: 18%; }
+.dossier-contacts-col--linkedin { width: 9%; }
+.dossier-contacts-col--actions  { width: 10rem; }
