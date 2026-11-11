@@ -53,6 +53,19 @@
 <%# Training div — courses taken during this Engagement, on any of its Assignments %>
 <%= render "dossier/credentials/panel", credentials: @engagement.credentials.training.newest_first.includes(:provider, credential_skills: :skill) %>
 
+<%# Contributions div — talks and community work given during this Engagement, as far as the viewer may see them %>
+<div class="show-panel" id="contributions" data-testid="engagement-contributions">
+  <div class="show-panel__section">
+    <h2 class="show-panel__heading">Contributions</h2>
+    <% if @contributions.any? %>
+      <%= render "dossier/contributions/table", contributions: @contributions, show_kind: true,
+            table_testid: "engagement-contributions-table", row_testid: "engagement-contribution-row" %>
+    <% else %>
+      <p data-testid="engagement-contributions-empty">No Contributions yet.</p>
+    <% end %>
+  </div>
+</div>
+
 <% if @engagement.private_details_visible_to?(current_user) %>
   <%= render "colleagues", engagement: @engagement, editable: policy.can_update? && @engagement.deleted_at.nil? %>
 <% end %>

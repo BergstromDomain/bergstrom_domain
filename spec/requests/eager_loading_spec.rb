@@ -447,6 +447,18 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads an Engagement's Contributions without N+1 queries" do
+      engagement = create(:dossier_engagement, user: adam)
+      2.times do
+        create(:dossier_contribution, user: adam, engagement: engagement, event: create(:dossier_organisation),
+                                      skills_text: "Robot Framework, Knowledge Sharing")
+      end
+
+      without_n_plus_one_queries { get dossier_engagement_path(engagement) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "Loads an Organisation's Vendor and Customer Assignments without N+1 queries" do
       pwc = create(:dossier_organisation, name: "PwC")
       engagement = create(:dossier_engagement, user: adam)

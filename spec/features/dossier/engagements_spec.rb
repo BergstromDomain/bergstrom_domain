@@ -172,6 +172,39 @@ RSpec.describe "Dossier Engagements", type: :feature do
 
   # 3) Alternative Paths ───────────────────────────────────────────────────────
   describe "Alternative Paths" do
+    it "Lists the Contributions made during the Engagement, newest first, with their kind" do
+      engagement = create(:dossier_engagement, user: charlie, employer: consultancy, classification: "unrestricted")
+      create(:dossier_contribution, user: charlie, engagement: engagement, title: "Statistical Methods", start_year: 2023,
+                                    start_month_number: 4, start_day: 19, event: create(:dossier_organisation, name: "All Things Testing"))
+      create(:dossier_contribution, user: charlie, engagement: engagement, kind: "article", title: "Robot Framework Tips",
+                                    start_year: 2024, start_month_number: 11)
+      create(:dossier_contribution, user: charlie, title: "Not During It")
+      create(:dossier_contribution, user: charlie, engagement: engagement, title: "Deleted Talk").soft_delete!
+      sign_in_as(charlie)
+      visit dossier_engagement_path(engagement)
+
+      within("[data-testid='engagement-contributions']") do
+        rows = all("[data-testid='engagement-contribution-row']")
+        expect(rows.map { |row| row.find("[data-testid='contribution-title']").text })
+          .to eq([ "Robot Framework Tips", "Statistical Methods" ])
+        expect(rows.last).to have_text("Talk").and have_link("All Things Testing").and have_text("19 Apr 2023")
+        expect(rows.first).to have_text("Article")
+      end
+    end
+
+    it "Shows another user only the Contributions they may read on an Engagement they can see" do
+      engagement = create(:dossier_engagement, user: charlie, employer: consultancy, classification: "unrestricted")
+      create(:dossier_contribution, user: charlie, engagement: engagement, title: "Open Talk", classification: "unrestricted")
+      create(:dossier_contribution, user: charlie, engagement: engagement, title: "Private Talk", classification: "restricted")
+      sign_in_as(chris)
+      visit dossier_engagement_path(engagement)
+
+      within("[data-testid='engagement-contributions']") do
+        expect(page).to have_link("Open Talk")
+        expect(page).to have_no_text("Private Talk")
+      end
+    end
+
     it "Shows bench time among the Assignments, as on the Timeline" do
       engagement = create(:dossier_engagement, user: charlie, employer: consultancy, start_month: "2019-01", end_month: "2019-12")
       create(:dossier_assignment, engagement: engagement, client: consultancy, start_month: "2019-01", end_month: "2019-06")
@@ -240,6 +273,17 @@ RSpec.describe "Dossier Engagements", type: :feature do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
+    it "Says so when no Contributions were made during the Engagement" do
+      engagement = create(:dossier_engagement, user: charlie, employer: consultancy)
+      sign_in_as(charlie)
+      visit dossier_engagement_path(engagement)
+
+      within("[data-testid='engagement-contributions']") do
+        expect(page).to have_selector("[data-testid='engagement-contributions-empty']", text: "No Contributions yet.")
+        expect(page).to have_no_selector("[data-testid='engagement-contribution-row']")
+      end
+    end
+
     it "Shows an error for a year without a month" do
       sign_in_as(charlie)
       visit new_dossier_engagement_path

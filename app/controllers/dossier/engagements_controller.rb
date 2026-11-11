@@ -21,6 +21,8 @@ class Dossier::EngagementsController < ApplicationController
       redirect_to dossier_engagements_path, alert: "Not authorised." and return
     end
     ActiveRecord::Associations::Preloader.new(records: [ @engagement ], associations: { assignments: :client }).call
+    @contributions = @engagement.contributions.kept.newest_first.includes(:event, contribution_skills: :skill)
+                                .select { |contribution| Policy.new(current_user, contribution).can_read? }
   end
 
   def new
