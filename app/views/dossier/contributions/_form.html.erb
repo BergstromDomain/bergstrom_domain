@@ -1,0 +1,75 @@
+<%# Locals: contribution, panel ("new"/"edit"), submit_label, cancel_path %>
+<%= form_with model: contribution, class: "resource-form resource-form--wide", multipart: true do |f| %>
+  <%= render "dossier/shared/form_errors", record: contribution, noun: "contribution" %>
+
+  <%# Main div — what it was %>
+  <div class="show-panel" data-testid="<%= panel %>-panel-main">
+    <%= render "dossier/shared/field", f: f, record: contribution, attribute: :kind, label: "Kind",
+          field: f.select(:kind, Dossier::Contribution::KINDS.map { |kind, (label, _)| [ label, kind ] }, {},
+                          class: "form-control", data: { testid: "kind-field" }) %>
+    <%= render "dossier/shared/field", f: f, record: contribution, attribute: :title, label: "Title",
+          hint: "e.g. \"Statistical Methods in Software Testing\"." %>
+    <%= render "dossier/shared/field", f: f, record: contribution, attribute: :description, label: "Description", text_area: true,
+          hint: "Optional: what it covered." %>
+    <% saved = contribution.persisted? ? ActiveStorage::Attachment.where(record: contribution, name: "files").includes(:blob).order(:id) : [] %>
+    <% if saved.any? %>
+      <div class="show-panel__section">
+        <h2 class="show-panel__heading">Saved Files</h2>
+        <% kept = contribution.files.map(&:blob_id) %>
+        <%# A blank entry so unticking every file still removes them all. %>
+        <%= hidden_field_tag "dossier_contribution[files][]", "", id: nil %>
+        <% saved.each do |file| %>
+          <div class="form-group" data-testid="saved-file">
+            <%= check_box_tag "dossier_contribution[files][]", file.signed_id, kept.include?(file.blob_id), id: "keep_file_#{file.id}" %>
+            <%= label_tag "keep_file_#{file.id}", "Keep #{file.filename}" %>
+          </div>
+        <% end %>
+        <p class="form-hint">Untick a file to remove it when you save.</p>
+      </div>
+    <% end %>
+    <%= render "dossier/shared/field", f: f, record: contribution, attribute: :files, label: "Files",
+          field: f.file_field(:files, multiple: true, accept: Dossier::Contribution::FILE_TYPES.join(","),
+                              class: "form-control", data: { testid: "files-field" }),
+          hint: "Optional: the poster, slides or a photo, as PDF, JPEG, PNG, WebP or AVIF, up to 10 MB each. Only you and admins can open them." %>
+  </div>
+
+  <%# Details div %>
+  <div class="show-panel" data-testid="<%= panel %>-panel-details">
+    <h2 class="show-panel__heading">Details</h2>
+    <%= render "dossier/shared/field", f: f, record: contribution, attribute: :event_id, label: "Event",
+          error_attribute: :event,
+          field: f.collection_select(:event_id, Dossier::Organisation.alphabetical, :id, :name,
+                                     { include_blank: "Choose the event or publication (optional)" }, class: "form-control",
+                                     data: { testid: "event-field" }),
+          hint: safe_join([ "The meetup, conference or publication, e.g. All Things Testing Brisbane. Not listed? ",
+                            link_to("Add An Organisation", new_dossier_organisation_path, target: "_blank", rel: "noopener"),
+                            " in a new tab, then reload this page." ]) %>
+    <%= render "dossier/shared/date_fields", f: f, record: contribution, edge: :start, label: "Date",
+          hint: "Add the month and day if you know them; a year on its own is fine." %>
+    <%= render "dossier/shared/field", f: f, record: contribution, attribute: :location, label: "Location",
+          hint: "Optional, e.g. \"Gold Tower, Level 27, 10 Eagle St, Brisbane City\" or \"Online\"." %>
+    <%= render "dossier/shared/field", f: f, record: contribution, attribute: :presented_as, label: "Presented As",
+          hint: "Optional: the title you were billed under, e.g. \"Test Manager, Elysium Digital\"." %>
+    <%= render "dossier/shared/field", f: f, record: contribution, attribute: :url, label: "Link",
+          hint: "Optional: the recording, slides or event page." %>
+    <%= render "dossier/shared/field", f: f, record: contribution, attribute: :skills_text, label: "Skills",
+          error_attribute: :contribution_skills,
+          hint: "Optional. Separate Skills with commas, e.g. \"Robot Framework, Knowledge Sharing\"; new names become Skills in the Uncategorised Skill Category." %>
+    <%= render "dossier/shared/field", f: f, record: contribution, attribute: :engagement_id, label: "During",
+          error_attribute: :engagement,
+          field: f.select(:engagement_id, engagement_choices.map { |e| [ "#{e.to_toast_label} (#{e.date_range})", e.id ] },
+                          { include_blank: "None" }, class: "form-control", data: { testid: "engagement-field" }),
+          hint: "Optional: the Engagement you made it during, for context. It still stands on its own." %>
+  </div>
+
+  <%# Actions div %>
+  <div class="show-panel show-panel--actions" data-testid="<%= panel %>-panel-actions">
+    <%= link_to cancel_path, class: "btn btn-secondary" do %>
+      <%= lucide_icon("circle-x", size: 16) %> Cancel
+    <% end %>
+    <span class="btn-divider">|</span>
+    <button type="submit" class="btn btn-primary">
+      <%= lucide_icon("save", size: 16) %> <%= submit_label %>
+    </button>
+  </div>
+<% end %>

@@ -81,6 +81,7 @@ RSpec.describe Dossier::Skill, type: :model do
       assignment = create(:dossier_assignment, other_tools_na: false, other_tools_text: "Energy Component")
       achievement = create(:dossier_achievement, skills_text: "Energy Component")
       training = create(:dossier_credential, skills_text: "Energy Component")
+      talk = create(:dossier_contribution, skills_text: "Energy Component")
 
       old.merge_into!(ec)
 
@@ -89,6 +90,7 @@ RSpec.describe Dossier::Skill, type: :model do
       expect(assignment.reload.other_tools_text).to eq("Energy Components")
       expect(achievement.reload.skills_text).to eq("Energy Components")
       expect(training.reload.skills_text).to eq("Energy Components")
+      expect(talk.reload.skills_text).to eq("Energy Components")
     end
   end
 

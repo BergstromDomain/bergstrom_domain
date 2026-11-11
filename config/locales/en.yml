@@ -50,3 +50,11 @@ en:
       # "Cannot delete record because dependent products exist" (a vendor's Skills).
       dossier/organisation:
         products: "products"
+        # "Cannot delete record because dependent Contributions exist" (an event's).
+        contributions: "Contributions"
+      # A Contribution's form labels: "Link must start with http://", "Date can't be blank".
+      dossier/contribution:
+        url: "Link"
+        start_month: "Date"
+        start_day: "Date"
+        engagement: "During"

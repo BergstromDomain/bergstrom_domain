@@ -551,6 +551,10 @@
           <%= lucide_icon("filter", size: 15) %>
           <span>Filter Courses</span>
         <% end %>
+        <%= link_to dossier_contributions_path, class: "left-nav-link" do %>
+          <%= lucide_icon("presentation", size: 15) %>
+          <span>Contributions</span>
+        <% end %>
 
         <h3 class="left-nav-h3" data-testid="left-nav-my-cvs-h3">My CVs</h3>
         <%= link_to dossier_cv_variants_path, class: "left-nav-link" do %>
@@ -627,6 +631,10 @@
             <%= lucide_icon("graduation-cap", size: 15) %>
             <span>Add A Credential</span>
           <% end %>
+          <%= link_to new_dossier_contribution_path, class: "left-nav-link" do %>
+            <%= lucide_icon("presentation", size: 15) %>
+            <span>Add A Contribution</span>
+          <% end %>
           <%= link_to new_dossier_cv_variant_path, class: "left-nav-link" do %>
             <%= lucide_icon("file-plus", size: 15) %>
             <span>Create A CV Variant</span>
@@ -650,6 +658,10 @@
           <%= link_to deleted_dossier_assignments_path, class: "left-nav-link" do %>
             <%= lucide_icon("trash-2", size: 15) %>
             <span>Deleted Assignments</span>
+          <% end %>
+          <%= link_to deleted_dossier_contributions_path, class: "left-nav-link" do %>
+            <%= lucide_icon("trash-2", size: 15) %>
+            <span>Deleted Contributions</span>
           <% end %>
         <% end %>
 

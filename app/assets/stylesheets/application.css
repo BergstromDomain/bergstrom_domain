@@ -3775,3 +3775,19 @@ textarea.form-control {
 .dossier-skill-example__text {
   font-weight: 600;
 }
+
+/* Contributions tables: the same fixed column widths in every kind's table. */
+.dossier-contributions-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.dossier-contributions-table th,
+.dossier-contributions-table td {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.dossier-contributions-col--title  { width: 40%; }
+.dossier-contributions-col--event  { width: 25%; }
+.dossier-contributions-col--date   { width: 12%; }

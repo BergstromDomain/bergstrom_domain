@@ -13,6 +13,9 @@ class Dossier::Organisation < ApplicationRecord
                                 dependent: :restrict_with_error, inverse_of: :client
   has_many :provided_credentials, class_name: "Dossier::Credential", foreign_key: :provider_id,
                                   dependent: :restrict_with_error, inverse_of: :provider
+  # The meetup, conference or publication of someone's Contributions.
+  has_many :contributions, class_name: "Dossier::Contribution", foreign_key: :event_id,
+                           dependent: :restrict_with_error, inverse_of: :event
   # Vendor or Customer on someone's Assignment (private links).
   has_many :assignment_partners, class_name: "Dossier::AssignmentPartner",
                                  dependent: :restrict_with_error, inverse_of: :organisation

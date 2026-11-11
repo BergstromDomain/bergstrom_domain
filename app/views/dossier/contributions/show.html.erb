@@ -1,0 +1,114 @@
+<% policy = Policy.new(current_user, @contribution) %>
+<div class="page-header">
+  <div class="page-header__top page-header__top--centered">
+    <h1 class="page-title" data-testid="contribution-title"><%= @contribution.title %></h1>
+  </div>
+</div>
+
+<%# Description div — what it covered, and beside it the files (only the owner and admins see them) %>
+<% files = @contribution.files_visible_to?(current_user) && @contribution.files.attached? ? @contribution.files : [] %>
+<details class="show-panel show-panel--collapsible" open data-testid="show-panel-main">
+  <summary class="show-panel__heading">Description</summary>
+  <div class="dossier-credential-description<%= ' dossier-credential-description--with-files' if files.any? %>">
+    <div class="dossier-credential-description__text">
+      <% if @contribution.description %>
+        <p data-testid="contribution-description"><%= @contribution.description %></p>
+      <% else %>
+        <p class="show-panel__empty" data-testid="contribution-description">No description yet.</p>
+      <% end %>
+    </div>
+    <% if files.any? %>
+      <div class="dossier-certificates" data-testid="contribution-files">
+        <% files.each do |file| %>
+          <% path = dossier_contribution_file_path(@contribution, file) %>
+          <figure class="dossier-certificate">
+            <%= link_to path, target: "_blank", rel: "noopener", class: "dossier-certificate__link",
+                  title: "Open #{file.filename}" do %>
+              <% if file.content_type == "application/pdf" %>
+                <iframe src="<%= path %>" title="<%= file.filename %>" class="dossier-certificate__pdf"
+                        loading="lazy" tabindex="-1"></iframe>
+              <% else %>
+                <img src="<%= path %>" alt="<%= file.filename %>" class="dossier-certificate__image" loading="lazy">
+              <% end %>
+            <% end %>
+            <figcaption class="dossier-certificate__caption">
+              <%= link_to file.filename.to_s, path, target: "_blank", rel: "noopener" %>
+              <span class="dossier-assignment-row__dates"><%= number_to_human_size(file.byte_size) %></span>
+            </figcaption>
+          </figure>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</details>
+
+<%# Details div %>
+<details class="show-panel show-panel--collapsible" open data-testid="show-panel-metadata">
+  <summary class="show-panel__heading">Details</summary>
+  <div class="show-meta-row">
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Kind</h3>
+      <p class="show-meta-cell__value" data-testid="contribution-kind"><%= @contribution.kind_label %></p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Event</h3>
+      <p class="show-meta-cell__value" data-testid="contribution-event">
+        <%= @contribution.event ? link_to(@contribution.event.label, dossier_organisation_path(@contribution.event)) : "—" %>
+      </p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Date</h3>
+      <p class="show-meta-cell__value" data-testid="contribution-date"><%= @contribution.date %></p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Location</h3>
+      <p class="show-meta-cell__value" data-testid="contribution-location"><%= @contribution.location || "—" %></p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Presented As</h3>
+      <p class="show-meta-cell__value" data-testid="contribution-presented-as"><%= @contribution.presented_as || "—" %></p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Link</h3>
+      <p class="show-meta-cell__value" data-testid="contribution-url"><%= external_link(@contribution.url) %></p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">During</h3>
+      <p class="show-meta-cell__value" data-testid="contribution-engagement">
+        <%= @contribution.engagement ? link_to(@contribution.engagement.to_toast_label, dossier_engagement_path(@contribution.engagement)) : "None" %>
+      </p>
+    </div>
+    <div class="show-meta-cell">
+      <h3 class="show-meta-cell__label">Skills</h3>
+      <p class="show-meta-cell__value" data-testid="contribution-skills">
+        <% skills = @contribution.current_skills %>
+        <%# One span: the cell is a flex row, whose gap would land before each comma. %>
+        <span><%= skills.any? ? safe_join(skills.map { |skill| link_to(skill.display_name, dossier_skill_path(skill)) }, ", ") : "—" %></span>
+      </p>
+    </div>
+  </div>
+</details>
+
+<%# Actions div %>
+<div class="show-panel show-panel--actions" data-testid="show-panel-actions">
+  <%= link_to dossier_contributions_path, class: "btn btn-secondary" do %>
+    <%= lucide_icon("arrow-left", size: 16) %> Back
+  <% end %>
+
+  <% if policy.can_update? %>
+    <span class="btn-divider">|</span>
+    <%= link_to edit_dossier_contribution_path(@contribution), class: "btn btn-secondary" do %>
+      <%= lucide_icon("pencil", size: 16) %> Edit Contribution
+    <% end %>
+  <% end %>
+
+  <% if policy.can_delete? %>
+    <span class="btn-divider">|</span>
+    <%= button_to dossier_contribution_path(@contribution),
+          method: :delete,
+          class: "btn btn-danger",
+          data: { turbo_confirm: "Delete #{@contribution.title}? You can restore it for 30 days." } do %>
+      <%= lucide_icon("trash-2", size: 16) %> Delete Contribution
+    <% end %>
+  <% end %>
+</div>
