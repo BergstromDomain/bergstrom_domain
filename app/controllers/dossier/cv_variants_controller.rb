@@ -104,7 +104,7 @@ class Dossier::CvVariantsController < ApplicationController
     @selection = Dossier::CvSelection.new(@variant)
     @engagements = owner.dossier_engagements.kept.newest_first
                         .includes(:employer, :employment_type, assignments: [ :client, :role, :achievements ]).to_a
-    skills = Dossier::ExperienceCalculator.new(owner).skills.map(&:skill)
+    skills = Dossier::ExperienceCalculator.new(owner).technical_skills.map(&:skill)
     ActiveRecord::Associations::Preloader.new(records: skills, associations: { skill_category: :parent }).call
     @skill_groups = skills.group_by(&:skill_category).sort_by { |category, _| category.tree_sort_key }
     credentials = owner.dossier_credentials.kept.newest_first.includes(:credential_type).to_a

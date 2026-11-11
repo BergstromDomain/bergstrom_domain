@@ -26,6 +26,14 @@ An Assignment uses a Skill when the Skill is in its Tech Stack or tagged on one 
 
 Choose a Skill to open its page. Everyone can see a Skill's name and description, but only you see **Your Experience** with it, and the Assignments, Achievements and Training that use it.
 
+## Professional Skills
+
+Soft skills, such as **Leadership**, **Stakeholder Management** or **Communication & Presentation**, live in the **Professional Skills** category. Tag your Achievements with them as you would any Skill. The wording job ads use also works: typing "Flexibility and Adaptability" tags **Adaptability**.
+
+They aren't counted in years. **My Career › Skills** lists them first, with how many Achievements show each one (**Examples**) and when the latest was. A Professional Skill's page lists **Your Examples**: each Achievement with its Situation, Impact and Assignment, most important first. That's where to look when an application or interview asks for an example of a skill. Professional Skills never appear in a CV's skills.
+
+Admins can make any Skill Category soft, by ticking **Professional (Soft) Skills** on its Edit page. Its sub-categories are then soft too.
+
 ![Python's page: Your Experience, 2+ years, last used Jun 2019, 1 Assignment, 0 Training](images/skill_experience.png)
 
 ### Adding and tidying Skills

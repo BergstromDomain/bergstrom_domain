@@ -69,6 +69,11 @@ class Dossier::ExperienceCalculator
                     .sort_by { |e| [ -(e.months || -1), -(e.personal_months || -1), e.skill.name.downcase ] }
   end
 
+  # Technical Skills (years, the CV's skills table) and professional (soft)
+  # ones, such as Leadership, shown by their example Achievements instead.
+  def technical_skills    = categorised.fetch(false, [])
+  def professional_skills = categorised.fetch(true, [])
+
   def for_skill(skill)
     skills.find { |experience| experience.skill == skill }
   end
@@ -88,6 +93,13 @@ class Dossier::ExperienceCalculator
   def experience_for(name, record) = slice(name).find { |row| row.key == record }
 
   private
+
+  def categorised
+    @categorised ||= begin
+      soft = Dossier::SkillCategory.soft_ids.to_set
+      skills.group_by { |experience| soft.include?(experience.skill.skill_category_id) }
+    end
+  end
 
   def engagements
     @engagements ||= @user.dossier_engagements.kept.includes(:employer, :employment_type, :assignments).to_a

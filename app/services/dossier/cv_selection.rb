@@ -7,7 +7,8 @@
 #   unless one of their Assignments is ticked.
 # * Assignments: those of Engagements ending in the last DETAIL_PERIOD.
 # * Achievements: importance at least the variant's min_importance.
-# * Skills: those with professional years, except the Uncategorised category.
+# * Skills: those with professional years, except the Uncategorised category
+#   and professional (soft) Skills, which are never on a CV.
 # * Credentials: all but Training and expired ones.
 # included? is the record's own tick; shown? also needs its parents shown
 # (an Achievement under a left-out Assignment isn't on the CV).
@@ -81,7 +82,7 @@ class Dossier::CvSelection
 
   def professional_skill_ids
     @professional_skill_ids ||= begin
-      experiences = Dossier::ExperienceCalculator.new(@variant.user, today: @today).skills.select(&:months)
+      experiences = Dossier::ExperienceCalculator.new(@variant.user, today: @today).technical_skills.select(&:months)
       ActiveRecord::Associations::Preloader.new(records: experiences.map(&:skill), associations: :skill_category).call
       experiences.reject { |e| e.skill.skill_category.name == Dossier::TechStack::UNCATEGORISED }.map { |e| e.skill.id }.to_set
     end

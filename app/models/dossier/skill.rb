@@ -91,6 +91,9 @@ class Dossier::Skill < ApplicationRecord
   # The Skill a family is shown under: the parent, or itself.
   def family_root = parent || self
 
+  # A professional (soft) skill, such as Leadership (SkillCategory#soft_skills?).
+  def soft? = skill_category.soft_skills?
+
   # What sets a version apart: "XP" for Windows XP under Windows; the whole
   # name when it doesn't start with the parent's (Ubuntu under Linux).
   def version_label

@@ -15,6 +15,10 @@ class Dossier::SkillsController < Dossier::ReferenceDataController
 
     ActiveRecord::Associations::Preloader.new(records: @experience.assignments, associations: :client).call
     ActiveRecord::Associations::Preloader.new(records: @experience.training, associations: :provider).call
+    return unless @record.soft?
+
+    # A soft Skill shows its example Achievements with their Assignments.
+    ActiveRecord::Associations::Preloader.new(records: @experience.achievements, associations: { assignment: :client }).call
   end
 
   # Merging folds this Skill into the one chosen to keep (Admin only).

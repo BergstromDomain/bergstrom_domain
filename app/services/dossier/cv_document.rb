@@ -47,7 +47,7 @@ class Dossier::CvDocument
   # "TCP/IP; VoIP: SIP, MGCP". A Skill's versions show as one family:
   # "Windows (XP, Vista)".
   def skills
-    experiences = experience_calculator.skills
+    experiences = experience_calculator.technical_skills
     experiences = experiences.select { |experience| @selection.included?(experience.skill) } if @selection
     families = experiences.map(&:skill).group_by(&:family_root)
     ActiveRecord::Associations::Preloader.new(records: families.keys, associations: { skill_category: :parent }).call

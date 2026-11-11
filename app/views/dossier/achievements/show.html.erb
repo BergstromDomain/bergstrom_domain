@@ -9,8 +9,17 @@
   </p>
 </div>
 
-<%# Main div — the bullet point %>
+<%# Main div — the bullet point, and its situation for the owner and Admins only %>
 <div class="show-panel" data-testid="show-panel-main">
+  <% if @achievement.situation && current_user && (@achievement.user_id == current_user.id || current_user.can_administer?) %>
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">
+        Situation
+        <%= render "shared/info_tip", text: "Only you and Admins see this, and it's never on a CV.", testid: "achievement-situation-info" %>
+      </h2>
+      <p data-testid="achievement-situation"><%= @achievement.situation %></p>
+    </div>
+  <% end %>
   <div class="show-panel__section">
     <p data-testid="achievement-text"><%= @achievement.text %></p>
   </div>

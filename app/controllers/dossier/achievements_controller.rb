@@ -107,6 +107,6 @@ class Dossier::AchievementsController < ApplicationController
   end
 
   def achievement_params
-    params.require(:dossier_achievement).permit(:text, :impact, :importance, :skills_text)
+    params.require(:dossier_achievement).permit(:situation, :text, :impact, :importance, :skills_text)
   end
 end

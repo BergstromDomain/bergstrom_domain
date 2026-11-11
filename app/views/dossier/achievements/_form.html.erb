@@ -14,6 +14,9 @@
                             { include_blank: "Choose an Assignment" }, class: "form-control",
                             data: { testid: "assignment-field" }) %>
     <% end %>
+    <%= render "dossier/shared/field", f: f, record: achievement, attribute: :situation, label: "Situation", text_area: true,
+          info: "Only you and Admins see this, and it's never on a CV.",
+          hint: "Optional, the context, for interview-style examples: \"Two vendors blamed each other for outages.\"" %>
     <%= render "dossier/shared/field", f: f, record: achievement, attribute: :text, label: "Achievement", text_area: true,
           hint: "One bullet point, terse form, without I: \"Ran daily defect triage to prioritise UAT defects.\"" %>
     <%= render "dossier/shared/field", f: f, record: achievement, attribute: :impact, label: "Impact",
