@@ -20,7 +20,7 @@ Signed in, you also get **Visibility** checkboxes, which start from your **Defau
 
 ## A person's page
 
-Shows the person's picture, description and Visibility, then:
+Shows the person's picture, description, **Contact** (their Work Email, when they have one; anyone who can see the person sees it) and Visibility, then:
 
 - **Events**: every event they're part of, ordered through the year.
 - **Social Media**: the platforms they're on, with their username on each.
