@@ -2,7 +2,10 @@
 
 # Groups Skills. A category can sit under a top-level one as a sub-category
 # (VoIP under Protocols & Standards), one level deep; names are unique within
-# their parent, so "Other" can exist under several parents.
+# their parent, so "Other" can exist under several parents. A soft category
+# (Professional Skills) holds soft skills such as Leadership: they're shown by
+# their example Achievements, not years, and stay off the CV's skills table.
+# Its sub-categories are soft too.
 class Dossier::SkillCategory < ApplicationRecord
   include Dossier::NamedReferenceData
 
@@ -21,12 +24,21 @@ class Dossier::SkillCategory < ApplicationRecord
 
   scope :top_level, -> { where(parent_id: nil) }
 
+  # The soft categories' ids, their sub-categories' included.
+  def self.soft_ids
+    soft = where(soft: true).ids
+    soft + where(parent_id: soft).ids
+  end
+
   # Each top-level category A–Z, followed by its sub-categories A–Z.
   def self.in_tree_order
     all.includes(:parent).sort_by { |category| category.tree_sort_key }
   end
 
   def top_level? = parent_id.nil?
+
+  # Soft itself, or a sub-category of a soft one.
+  def soft_skills? = soft? || parent&.soft? || false
 
   # "Protocols & Standards › VoIP", or just the name at the top level.
   def full_name = parent ? "#{parent.name} › #{name}" : name
