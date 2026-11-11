@@ -4,37 +4,34 @@ require "rails_helper"
 RSpec.describe Dossier::StaffMember, type: :model do
   # ── Database Columns ──────────────────────────────────────────────────────
   describe "Database Columns" do
-    it { is_expected.to have_db_column(:name).of_type(:string).with_options(null: false) }
+    it { is_expected.to have_db_column(:person_id).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:position).of_type(:string) }
-    it { is_expected.to have_db_column(:mobile).of_type(:string) }
-    it { is_expected.to have_db_column(:email).of_type(:string) }
-    it { is_expected.to have_db_column(:linkedin_url).of_type(:string) }
     it { is_expected.to have_db_column(:comment).of_type(:text) }
+    it { is_expected.not_to have_db_column(:mobile) }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
   describe "Associations" do
     it { is_expected.to belong_to(:assignment_partner) }
+    it { is_expected.to belong_to(:person) }
   end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    it "Is valid with a name and every optional detail" do
-      member = build(:dossier_staff_member, name: "Priya Patel", position: "Delivery Lead", mobile: "+61 400 111 222",
-                                            email: "priya@pwc.example", linkedin_url: "https://linkedin.com/in/priya",
-                                            comment: "Owns the release plan")
+    it "Links a Person, with a position and a comment of its own" do
+      priya = create(:person, first_name: "Priya", last_name: "Patel", work_email: "priya@pwc.example")
+      member = create(:dossier_staff_member, person: priya, position: "Delivery Lead", comment: "Owns the release plan")
 
-      expect(member).to be_valid
-      expect(member.to_toast_label).to eq("Priya Patel")
+      expect(member).to have_attributes(name: "Priya Patel", to_toast_label: "Priya Patel", work_email: "priya@pwc.example",
+                                        position: "Delivery Lead", comment: "Owns the release plan")
+      expect(member.assignment).to eq(member.assignment_partner.assignment)
     end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
-    it "Needs a name and takes only a valid email and an http(s) LinkedIn" do
-      expect(build(:dossier_staff_member, name: " ")).not_to be_valid
-      expect(build(:dossier_staff_member, email: "priya-at-pwc")).not_to be_valid
-      expect(build(:dossier_staff_member, linkedin_url: "linkedin.com/in/priya")).not_to be_valid
+    it "Needs a Person" do
+      expect(build(:dossier_staff_member, person: nil)).not_to be_valid
     end
   end
 
@@ -42,8 +39,8 @@ RSpec.describe Dossier::StaffMember, type: :model do
   describe "Alternative Paths" do
     it "Lists a Vendor's or Customer's Staff by name" do
       partner = create(:dossier_assignment_partner, :customer)
-      zoe = create(:dossier_staff_member, assignment_partner: partner, name: "Zoe")
-      adam = create(:dossier_staff_member, assignment_partner: partner, name: "adam")
+      zoe = create(:dossier_staff_member, assignment_partner: partner, name: "Zoe Zed")
+      adam = create(:dossier_staff_member, assignment_partner: partner, name: "adam Ant")
 
       expect(partner.staff_members).to eq([ adam, zoe ])
     end
@@ -51,12 +48,6 @@ RSpec.describe Dossier::StaffMember, type: :model do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
-    it "Strips text and blanks empty optional fields" do
-      member = create(:dossier_staff_member, name: "  Priya  ", position: " ", email: "")
-
-      expect(member).to have_attributes(name: "Priya", position: nil, email: nil)
-    end
-
     it "Goes with its Vendor or Customer link, and with its Assignment" do
       first = create(:dossier_staff_member)
       second = create(:dossier_staff_member)

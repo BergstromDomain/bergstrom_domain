@@ -117,9 +117,15 @@ FactoryBot.define do
     sequence(:name) { |n| "QE Lead — Company #{n}" }
   end
 
+  # name: the linked Person's full name (the last word their last name),
+  # an existing Person of that name, else a new Restricted one of the
+  # Assignment's owner.
   factory :dossier_colleague, class: "Dossier::Colleague" do
+    transient do
+      sequence(:name) { |n| "Colleague #{n}" }
+    end
     association :assignment, factory: :dossier_assignment
-    sequence(:name) { |n| "Colleague #{n}" }
+    person { dossier_contact_person(name, assignment.user || assignment.engagement.user) }
   end
 
   factory :dossier_assignment_partner, class: "Dossier::AssignmentPartner" do
@@ -133,7 +139,13 @@ FactoryBot.define do
   end
 
   factory :dossier_staff_member, class: "Dossier::StaffMember" do
+    transient do
+      sequence(:name) { |n| "Staff Member #{n}" }
+    end
     association :assignment_partner, factory: :dossier_assignment_partner
-    sequence(:name) { |n| "Staff Member #{n}" }
+    person do
+      assignment = assignment_partner.assignment
+      dossier_contact_person(name, assignment.user || assignment.engagement.user)
+    end
   end
 end

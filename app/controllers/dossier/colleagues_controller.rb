@@ -4,20 +4,26 @@
 # can see them (the owner and Admins) and may update the Assignment get in.
 class Dossier::ColleaguesController < ApplicationController
   include Navigable
+  include Dossier::LinksPeople
   before_action :set_assignment
   before_action :require_access
   before_action :set_colleague, only: %i[edit update destroy]
 
   def new
     @colleague = @assignment.colleagues.build
+    pick_person(@colleague, params[:person_id])
+    find_people
   end
 
   def create
-    @colleague = @assignment.colleagues.build(colleague_params)
+    @colleague = @assignment.colleagues.build
+    pick_person(@colleague, params.dig(:dossier_colleague, :person_id))
+    assign_contact(@colleague, colleague_params)
     if @colleague.save
       toast_created(@colleague)
       redirect_to colleagues_path
     else
+      find_people
       render :new, status: :unprocessable_entity
     end
   end
@@ -27,7 +33,8 @@ class Dossier::ColleaguesController < ApplicationController
 
   def update
     previous_label = @colleague.to_toast_label
-    if @colleague.update(colleague_params)
+    assign_contact(@colleague, colleague_params)
+    if @colleague.save
       toast_updated(@colleague, previous_label: previous_label)
       redirect_to colleagues_path
     else
@@ -56,12 +63,12 @@ class Dossier::ColleaguesController < ApplicationController
 
   # Only this Assignment's: another's id is a 404.
   def set_colleague
-    @colleague = @assignment.colleagues.find(params[:id])
+    @colleague = @assignment.colleagues.includes(Dossier::ContactDetails::PRELOAD).find(params[:id])
   end
 
   def colleagues_path = dossier_assignment_path(@assignment, anchor: "colleagues")
 
   def colleague_params
-    params.require(:dossier_colleague).permit(*Dossier::ContactDetails::FIELDS)
+    contact_params(:dossier_colleague)
   end
 end

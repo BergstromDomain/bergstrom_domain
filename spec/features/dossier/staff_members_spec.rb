@@ -19,9 +19,11 @@ RSpec.describe "Dossier Vendor and Customer Staff", type: :feature do
 
       expect(page).to have_selector("h1.page-title", text: "Add Staff Member")
       expect(page).to have_text("PwC (Vendor)")
-      fill_in "Name", with: "Priya Patel"
+      expect(page).to have_css("[data-testid='person-search-panel']")
+      expect(page).not_to have_field("Mobile")
+      fill_in "First Name", with: "Priya"
+      fill_in "Last Name", with: "Patel"
       fill_in "Position", with: "Delivery Lead"
-      fill_in "Mobile", with: "+61 400 111 222"
       fill_in "Email", with: "priya@pwc.example"
       fill_in "LinkedIn", with: "https://linkedin.com/in/priya"
       fill_in "Comment", with: "Owns the release plan"
@@ -30,17 +32,17 @@ RSpec.describe "Dossier Vendor and Customer Staff", type: :feature do
       expect(page).to have_current_path(dossier_assignment_path(assignment))
       expect(page).to have_css("[data-testid='flash-success']", text: "Priya Patel has been successfully created")
       row = vendor_box.find("[data-testid='staff-row']")
+      expect(row).to have_link("Priya Patel", href: person_path(Person.find_by!(first_name: "Priya")))
       expect(row).to have_text("Delivery Lead")
-      expect(row).to have_text("+61 400 111 222")
       expect(row).to have_link("priya@pwc.example", href: "mailto:priya@pwc.example")
-      expect(row).to have_link("LinkedIn", href: "https://linkedin.com/in/priya")
+      expect(row).to have_link("LinkedIn", href: "https://www.linkedin.com/in/priya")
       expect(row).to have_text("Owns the release plan")
     end
 
     it "Edits and deletes a Customer's Staff member" do
       customer = create(:dossier_assignment_partner, :customer, assignment: assignment,
                                                                 organisation: create(:dossier_organisation, name: "Telstra"))
-      create(:dossier_staff_member, assignment_partner: customer, name: "Tom")
+      create(:dossier_staff_member, assignment_partner: customer, name: "Tom Tait")
       sign_in_as(charlie)
       visit dossier_assignment_path(assignment)
       within("[data-testid='customers'] [data-testid='staff-row']") { click_link "Edit" }
@@ -51,19 +53,29 @@ RSpec.describe "Dossier Vendor and Customer Staff", type: :feature do
       expect(page).to have_css("[data-testid='customers'] [data-testid='staff-row']", text: "Product Owner")
 
       within("[data-testid='customers'] [data-testid='staff-row']") { click_button "Delete" }
-      expect(page).to have_css("[data-testid='flash-success']", text: "Tom has been successfully deleted")
+      expect(page).to have_css("[data-testid='flash-success']", text: "Tom Tait has been successfully deleted")
       expect(page).not_to have_css("[data-testid='staff-row']")
     end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
-    it "Needs a name" do
+    it "Needs a first name for a new Person" do
       sign_in_as(charlie)
       visit new_dossier_assignment_partner_staff_member_path(assignment, vendor)
       click_button "Add Staff Member"
 
-      expect(page).to have_selector("[data-testid='field-error']", text: "can't be blank")
+      expect(page).to have_selector("[data-testid='field-error']", text: "First name can't be blank")
+    end
+
+    it "Keeps you on Edit with the error when the Person's Work Email isn't one" do
+      member = create(:dossier_staff_member, assignment_partner: vendor, name: "Priya Patel")
+      sign_in_as(charlie)
+      visit edit_dossier_assignment_partner_staff_member_path(assignment, vendor, member)
+      fill_in "Email", with: "priya-at-pwc"
+      click_button "Save Staff Member"
+
+      expect(page).to have_selector("[data-testid='form-errors']", text: "Work email is invalid")
     end
 
     it "Hides Staff from anyone but the owner and Admins, even on a public Assignment" do
@@ -95,6 +107,18 @@ RSpec.describe "Dossier Vendor and Customer Staff", type: :feature do
       visit dossier_assignment_path(assignment)
 
       expect(vendor_box).to have_css("[data-testid='staff-row']", text: "Priya Patel")
+    end
+
+    it "Links someone already in People as a Staff member" do
+      priya = create(:person, user: charlie, first_name: "Priya", last_name: "Patel")
+      sign_in_as(charlie)
+      visit new_dossier_assignment_partner_staff_member_path(assignment, vendor, q: "priya")
+      within("[data-testid='person-search-results']") { click_link "Select" }
+      fill_in "Position", with: "Delivery Lead"
+      click_button "Add Staff Member"
+
+      expect(vendor_box.find("[data-testid='staff-row']")).to have_text("Priya Patel")
+      expect(vendor.staff_members.sole.person).to eq(priya)
     end
 
     it "Says how many Staff go when their Vendor is removed" do

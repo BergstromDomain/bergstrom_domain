@@ -21,6 +21,11 @@ class SocialMediaPlatform < ApplicationRecord
     name_changed? || super
   end
 
+  # The LinkedIn platform (People's LinkedIn profiles), added if it's missing.
+  def self.linkedin
+    find_by("LOWER(name) = ?", "linkedin") || create!(name: "LinkedIn", url: "https://www.linkedin.com/")
+  end
+
   # Identifying label used by Toastable — see docs/context-prompts/active/New_Feature_Toasts.md
   def to_toast_label
     name

@@ -1,10 +1,43 @@
-<%# A Colleague's or Staff member's fields (Dossier::ContactDetails). Locals: f, record %>
-<%= render "dossier/shared/field", f: f, record: record, attribute: :name, label: "Name" %>
+<%# A Colleague's or Staff member's fields (Dossier::ContactDetails): the linked Person's name, Work Email and
+    LinkedIn (edited here when you may change that Person, else shown), then the contact's own Position and Comment.
+    Locals: f, record, change_path (the New page without a Person, to pick someone else; nil on Edit) %>
+<% person = record.person %>
+<div class="show-panel__section" data-testid="contact-person">
+  <h2 class="show-panel__heading">
+    Person
+    <%= render "shared/info_tip", testid: "contact-person-info",
+          text: "Name, Work Email and LinkedIn belong to the Person in Occasions › People, so they're the same on every Assignment. A new Person is Restricted: only you and Admins see them." %>
+  </h2>
+  <% if person.persisted? %>
+    <p class="form-hint" data-testid="linked-person">
+      Linked to <%= link_to person.full_name, person_path(person) %>.
+      <% if local_assigns[:change_path] %>
+        <%= link_to "Choose Someone Else", change_path, data: { testid: "change-person" } %>
+      <% end %>
+    </p>
+    <%= f.hidden_field :person_id if record.new_record? %>
+  <% else %>
+    <p class="form-hint">Not in People yet? Fill in their name to add them.</p>
+  <% end %>
+</div>
+<% if person_editable?(person) %>
+  <%= f.fields_for :person do |pf| %>
+    <%= render "dossier/shared/field", f: pf, record: person, attribute: :first_name, label: "First Name" %>
+    <%= render "dossier/shared/field", f: pf, record: person, attribute: :middle_name, label: "Middle Name", hint: "Optional." %>
+    <%= render "dossier/shared/field", f: pf, record: person, attribute: :last_name, label: "Last Name", hint: "Optional." %>
+    <%= render "dossier/shared/field", f: pf, record: person, attribute: :work_email, label: "Email",
+          hint: "Optional: their Work Email, shown to everyone who can see the Person." %>
+    <%= render "dossier/shared/field", f: pf, record: person, attribute: :linkedin_url, label: "LinkedIn",
+          hint: "Optional: their profile URL, e.g. https://www.linkedin.com/in/…" %>
+  <% end %>
+<% else %>
+  <div class="show-panel__section" data-testid="person-details-readonly">
+    <p class="form-hint">Only <%= person.user&.first_name || "their owner" %> and Admins can change this Person's details.</p>
+    <p><strong>Email:</strong> <%= person.work_email ? mail_to(person.work_email) : "—" %></p>
+    <p><strong>LinkedIn:</strong> <%= person.linkedin_url ? link_to("LinkedIn", person.linkedin_url, target: "_blank", rel: "noopener") : "—" %></p>
+  </div>
+<% end %>
 <%= render "dossier/shared/field", f: f, record: record, attribute: :position, label: "Position",
-      hint: "Optional, e.g. Test Lead or Product Owner." %>
-<%= render "dossier/shared/field", f: f, record: record, attribute: :mobile, label: "Mobile", hint: "Optional." %>
-<%= render "dossier/shared/field", f: f, record: record, attribute: :email, label: "Email", hint: "Optional." %>
-<%= render "dossier/shared/field", f: f, record: record, attribute: :linkedin_url, label: "LinkedIn",
-      hint: "Optional: their profile URL, e.g. https://www.linkedin.com/in/…" %>
+      hint: "Optional: theirs on this Assignment, e.g. Test Lead or Product Owner." %>
 <%= render "dossier/shared/field", f: f, record: record, attribute: :comment, label: "Comment", text_area: true,
       hint: "Optional, e.g. what you worked on together, or that they'd be a good reference." %>
