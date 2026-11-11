@@ -20,7 +20,7 @@ Choose **Actions › New › Add A Contribution**, or **Add A Contribution** on 
 - **Date:** a year on its own is fine; add the month and day if you know them.
 - **Location**, **Presented As** and **Link** (optional): where it was, the title you were billed under, and a recording, the slides or the event page.
 - **Skills** (optional): the Skills it shows, separated by commas, such as "Robot Framework, Knowledge Sharing". Professional Skills work here too.
-- **During** (optional): the Engagement you made it during, for context. The Contribution still stands on its own, and stays if that Engagement is deleted.
+- **During** (optional): the Engagement you made it during, for context. The Engagement's page lists it under **Contributions**, with its kind. The Contribution still stands on its own, and stays if that Engagement is deleted.
 
 ## Your Contributions
 

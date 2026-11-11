@@ -1,0 +1,34 @@
+<%# A table of Contributions. Locals: contributions, table_testid, row_testid, show_kind (a Kind column, for mixed kinds) %>
+<% show_kind = local_assigns.fetch(:show_kind, false) %>
+<div class="data-table-wrapper">
+  <table class="data-table dossier-contributions-table<%= ' dossier-contributions-table--with-kind' if show_kind %>" data-testid="<%= table_testid %>">
+    <colgroup>
+      <col class="dossier-contributions-col--title">
+      <% if show_kind %><col class="dossier-contributions-col--kind"><% end %>
+      <col class="dossier-contributions-col--event">
+      <col class="dossier-contributions-col--date">
+      <col class="dossier-contributions-col--skills">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <% if show_kind %><th>Kind</th><% end %>
+        <th>Event</th>
+        <th>Date</th>
+        <th>Skills</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% contributions.each do |contribution| %>
+        <tr data-testid="<%= row_testid %>">
+          <td><%= link_to contribution.title, dossier_contribution_path(contribution), class: "data-table__name-link",
+                    data: { testid: "contribution-title" } %></td>
+          <% if show_kind %><td><%= contribution.kind_label %></td><% end %>
+          <td><%= contribution.event ? link_to(contribution.event.name, dossier_organisation_path(contribution.event)) : "—" %></td>
+          <td><%= contribution.date %></td>
+          <td><%= contribution.current_skills.map(&:name).join(", ").presence || "—" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

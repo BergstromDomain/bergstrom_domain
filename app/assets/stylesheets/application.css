@@ -3791,3 +3791,6 @@ textarea.form-control {
 .dossier-contributions-col--title  { width: 40%; }
 .dossier-contributions-col--event  { width: 25%; }
 .dossier-contributions-col--date   { width: 12%; }
+.dossier-contributions-col--kind   { width: 10%; }
+.dossier-contributions-table--with-kind .dossier-contributions-col--title { width: 30%; }
+.dossier-contributions-table--with-kind .dossier-contributions-col--event { width: 22%; }
