@@ -719,6 +719,12 @@ Private to the author and Admins (the same check as certificate files); **never*
 ---
 
 # TODO
+* **When working on CV Variants: print each Assignment's Tech Stack by Skill Category on the CV**
+  (noted 2026-11-13). `Dossier::CvDocument` (~line 148) prints it by the internal stack lists
+  (`TechStack::LABELS`): every Skill under Testing lands in "Test Tools", so QPT reads "Test Tools:
+  Azure DevOps, Provar, Test Strategy" although Test Strategy is under Testing › Test
+  Documentation. The Assignment page already groups by category (`Dossier::AssignmentTechStack`):
+  consider the same grouping for the Word/PDF and master CV.
 * **Future Enhancement: show each Soft Skill's description under its tick box** (requested
   2026-11-13), so it's clear what goes where. Each Soft Skill already has a description
   (`Dossier::SoftSkills::SKILLS`, editable on the Skill's Edit page), e.g. People Management:
