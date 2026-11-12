@@ -12,8 +12,10 @@ module Dossier::ContactDetails
   FIELDS = %i[position comment].freeze
   PERSON_FIELDS = %i[first_name middle_name last_name work_email linkedin_url].freeze
 
-  # What a contacts table shows: the Person and their LinkedIn.
+  # What a contact's own pages show: the Person and their LinkedIn.
   PRELOAD = { person: { person_social_media_accounts: :social_media_platform } }.freeze
+  # What a contacts table shows: those and the Person's thumbnail.
+  TABLE_PRELOAD = { person: [ { person_social_media_accounts: :social_media_platform }, { image_attachment: :blob } ] }.freeze
 
   # By the Person's name, as it's shown.
   ORDER = [ Arel.sql("people.first_name"), Arel.sql("people.middle_name NULLS FIRST"), Arel.sql("people.last_name") ].freeze

@@ -5,7 +5,7 @@
       Colleagues
       <%= render "shared/info_tip", text: "People you worked with during this Engagement but on no Assignment you shared. Only you and Admins see this, and it's never on a CV.", testid: "engagement-colleagues-info" %>
     </h2>
-    <% colleagues = engagement.colleagues.preload(Dossier::ContactDetails::PRELOAD).to_a %>
+    <% colleagues = engagement.colleagues.preload(Dossier::ContactDetails::TABLE_PRELOAD).to_a %>
     <% if colleagues.any? %>
       <%= render "dossier/shared/contacts_table", contacts: colleagues, editable: editable,
             table_testid: "engagement-colleagues-table", row_testid: "engagement-colleague-row",

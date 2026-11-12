@@ -87,4 +87,20 @@ namespace :dossier do
       puts Dossier::SeedTalks.new(user, poster_dir: args[:poster_dir].presence).run!.notes
     end
   end
+
+  namespace :people do
+    desc "Attach photos in DIR to EMAIL's People, matched by full name or LinkedIn username: dossier:people:attach_images[DIR,EMAIL]; DRY_RUN=1 reports without saving"
+    task :attach_images, [ :dir, :email ] => :environment do |_task, args|
+      user = User.find_by(email_address: args[:email].to_s.strip.downcase)
+      usage = "Usage: bin/rails 'dossier:people:attach_images[DIR,EMAIL]'"
+      abort "#{usage}. No folder #{args[:dir].inspect}." unless args[:dir].present? && File.directory?(args[:dir])
+      abort "#{usage}. No user with the email #{args[:email].inspect}." if user.nil?
+
+      dry_run = ENV["DRY_RUN"].present?
+      report = Dossier::PersonImages.new(user, args[:dir]).run!(dry_run: dry_run)
+      puts report.empty? ? "No files in #{args[:dir]}." : report
+      puts "#{report.count { |line| line.start_with?('Attached') }} attached, #{report.count { |line| !line.start_with?('Attached') }} not."
+      puts "(dry run: nothing saved)" if dry_run
+    end
+  end
 end
