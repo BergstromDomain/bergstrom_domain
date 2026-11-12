@@ -1,7 +1,7 @@
 # app/models/concerns/dossier/cv_selectable.rb
 
 # A record a CV Variant can tick or untick (Engagement, Assignment,
-# Achievement, Skill, Credential): its item rows go with it.
+# Achievement, Skill, Credential, Contribution): its item rows go with it.
 module Dossier
   module CvSelectable
     extend ActiveSupport::Concern

@@ -4,8 +4,8 @@
   </div>
   <p class="page-header__subtitle page-header__subtitle--centered">
     What <%= @variant.name %> includes. Boxes start at the default rules: the last 10 years in full, older jobs
-    condensed to one line, Achievements of importance <%= @variant.min_importance %> or higher, no Personal Projects or
-    Training. Anything you change shows "Your choice". Something only appears if what it sits under is ticked too.
+    condensed to one line, Achievements of importance <%= @variant.min_importance %> or higher, no Personal Projects,
+    Training or Contributions. Anything you change shows "Your choice". Something only appears if what it sits under is ticked too.
   </p>
 </div>
 
@@ -84,6 +84,25 @@
           <% end %>
         </ul>
       <% end %>
+    </div>
+  </div>
+
+  <%# Contributions div %>
+  <div class="show-panel" data-testid="selection-contributions">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading"><%= Dossier::CvDocument::CONTRIBUTIONS_HEADING %></h2>
+      <% if @contributions.empty? %>
+        <p>No Contributions yet.</p>
+      <% end %>
+      <ul class="dossier-selection__list">
+        <% @contributions.each do |contribution| %>
+          <li data-testid="selection-contribution">
+            <%= render "selection_box", selection: @selection, kind: "contribution", record: contribution,
+                  label: [ contribution.title, contribution.event&.name, contribution.date ].compact.join(", "),
+                  notes: [ contribution.kind_label ] %>
+          </li>
+        <% end %>
+      </ul>
     </div>
   </div>
 

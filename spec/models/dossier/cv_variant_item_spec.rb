@@ -11,10 +11,11 @@ RSpec.describe Dossier::CvVariantItem, type: :model do
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    it "Ticks or unticks one Engagement, Assignment, Achievement, Skill or Credential" do
+    it "Ticks or unticks one Engagement, Assignment, Achievement, Skill, Credential or Contribution" do
       skill = create(:dossier_skill)
 
       expect(variant.items.create!(item: skill, included: true)).to be_persisted
+      expect(variant.items.create!(item: create(:dossier_contribution, user: variant.user), included: true)).to be_persisted
     end
   end
 
@@ -55,6 +56,13 @@ RSpec.describe Dossier::CvVariantItem, type: :model do
       variant.items.create!(item: engagement, included: true)
 
       expect { engagement.destroy! }.to change(described_class, :count).by(-1)
+    end
+
+    it "Goes when the Contribution it ticks is purged" do
+      contribution = create(:dossier_contribution, user: variant.user)
+      variant.items.create!(item: contribution, included: true)
+
+      expect { contribution.destroy! }.to change(described_class, :count).by(-1)
     end
   end
 end

@@ -11,7 +11,7 @@ RSpec.describe "dossier/master_cvs/cv", type: :view do
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    it "Shows the header, summary, Experience, Skills and Credentials" do
+    it "Shows the header, summary, Experience, Skills, Credentials and Contributions" do
       create(:dossier_profile, user: user, display_name: "Alex Example", headline: "Test Lead",
                                email: "alex@example.com", summary_first_person: "I lead test teams.")
       job = create(:dossier_engagement, user: user, position_title: "Test Consultant",
@@ -20,6 +20,8 @@ RSpec.describe "dossier/master_cvs/cv", type: :view do
                                                test_tools_na: false, test_tools_text: "Jira")
       create(:dossier_achievement, assignment: assignment, text: "Ran daily defect triage")
       create(:dossier_credential, :certification, user: user, title: "ISTQB Foundation")
+      create(:dossier_contribution, user: user, title: "Statistical Methods", start_precision: "month",
+                                    event: create(:dossier_organisation, name: "All Things Testing"))
 
       render_cv
 
@@ -35,6 +37,8 @@ RSpec.describe "dossier/master_cvs/cv", type: :view do
       expect(rendered).to have_css("h2", text: "Skills")
       expect(rendered).to have_css("h2", text: "Certifications")
       expect(rendered).to have_css(".cv-credential", text: "ISTQB Foundation")
+      expect(within_section.("Presentations & Community")).to have_css(".cv-contribution", text: "Statistical Methods — All Things Testing, Nov 2024")
+      expect(rendered.index("Certifications")).to be < rendered.index("Presentations &amp; Community")
     end
   end
 

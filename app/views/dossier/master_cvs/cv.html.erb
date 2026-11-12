@@ -40,7 +40,7 @@
   ul { margin: 2pt 0 0; padding-left: 14pt; }
   li { margin: 0 0 1.5pt; }
   .cv-skills p { margin: 0 0 3pt; }
-  .cv-credential { margin: 0 0 3pt; }
+  .cv-credential, .cv-contribution { margin: 0 0 3pt; }
   .cv-muted { color: #475569; }
   p { margin: 0 0 3pt; }
 </style>
@@ -115,6 +115,15 @@
           <strong><%= credential.title %><%= " (expired)" if credential.expired %></strong>
           <span class="cv-muted"><%= [ credential.provider, credential.dates ].compact.join(" · ") %></span>
         </p>
+      <% end %>
+    </section>
+  <% end %>
+
+  <% if @cv.contributions.any? %>
+    <section>
+      <h2><%= Dossier::CvDocument::CONTRIBUTIONS_HEADING %></h2>
+      <% @cv.contributions.each do |contribution| %>
+        <p class="cv-contribution"><%= contribution.line %></p>
       <% end %>
     </section>
   <% end %>

@@ -61,6 +61,27 @@ RSpec.describe "Dossier CV Variant Edit Selection", type: :feature do
       expect(page).to have_css("[data-testid='flash-success']", text: "Acme is back to the default selection")
       expect(variant.items.reload).to be_empty
     end
+
+    it "Ticks a Contribution, which then counts in What's Included and is on the CV" do
+      talk = create(:dossier_contribution, user: charlie, title: "Statistical Methods",
+                                           event: create(:dossier_organisation, name: "All Things Testing"))
+      create(:dossier_profile, user: charlie)
+      sign_in_as(charlie)
+      visit selection_dossier_cv_variant_path(variant)
+
+      within("[data-testid='selection-contributions']") do
+        expect(page).to have_selector("h2", text: "Presentations & Community")
+        expect(find("[data-testid='selection-contribution']")).to have_text("Talk")
+      end
+      expect(box(talk)).not_to be_checked
+      box(talk).check
+      click_button "Save Selection"
+
+      expect(find("[data-testid='cv-variant-included']")).to have_text("1 Contribution")
+      expect(Dossier::CvDocument.new(charlie, variant: variant).contributions.map(&:title)).to eq([ "Statistical Methods" ])
+      visit selection_dossier_cv_variant_path(variant)
+      expect(find("[data-testid='selection-contribution']")).to have_text("Your choice")
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
@@ -79,6 +100,14 @@ RSpec.describe "Dossier CV Variant Edit Selection", type: :feature do
                          selection: { engagement: { theirs.id.to_s => "0", engagement.id.to_s => "0" } }
 
       expect(variant.items.map(&:item)).to eq([ engagement ])
+    end
+
+    it "Ignores another user's Contribution" do
+      theirs = create(:dossier_contribution, title: "Someone Else's Talk")
+      sign_in_as(charlie)
+      page.driver.submit :patch, selection_dossier_cv_variant_path(variant), selection: { contribution: { theirs.id.to_s => "1" } }
+
+      expect(variant.items.reload).to be_empty
     end
   end
 
@@ -121,6 +150,26 @@ RSpec.describe "Dossier CV Variant Edit Selection", type: :feature do
       click_button "Save Selection"
 
       expect(variant.items.reload).to be_empty
+    end
+
+    it "Unticks a ticked Contribution back to the default, leaving no row and no Your choice" do
+      talk = create(:dossier_contribution, user: charlie)
+      variant.items.create!(item: talk, included: true)
+      sign_in_as(charlie)
+      visit selection_dossier_cv_variant_path(variant)
+      box(talk).uncheck
+      click_button "Save Selection"
+
+      expect(variant.items.reload).to be_empty
+      visit selection_dossier_cv_variant_path(variant)
+      expect(find("[data-testid='selection-contribution']")).to have_no_text("Your choice")
+    end
+
+    it "Says No Contributions yet when there are none" do
+      sign_in_as(charlie)
+      visit selection_dossier_cv_variant_path(variant)
+
+      expect(find("[data-testid='selection-contributions']")).to have_text("No Contributions yet.")
     end
   end
 end

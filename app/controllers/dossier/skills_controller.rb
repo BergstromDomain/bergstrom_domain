@@ -5,11 +5,15 @@ class Dossier::SkillsController < Dossier::ReferenceDataController
   before_action :set_skill_to_merge, only: %i[merge perform_merge]
 
   # The signed-in user's own experience with the Skill, Training included (nil
-  # for a visitor or a Skill they haven't used or trained in).
+  # for a visitor or a Skill they haven't used or trained in), and their own
+  # kept Contributions tagged with it, newest first.
   def show
     super
+    @contributions = []
     return unless current_user
 
+    @contributions = current_user.dossier_contributions.kept.newest_first.includes(:event)
+                                 .where(id: Dossier::ContributionSkill.where(skill: @record).select(:contribution_id)).to_a
     @experience = Dossier::ExperienceCalculator.new(current_user).for_skill(@record)
     return unless @experience
 

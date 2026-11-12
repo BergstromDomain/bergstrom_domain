@@ -24,13 +24,13 @@ Dossier works out your years of experience from your dates, so you never have to
 
 An Assignment uses a Skill when the Skill is in its Tech Stack or tagged on one of its Achievements.
 
-Choose a Skill to open its page. Everyone can see a Skill's name and description, but only you see **Your Experience** with it, and the Assignments, Achievements and Training that use it.
+Choose a Skill to open its page. Everyone can see a Skill's name and description, but only you see **Your Experience** with it, and the Assignments, Achievements and Training that use it. **Your Contributions** lists your talks, articles and other Contributions tagged with it, newest first, even if you've never used the Skill on an Assignment.
 
 ## Soft Skills
 
 Soft skills, such as **Leadership**, **Stakeholder Management** or **Communication & Presentation**, live in the **Soft Skills** category. Tick them on an Achievement's or a Contribution's form, under **Soft Skills**. Typing one in Technical Skills works too, as does the wording job ads use: typing "Flexibility and Adaptability" tags **Adaptability**.
 
-They aren't counted in years. **My Career › Soft Skills** lists every Soft Skill with your examples of it: each Achievement with its Situation, Impact and Assignment, most important first, then each Contribution. A Soft Skill with none says **No examples yet**. That's where to look when an application or interview asks for an example of a skill. A Soft Skill's own page lists its Achievements too, under **Your Examples**. Soft Skills never appear in a CV's skills.
+They aren't counted in years. **My Career › Soft Skills** lists every Soft Skill with your examples of it: each Achievement with its Situation, Impact and Assignment, most important first, then each Contribution. A Soft Skill with none says **No examples yet**. That's where to look when an application or interview asks for an example of a skill. A Soft Skill's own page lists its Achievements and Contributions too, under **Your Examples**. Soft Skills never appear in a CV's skills.
 
 Admins can make any Skill Category soft, by ticking **Soft Skills** on its Edit page. Its sub-categories are then soft too.
 

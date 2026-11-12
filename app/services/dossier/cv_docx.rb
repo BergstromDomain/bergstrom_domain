@@ -18,6 +18,7 @@ class Dossier::CvDocx
     jobs("Personal Projects", @cv.personal_projects)
     skills
     credentials
+    contributions
     @doc.to_docx
   end
 
@@ -72,6 +73,13 @@ class Dossier::CvDocx
         @doc.paragraph([ [ title, { bold: true } ], [ " · #{details}" ] ])
       end
     end
+  end
+
+  def contributions
+    return if @cv.contributions.empty?
+
+    @doc.paragraph(Dossier::CvDocument::CONTRIBUTIONS_HEADING, style: "Heading1")
+    @cv.contributions.each { |contribution| @doc.paragraph(contribution.line) }
   end
 
   # "Label: text", the label in bold.

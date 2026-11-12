@@ -1,10 +1,14 @@
 <%#
   The signed-in user's own experience with this Skill (@experience, nil for
-  a visitor or a Skill they haven't used). A professional (soft) Skill shows
-  its example Achievements instead of years.
+  a visitor or a Skill they haven't used), and their Contributions tagged with
+  it (@contributions). A soft Skill shows its example Achievements and
+  Contributions instead of years; a technical one lists its Contributions
+  after the experience.
 %>
-<% if @experience && @record.soft? %>
-  <%= render "dossier/skills/examples", experience: @experience %>
+<% if @record.soft? %>
+  <% if @experience || @contributions.any? %>
+    <%= render "dossier/skills/examples", achievements: @experience&.achievements || [], contributions: @contributions %>
+  <% end %>
 <% elsif @experience %>
   <div class="show-panel" data-testid="skill-experience">
     <div class="show-panel__section">
@@ -75,4 +79,13 @@
       </div>
     </div>
   <% end %>
+<% end %>
+
+<% if !@record.soft? && @contributions.any? %>
+  <div class="show-panel" data-testid="skill-contributions">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Your Contributions</h2>
+      <%= render "dossier/skills/example_list", achievements: [], contributions: @contributions %>
+    </div>
+  </div>
 <% end %>

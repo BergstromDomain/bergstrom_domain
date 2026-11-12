@@ -1,12 +1,12 @@
-<%# A Soft Skill's examples on its page: the signed-in user's Achievements tagged with it, most important first, each with its situation, impact and Assignment. Locals: experience %>
+<%# A Soft Skill's examples on its page: the signed-in user's Achievements tagged with it, most important first, each with its situation, impact and Assignment, then their Contributions. Locals: achievements, contributions %>
 <div class="show-panel" data-testid="skill-examples">
   <div class="show-panel__section">
     <h2 class="show-panel__heading">
       Your Examples
-      <%= render "shared/info_tip", text: "Achievements you've tagged with this Skill. Situations are seen only by you and Admins.",
+      <%= render "shared/info_tip", text: "Achievements and Contributions you've tagged with this Skill. Situations are seen only by you and Admins.",
             testid: "skill-examples-info" %>
     </h2>
-    <%= render "dossier/skills/example_list", contributions: [],
-          achievements: experience.achievements.sort_by { |a| [ -a.importance, a.assignment.start_on ] } %>
+    <%= render "dossier/skills/example_list", contributions: contributions,
+          achievements: achievements.sort_by { |a| [ -a.importance, a.assignment.start_on ] } %>
   </div>
 </div>
