@@ -24,4 +24,16 @@ module AuthenticationHelpers
     fill_in "Password",      with: "password123"
     click_button "Sign In"
   end
+
+  # For js: true specs: sign_in_as returns once the click is sent, so a visit
+  # straight after can race the sign-in and land on the Sign In page. This waits
+  # for the signed-in avatar, retrying if the click dispatched nothing. Some
+  # older specs still define their own copy, which takes precedence.
+  def sign_in_and_settle(user, attempts: 3)
+    attempts.times do
+      sign_in_as(user)
+      return if page.has_css?("[data-testid='user-thumbnail-dropdown']", wait: 10)
+    end
+    raise "sign_in_and_settle: could not sign in as #{user.email_address} after #{attempts} attempts"
+  end
 end
