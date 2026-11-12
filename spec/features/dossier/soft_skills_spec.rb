@@ -45,17 +45,18 @@ RSpec.describe "Dossier Soft Skills", type: :feature do
       expect(find("[data-testid='achievement-skills']")).to have_link("Jira").and have_no_text("Leadership")
     end
 
-    it "Shows an Achievement's Situation, Impact and Soft Skills on its row, in STAR order, without its Technical Skills" do
+    it "Shows an Achievement's Impact, Tech Skills and Soft Skills on its row, marking its Situation without its text" do
       leadership_achievement
       sign_in_as(charlie)
       visit dossier_assignment_path(assignment)
 
       row = find("[data-testid='achievement-row']")
-      expect(row.find("[data-testid='achievement-row-situation']")).to have_text("Situation: Two vendors blamed each other for outages")
+      expect(row).to have_selector("[data-testid='achievement-row-star']")
+      expect(row).to have_no_text("Two vendors blamed each other for outages")
       expect(row.find("[data-testid='achievement-row-impact']")).to have_text("Impact: Outages halved")
+      expect(row.find("[data-testid='achievement-row-tech-skills']")).to have_text("Tech Skills: Jira")
       expect(row.find("[data-testid='achievement-row-skills']")).to have_text("Soft Skills: Leadership")
-      expect(row).to have_no_link("Jira")
-      expect(row.text).to match(/Situation:.*Impact:.*Soft Skills:/m)
+      expect(row.text).to match(/Impact:.*Tech Skills:.*Soft Skills:/m)
     end
 
     it "Collects each Soft Skill's examples on My Career › Soft Skills, Achievements and Contributions" do
@@ -122,7 +123,7 @@ RSpec.describe "Dossier Soft Skills", type: :feature do
 
       visit dossier_assignment_path(assignment)
       expect(find("[data-testid='achievement-row']")).to have_text("Soft Skills: Leadership")
-      expect(page).not_to have_selector("[data-testid='achievement-row-situation']")
+      expect(page).not_to have_selector("[data-testid='achievement-row-star']")
     end
 
     it "Shows Chris none of Charlie's examples, on the Skill page or his own Soft Skills page" do

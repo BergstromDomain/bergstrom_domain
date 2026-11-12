@@ -1,3 +1,5 @@
+<%# Up/Down on the Achievements redirect back here: refresh in place, keeping the scroll %>
+<% turbo_refreshes_with method: :morph, scroll: :preserve %>
 <% policy = Policy.new(current_user, @assignment) %>
 <% private_details = @assignment.private_details_visible_to?(current_user) %>
 <% tech_stack = Dossier::AssignmentTechStack.new(@assignment) %>

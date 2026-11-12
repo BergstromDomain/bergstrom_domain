@@ -16,11 +16,16 @@
     <% end %>
     <%= render "dossier/shared/field", f: f, record: achievement, attribute: :situation, label: "Situation", text_area: true,
           info: "Only you and Admins see this, and it's never on a CV.",
-          hint: "Optional, the context, for interview-style examples: \"Two vendors blamed each other for outages.\"" %>
+          hint: "Optional, the S in STAR: the context, for interview-style examples: \"Two vendors blamed each other for outages.\"" %>
+    <%= render "dossier/shared/field", f: f, record: achievement, attribute: :task, label: "Task", text_area: true,
+          info: "Only you and Admins see this, and it's never on a CV.",
+          hint: "Optional, the T in STAR: your responsibility, goal or challenge: \"Get both vendors to agree who owned each defect.\"" %>
     <%= render "dossier/shared/field", f: f, record: achievement, attribute: :text, label: "Achievement", text_area: true,
-          hint: "One bullet point, terse form, without I: \"Ran daily defect triage to prioritise UAT defects.\"" %>
+          hint: "The A in STAR, and the CV bullet: terse, without I. What you did starts with a hands-on verb " \
+                "(Wrote, Ran, Built, Tested): \"Ran daily defect triage to prioritise UAT defects.\" What you managed starts " \
+                "with Led, Managed or Coordinated, and names who did the work: \"Led a team of 3 testers who…\"" %>
     <%= render "dossier/shared/field", f: f, record: achievement, attribute: :impact, label: "Impact",
-          hint: "Optional, a measurable result, e.g. \"40% fewer production defects\"." %>
+          hint: "Optional, the R in STAR: a measurable result, e.g. \"40% fewer production defects\"." %>
   </div>
 
   <%# Details div %>

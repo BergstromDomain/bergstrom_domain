@@ -9,7 +9,7 @@
   </p>
 </div>
 
-<%# Main div — the bullet point, and its situation for the owner and Admins only %>
+<%# Main div — in STAR order: the Situation and Task (owner and Admins only), then the bullet point (the Action); the Impact (the Result) is in Metadata %>
 <div class="show-panel" data-testid="show-panel-main">
   <% if @achievement.situation_visible_to?(current_user) %>
     <div class="show-panel__section">
@@ -18,6 +18,15 @@
         <%= render "shared/info_tip", text: "Only you and Admins see this, and it's never on a CV.", testid: "achievement-situation-info" %>
       </h2>
       <p data-testid="achievement-situation"><%= @achievement.situation %></p>
+    </div>
+  <% end %>
+  <% if @achievement.task_visible_to?(current_user) %>
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">
+        Task
+        <%= render "shared/info_tip", text: "Only you and Admins see this, and it's never on a CV.", testid: "achievement-task-info" %>
+      </h2>
+      <p data-testid="achievement-task"><%= @achievement.task %></p>
     </div>
   <% end %>
   <div class="show-panel__section">

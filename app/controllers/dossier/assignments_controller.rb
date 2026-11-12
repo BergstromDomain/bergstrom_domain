@@ -49,6 +49,7 @@ class Dossier::AssignmentsController < ApplicationController
     previous_label = @assignment.to_toast_label
     if @assignment.update(assignment_params)
       toast_updated(@assignment, previous_label: previous_label)
+      warn_about_uncovered_skills
       redirect_to @assignment
     else
       render :edit, status: :unprocessable_entity
@@ -103,6 +104,13 @@ class Dossier::AssignmentsController < ApplicationController
     when "edit", "update" then Dossier::Assignment.includes(assignment_skills: :skill)
     else Dossier::Assignment
     end
+  end
+
+  # Tech Stack Skills no Achievement names, System Under Test and the exempt
+  # categories aside (Dossier::TechStackCoverage).
+  def warn_about_uncovered_skills
+    uncovered = Dossier::TechStackCoverage.new(@assignment.reload).uncovered
+    flash[:warning] = "Not in any Achievement: #{uncovered.map(&:display_name).join(', ')}" if uncovered.any?
   end
 
   def assignment_params

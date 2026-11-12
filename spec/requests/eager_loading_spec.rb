@@ -117,6 +117,19 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Updates an Achievement, adding its Tech Skills to the Tech Stack, without N+1 queries" do
+      assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam),
+                                               test_tools_na: false, test_tools_text: "Jira")
+      achievement = create(:dossier_achievement, assignment: assignment, skills_text: "Jira")
+      create(:dossier_skill, name: "Selenium", parent: create(:dossier_skill, name: "Selenium Family"))
+
+      without_n_plus_one_queries do
+        patch dossier_achievement_path(achievement), params: { dossier_achievement: { skills_text: "Jira, Excel, Selenium, Postman" } }
+      end
+
+      expect(assignment.reload.skills.map(&:name)).to include("Excel", "Selenium", "Postman")
+    end
+
     it "Edits, updates, deletes and restores an Assignment without loading what it doesn't use" do
       assignment = create(:dossier_assignment, engagement: create(:dossier_engagement, user: adam),
                                                test_tools_na: false, test_tools_text: "Jira, Selenium")

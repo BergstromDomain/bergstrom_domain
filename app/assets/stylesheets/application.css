@@ -3477,6 +3477,21 @@ textarea.form-control {
   font-weight: var(--font-weight-semibold);
 }
 
+/* Marks a row whose Achievement has a Situation (S) and/or Task (T) saved. */
+.dossier-achievement__star {
+  display: inline-block;
+  margin-left: var(--space-2xs);
+  padding: 0 0.35em;
+  border: 1px solid var(--color-accent);
+  border-radius: 999px;
+  color: var(--color-accent);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.4;
+  vertical-align: middle;
+  cursor: help;
+}
+
 .dossier-achievement__moves form {
   display: inline-block;
 }

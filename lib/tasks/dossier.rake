@@ -20,6 +20,19 @@ namespace :dossier do
     end
   end
 
+  namespace :achievements do
+    desc "One-off: add each Achievement's Tech Skills to its Assignment's Tech Stack: dossier:achievements:sync_tech_stack[EMAIL]; DRY_RUN=1 reports without saving"
+    task :sync_tech_stack, [ :email ] => :environment do |_task, args|
+      user = User.find_by(email_address: args[:email].to_s.strip.downcase)
+      abort "No user with the email #{args[:email].inspect}." if user.nil?
+
+      dry_run = ENV["DRY_RUN"].present?
+      report = Dossier::TechStackCoverage.backfill(user, dry_run: dry_run)
+      puts report.empty? ? "Every Tech Stack already has its Achievements' Tech Skills." : report
+      puts "(dry run: nothing saved)" if dry_run
+    end
+  end
+
   namespace :courses do
     desc "Scan a folder of course material into a manifest to review: dossier:courses:scan[DIR,OUT]"
     task :scan, [ :dir, :out ] => :environment do |_task, args|

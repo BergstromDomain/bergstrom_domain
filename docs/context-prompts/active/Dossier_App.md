@@ -719,6 +719,12 @@ Private to the author and Admins (the same check as certificate files); **never*
 ---
 
 # TODO
+* **Future Enhancement: show each Soft Skill's description under its tick box** (requested
+  2026-11-13), so it's clear what goes where. Each Soft Skill already has a description
+  (`Dossier::SoftSkills::SKILLS`, editable on the Skill's Edit page), e.g. People Management:
+  "Hiring, onboarding and running a team." and Leadership: "Setting direction, and leading people
+  and teams towards it." Show it as a hint under each box on the Achievement and Contribution
+  forms (`dossier/shared/_skill_fields`), or as an info tip.
 * **Dev data clean-up (Niklas, on a large screen, before PROD)** — all done in the app with what
   exists today; no code needed. Planned 2026-11-06:
   1. **Merge and regroup Skills and Skill Categories:** Merge the import's broken bracket Skills

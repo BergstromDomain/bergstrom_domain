@@ -12,6 +12,7 @@ RSpec.describe Dossier::Achievement, type: :model do
     it { is_expected.to have_db_column(:user_id).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:text).of_type(:text).with_options(null: false) }
     it { is_expected.to have_db_column(:impact).of_type(:string) }
+    it { is_expected.to have_db_column(:task).of_type(:text) }
     it { is_expected.to have_db_column(:importance).of_type(:integer).with_options(null: false, default: 3) }
     it { is_expected.to have_db_column(:position).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:classification).of_type(:string).with_options(null: false, default: "restricted") }
@@ -119,6 +120,21 @@ RSpec.describe Dossier::Achievement, type: :model do
       create(:dossier_achievement, assignment: assignment)
       create(:dossier_achievement, assignment: assignment).soft_delete!
       expect { assignment.destroy }.to change(described_class, :count).by(-2)
+    end
+
+    it "Keeps a Task tidied, and blanks one of only spaces" do
+      expect(create(:dossier_achievement, assignment: assignment, task: "  Define one approach  ").task).to eq("Define one approach")
+      expect(create(:dossier_achievement, assignment: assignment, task: " ").task).to be_nil
+    end
+
+    it "Shows the Situation and Task to the owner and Admins only" do
+      achievement = create(:dossier_achievement, assignment: assignment, task: "Define one approach")
+
+      expect(achievement.star_notes_visible_to?(assignment.user)).to be(true)
+      expect(achievement.star_notes_visible_to?(create(:user, :admin))).to be(true)
+      expect(achievement.star_notes_visible_to?(create(:user, :content_creator))).to be(false)
+      expect(achievement.star_notes_visible_to?(nil)).to be(false)
+      expect(create(:dossier_achievement, assignment: assignment).star_notes_visible_to?(assignment.user)).to be(false)
     end
 
     it "Tags a Skill once, however often it's typed" do
