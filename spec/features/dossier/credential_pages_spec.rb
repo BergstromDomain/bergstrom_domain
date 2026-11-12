@@ -249,10 +249,11 @@ RSpec.describe "Dossier Credential pages", type: :feature do
 
     it "Collapses a frame on a click and reopens it on reload", js: true do
       add_course("Learning Docker")
-      sign_in_as(charlie)
+      sign_in_and_settle(charlie)
       visit dossier_credentials_path
       group("Course").find("summary").click
 
+      expect(group("Course")).not_to match_selector("details[open]")
       expect(page).not_to have_link("Learning Docker")
       visit dossier_credentials_path
       expect(page).to have_link("Learning Docker")
