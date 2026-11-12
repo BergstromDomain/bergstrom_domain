@@ -9,11 +9,12 @@
 # admins only). It belongs to no Engagement or Assignment; "During" can say
 # which Engagement you made it in, for context. Deleting is soft;
 # PurgeDeletedDossierContributionsJob removes it after
-# DELETION_RETENTION_PERIOD.
+# DELETION_RETENTION_PERIOD. A CV lists it under Presentations & Community.
 class Dossier::Contribution < ApplicationRecord
   include Classifiable
   include Dossier::Dated
   include Dossier::SkillTags
+  include Dossier::CvSelectable
 
   DELETION_RETENTION_PERIOD = 30.days
 

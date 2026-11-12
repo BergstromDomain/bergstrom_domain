@@ -12,7 +12,7 @@ class Dossier::CvVariantsController < ApplicationController
   before_action :require_update, only: %i[edit update selection update_selection reset_selection]
   before_action :require_profile, only: %i[pdf docx]
 
-  SELECTABLE = %w[engagement assignment achievement skill credential].freeze
+  SELECTABLE = %w[engagement assignment achievement skill credential contribution].freeze
 
   helper_method :copy_choices
 
@@ -66,8 +66,8 @@ class Dossier::CvVariantsController < ApplicationController
     end
   end
 
-  # Edit Selection: a checkbox per Engagement, Assignment, Achievement, Skill
-  # and Credential of the variant's owner, ticked as the variant has them.
+  # Edit Selection: a checkbox per Engagement, Assignment, Achievement, Skill,
+  # Credential and Contribution of the variant's owner, ticked as the variant has them.
   def selection
     load_selectable
   end
@@ -110,9 +110,12 @@ class Dossier::CvVariantsController < ApplicationController
     credentials = owner.dossier_credentials.kept.newest_first.includes(:credential_type).to_a
     @credential_groups = credentials.group_by(&:credential_type).sort_by { |type, _| [ type.position, type.name.downcase ] }
 
+    @contributions = owner.dossier_contributions.kept.newest_first.includes(:event).to_a
+
     assignments = @engagements.flat_map(&:assignments)
     @selectable = { "engagement" => @engagements, "assignment" => assignments,
-                    "achievement" => assignments.flat_map(&:achievements), "skill" => skills, "credential" => credentials }
+                    "achievement" => assignments.flat_map(&:achievements), "skill" => skills, "credential" => credentials,
+                    "contribution" => @contributions }
   end
 
   # The owner's CV through this variant (an Admin downloads the owner's CV).

@@ -10,6 +10,7 @@
 # * Skills: those with professional years, except the Uncategorised category
 #   and professional (soft) Skills, which are never on a CV.
 # * Credentials: all but Training and expired ones.
+# * Contributions: none until ticked (kept ones only, as for every record).
 # included? is the record's own tick; shown? also needs its parents shown
 # (an Achievement under a left-out Assignment isn't on the CV).
 class Dossier::CvSelection
@@ -31,6 +32,7 @@ class Dossier::CvSelection
     when Dossier::Achievement then record.importance >= @variant.min_importance
     when Dossier::Skill       then professional_skill_ids.include?(record.id)
     when Dossier::Credential  then !record.training? && !record.expired?(@today)
+    when Dossier::Contribution then false
     else raise ArgumentError, "No CV rule for #{record.class.name}"
     end
   end

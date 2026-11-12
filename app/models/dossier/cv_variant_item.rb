@@ -3,7 +3,8 @@
 # One record a CV Variant explicitly ticks (included) or unticks. With no
 # row, Dossier::CvSelection's default rules decide.
 class Dossier::CvVariantItem < ApplicationRecord
-  ITEM_TYPES = %w[Dossier::Engagement Dossier::Assignment Dossier::Achievement Dossier::Skill Dossier::Credential].freeze
+  ITEM_TYPES = %w[Dossier::Engagement Dossier::Assignment Dossier::Achievement Dossier::Skill Dossier::Credential
+                  Dossier::Contribution].freeze
 
   belongs_to :cv_variant, class_name: "Dossier::CvVariant", inverse_of: :items
   belongs_to :item, polymorphic: true

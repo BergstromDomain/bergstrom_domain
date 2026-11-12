@@ -13,7 +13,7 @@ RSpec.describe Dossier::CvDocx do
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    it "Lays out the header, summary, Experience, Skills and Credentials in the Classic styles" do
+    it "Lays out the header, summary, Experience, Skills, Credentials and Contributions in the Classic styles" do
       create(:dossier_profile, user: user, display_name: "Alex Example", headline: "Test Lead",
                                email: "alex@example.com", phone: "0400 000 000", summary_first_person: "I lead test teams.")
       job = create(:dossier_engagement, user: user, position_title: "Test Consultant",
@@ -25,16 +25,19 @@ RSpec.describe Dossier::CvDocx do
       create(:dossier_achievement, assignment: assignment, text: "Ran daily defect triage", impact: "cut defects by 40%")
       create(:dossier_credential, :certification, user: user, title: "ISTQB Foundation",
                                                   provider: create(:dossier_organisation, name: "ISTQB"))
+      create(:dossier_contribution, user: user, title: "Statistical Methods", start_precision: "month",
+                                    event: create(:dossier_organisation, name: "All Things Testing"))
 
       expect(paragraphs.first(4)).to eq([ [ "Title", "Alex Example" ], [ "Subtitle", "Test Lead" ],
                                           [ "Contacts", "alex@example.com · 0400 000 000" ], [ nil, "I lead test teams." ] ])
-      expect(texts_in("Heading1")).to eq([ "Experience", "Skills", "Certifications" ])
+      expect(texts_in("Heading1")).to eq([ "Experience", "Skills", "Certifications", "Presentations & Community" ])
       expect(texts_in("Heading2")).to eq([ "Test Consultant" ])
       expect(texts_in("Heading3")).to eq([ "Westpac" ])
       expect(texts_in("Meta")).to eq([ "Bridge · Consultant · Mar 2019 – Jun 2022", "Test Lead · Mar 2019 – Jun 2022" ])
       expect(texts_in("TechStack")).to eq([ "Test Tools: Jira" ])
       expect(texts_in("ListBullet")).to eq([ "Ran daily defect triage — cut defects by 40%" ])
-      expect(paragraphs.last).to eq([ nil, "ISTQB Foundation · ISTQB · Mar 2020" ])
+      expect(paragraphs.last(3)).to eq([ [ nil, "ISTQB Foundation · ISTQB · Mar 2020" ], [ "Heading1", "Presentations & Community" ],
+                                         [ nil, "Statistical Methods — All Things Testing, Nov 2024" ] ])
     end
   end
 

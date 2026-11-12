@@ -67,7 +67,18 @@ RSpec.describe "Dossier Download Master CV", type: :feature do
       visit dossier_master_cv_path
 
       expect(page).to have_selector("[data-testid='master-cv-contents']",
-                                    text: "2 Engagements, 1 Personal Project, and 1 Credential")
+                                    text: "2 Engagements, 1 Personal Project, 1 Credential, and 0 Contributions")
+    end
+
+    it "Counts the user's own kept Contributions" do
+      create(:dossier_profile, user: charlie)
+      create(:dossier_contribution, user: charlie)
+      create(:dossier_contribution, user: charlie).soft_delete!
+      create(:dossier_contribution) # someone else's
+      sign_in_as(charlie)
+      visit dossier_master_cv_path
+
+      expect(page).to have_selector("[data-testid='master-cv-contents']", text: "1 Contribution")
     end
   end
 end

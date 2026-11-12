@@ -67,6 +67,7 @@
       <li><%= pluralize(@cv.personal_projects.size, "Personal Project") %></li>
       <li><%= pluralize(@cv.skills.sum { |_, names| names.size }, "Skill") %></li>
       <li><%= pluralize(@cv.credentials.sum { |section| section.entries.size }, "Credential") %></li>
+      <li><%= pluralize(@cv.contributions.size, "Contribution") %></li>
     </ul>
   </div>
   <div class="show-panel__section">

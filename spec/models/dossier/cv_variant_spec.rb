@@ -76,13 +76,15 @@ RSpec.describe Dossier::CvVariant, type: :model do
                                              min_importance: 4, target_role: "QE Lead", summary_override: "For Acme.")
       engagement = create(:dossier_engagement, user: charlie)
       original.items.create!(item: engagement, included: false)
+      talk = create(:dossier_contribution, user: charlie)
+      original.items.create!(item: talk, included: true)
 
       copy = described_class.copy_from(original, name: "Acme v2")
       copy.save!
 
       expect(copy).to have_attributes(user: charlie, based_on: original, voice: "implied", show_tech_stack: true,
                                        min_importance: 4, target_role: "QE Lead", summary_override: "For Acme.")
-      expect(copy.items.map { |i| [ i.item, i.included ] }).to eq([ [ engagement, false ] ])
+      expect(copy.items.map { |i| [ i.item, i.included ] }).to eq([ [ engagement, false ], [ talk, true ] ])
     end
 
     it "Keeps a copy when the variant it came from is deleted" do

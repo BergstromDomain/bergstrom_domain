@@ -15,6 +15,10 @@ RSpec.describe Dossier::CvDocument do
     create(:dossier_engagement, *traits, user: user, **attributes)
   end
 
+  def contribution(title, **attributes)
+    create(:dossier_contribution, user: user, title: title, start_on: Date.new(2024, 11, 1), start_precision: "month", **attributes)
+  end
+
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     it "Heads the CV with the name, headline and contact details" do
@@ -153,6 +157,14 @@ RSpec.describe Dossier::CvDocument do
       expect(cv.credentials.third.entries.map(&:title)).to contain_exactly("Exploratory Testing Workshop", "Agile Fundamentals")
     end
 
+    it "Lists every kept Contribution under Presentations & Community, newest first" do
+      profile
+      contribution("Statistical Methods", event: create(:dossier_organisation, name: "All Things Testing"))
+      contribution("Robot Framework 101", start_on: Date.new(2025, 3, 1))
+
+      expect(cv.contributions.map(&:line)).to eq([ "Robot Framework 101, Mar 2025", "Statistical Methods — All Things Testing, Nov 2024" ])
+    end
+
     it "Names the file after the display name and today's date" do
       profile(display_name: "Alex Q. Example")
 
@@ -173,6 +185,19 @@ RSpec.describe Dossier::CvDocument do
 
       expect(cv.experience).to be_empty
       expect(cv.credentials).to be_empty
+    end
+
+    it "Leaves out a Variant's Contributions unless ticked, and a deleted one even when ticked" do
+      profile
+      variant = create(:dossier_cv_variant, user: user)
+      contribution("Unticked")
+      deleted = contribution("Deleted")
+      variant.items.create!(item: deleted, included: true)
+      deleted.soft_delete!
+      create(:dossier_contribution, title: "Someone Else's Talk")
+
+      expect(described_class.new(user, today: today, variant: variant).contributions).to be_empty
+      expect(cv.contributions.map(&:title)).to eq([ "Unticked" ])
     end
 
     it "Leaves out deleted Engagements and Achievements, and N/A Tech Stack lists" do
@@ -262,6 +287,16 @@ RSpec.describe Dossier::CvDocument do
                                                                         achievements: [ "Automated the smoke tests" ])
     end
 
+    it "Keeps a Contribution a CV Variant ticks, dated to the year when that's all it has" do
+      profile
+      variant = create(:dossier_cv_variant, user: user)
+      ticked = contribution("Mentoring Juniors", start_on: Date.new(2023, 1, 1), start_precision: "year")
+      contribution("Not Ticked")
+      variant.items.create!(item: ticked, included: true)
+
+      expect(described_class.new(user, today: today, variant: variant).contributions.map(&:line)).to eq([ "Mentoring Juniors, 2023" ])
+    end
+
     it "Marks an expired Credential, and shows an unfinished one as in progress" do
       profile
       create(:dossier_credential, :certification, user: user, title: "Old Cert", expires_month: "2021-01")
@@ -294,7 +329,7 @@ RSpec.describe Dossier::CvDocument do
     it "Has empty sections, not errors, for a Profile with nothing else" do
       profile
 
-      expect([ cv.experience, cv.personal_projects, cv.skills, cv.credentials ]).to all(be_empty)
+      expect([ cv.experience, cv.personal_projects, cv.skills, cv.credentials, cv.contributions ]).to all(be_empty)
     end
 
     it "Shows a Personal Project a CV Variant ticks" do

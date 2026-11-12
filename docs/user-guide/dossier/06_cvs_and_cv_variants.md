@@ -10,7 +10,7 @@ Dossier makes your CV for you, as a Word document or a PDF, from everything in M
 
 ## Download Master CV
 
-**Actions › Import & Export › Download Master CV** gives you everything as one CV: your Profile and summary, every Engagement with its Assignments, Tech Stacks and Achievements, Personal Projects, Skills by category, and Credentials by type.
+**Actions › Import & Export › Download Master CV** gives you everything as one CV: your Profile and summary, every Engagement with its Assignments, Tech Stacks and Achievements, Personal Projects, Skills by category, Credentials by type, and your Contributions under **Presentations & Community**, newest first, each as "Title — Event, Nov 2024".
 
 ![Download Master CV: what it includes, then Download Word and Download PDF](images/master_cv.png)
 
@@ -41,10 +41,11 @@ A new Variant starts from these rules:
 - Skills you have professional years in, except Uncategorised ones.
 - Degrees, diplomas, certifications and awards. Training and expired Credentials are left out.
 - Personal Projects are left out.
+- Contributions are left out until you tick them, so a Variant's **Presentations & Community** section only appears once you tick at least one.
 
 Choose **Edit Selection** to tick or untick anything. Your choices always win over the rules, and anything you add to My Career later is included or left out by the rules. **Reset To Defaults** clears your choices.
 
-![Edit Selection: a checkbox for each job, Assignment and Achievement with its importance, then Skills and Credentials](images/cv_variant_selection.png)
+![Edit Selection: a checkbox for each job, Assignment and Achievement with its importance, then Skills, Credentials and Contributions](images/cv_variant_selection.png)
 
 ### Copying and deleting
 

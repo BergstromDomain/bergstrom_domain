@@ -276,6 +276,15 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads a technical Skill's Contributions without N+1 queries" do
+      create_list(:dossier_contribution, 3, user: adam, skills_text: "Jira", event: nil)
+      2.times { create(:dossier_contribution, user: adam, skills_text: "Jira", event: create(:dossier_organisation)) }
+
+      without_n_plus_one_queries { get dossier_skill_path(Dossier::Skill.find_by!(name: "Jira")) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "Loads a Soft Skill's examples, My Career › Soft Skills and Achievement rows without N+1 queries" do
       Dossier::SoftSkills.seed!
       soft_ids = Dossier::Skill.soft.where(name: [ "Leadership", "Knowledge Sharing" ]).ids
@@ -401,6 +410,7 @@ RSpec.describe "Eager loading", type: :request do
         end
         create(:dossier_credential, :certification, user: adam, provider: create(:dossier_organisation))
         create(:dossier_credential, user: adam, provider: create(:dossier_organisation))
+        create(:dossier_contribution, user: adam, event: create(:dossier_organisation))
       end
 
       [ dossier_master_cv_path, docx_dossier_master_cv_path, pdf_dossier_master_cv_path ].each do |path|
@@ -423,6 +433,7 @@ RSpec.describe "Eager loading", type: :request do
         end
         create(:dossier_credential, :certification, user: adam, provider: create(:dossier_organisation))
         create(:dossier_credential, user: adam, provider: create(:dossier_organisation))
+        variant.items.create!(item: create(:dossier_contribution, user: adam, event: create(:dossier_organisation)), included: true)
       end
       create(:dossier_cv_variant, user: adam)
 

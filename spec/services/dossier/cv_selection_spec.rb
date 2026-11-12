@@ -87,6 +87,14 @@ RSpec.describe Dossier::CvSelection do
       expect(selection.included?(expired)).to be(false)
     end
 
+    it "Leaves out Contributions until they're ticked" do
+      contribution = create(:dossier_contribution, user: user)
+
+      expect(selection.included?(contribution)).to be(false)
+      selection.save!([ [ contribution, true ] ])
+      expect(selection.included?(contribution)).to be(true)
+    end
+
     it "Leaves out Uncategorised Skills and Skills only learned on Training" do
       assignment_in(engagement, test_tools_na: false, test_tools_text: "Brand New Tool")
       trained = create(:dossier_skill, name: "Scrum")

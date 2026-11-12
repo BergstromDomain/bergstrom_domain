@@ -10,7 +10,8 @@
       <span data-testid="master-cv-contents"><%= [
         pluralize(@cv.experience.size, "Engagement"),
         pluralize(@cv.personal_projects.size, "Personal Project"),
-        pluralize(@cv.credentials.sum { |section| section.entries.size }, "Credential")
+        pluralize(@cv.credentials.sum { |section| section.entries.size }, "Credential"),
+        pluralize(@cv.contributions.size, "Contribution")
       ].to_sentence %></span>, with your Skills. The file is made when you click and downloads straight away —
       nothing is stored.</p>
 

@@ -5,7 +5,8 @@
 # Profile; Experience and Personal Projects from kept Engagements, newest
 # first, each with its Assignments, Tech Stack and kept Achievements; Skills
 # grouped by Skill Category; Credentials grouped by Credential Type in type
-# order, with all training types together as "Training". A permanent job's
+# order, with all training types together as "Training"; then Contributions
+# under Presentations & Community, newest first. A permanent job's
 # single synced Assignment folds into its Engagement (heading, role and dates
 # nil), so the CV doesn't repeat them.
 #
@@ -19,7 +20,13 @@ class Dossier::CvDocument
   Section    = Data.define(:heading, :entries)
   Credential = Data.define(:title, :provider, :dates, :expired)
 
+  # "Title — Event, Nov 2024", or "Title, Nov 2024" with no event.
+  Contribution = Data.define(:title, :event, :date) do
+    def line = [ [ title, event ].compact.join(" — "), date ].compact.join(", ")
+  end
+
   TRAINING_HEADING = "Training"
+  CONTRIBUTIONS_HEADING = "Presentations & Community"
 
   def initialize(user, today: Date.current, variant: nil)
     @user = user
@@ -70,6 +77,13 @@ class Dossier::CvDocument
 
   # "Alex_Example_CV_2026-11-05.pdf", or with a variant
   # "Alex_Example_CV_QE_Lead_Acme_2026-11-05.pdf".
+  # Kept Contributions, newest first; a variant's only when ticked.
+  def contributions
+    @contributions ||= @user.dossier_contributions.kept.newest_first.includes(:event)
+                            .select { |contribution| shown?(contribution) }
+                            .map { |c| Contribution.new(title: c.title, event: c.event&.name, date: c.date) }
+  end
+
   def filename(extension)
     parts = [ @profile.display_name, "CV", @variant&.name ].compact.map { |part| safe_filename(part) }
     "#{parts.join('_')}_#{@today.iso8601}.#{extension}"
