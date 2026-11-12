@@ -77,4 +77,14 @@ namespace :dossier do
       abort "Nothing applied. #{e.message}"
     end
   end
+
+  namespace :contributions do
+    desc "Add the two All Things Testing Brisbane talks to a user, posters from POSTER_DIR: dossier:contributions:seed_talks[EMAIL,POSTER_DIR]"
+    task :seed_talks, [ :email, :poster_dir ] => :environment do |_task, args|
+      user = User.find_by(email_address: args[:email].to_s.strip.downcase)
+      abort "Usage: bin/rails 'dossier:contributions:seed_talks[EMAIL,POSTER_DIR]'. No user with the email #{args[:email].inspect}." if user.nil?
+
+      puts Dossier::SeedTalks.new(user, poster_dir: args[:poster_dir].presence).run!.notes
+    end
+  end
 end
