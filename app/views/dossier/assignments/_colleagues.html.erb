@@ -8,7 +8,7 @@
   </div>
   <div class="show-panel__section" id="client-colleagues">
     <h3 class="show-panel__subheading">Client</h3>
-    <% colleagues = assignment.colleagues.preload(Dossier::ContactDetails::PRELOAD).to_a %>
+    <% colleagues = assignment.colleagues.preload(Dossier::ContactDetails::TABLE_PRELOAD).to_a %>
     <% if colleagues.any? %>
       <%= render "dossier/shared/contacts_table", contacts: colleagues, editable: editable,
             table_testid: "colleagues-table", row_testid: "colleague-row",
