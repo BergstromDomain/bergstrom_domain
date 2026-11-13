@@ -3882,3 +3882,24 @@ textarea.form-control {
 .dossier-contributions-col--kind   { width: 10%; }
 .dossier-contributions-table--with-kind .dossier-contributions-col--title { width: 30%; }
 .dossier-contributions-table--with-kind .dossier-contributions-col--event { width: 22%; }
+
+/* Dossier Profile photo, in the Profile header (DossierHelper#profile_photo). */
+.dossier-profile-header {
+  align-items: center;
+}
+
+.dossier-profile-photo {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dossier-profile-photo--placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-secondary);
+}

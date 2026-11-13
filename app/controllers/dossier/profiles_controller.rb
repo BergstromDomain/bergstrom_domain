@@ -38,7 +38,7 @@ class Dossier::ProfilesController < ApplicationController
   def profile_params
     params.require(:dossier_profile).permit(
       :display_name, :headline, :location_id, :email, :phone, :website_url, :linkedin_url, :github_url,
-      :summary, :summary_first_person, :summary_third_person, :third_person_name, :pronouns
+      :summary, :summary_first_person, :summary_third_person, :third_person_name, :pronouns, :photo, :remove_photo
     )
   end
 end

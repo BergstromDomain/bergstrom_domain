@@ -25,6 +25,16 @@
     <%= render "dossier/shared/field", f: f, record: @profile, attribute: :display_name, label: "Display Name" %>
     <%= render "dossier/shared/field", f: f, record: @profile, attribute: :headline, label: "Headline",
           hint: "One line under your name, e.g. Test Manager | ISTQB Certified." %>
+    <%= render "dossier/shared/field", f: f, record: @profile, attribute: :photo, label: "Photo",
+          field: safe_join([ (profile_photo(@profile) if @profile.photo.attached? && @profile.photo.blob&.persisted?),
+                             f.file_field(:photo, accept: Dossier::Profile::PHOTO_TYPES.join(","), class: "form-control",
+                                                  data: { testid: "photo-field" }) ]),
+          hint: "Optional, a JPEG, PNG or WebP under 5 MB, shown on your Profile. Without one, your Settings picture is used." %>
+    <% if @profile.persisted? && @profile.attachment_changes["photo"].nil? && @profile.photo.attached? %>
+      <%= render "dossier/shared/field", f: f, record: @profile, attribute: :remove_photo, label: "Remove Photo",
+            field: f.check_box(:remove_photo, data: { testid: "remove-photo-field" }),
+            hint: "Tick to remove the photo when you save; your Settings picture is used instead." %>
+    <% end %>
     <%= render "dossier/shared/field", f: f, record: @profile, attribute: :location_id, label: "Location",
           error_attribute: :location,
           field: f.collection_select(:location_id, Dossier::Location.alphabetical, :id, :name,

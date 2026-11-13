@@ -10,6 +10,17 @@ class Dossier::Profile < ApplicationRecord
 
   PRONOUNS = { "he" => "He/Him", "she" => "She/Her", "they" => "They/Them" }.freeze
 
+  PHOTO_TYPES = %w[image/jpeg image/png image/webp].freeze
+
+  # Shown in the Profile header; without one, the user's Settings picture
+  # stands in (DossierHelper#profile_photo).
+  has_one_attached :photo do |attachable|
+    attachable.variant :thumbnail, resize_to_fill: [ 200, 200 ]
+  end
+  attribute :remove_photo, :boolean, default: false
+  # A newly chosen photo wins over Remove Photo.
+  after_save { photo.purge_later if remove_photo && photo.attached? && !attachment_changes.key?("photo") }
+
   # belongs_to :user comes from Classifiable.
   belongs_to :location, optional: true
 
@@ -23,6 +34,8 @@ class Dossier::Profile < ApplicationRecord
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_nil: true
   validates :website_url, :linkedin_url, :github_url, format: URL_FORMAT, allow_nil: true
   validates :pronouns, inclusion: { in: PRONOUNS.keys }
+  validates :photo, content_type: { in: PHOTO_TYPES, spoofing_protection: true, message: "must be a JPEG, PNG or WebP" },
+                    size: { less_than: 5.megabytes, message: "must be smaller than 5 MB" }
 
   # The user's profile, or a new unsaved one started from their name.
   def self.for(user)
