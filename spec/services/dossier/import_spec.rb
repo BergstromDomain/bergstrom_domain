@@ -371,8 +371,8 @@ RSpec.describe Dossier::Import do
       engagement = admin.dossier_engagements.find_by!(position_title: "Test Engineer")
       expect(engagement.start_on).to eq(Date.new(2010, 3, 15))
       expect(engagement.start_precision).to eq("day")
-      expect(engagement.assignments.order(:start_on).map(&:summary)).to eq([ "Tested widgets.", "Tested gadgets." ])
-      expect(engagement.assignments.order(:start_on).first.end_on).to eq(Date.new(2014, 6, 1))
+      expect(engagement.assignments.reorder(:start_on).map(&:summary)).to eq([ "Tested widgets.", "Tested gadgets." ])
+      expect(engagement.assignments.reorder(:start_on).first.end_on).to eq(Date.new(2014, 6, 1))
     end
 
     it "Lets an Admin create missing reference data" do
@@ -527,12 +527,29 @@ RSpec.describe Dossier::Import do
       expect(admin.dossier_engagements.find_by!(position_title: "Test Consultant")).to be_current
     end
 
+    it "Lists a new Engagement's Assignments newest first, in whatever order the file gives them" do
+      lines = yaml.lines
+      first = lines.index { |line| line.include?("- client: Widget Works") }
+      last = lines.index { |line| line.include?("Tested gadgets.") }
+      second = lines.rindex { |line| line.include?("- client: Widget Works") }
+      newest_first = (lines[...first] + lines[second..last] + lines[first...second] + lines[(last + 1)..]).join
+      expect(newest_first).not_to eq(yaml)
+
+      [ yaml, newest_first ].each do |text|
+        admin.dossier_engagements.find_by(position_title: "Test Engineer")&.destroy!
+        import(text: text).import!
+
+        engagement = admin.dossier_engagements.find_by!(position_title: "Test Engineer")
+        expect(engagement.assignments.map(&:summary)).to eq([ "Tested gadgets.", "Tested widgets." ])
+      end
+    end
+
     it "Gives a permanent Engagement's own Assignment month precision when it lists only a month" do
       text = yaml.sub("start: 2010-03-15\n        end: 2014-06", "start: 2010-04\n        end: 2014-06")
 
       import(text: text).import!
 
-      first = admin.dossier_engagements.find_by!(position_title: "Test Engineer").assignments.order(:start_on).first
+      first = admin.dossier_engagements.find_by!(position_title: "Test Engineer").assignments.reorder(:start_on).first
       expect([ first.start_on, first.start_precision ]).to eq([ Date.new(2010, 4, 1), "month" ])
       expect(import(text: text).preview.created).to be_empty
     end
