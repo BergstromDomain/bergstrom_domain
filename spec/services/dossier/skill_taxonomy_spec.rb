@@ -249,6 +249,9 @@ RSpec.describe Dossier::SkillTaxonomy do
       expect(described_class.new(taxonomy).apply!).to eq([])
       expect(skill("MS Project").display_name).to eq("Microsoft Project")
       expect(skill("Windows XP").family_root.name).to eq("Windows")
+      test_types = [ "API testing", "End-to-end testing", "Data migration testing" ].map { |name| skill(name) }
+      expect(test_types.map { |test_type| test_type.skill_category.name }.uniq).to eq([ "Test Types & Techniques" ])
+      expect(test_types.map(&:aliases)).to eq([ [ "API" ], [ "E2E" ], [] ])
     end
 
     it "Finds a category path and a Skill's old name ignoring case" do
