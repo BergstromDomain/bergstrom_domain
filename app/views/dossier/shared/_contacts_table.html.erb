@@ -1,8 +1,9 @@
-<%# Colleagues or Staff (Dossier::ContactDetails) as a table, with the same fixed column widths everywhere, so the tables on a page line up.
+<%# Colleagues or Staff (Dossier::ContactDetails) as a table, each row led by the Person's thumbnail (or a person icon), with the same fixed column widths everywhere, so the tables on a page line up.
     Locals: contacts, row_testid, table_testid, editable, edit_path (contact → path), delete_path (contact → path) %>
 <div class="data-table-wrapper">
   <table class="data-table dossier-contacts-table" data-testid="<%= table_testid %>">
     <colgroup>
+      <col class="col-thumbnail">
       <col class="dossier-contacts-col--name">
       <col class="dossier-contacts-col--position">
       <col class="dossier-contacts-col--email">
@@ -12,6 +13,7 @@
     </colgroup>
     <thead>
       <tr>
+        <th class="col-thumbnail"></th>
         <th>Name</th>
         <th>Position</th>
         <th>Email</th>
@@ -23,6 +25,18 @@
     <tbody>
       <% contacts.each do |contact| %>
         <tr data-testid="<%= row_testid %>">
+          <td class="col-thumbnail" data-testid="contact-thumbnail">
+            <% if contact.person.image.attached? %>
+              <%= link_to person_path(contact.person) do %>
+                <%= image_tag contact.person.image.variant(:thumbnail), alt: contact.name, class: "table-thumbnail table-thumbnail--person" %>
+              <% end %>
+            <% else %>
+              <%= link_to person_path(contact.person), class: "table-thumbnail-icon table-thumbnail-icon--person",
+                    aria: { label: contact.name } do %>
+                <%= lucide_icon("user", size: 24) %>
+              <% end %>
+            <% end %>
+          </td>
           <td><%= link_to contact.name, person_path(contact.person), data: { testid: "contact-person-link" } %></td>
           <td><%= contact.position || "—" %></td>
           <td><%= contact.work_email ? mail_to(contact.work_email) : "—" %></td>

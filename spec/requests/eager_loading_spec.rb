@@ -462,8 +462,10 @@ RSpec.describe "Eager loading", type: :request do
                                                test_tools_na: false, test_tools_text: "Jira")
       create(:dossier_achievement, assignment: assignment, skills_text: "Jira")
       create_list(:dossier_colleague, 2, assignment: assignment)
+        .each { |colleague| colleague.person.image.attach(file_fixture("test_image.jpg")) }
       create_list(:dossier_assignment_partner, 2, assignment: assignment)
         .each { |vendor| create_list(:dossier_staff_member, 2, assignment_partner: vendor) }
+        .flat_map(&:staff_members).each { |staff| staff.person.image.attach(file_fixture("test_image.png")) }
       create_list(:dossier_assignment_partner, 2, :customer, assignment: assignment)
         .each { |customer| create(:dossier_staff_member, assignment_partner: customer) }
 
@@ -476,6 +478,7 @@ RSpec.describe "Eager loading", type: :request do
       engagement = create(:dossier_engagement, user: adam)
       create_list(:dossier_engagement_colleague, 3, engagement: engagement)
         .each { |colleague| colleague.person.update!(linkedin_url: "https://www.linkedin.com/in/#{colleague.person.slug}") }
+        .each { |colleague| colleague.person.image.attach(file_fixture("test_image.jpg")) }
 
       without_n_plus_one_queries { get dossier_engagement_path(engagement) }
 
