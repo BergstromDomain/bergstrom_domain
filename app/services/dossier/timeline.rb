@@ -50,7 +50,7 @@ class Dossier::Timeline
 
   def initialize(engagements, today: Date.current)
     # Rows show "Client - Project", so Roles aren't loaded.
-    @engagements = engagements.includes(:employment_type, assignments: :client).to_a
+    @engagements = engagements.includes(:employment_type, assignments: { client: { logo_attachment: :blob } }).to_a
     @today = today
   end
 

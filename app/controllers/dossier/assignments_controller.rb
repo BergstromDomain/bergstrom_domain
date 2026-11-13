@@ -100,7 +100,7 @@ class Dossier::AssignmentsController < ApplicationController
   # the client, Tech Stack and Achievements; the form edits the Tech Stack.
   def assignment_scope
     case action_name
-    when "show" then Dossier::Assignment.includes(:client, assignment_skills: :skill, achievements: { achievement_skills: :skill })
+    when "show" then Dossier::Assignment.includes({ client: { logo_attachment: :blob } }, assignment_skills: :skill, achievements: { achievement_skills: :skill })
     when "edit", "update" then Dossier::Assignment.includes(assignment_skills: :skill)
     else Dossier::Assignment
     end

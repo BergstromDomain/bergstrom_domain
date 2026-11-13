@@ -12,6 +12,59 @@ RSpec.describe Dossier::Organisation, type: :model do
     it { is_expected.to have_db_column(:slug).of_type(:string) }
   end
 
+  # ── Logo ──────────────────────────────────────────────────────────────────
+  describe "Logo" do
+    let(:organisation) { create(:dossier_organisation) }
+
+    def attach(io, filename) = organisation.logo.attach(io: io, filename: filename)
+
+    it "Takes a JPEG, PNG or WebP logo" do
+      organisation.logo.attach(file_fixture("test_image.png"))
+
+      expect(organisation).to be_valid
+      expect(organisation.logo).to be_attached
+    end
+
+    it "Refuses a GIF, an SVG, or text named .png" do
+      { "logo.gif" => "GIF89a\x01\x00\x01\x00", "logo.svg" => "<svg xmlns='http://www.w3.org/2000/svg'/>",
+        "logo.png" => "not an image" }.each do |filename, content|
+        attach(StringIO.new(content), filename)
+
+        expect(organisation).not_to be_valid
+        expect(organisation.errors[:logo]).to include("must be a JPEG, PNG or WebP")
+        organisation.logo.detach
+      end
+    end
+
+    it "Refuses a logo of 2 MB or more" do
+      attach(StringIO.new(file_fixture("test_image.jpg").binread + ("0" * 2.megabytes)), "big.jpg")
+
+      expect(organisation).not_to be_valid
+      expect(organisation.errors[:logo]).to include("must be smaller than 2 MB")
+    end
+
+    it "Fits its thumbnail within 160px, keeping the logo's shape" do
+      organisation.logo.attach(file_fixture("test_image.png"))
+
+      expect(organisation.logo.variant(:thumbnail).variation.transformations).to include(resize_to_limit: [ 160, 160 ])
+    end
+
+    it "Removes the logo when saved with Remove Logo ticked, and keeps it otherwise" do
+      organisation.logo.attach(file_fixture("test_image.png"))
+      organisation.update!(remove_logo: "0")
+      expect(organisation.reload.logo).to be_attached
+
+      organisation.update!(remove_logo: "1")
+      expect(organisation.reload.logo).not_to be_attached
+    end
+
+    it "Goes with the Organisation" do
+      organisation.logo.attach(file_fixture("test_image.png"))
+
+      expect { organisation.destroy }.to change(ActiveStorage::Attachment, :count).by(-1)
+    end
+  end
+
   # ── Associations ──────────────────────────────────────────────────────────
   describe "Associations" do
     it { is_expected.to belong_to(:industry).optional }

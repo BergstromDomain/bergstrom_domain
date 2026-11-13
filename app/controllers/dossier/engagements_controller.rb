@@ -9,7 +9,7 @@ class Dossier::EngagementsController < ApplicationController
   before_action :set_engagement, only: %i[show edit update destroy restore]
 
   def index
-    @timeline = Dossier::Timeline.new(current_user.dossier_engagements.kept.includes(:employer))
+    @timeline = Dossier::Timeline.new(current_user.dossier_engagements.kept.includes(employer: { logo_attachment: :blob }))
   end
 
   def deleted
@@ -20,7 +20,7 @@ class Dossier::EngagementsController < ApplicationController
     unless Policy.new(current_user, @engagement).can_read?
       redirect_to dossier_engagements_path, alert: "Not authorised." and return
     end
-    ActiveRecord::Associations::Preloader.new(records: [ @engagement ], associations: { assignments: :client }).call
+    ActiveRecord::Associations::Preloader.new(records: [ @engagement ], associations: { assignments: { client: { logo_attachment: :blob } } }).call
     @contributions = @engagement.contributions.kept.newest_first.includes(:event, contribution_skills: :skill)
                                 .select { |contribution| Policy.new(current_user, contribution).can_read? }
   end

@@ -7,7 +7,7 @@ Dossier's Reference Data is shared by everyone who uses it. Everyone can view it
 
 ## What Each One Holds
 
-- **Organisations:** employers, clients, issuers and training providers. A **Name**, an optional **Abbreviation** (headings show the full name with it, running text uses the abbreviation), an **Industry** and a **Website**. Content Creators can add Organisations themselves; only admins edit or delete them.
+- **Organisations:** employers, clients, issuers and training providers. A **Name**, an optional **Abbreviation** (headings show the full name with it, running text uses the abbreviation), an **Industry**, a **Website** and a **Logo** (a JPEG, PNG or WebP under 2 MB). The logo shows on the Organisation's page, the Organisations list, the Assignment page (the client's) and the Timeline (the employer's on each Engagement, the client's on each Assignment); without one, a building icon stands in. **Remove Logo** on its Edit page takes it off. Content Creators can add Organisations themselves, logo included; only admins edit or delete them.
 - **Industries** and **Skill Categories:** a name and an optional description. A Skill Category can also be a sub-category, and can be marked **Soft Skills**.
 - **Roles:** what someone did for a client, such as Teacher or Test Lead.
 - **Locations:** a **City** and **Country**.
