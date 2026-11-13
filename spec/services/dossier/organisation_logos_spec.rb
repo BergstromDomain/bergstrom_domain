@@ -58,6 +58,19 @@ RSpec.describe Dossier::OrganisationLogos do
 
       expect(kth.reload.logo).to be_attached
     end
+
+    it "Ignores a trailing \"logo\", underscores, hyphens and spacing in the file name" do
+      pinnacle = create(:dossier_organisation, name: "PinnacleQM")
+      elysium  = create(:dossier_organisation, name: "Elysium Digital")
+      logo("Pinnacle_QM_logo.jpeg")
+      logo("Elysium_Digital-Logo.png")
+      logo("QPT logo.jpg")
+
+      expect(run).to eq([ "Attached: Elysium_Digital-Logo.png → Elysium Digital",
+                          "Attached: Pinnacle_QM_logo.jpeg → PinnacleQM",
+                          "Attached: QPT logo.jpg → Queensland Public Trustee" ])
+      expect([ pinnacle.reload.logo, elysium.reload.logo, qpt.reload.logo ]).to all(be_attached)
+    end
   end
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
