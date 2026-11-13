@@ -28,7 +28,7 @@
             <%= link_to engagement.to_toast_label, dossier_engagement_path(engagement), class: "data-table__name-link" %>
           </h2>
           <p class="dossier-timeline-card__meta">
-            <span data-testid="engagement-type"><%= engagement.employment_type.name %></span>
+            <span data-testid="engagement-type"><%= link_to engagement.employment_type.name, dossier_employment_type_path(engagement.employment_type) %></span>
             <% if engagement.personal? %>
               <span class="badge badge--active" data-testid="engagement-personal">Personal</span>
             <% end %>

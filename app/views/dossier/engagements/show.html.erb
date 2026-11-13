@@ -24,7 +24,7 @@
     </div>
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Employment Type</h3>
-      <p class="show-meta-cell__value" data-testid="engagement-employment-type"><%= @engagement.employment_type.name %></p>
+      <p class="show-meta-cell__value" data-testid="engagement-employment-type"><%= link_to @engagement.employment_type.name, dossier_employment_type_path(@engagement.employment_type) %></p>
     </div>
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Position Title</h3>

@@ -1,0 +1,19 @@
+<%# The signed-in user's Engagements of this Employment Type, newest first, each with its Assignments. %>
+<% if @engagements %>
+  <div class="show-panel" data-testid="your-engagements">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Your Engagements</h2>
+      <% @engagements.each do |engagement| %>
+        <div class="dossier-type-engagement" data-testid="your-engagement">
+          <h3 class="dossier-timeline-card__title">
+            <%= organisation_logo(engagement.employer, size: :small) %>
+            <%= link_to engagement.to_toast_label, dossier_engagement_path(engagement),
+                  class: "data-table__name-link", data: { testid: "your-engagement-title" } %>
+            <span class="dossier-assignment-row__dates"><%= engagement.date_range %></span>
+          </h3>
+          <%= render "dossier/engagements/assignment_list", engagement: engagement, bench: [] %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

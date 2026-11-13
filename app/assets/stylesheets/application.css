@@ -3381,6 +3381,21 @@ textarea.form-control {
   font-weight: var(--font-weight-bold);
 }
 
+/* Employment Type page: Your Engagements, one block per Engagement. */
+.dossier-type-engagement + .dossier-type-engagement {
+  margin-top: var(--space-lg);
+}
+
+.dossier-type-engagement .dossier-timeline-card__title {
+  font-size: var(--font-size-lg);
+}
+
+.dossier-type-engagement .dossier-timeline-card__title .dossier-assignment-row__dates {
+  margin-left: auto;
+  font-size: var(--font-size-sm);
+  font-weight: normal;
+}
+
 .dossier-assignment-row__name {
   display: inline-flex;
   align-items: center;

@@ -491,6 +491,19 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads an Employment Type's Engagements, with logos, without N+1 queries" do
+      type = create(:dossier_employment_type, name: "Consultant")
+      logo = ->(name) { create(:dossier_organisation, name: name).tap { |org| org.logo.attach(file_fixture("test_image.png")) } }
+      2.times do |i|
+        engagement = create(:dossier_engagement, user: adam, employment_type: type, employer: logo.("Employer #{i}"))
+        2.times { |j| create(:dossier_assignment, engagement: engagement, client: logo.("Client #{i}#{j}")) }
+      end
+
+      without_n_plus_one_queries { get dossier_employment_type_path(type) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "Loads an Engagement's Colleagues without N+1 queries" do
       engagement = create(:dossier_engagement, user: adam)
       create_list(:dossier_engagement_colleague, 3, engagement: engagement)
