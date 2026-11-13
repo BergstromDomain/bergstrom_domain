@@ -702,8 +702,10 @@ code, pre {
 }
 
 .page-header__top--centered {
-  justify-content: center;
-  text-align: center;
+  /* Headers align left with the content in every app (2026-11-14); the
+     --centered modifiers stay as hooks, and only .auth-layout centres. */
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .page-header__image {
@@ -721,7 +723,7 @@ code, pre {
 }
 
 .page-header__subtitle--centered {
-  text-align: center;
+  text-align: left;
 }
 
 /* Recipe Read page (app/views/recipes/show.html.erb) */
@@ -2477,11 +2479,11 @@ textarea.form-control {
 }
 
 .page-header--centered {
-  text-align: center;
+  text-align: left;
 }
 
 .page-header--centered .page-header__top {
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .split-layout {
