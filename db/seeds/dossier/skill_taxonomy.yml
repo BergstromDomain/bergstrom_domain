@@ -497,8 +497,14 @@ skills:
       description: "Test management add-on for Jira." }
 
   # ── Testing › Test Types & Techniques ─────────────────────────────────────
+  - { name: API testing, category: Testing › Test Types & Techniques, aliases: [API],
+      description: "Testing application programming interfaces directly, for function, data and error handling." }
   - { name: Black box testing, category: Testing › Test Types & Techniques,
       description: "Testing behaviour against the specification without looking at the code." }
+  - { name: Data migration testing, category: Testing › Test Types & Techniques,
+      description: "Testing that data moved to a new system arrives complete, correct and usable." }
+  - { name: End-to-end testing, category: Testing › Test Types & Techniques, aliases: [E2E],
+      description: "Testing a complete business flow through every system it touches, as a user would." }
   - { name: Exploratory testing, category: Testing › Test Types & Techniques,
       description: "Learning, test design and execution at the same time, guided by the tester's skill." }
   - { name: Functional testing, category: Testing › Test Types & Techniques,
@@ -545,6 +551,8 @@ skills:
       description: "Documents that define what a system must do." }
   - { name: Presentations, category: Testing › Test Documentation, aliases: [Presentation],
       description: "Presenting test plans, progress and results to stakeholders." }
+  - { name: Defect Management, category: Testing › Test Documentation,
+      description: "Logging, triaging, tracking and closing defects through their life cycle." }
 
   # ── Methods & Processes ───────────────────────────────────────────────────
   - { name: Agile, category: Methods & Processes,
@@ -565,8 +573,6 @@ skills:
       description: "Writing a failing test first, then the code to make it pass, then refactoring." }
   - { name: Quality Assurance, category: Methods & Processes, aliases: [QA],
       description: "Activities that make sure processes and products meet quality standards." }
-  - { name: Defect Management, category: Methods & Processes,
-      description: "Logging, triaging, tracking and closing defects through their life cycle." }
   - { name: Test Management, category: Methods & Processes,
       description: "Planning, estimating, monitoring and controlling testing activities." }
   - { name: Project Management, category: Methods & Processes,
