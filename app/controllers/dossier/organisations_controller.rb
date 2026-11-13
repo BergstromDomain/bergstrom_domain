@@ -2,6 +2,10 @@
 class Dossier::OrganisationsController < Dossier::ReferenceDataController
   self.content_creators_can_create = true
 
+  def index
+    @records = model_class.alphabetical.includes(logo_attachment: :blob)
+  end
+
   # The Skills it makes (public), and the signed-in user's own Credentials
   # this Organisation issued, of any type, and their own Assignments where
   # it's a Vendor or Customer.
@@ -24,7 +28,7 @@ class Dossier::OrganisationsController < Dossier::ReferenceDataController
   def experience_slices = [ [ "As Employer", :employer ], [ "As Client", :client ] ]
 
   def model_class          = Dossier::Organisation
-  def permitted_attributes = %i[name abbreviation industry_id website_url description]
+  def permitted_attributes = %i[name abbreviation industry_id website_url description logo remove_logo]
   def subtitle             = "Employers, clients, education providers and credential issuers, shared by every Dossier."
   def show_panels          = "dossier/organisations/panels"
 

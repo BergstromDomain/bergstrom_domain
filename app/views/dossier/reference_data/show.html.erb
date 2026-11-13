@@ -1,5 +1,6 @@
 <div class="page-header">
   <div class="page-header__top page-header__top--centered">
+    <% if @record.respond_to?(:logo) %><%= organisation_logo(@record, size: :large) %><% end %>
     <h1 class="page-title" data-testid="reference-data-name"><%= @record.to_toast_label %></h1>
   </div>
 </div>

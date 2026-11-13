@@ -24,6 +24,7 @@
       <div class="show-panel" data-testid="engagement-card">
         <div class="show-panel__section">
           <h2 class="show-panel__heading dossier-timeline-card__title" data-testid="engagement-title">
+            <%= organisation_logo(engagement.employer) %>
             <%= link_to engagement.to_toast_label, dossier_engagement_path(engagement), class: "data-table__name-link" %>
           </h2>
           <p class="dossier-timeline-card__meta">

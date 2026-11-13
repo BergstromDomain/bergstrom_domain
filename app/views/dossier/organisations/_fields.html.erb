@@ -6,3 +6,14 @@
       field: f.collection_select(:industry_id, Dossier::Industry.alphabetical, :id, :name,
                                  { include_blank: "None" }, class: "form-control", data: { testid: "industry-field" }) %>
 <%= render "dossier/shared/field", f: f, record: record, attribute: :website_url, label: "Website" %>
+<%= render "dossier/shared/field", f: f, record: record, attribute: :logo, label: "Logo",
+      field: safe_join([ (organisation_logo(record, size: :large) if record.logo.attached? && record.logo.blob&.persisted?),
+                         f.file_field(:logo, accept: Dossier::Organisation::LOGO_TYPES.join(","), class: "form-control",
+                                             data: { testid: "logo-field" }) ]),
+      hint: "Optional, a JPEG, PNG or WebP under 2 MB. Shown on its page, the Timeline and its Assignments; " \
+            "without one, a building icon stands in." %>
+<% if record.persisted? && record.attachment_changes["logo"].nil? && record.logo.attached? %>
+  <%= render "dossier/shared/field", f: f, record: record, attribute: :remove_logo, label: "Remove Logo",
+        field: f.check_box(:remove_logo, data: { testid: "remove-logo-field" }),
+        hint: "Tick to remove the logo when you save." %>
+<% end %>

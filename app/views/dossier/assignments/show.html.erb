@@ -5,6 +5,7 @@
 <% tech_stack = Dossier::AssignmentTechStack.new(@assignment) %>
 <div class="page-header">
   <div class="page-header__top page-header__top--centered">
+    <%= organisation_logo(@assignment.client, size: :large) %>
     <h1 class="page-title"><%= @assignment.title %></h1>
   </div>
 </div>

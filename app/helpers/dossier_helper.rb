@@ -87,4 +87,22 @@ module DossierHelper
     query = request.query_parameters.merge("sort" => column, "direction" => direction)
     link_to "#{label}#{arrow}", "#{request.path}?#{query.to_query}", data: { testid: "sort-#{column}" }
   end
+
+  ORGANISATION_LOGO_ICON_SIZES = { small: 14, medium: 22, large: 40 }.freeze
+
+  # An Organisation's logo thumbnail, or a building icon standing in for it
+  # (like the person icon for a Person without a photo). size: :small (a
+  # Timeline Assignment row), :medium (a list, an Engagement card) or :large
+  # (a page heading).
+  def organisation_logo(organisation, size: :medium)
+    classes = "organisation-logo organisation-logo--#{size}"
+    if organisation.logo.attached?
+      image_tag organisation.logo.variant(:thumbnail), alt: "#{organisation.name} logo", class: classes,
+                                                       data: { testid: "organisation-logo" }
+    else
+      tag.span lucide_icon("building-2", size: ORGANISATION_LOGO_ICON_SIZES.fetch(size)),
+               class: "#{classes} organisation-logo--placeholder", title: organisation.name,
+               data: { testid: "organisation-logo-placeholder" }
+    end
+  end
 end

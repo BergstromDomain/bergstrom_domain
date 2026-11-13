@@ -1,6 +1,6 @@
 <%#
-  An Engagement's Assignments and bench time, newest first.
-  Locals: engagement, bench (Dossier::Timeline::Period list).
+  An Engagement's Assignments and bench time, newest first, each Assignment
+  with its client's logo. Locals: engagement, bench (Dossier::Timeline::Period list).
 %>
 <% rows = engagement.assignments.map { |a| [ a.effective_end || Date.current, a ] } +
           bench.map { |period| [ period.to, period ] } %>
@@ -8,7 +8,7 @@
   <ul class="dossier-assignment-list">
     <% rows.sort_by(&:first).reverse_each do |_, row| %>
       <% if row.is_a?(Dossier::Assignment) %>
-        <%= render "dossier/assignments/row", assignment: row %>
+        <%= render "dossier/assignments/row", assignment: row, logo: true %>
       <% else %>
         <li class="dossier-assignment-row dossier-assignment-row--bench" data-testid="timeline-bench">
           <%= link_to "Bench · #{row.duration}", period_path_for(row), data: { testid: "timeline-bench-label" } %>

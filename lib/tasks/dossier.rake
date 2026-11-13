@@ -20,6 +20,19 @@ namespace :dossier do
     end
   end
 
+  namespace :organisations do
+    desc "One-off: attach logos saved in a folder, named after each Organisation or its abbreviation: dossier:organisations:attach_logos[DIR]; DRY_RUN=1 reports without saving"
+    task :attach_logos, [ :dir ] => :environment do |_task, args|
+      dir = File.expand_path(args[:dir].to_s)
+      abort "Usage: bin/rails 'dossier:organisations:attach_logos[DIR]'" if args[:dir].blank? || !File.directory?(dir)
+
+      dry_run = ENV["DRY_RUN"].present?
+      report = Dossier::OrganisationLogos.new(dir).run!(dry_run: dry_run)
+      puts report.empty? ? "No files in #{dir}." : report
+      puts "(dry run: nothing saved)" if dry_run
+    end
+  end
+
   namespace :achievements do
     desc "One-off: add each Achievement's Tech Skills to its Assignment's Tech Stack: dossier:achievements:sync_tech_stack[EMAIL]; DRY_RUN=1 reports without saving"
     task :sync_tech_stack, [ :email ] => :environment do |_task, args|
