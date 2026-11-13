@@ -39,8 +39,7 @@ RSpec.describe "Dossier Achievements", type: :feature do
         expect(page).to have_selector("[data-testid='achievement-row-importance']", exact_text: "5")
         expect(page).to have_content("Impact: 40% fewer production defects")
         expect(page).to have_selector("strong", text: "Impact:")
-        # Technical Skills are on the Achievement's page, not its row.
-        expect(page).to have_no_link("Jira")
+        expect(page).to have_selector("[data-testid='achievement-row-tech-skills']", text: "Tech Skills: Jira, Excel")
       end
     end
 

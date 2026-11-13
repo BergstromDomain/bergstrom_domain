@@ -39,6 +39,7 @@ class Dossier::AchievementsController < ApplicationController
     @achievement.assignment = assignment_choices.find_by(id: params.dig(:dossier_achievement, :assignment_id))
     if @achievement.save
       toast_created(@achievement)
+      add_to_tech_stack
       redirect_to @achievement.assignment
     else
       render :new, status: :unprocessable_entity
@@ -56,6 +57,7 @@ class Dossier::AchievementsController < ApplicationController
     previous_label = @achievement.to_toast_label
     if @achievement.update(achievement_params)
       toast_updated(@achievement, previous_label: previous_label)
+      add_to_tech_stack
       redirect_to @achievement
     else
       render :edit, status: :unprocessable_entity
@@ -75,7 +77,8 @@ class Dossier::AchievementsController < ApplicationController
   def move
     if Policy.new(current_user, @achievement).can_update?
       @achievement.move!(params[:direction])
-      redirect_to dossier_assignment_path(@achievement.assignment, anchor: "achievements")
+      # Back to the same URL, so Turbo refreshes the page in place, keeping the scroll.
+      redirect_to dossier_assignment_path(@achievement.assignment)
     else
       redirect_to dossier_engagements_path, alert: "Not authorised."
     end
@@ -93,6 +96,12 @@ class Dossier::AchievementsController < ApplicationController
 
   private
 
+  # Its Tech Skills go in its Assignment's Tech Stack, with a toast naming any added.
+  def add_to_tech_stack
+    added = Dossier::TechStackCoverage.new(@achievement.assignment).add!(@achievement.technical_skills)
+    flash[:tech_stack] = "Added #{added.map(&:display_name).to_sentence} to the Tech Stack" if added.any?
+  end
+
   def assignment_choices
     Dossier::Assignment.kept.joins(:engagement).merge(current_user.dossier_engagements.kept)
                        .includes(:client, engagement: :employer).order("dossier_engagements.start_on DESC", start_on: :desc)
@@ -107,6 +116,6 @@ class Dossier::AchievementsController < ApplicationController
   end
 
   def achievement_params
-    params.require(:dossier_achievement).permit(:situation, :text, :impact, :importance, :skills_text, soft_skill_ids: [])
+    params.require(:dossier_achievement).permit(:situation, :task, :text, :impact, :importance, :skills_text, soft_skill_ids: [])
   end
 end

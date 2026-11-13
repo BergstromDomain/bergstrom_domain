@@ -457,7 +457,8 @@ CREATE TABLE public.dossier_achievements (
     deleted_at timestamp(6) without time zone,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    situation text
+    situation text,
+    task text
 );
 
 
@@ -4648,6 +4649,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261113090000'),
 ('20261112090000'),
 ('20261111150000'),
 ('20261111120000'),

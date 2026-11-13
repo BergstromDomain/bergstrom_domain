@@ -1,8 +1,9 @@
 # app/models/dossier/achievement.rb
 
 # A CV bullet point: one terse text under an Assignment ("Ran daily defect
-# triage…"), with an optional impact, the situation it came from (for
-# interview-style examples, never on a CV), an importance (1–5, which later picks
+# triage…"), with an optional impact. In STAR terms the text is the Action and
+# the impact the Result; the Situation and Task it came from are for
+# interview-style examples, never on a CV. It also has an importance (1–5, which later picks
 # a CV's default bullets) and Skill tags. Kept in the user's order within its
 # Assignment. user_id mirrors the Assignment's owner (for Policy and
 # Classifiable). Deleting is soft; PurgeDeletedDossierAchievementsJob removes
@@ -21,7 +22,7 @@ class Dossier::Achievement < ApplicationRecord
   skill_tags :achievement_skills, soft_boxes: true
 
   normalizes :text, with: ->(value) { value.strip }
-  normalizes :impact, :situation, with: ->(value) { value.strip.presence }
+  normalizes :impact, :situation, :task, with: ->(value) { value.strip.presence }
 
   before_validation { self.user_id = assignment&.user_id }
   before_create { self.position ||= (siblings.maximum(:position) || 0) + 1 }
@@ -70,16 +71,22 @@ class Dossier::Achievement < ApplicationRecord
     deleted_at + DELETION_RETENTION_PERIOD if deleted_at
   end
 
-  # The situation is private: only the owner and Admins see it, never on a CV.
-  def situation_visible_to?(user)
-    situation.present? && user.present? && (user_id == user.id || user.can_administer?)
-  end
+  # The Situation and Task are private: only the owner and Admins see them,
+  # never on a CV.
+  def situation_visible_to?(user) = situation.present? && owner_or_admin?(user)
+
+  def task_visible_to?(user) = task.present? && owner_or_admin?(user)
+
+  # Either is saved and the user may see it: the Assignment page marks the row.
+  def star_notes_visible_to?(user) = situation_visible_to?(user) || task_visible_to?(user)
 
   def to_toast_label
     text.to_s.truncate(60, separator: " ")
   end
 
   private
+
+  def owner_or_admin?(user) = user.present? && (user_id == user.id || user.can_administer?)
 
   def siblings
     self.class.where(assignment_id: assignment_id)

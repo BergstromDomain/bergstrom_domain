@@ -1,19 +1,27 @@
 <%#
-  One Achievement in the bulleted table (see _table): its text with its
-  Situation, Impact and Soft Skills (not its Technical Skills), then
-  importance. Locals: achievement; moves (nil, or
-  { first:, last: } to show Up/Down).
+  One Achievement in the bulleted table (see _table): its text, a marker
+  when it has a Situation or Task (their text is on its page), its Impact,
+  Tech Skills and Soft Skills, then importance. Locals: achievement; moves
+  (nil, or { first:, last: } to show Up/Down).
 %>
 <tr class="dossier-achievement" data-testid="achievement-row">
   <td class="dossier-achievement__body">
     <%= link_to achievement.text, dossier_achievement_path(achievement), data: { testid: "achievement-link" } %>
-    <%# In STAR order: the Situation (owner and Admins only), the Impact (the Result), and the Soft Skills it shows %>
-    <% parts = [] %>
-    <% if achievement.situation_visible_to?(current_user) %>
-      <% parts << tag.span(safe_join([ tag.strong("Situation:"), " ", achievement.situation ]), data: { testid: "achievement-row-situation" }) %>
+    <%# The Situation and Task are private (owner and Admins only): just marked here %>
+    <% if achievement.star_notes_visible_to?(current_user) %>
+      <% saved = [ ("Situation" if achievement.situation_visible_to?(current_user)), ("Task" if achievement.task_visible_to?(current_user)) ].compact %>
+      <span class="dossier-achievement__star" title="<%= saved.join(" and ") %> saved, on the Achievement's page"
+            data-testid="achievement-row-star"><%= saved.map(&:first).join %></span>
     <% end %>
+    <%# The Impact (the Result), then the Skills it shows %>
+    <% parts = [] %>
     <% if achievement.impact %>
       <% parts << tag.span(safe_join([ tag.strong("Impact:"), " ", achievement.impact ]), data: { testid: "achievement-row-impact" }) %>
+    <% end %>
+    <% tech_skills = achievement.technical_skills %>
+    <% if tech_skills.any? %>
+      <% links = safe_join(tech_skills.map { |skill| link_to(skill.display_name, dossier_skill_path(skill)) }, ", ") %>
+      <% parts << tag.span(safe_join([ tag.strong("Tech Skills:"), " ", links ]), data: { testid: "achievement-row-tech-skills" }) %>
     <% end %>
     <% soft_skills = achievement.soft_skills %>
     <% if soft_skills.any? %>

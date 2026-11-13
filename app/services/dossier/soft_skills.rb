@@ -30,7 +30,10 @@ class Dossier::SoftSkills
       "Analysing problems and solving them.", [ "Analytical and Problem-solving Skills", "Problem Solving" ]
     ],
     "Leadership" => [
-      "Leading people and teams.", [ "Leadership Skills" ]
+      "Setting direction, and leading people and teams towards it.", [ "Leadership Skills" ]
+    ],
+    "People Management" => [
+      "Hiring, onboarding and running a team.", [ "Recruitment", "Recruiting", "Team Management", "Line Management" ]
     ],
     "Adaptability" => [
       "Responding to changing requirements and priorities, and working flexibly across tasks, roles and projects.",

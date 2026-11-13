@@ -18,7 +18,7 @@ RSpec.describe Dossier::SoftSkills do
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
-    it "Seeds a soft category with nine Skills, the ad's wording as aliases" do
+    it "Seeds a soft category with ten Skills, the ad's wording as aliases" do
       described_class.seed!
       category = Dossier::SkillCategory.find_by!(name: "Soft Skills")
 
@@ -26,12 +26,16 @@ RSpec.describe Dossier::SoftSkills do
       expect(category.skills.pluck(:name)).to match_array(described_class::SKILLS.keys)
       expect(Dossier::Skill.find_by_name_or_alias("Flexibility and Adaptability").name).to eq("Adaptability")
       expect(Dossier::Skill.find_by_name_or_alias("Cross-Functional Support").name).to eq("Cross-Functional Collaboration")
+      expect(Dossier::Skill.find_by_name_or_alias("Recruitment").name).to eq("People Management")
+      expect(category.skills.find_by!(name: "People Management").description).to eq("Hiring, onboarding and running a team.")
+      expect(category.skills.find_by!(name: "Leadership").description).to eq("Setting direction, and leading people and teams towards it.")
     end
 
     it "Keeps soft Skills and situations off the CV, which still lists the technical Skills and the Achievement" do
       described_class.seed!
       create(:dossier_profile, user: user, display_name: "Alex Example")
-      achievement(text: "Ran daily defect triage", skills_text: "Leadership, Jira", situation: "Defects sat unowned for weeks")
+      achievement(text: "Ran daily defect triage", skills_text: "Leadership, Jira", situation: "Defects sat unowned for weeks",
+                  task: "Give every defect an owner")
       cv = Dossier::CvDocument.new(user, today: today)
 
       expect(cv.skills.flat_map { |_, line| line }.join).to include("Jira")
@@ -40,6 +44,7 @@ RSpec.describe Dossier::SoftSkills do
       expect(cv.experience.first.assignments.first.achievements).to eq([ "Ran daily defect triage" ])
       docx = docx_parts(Dossier::CvDocx.new(cv).render).values.join
       expect(docx).not_to include("Defects sat unowned")
+      expect(docx).not_to include("Give every defect an owner")
     end
   end
 
