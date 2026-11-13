@@ -2018,7 +2018,9 @@ CREATE TABLE public.user_app_settings (
     default_classification character varying DEFAULT 'restricted'::character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    default_language_id bigint
+    default_language_id bigint,
+    timeline_professional boolean DEFAULT true NOT NULL,
+    timeline_personal boolean DEFAULT true NOT NULL
 );
 
 
@@ -4649,6 +4651,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261114090000'),
 ('20261113090000'),
 ('20261112090000'),
 ('20261111150000'),

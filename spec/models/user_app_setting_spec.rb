@@ -11,6 +11,8 @@ RSpec.describe UserAppSetting, type: :model do
     it { is_expected.to have_db_column(:start_page).of_type(:string) }
     it { is_expected.to have_db_column(:default_classification).of_type(:string).with_options(null: false, default: "restricted") }
     it { is_expected.to have_db_column(:default_language_id).of_type(:integer) }
+    it { is_expected.to have_db_column(:timeline_professional).of_type(:boolean).with_options(null: false, default: true) }
+    it { is_expected.to have_db_column(:timeline_personal).of_type(:boolean).with_options(null: false, default: true) }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────
@@ -49,6 +51,34 @@ RSpec.describe UserAppSetting, type: :model do
       setting = create(:user_app_setting, app_name: "recipes", default_language: swedish)
       swedish.destroy!
       expect(setting.reload.default_language_id).to be_nil
+    end
+  end
+
+  describe "Timeline kinds (Dossier)" do
+    # 1) Happy Path ──────────────────────────────────────────────────────────
+    it "shows both Professional and Personal by default" do
+      expect(subject.timeline_kinds).to eq(%w[professional personal])
+    end
+
+    # 2) Negative Path ───────────────────────────────────────────────────────
+    it "drops unknown kinds" do
+      subject.timeline_kinds = %w[personal bogus]
+      expect(subject.timeline_kinds).to eq(%w[personal])
+    end
+
+    # 3) Alternative Path ────────────────────────────────────────────────────
+    it "saves Professional only" do
+      setting = create(:user_app_setting, app_name: "dossier")
+      setting.update!(timeline_kinds: %w[professional])
+      expect(setting.reload.timeline_kinds).to eq(%w[professional])
+    end
+
+    # 4) Edge Cases ──────────────────────────────────────────────────────────
+    it "accepts nothing ticked, or a single kind given as a String" do
+      subject.timeline_kinds = nil
+      expect(subject.timeline_kinds).to eq([])
+      subject.timeline_kinds = "personal"
+      expect(subject.timeline_kinds).to eq(%w[personal])
     end
   end
 

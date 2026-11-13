@@ -8,8 +8,14 @@ class Dossier::EngagementsController < ApplicationController
   before_action :require_dossier_access, only: %i[index deleted new create]
   before_action :set_engagement, only: %i[show edit update destroy restore]
 
+  # The Professional/Personal ticks come from the submitted filter, which is
+  # saved to the user's Dossier settings, or else from those settings. Gaps
+  # are worked out from every Professional Engagement and hidden along with them.
   def index
-    @timeline = Dossier::Timeline.new(current_user.dossier_engagements.kept.includes(employer: { logo_attachment: :blob }))
+    timeline = Dossier::Timeline.new(current_user.dossier_engagements.kept.includes(employer: { logo_attachment: :blob }))
+    @kinds = timeline_kinds
+    @all_entries = timeline.entries
+    @entries = @all_entries.select { |entry| @kinds.include?(entry_kind(entry)) }
   end
 
   def deleted
@@ -76,6 +82,19 @@ class Dossier::EngagementsController < ApplicationController
   end
 
   private
+
+  def timeline_kinds
+    setting = current_user.app_settings_for("dossier")
+    if params.key?(:kinds)
+      setting.timeline_kinds = params[:kinds]
+      setting.save! if setting.changed?
+    end
+    setting.timeline_kinds
+  end
+
+  def entry_kind(entry)
+    entry.kind == :gap || !entry.engagement.personal? ? "professional" : "personal"
+  end
 
   def require_dossier_access
     redirect_to dossier_path, alert: "Not authorised." unless Policy.new(current_user, :dossier).can_create?
