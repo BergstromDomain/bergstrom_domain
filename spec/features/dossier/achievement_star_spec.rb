@@ -99,12 +99,12 @@ RSpec.describe "Dossier Achievements in STAR form", type: :feature do
 
     it "Keeps the scroll position when moving an Achievement", js: true do
       %w[First Second Third Fourth Fifth Sixth Seventh Eighth].each { |text| create(:dossier_achievement, assignment: assignment, text: text) }
-      sign_in_as(charlie)
+      sign_in_and_settle(charlie)
       visit dossier_assignment_path(assignment)
       # The page scrolls inside .site-main, not the window. The button goes in
       # view first, as Selenium would scroll to it to click.
       scroll_top = "document.querySelector('.site-main').scrollTop"
-      down = all("[data-testid='achievement-move-down']")[5]
+      down = all("[data-testid='achievement-move-down']", minimum: 7)[5]
       page.execute_script("arguments[0].scrollIntoView({ block: 'center' })", down)
       before = page.evaluate_script(scroll_top)
       expect(before).to be > 0
