@@ -14,6 +14,8 @@ The idea is simple: you enter everything once, here, and every CV is **made from
 
 **My Career › Profile** holds what goes at the top of a CV: your **Display Name**, a one-line **Headline**, your **Location** and contact details (email, phone, website, LinkedIn, GitHub).
 
+A **Photo** (a JPEG, PNG or WebP under 5 MB) shows beside your name on the Profile page. Without one, your picture from **Settings** is used, and without that a person icon. **Remove Photo** on Edit Profile takes it off again.
+
 ![Charlie's Profile: the Summary and First-Person Summary, then Location, Email, Pronouns and the other contact details](images/profile.png)
 
 Your summary can be written three ways, for different CVs:
@@ -41,6 +43,10 @@ To add a job, choose **Actions › New › Create An Engagement**:
 
 Then add Assignments with **Add Assignment** on the Engagement's page, or **Actions › New › Create An Assignment**.
 
+A new Assignment goes to the top of its Engagement. To change the order, for example to put a more important Assignment first, use the **Up** and **Down** arrows beside each Assignment on the Engagement's page. The Timeline shows the same order. Any bench time is listed after the Assignments.
+
+The Engagement's **Employment Type** links to that type's page, which lists all your Engagements of that type with their Assignments.
+
 ### An Assignment's page
 
 ![Charlie's Assignment at Woolsthorpe School: Client, Project, Role, Dates, Location and Engagement, then the Tech Stack](images/assignment_page.png)
@@ -67,6 +73,8 @@ It also shows where your career has holes:
 Choose a Gap or Bench period to see what you did then, such as courses you took.
 
 Personal projects (an Engagement whose Employment Type is Personal) appear on the Timeline marked **Personal**, but never fill or hide a gap.
+
+The **Professional** and **Personal** boxes at the top choose which Engagements the Timeline shows. Both are ticked at first, and your choice is remembered for next time. Unticking Personal doesn't change the gaps; unticking Professional hides them along with the Engagements.
 
 ## Deleting
 
