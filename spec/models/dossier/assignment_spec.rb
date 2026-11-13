@@ -19,7 +19,7 @@ RSpec.describe Dossier::Assignment, type: :model do
     it { is_expected.to have_db_column(:summary).of_type(:text) }
     it { is_expected.to have_db_column(:project).of_type(:string) }
     it { is_expected.to have_db_column(:classification).of_type(:string).with_options(null: false, default: "restricted") }
-    it { is_expected.to have_db_column(:position).of_type(:integer) }
+    it { is_expected.to have_db_column(:position).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:deleted_at).of_type(:datetime) }
   end
 
@@ -176,6 +176,59 @@ RSpec.describe Dossier::Assignment, type: :model do
       first  = create(:dossier_assignment, engagement: engagement, start_month: "2019-03", end_month: "2020-01")
       second = create(:dossier_assignment, engagement: engagement, start_month: "2020-02", end_month: "2022-06")
       expect(engagement.assignments.newest_first.to_a).to eq([ second, first ])
+    end
+  end
+
+  # ── Sort order within the Engagement ──────────────────────────────────────
+  describe "Sort order" do
+    def assignment(month) = create(:dossier_assignment, engagement: engagement, start_month: month, end_month: month)
+    def order = engagement.reload.assignments.to_a
+
+    # 1) Happy Path ──────────────────────────────────────────────────────────
+    it "Moves an Assignment up and down past its neighbour" do
+      first, second, third = assignment("2019-03"), assignment("2020-01"), assignment("2021-01")
+      expect(order).to eq([ third, second, first ])
+
+      expect(first.move!(:up)).to be(true)
+      expect(order).to eq([ third, first, second ])
+      expect(third.move!(:down)).to be(true)
+      expect(order).to eq([ first, third, second ])
+    end
+
+    # 2) Negative Path ───────────────────────────────────────────────────────
+    it "Leaves the top Assignment when moved up, and the bottom one when moved down" do
+      older, newer = assignment("2019-03"), assignment("2020-01")
+
+      expect(newer.move!(:up)).to be(false)
+      expect(older.move!(:down)).to be(false)
+      expect(order).to eq([ newer, older ])
+    end
+
+    # 3) Alternative Path ────────────────────────────────────────────────────
+    it "Puts a new Assignment at the top, even when it's older" do
+      newer = assignment("2021-01")
+      older = assignment("2019-03")
+      expect(order).to eq([ older, newer ])
+    end
+
+    it "Gives a permanent job's automatic Assignment a position" do
+      permanent = create(:dossier_engagement, :permanent)
+      expect(permanent.assignments.first.position).to be_present
+    end
+
+    # 4) Edge Cases ──────────────────────────────────────────────────────────
+    it "Skips a deleted Assignment when moving" do
+      first, second, third = assignment("2019-03"), assignment("2020-01"), assignment("2021-01")
+      second.soft_delete!
+
+      expect(first.move!(:up)).to be(true)
+      expect(order).to eq([ first, third ])
+    end
+
+    it "Moves only within its own Engagement" do
+      own = assignment("2019-03")
+      create(:dossier_assignment, engagement: create(:dossier_engagement, start_month: "2019-03", end_month: "2022-06"))
+      expect(own.move!(:up)).to be(false)
     end
   end
 end

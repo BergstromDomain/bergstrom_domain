@@ -567,7 +567,7 @@ CREATE TABLE public.dossier_assignments (
     end_precision character varying DEFAULT 'month'::character varying NOT NULL,
     summary text,
     classification character varying DEFAULT 'restricted'::character varying NOT NULL,
-    "position" integer,
+    "position" integer NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     operating_systems_na boolean DEFAULT false NOT NULL,
@@ -3214,6 +3214,13 @@ CREATE INDEX index_dossier_assignments_on_engagement_id ON public.dossier_assign
 
 
 --
+-- Name: index_dossier_assignments_on_engagement_id_and_position; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_dossier_assignments_on_engagement_id_and_position ON public.dossier_assignments USING btree (engagement_id, "position");
+
+
+--
 -- Name: index_dossier_assignments_on_location_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4651,6 +4658,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261114100000'),
 ('20261114090000'),
 ('20261113090000'),
 ('20261112090000'),

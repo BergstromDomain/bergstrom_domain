@@ -17,7 +17,7 @@ class Dossier::Engagement < ApplicationRecord
   belongs_to :employment_type
   # Deleted Assignments go too, so all_assignments does the destroying.
   has_many   :all_assignments, class_name: "Dossier::Assignment", dependent: :destroy
-  has_many   :assignments, -> { kept }, inverse_of: :engagement
+  has_many   :assignments, -> { kept.in_order }, inverse_of: :engagement
   has_many   :credentials, dependent: :destroy
   # Made during it, for context only: they stay if it goes.
   has_many   :contributions, dependent: :nullify
