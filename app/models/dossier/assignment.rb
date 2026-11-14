@@ -11,6 +11,7 @@ class Dossier::Assignment < ApplicationRecord
   include Dossier::Dated
   include Dossier::TechStack
   include Dossier::CvSelectable
+  include Dossier::Sortable
 
   DELETION_RETENTION_PERIOD = 30.days
 
@@ -35,6 +36,9 @@ class Dossier::Assignment < ApplicationRecord
   before_validation { self.user_id = engagement&.user_id }
 
   validate :fits_within_engagement
+
+  # A new Assignment goes to the top of its Engagement.
+  before_create { self.position ||= (siblings.minimum(:position) || 1) - 1 }
 
   scope :kept,      -> { where(deleted_at: nil) }
   scope :discarded, -> { where.not(deleted_at: nil) }
@@ -96,5 +100,9 @@ class Dossier::Assignment < ApplicationRecord
     return if engagement.end_on.nil? || (end_on && effective_end <= engagement.effective_end)
 
     errors.add(:end_month, "must not be after the Engagement ends (#{engagement.formatted_end})")
+  end
+
+  def siblings
+    self.class.where(engagement_id: engagement_id)
   end
 end

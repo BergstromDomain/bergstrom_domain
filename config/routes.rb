@@ -121,8 +121,11 @@ Rails.application.routes.draw do
       resources :colleagues, except: %i[index show], controller: "engagement_colleagues"
     end
     resources :assignments, except: :index do
-      get  :deleted, on: :collection
-      post :restore, on: :member
+      get :deleted, on: :collection
+      member do
+        patch :move
+        post  :restore
+      end
       resources :colleagues, except: %i[index show]
       resources :partners, except: %i[index show], controller: "assignment_partners" do
         resources :staff_members, except: %i[index show], path: "staff"

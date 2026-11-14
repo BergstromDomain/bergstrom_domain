@@ -32,6 +32,16 @@ class UserAppSetting < ApplicationRecord
 
   validates :app_name, presence: true, uniqueness: { scope: :user_id }
 
+  # Dossier only — which Engagements the Timeline shows.
+  TIMELINE_KINDS = %w[professional personal].freeze
+
+  def timeline_kinds = TIMELINE_KINDS.select { |kind| self[:"timeline_#{kind}"] }
+
+  # Unknown kinds are dropped.
+  def timeline_kinds=(kinds)
+    TIMELINE_KINDS.each { |kind| self[:"timeline_#{kind}"] = Array(kinds).include?(kind) }
+  end
+
   # The saved default, else English; nil only if neither exists.
   def effective_default_language
     default_language || Language.find_by(code: "en")

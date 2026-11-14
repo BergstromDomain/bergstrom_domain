@@ -7,7 +7,24 @@
   </p>
 </div>
 
-<% entries = @timeline.entries %>
+<% if @all_entries.any? %>
+  <%# Professional/Personal ticks, auto-submitted; the blank marks a submission with both unticked %>
+  <%= form_with url: dossier_engagements_path, method: :get, class: "classification-nav classification-nav--start",
+        data: { controller: "auto-submit", action: "change->auto-submit#submit", testid: "timeline-filter" } do %>
+    <%= hidden_field_tag "kinds[]", "", id: nil %>
+    <div class="classification-checks">
+      <% UserAppSetting::TIMELINE_KINDS.each do |kind| %>
+        <div class="form-check">
+          <%= check_box_tag "kinds[]", kind, @kinds.include?(kind), id: "timeline_kind_#{kind}",
+                data: { testid: "timeline-filter-#{kind}" } %>
+          <%= label_tag "timeline_kind_#{kind}", kind.humanize %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<% entries = @entries %>
 <% if entries.any? %>
   <div data-testid="timeline">
   <% entries.each do |entry| %>
@@ -28,7 +45,7 @@
             <%= link_to engagement.to_toast_label, dossier_engagement_path(engagement), class: "data-table__name-link" %>
           </h2>
           <p class="dossier-timeline-card__meta">
-            <span data-testid="engagement-type"><%= engagement.employment_type.name %></span>
+            <span data-testid="engagement-type"><%= link_to engagement.employment_type.name, dossier_employment_type_path(engagement.employment_type) %></span>
             <% if engagement.personal? %>
               <span class="badge badge--active" data-testid="engagement-personal">Personal</span>
             <% end %>
@@ -39,6 +56,10 @@
       </div>
     <% end %>
   <% end %>
+  </div>
+<% elsif @all_entries.any? %>
+  <div class="empty-state" data-testid="timeline-filtered-empty">
+    <p>No Engagements match the ticked boxes.</p>
   </div>
 <% else %>
   <div class="empty-state" data-testid="empty-state">

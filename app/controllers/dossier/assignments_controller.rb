@@ -8,7 +8,7 @@
 class Dossier::AssignmentsController < ApplicationController
   include Navigable
   before_action :require_dossier_access, only: %i[deleted new create]
-  before_action :set_assignment, only: %i[show edit update destroy restore]
+  before_action :set_assignment, only: %i[show edit update destroy restore move]
 
   helper_method :engagement_choices
 
@@ -63,6 +63,16 @@ class Dossier::AssignmentsController < ApplicationController
     @assignment.soft_delete!
     toast_deleted(@assignment, info: "You can restore it, with its Achievements, from Deleted Assignments for 30 days.")
     redirect_to @assignment.engagement
+  end
+
+  # Up/Down on the Engagement page.
+  def move
+    unless Policy.new(current_user, @assignment).can_update?
+      redirect_to dossier_engagements_path, alert: "Not authorised." and return
+    end
+    @assignment.move!(params[:direction])
+    # Back to the same URL, so Turbo refreshes the page in place, keeping the scroll.
+    redirect_to dossier_engagement_path(@assignment.engagement)
   end
 
   def restore

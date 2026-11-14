@@ -181,6 +181,15 @@ class Dossier::Import
     Array(row["assignments"]).each_with_index do |assignment_row, index|
       import_assignment(engagement, assignment_row, index.zero? ? reusable : nil)
     end
+    number_by_date(engagement) if existing.nil?
+  end
+
+  # A new Engagement's Assignments start newest first, as the Timeline listed
+  # them before they could be re-sorted, whatever order the file gives.
+  def number_by_date(engagement)
+    engagement.assignments.reload
+              .sort_by { |assignment| [ assignment.effective_end || Date.current, assignment.start_on ] }.reverse
+              .each_with_index { |assignment, index| assignment.update_columns(position: index + 1) }
   end
 
   def import_assignment(engagement, row, reusable)

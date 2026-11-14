@@ -205,7 +205,7 @@ RSpec.describe "Dossier Engagements", type: :feature do
       end
     end
 
-    it "Shows bench time among the Assignments, as on the Timeline" do
+    it "Shows bench time after the Assignments, as on the Timeline" do
       engagement = create(:dossier_engagement, user: charlie, employer: consultancy, start_month: "2019-01", end_month: "2019-12")
       create(:dossier_assignment, engagement: engagement, client: consultancy, start_month: "2019-01", end_month: "2019-06")
       create(:dossier_assignment, engagement: engagement, client: consultancy, start_month: "2019-08", end_month: "2019-12")
@@ -214,7 +214,7 @@ RSpec.describe "Dossier Engagements", type: :feature do
 
       within("[data-testid='engagement-assignments']") do
         rows = all("[data-testid='assignment-row'], [data-testid='timeline-bench']")
-        expect(rows.map { |row| row["data-testid"] }).to eq(%w[assignment-row timeline-bench assignment-row])
+        expect(rows.map { |row| row["data-testid"] }).to eq(%w[assignment-row assignment-row timeline-bench])
         expect(page).to have_link("Bench · 1 month")
         expect(page).to have_selector("[data-testid='timeline-bench']", text: "Jul 2019")
       end

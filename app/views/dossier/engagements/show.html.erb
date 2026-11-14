@@ -1,4 +1,5 @@
 <% policy = Policy.new(current_user, @engagement) %>
+<% turbo_refreshes_with method: :morph, scroll: :preserve %>
 <div class="page-header">
   <div class="page-header__top page-header__top--centered">
     <h1 class="page-title"><%= @engagement.to_toast_label %></h1>
@@ -24,7 +25,7 @@
     </div>
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Employment Type</h3>
-      <p class="show-meta-cell__value" data-testid="engagement-employment-type"><%= @engagement.employment_type.name %></p>
+      <p class="show-meta-cell__value" data-testid="engagement-employment-type"><%= link_to @engagement.employment_type.name, dossier_employment_type_path(@engagement.employment_type) %></p>
     </div>
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Position Title</h3>
@@ -43,7 +44,7 @@
     <h2 class="show-panel__heading">Assignments</h2>
     <% if @engagement.assignments.any? %>
       <%= render "dossier/engagements/assignment_list", engagement: @engagement,
-                 bench: Dossier::Timeline.bench_for(@engagement) %>
+                 bench: Dossier::Timeline.bench_for(@engagement), sortable: policy.can_update? %>
     <% else %>
       <p>No Assignments yet.</p>
     <% end %>

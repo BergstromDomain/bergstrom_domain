@@ -12,6 +12,7 @@ class Dossier::Achievement < ApplicationRecord
   include Classifiable
   include Dossier::SkillTags
   include Dossier::CvSelectable
+  include Dossier::Sortable
 
   DELETION_RETENTION_PERIOD = 30.days
   IMPORTANCE = (1..5)
@@ -32,26 +33,6 @@ class Dossier::Achievement < ApplicationRecord
 
   scope :kept,      -> { where(deleted_at: nil) }
   scope :discarded, -> { where.not(deleted_at: nil) }
-  scope :in_order,  -> { order(:position, :id) }
-
-  # Swaps places with the kept neighbour above (:up) or below (:down); false
-  # when already at that end.
-  def move!(direction)
-    neighbours = siblings.kept.where.not(id: id)
-    neighbour = if direction.to_s == "up"
-      neighbours.where(position: ...position).order(position: :desc).first
-    else
-      neighbours.where("position > ?", position).order(:position).first
-    end
-    return false unless neighbour
-
-    transaction do
-      mine, theirs = position, neighbour.position
-      update_columns(position: theirs)
-      neighbour.update_columns(position: mine)
-    end
-    true
-  end
 
   def soft_delete!
     update_columns(deleted_at: Time.current)

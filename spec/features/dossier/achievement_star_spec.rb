@@ -86,6 +86,37 @@ RSpec.describe "Dossier Achievements in STAR form", type: :feature do
       expect(page.text).to match(/Situation.*Three teams.*Task.*Define one approach.*Wrote the project's test strategy.*Signed off/m)
     end
 
+    it "Lays the Achievement page out like its Edit page: STAR text stacked, then Importance and Skills" do
+      record = achievement(situation: "Three teams", task: "Define one approach", impact: "Signed off by all three teams",
+                           importance: 4, skills_text: "Provar", soft_skill_ids: [ leadership.id ])
+      sign_in_as(charlie)
+      visit dossier_achievement_path(record)
+
+      within("[data-testid='show-panel-main']") do
+        # First word only: Situation and Task headings carry an info tip.
+        expect(all(".show-panel__heading").map { |heading| heading.text[/\A\S+/] })
+          .to eq([ "Situation", "Task", "Achievement", "Impact" ])
+        expect(page).to have_selector("[data-testid='achievement-impact']", text: "Signed off by all three teams")
+      end
+      within("[data-testid='show-panel-details']") do
+        expect(all(".show-panel__heading").map { |heading| heading.text.strip })
+          .to eq([ "Importance", "Soft Skills", "Technical Skills" ])
+        expect(page).to have_selector("[data-testid='achievement-importance']", text: "4")
+        expect(find("[data-testid='achievement-soft-skills']")).to have_link("Leadership")
+        expect(find("[data-testid='achievement-skills']")).to have_link("Provar")
+      end
+    end
+
+    it "Links Technical Skills on the Achievement form to the Skill Categories, in a new tab" do
+      sign_in_as(charlie)
+      visit new_dossier_achievement_path(assignment_id: assignment.id)
+
+      link = find("[data-testid='skill-categories-link']")
+      expect(link.text).to eq("Browse Skill Categories")
+      expect(link[:href]).to end_with(dossier_skill_categories_path)
+      expect(link[:target]).to eq("_blank")
+    end
+
     it "Marks a row with a saved Situation or Task, without showing their text" do
       achievement(situation: "Three teams, no agreed test approach", task: "Define one approach")
       sign_in_as(charlie)
@@ -150,6 +181,17 @@ RSpec.describe "Dossier Achievements in STAR form", type: :feature do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
+    it "Leaves out an empty Situation, Task and Impact, keeping the Achievement" do
+      record = achievement
+      sign_in_as(charlie)
+      visit dossier_achievement_path(record)
+
+      within("[data-testid='show-panel-main']") do
+        expect(all(".show-panel__heading").map { |heading| heading.text.strip }).to eq([ "Achievement" ])
+      end
+      expect(page).not_to have_selector("[data-testid='achievement-impact']")
+    end
+
     it "Shows neither label for an Achievement with no Skills, and only Tech Skills when it has no Soft ones" do
       achievement(skills_text: "")
       create(:dossier_achievement, assignment: assignment, text: "Ran UAT", skills_text: "Provar")

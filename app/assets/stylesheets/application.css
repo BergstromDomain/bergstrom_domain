@@ -702,8 +702,10 @@ code, pre {
 }
 
 .page-header__top--centered {
-  justify-content: center;
-  text-align: center;
+  /* Headers align left with the content in every app (2026-11-14); the
+     --centered modifiers stay as hooks, and only .auth-layout centres. */
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .page-header__image {
@@ -721,7 +723,7 @@ code, pre {
 }
 
 .page-header__subtitle--centered {
-  text-align: center;
+  text-align: left;
 }
 
 /* Recipe Read page (app/views/recipes/show.html.erb) */
@@ -1559,6 +1561,12 @@ textarea.form-control {
 
 .classification-checks .form-check {
   margin-block-end: 0;
+}
+
+/* Left-aligned filter, lined up with the left-aligned page header (Timeline). */
+.classification-nav--start,
+.classification-nav--start .classification-checks {
+  justify-content: flex-start;
 }
 
 /* ============================================================
@@ -2477,11 +2485,11 @@ textarea.form-control {
 }
 
 .page-header--centered {
-  text-align: center;
+  text-align: left;
 }
 
 .page-header--centered .page-header__top {
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .split-layout {
@@ -3289,6 +3297,13 @@ textarea.form-control {
   border-top: 1px solid var(--color-border);
 }
 
+/* Dates, then Up/Down on the Engagement page. */
+.dossier-assignment-row__end {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 .dossier-assignment-row__dates {
   color: var(--color-text-secondary);
   white-space: nowrap;
@@ -3377,6 +3392,21 @@ textarea.form-control {
   gap: var(--space-sm);
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
+}
+
+/* Employment Type page: Your Engagements, one block per Engagement. */
+.dossier-type-engagement + .dossier-type-engagement {
+  margin-top: var(--space-lg);
+}
+
+.dossier-type-engagement .dossier-timeline-card__title {
+  font-size: var(--font-size-lg);
+}
+
+.dossier-type-engagement .dossier-timeline-card__title .dossier-assignment-row__dates {
+  margin-left: auto;
+  font-size: var(--font-size-sm);
+  font-weight: normal;
 }
 
 .dossier-assignment-row__name {
@@ -3858,3 +3888,24 @@ textarea.form-control {
 .dossier-contributions-col--kind   { width: 10%; }
 .dossier-contributions-table--with-kind .dossier-contributions-col--title { width: 30%; }
 .dossier-contributions-table--with-kind .dossier-contributions-col--event { width: 22%; }
+
+/* Dossier Profile photo, in the Profile header (DossierHelper#profile_photo). */
+.dossier-profile-header {
+  align-items: center;
+}
+
+.dossier-profile-photo {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dossier-profile-photo--placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-secondary);
+}

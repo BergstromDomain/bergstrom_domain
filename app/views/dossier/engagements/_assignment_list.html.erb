@@ -1,20 +1,20 @@
 <%#
-  An Engagement's Assignments and bench time, newest first, each Assignment
-  with its client's logo. Locals: engagement, bench (Dossier::Timeline::Period list).
+  An Engagement's Assignments in their hand-made order, each with its client's
+  logo, then its bench time, newest first. Locals: engagement, bench
+  (Dossier::Timeline::Period list); sortable (optional, true for Up/Down).
 %>
-<% rows = engagement.assignments.map { |a| [ a.effective_end || Date.current, a ] } +
-          bench.map { |period| [ period.to, period ] } %>
-<% if rows.any? %>
+<% assignments = engagement.assignments.to_a %>
+<% if assignments.any? || bench.any? %>
   <ul class="dossier-assignment-list">
-    <% rows.sort_by(&:first).reverse_each do |_, row| %>
-      <% if row.is_a?(Dossier::Assignment) %>
-        <%= render "dossier/assignments/row", assignment: row, logo: true %>
-      <% else %>
-        <li class="dossier-assignment-row dossier-assignment-row--bench" data-testid="timeline-bench">
-          <%= link_to "Bench · #{row.duration}", period_path_for(row), data: { testid: "timeline-bench-label" } %>
-          <span class="dossier-assignment-row__dates"><%= row.date_range %></span>
-        </li>
-      <% end %>
+    <% assignments.each_with_index do |assignment, index| %>
+      <%= render "dossier/assignments/row", assignment: assignment, logo: true,
+                 moves: (local_assigns[:sortable] ? { first: index.zero?, last: index == assignments.size - 1 } : nil) %>
+    <% end %>
+    <% bench.sort_by(&:to).reverse_each do |period| %>
+      <li class="dossier-assignment-row dossier-assignment-row--bench" data-testid="timeline-bench">
+        <%= link_to "Bench · #{period.duration}", period_path_for(period), data: { testid: "timeline-bench-label" } %>
+        <span class="dossier-assignment-row__dates"><%= period.date_range %></span>
+      </li>
     <% end %>
   </ul>
 <% end %>

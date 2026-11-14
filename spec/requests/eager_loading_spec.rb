@@ -491,6 +491,47 @@ RSpec.describe "Eager loading", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "Loads a filtered Timeline, with hidden Engagements, without N+1 or unused eager loading" do
+      logo = ->(name) { create(:dossier_organisation, name: name).tap { |org| org.logo.attach(file_fixture("test_image.png")) } }
+      [ nil, :personal ].each do |trait|
+        2.times do |i|
+          engagement = create(:dossier_engagement, *[ trait ].compact, user: adam, employer: logo.("Employer #{trait} #{i}"))
+          2.times { |j| create(:dossier_assignment, engagement: engagement, client: logo.("Client #{trait} #{i}#{j}")) }
+        end
+      end
+
+      without_n_plus_one_queries { get dossier_engagements_path(kinds: [ "", "professional" ]) }
+      without_n_plus_one_queries { get dossier_engagements_path(kinds: [ "", "personal" ]) }
+      without_n_plus_one_queries { get dossier_engagements_path(kinds: [ "" ]) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads a Gap and a Bench period without N+1 or unused eager loading" do
+      older = create(:dossier_engagement, user: adam, start_month: "2015-01", end_month: "2016-12")
+      newer = create(:dossier_engagement, user: adam, start_month: "2018-01", end_month: "2020-12")
+      create(:dossier_engagement, :personal, user: adam, start_month: "2016-01", end_month: "2016-06")
+      [ older, newer ].each { |engagement| create(:dossier_assignment, engagement: engagement, start_on: engagement.start_on, end_month: engagement.start_on.strftime("%Y-%m")) }
+
+      without_n_plus_one_queries { get dossier_period_path(from: "2017-01-01", to: "2017-12-31") }
+      expect(response).to have_http_status(:ok)
+      without_n_plus_one_queries { get dossier_period_path(from: "2018-02-01", to: "2020-12-31") }
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "Loads an Employment Type's Engagements, with logos, without N+1 queries" do
+      type = create(:dossier_employment_type, name: "Consultant")
+      logo = ->(name) { create(:dossier_organisation, name: name).tap { |org| org.logo.attach(file_fixture("test_image.png")) } }
+      2.times do |i|
+        engagement = create(:dossier_engagement, user: adam, employment_type: type, employer: logo.("Employer #{i}"))
+        2.times { |j| create(:dossier_assignment, engagement: engagement, client: logo.("Client #{i}#{j}")) }
+      end
+
+      without_n_plus_one_queries { get dossier_employment_type_path(type) }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "Loads an Engagement's Colleagues without N+1 queries" do
       engagement = create(:dossier_engagement, user: adam)
       create_list(:dossier_engagement_colleague, 3, engagement: engagement)

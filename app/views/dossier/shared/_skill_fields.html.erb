@@ -19,4 +19,6 @@
 <% end %>
 <%= render "dossier/shared/field", f: f, record: record, attribute: :skills_text, label: "Technical Skills",
       error_attribute: error_attribute,
-      hint: "Optional. Tools, languages and methods, separated by commas; new names become Skills in the Uncategorised Skill Category." %>
+      hint: safe_join([ "Optional. Tools, languages and methods, separated by commas; new names become Skills in the Uncategorised Skill Category. ",
+                        link_to("Browse Skill Categories", dossier_skill_categories_path, target: "_blank", rel: "noopener",
+                                data: { testid: "skill-categories-link" }) ]) %>

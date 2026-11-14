@@ -49,8 +49,13 @@ class Dossier::Timeline
   end
 
   def initialize(engagements, today: Date.current)
-    # Rows show "Client - Project", so Roles aren't loaded.
-    @engagements = engagements.includes(:employment_type, assignments: { client: { logo_attachment: :blob } }).to_a
+    # Only what the dates need: what a shown Engagement displays (its employer,
+    # its Assignments' clients and logos) is the caller's to preload, as a
+    # filtered Timeline hides some Engagements.
+    @engagements = engagements.includes(:employment_type).to_a
+    # Bench time comes from a Professional Engagement's Assignments; a
+    # Personal one has none.
+    ActiveRecord::Associations::Preloader.new(records: @engagements.reject(&:personal?), associations: :assignments).call
     @today = today
   end
 

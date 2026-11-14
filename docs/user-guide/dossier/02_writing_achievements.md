@@ -22,7 +22,7 @@ The first four fields follow a STAR answer: Situation, Task, Action and Result.
 - **Impact** (optional): the Result, a measurable one where you can, such as "from 72% to 91%". CVs show it after the text.
 - **Importance:** 1 to 5, 3 by default. CVs include the most important Achievements first, so this is how you choose what makes a short CV.
 - **Soft Skills** (optional): tick the soft skills it shows, such as **Leadership** or **Stakeholder Management**. Each one you tick makes this Achievement an example of it: see Soft Skills under Skills and Experience.
-- **Technical Skills** (optional): the tools, languages and methods it shows, separated by commas. A name Dossier doesn't know becomes a new Skill in the **Uncategorised** category. Tagging an Achievement with a Skill counts that Assignment towards your years with it.
+- **Technical Skills** (optional): the tools, languages and methods it shows, separated by commas. A name Dossier doesn't know becomes a new Skill in the **Uncategorised** category. **Browse Skill Categories** under the field opens the categories in a new tab, to check a Skill's name. Tagging an Achievement with a Skill counts that Assignment towards your years with it.
 
 When you save, any Technical Skill that isn't in the Assignment's Tech Stack yet is added to it, in the list for its category, and a message says which. It works the other way too: when you save an Assignment, a warning lists the Tech Stack Skills that none of its Achievements mention, so you can write about them or take them out. Skills in **System Under Test**, **Office & Collaboration** and **Operating Systems** are left out of that warning.
 

@@ -94,6 +94,18 @@ module DossierHelper
   # (like the person icon for a Person without a photo). size: :small (a
   # Timeline Assignment row), :medium (a list, an Engagement card) or :large
   # (a page heading).
+  # The Profile's photo, else the user's Settings picture, else a person icon.
+  def profile_photo(profile)
+    image = [ profile.photo, profile.user.profile_image ].find { |attachment| attachment.attached? && attachment.blob&.persisted? }
+    if image
+      image_tag image.variant(:thumbnail), alt: profile.display_name, class: "dossier-profile-photo",
+                                           data: { testid: "profile-photo" }
+    else
+      tag.span lucide_icon("user", size: 36), class: "dossier-profile-photo dossier-profile-photo--placeholder",
+                                              title: profile.display_name, data: { testid: "profile-photo-placeholder" }
+    end
+  end
+
   def organisation_logo(organisation, size: :medium)
     classes = "organisation-logo organisation-logo--#{size}"
     if organisation.logo.attached?

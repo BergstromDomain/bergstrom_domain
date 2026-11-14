@@ -2,6 +2,64 @@
 require "rails_helper"
 
 RSpec.describe Dossier::Profile, type: :model do
+  # ── Photo ─────────────────────────────────────────────────────────────────
+  describe "Photo" do
+    let(:profile) { create(:dossier_profile) }
+
+    def attach(io, filename) = profile.photo.attach(io: io, filename: filename)
+
+    # 1) Happy Path
+    it "Takes a JPEG, PNG or WebP photo" do
+      %w[test_image.jpg test_image.png test_image.webp].each do |fixture|
+        profile.photo.attach(file_fixture(fixture))
+        expect(profile).to be_valid
+      end
+    end
+
+    # 2) Negative Path
+    it "Refuses a GIF, an SVG, or text named .jpg" do
+      { "photo.gif" => file_fixture("test_image.gif").binread, "photo.svg" => "<svg xmlns='http://www.w3.org/2000/svg'/>",
+        "photo.jpg" => "not an image" }.each do |filename, content|
+        attach(StringIO.new(content), filename)
+
+        expect(profile).not_to be_valid
+        expect(profile.errors[:photo]).to include("must be a JPEG, PNG or WebP")
+        profile.photo.detach
+      end
+    end
+
+    it "Refuses a photo of 5 MB or more" do
+      attach(StringIO.new(file_fixture("test_image.jpg").binread + ("0" * 5.megabytes)), "big.jpg")
+
+      expect(profile).not_to be_valid
+      expect(profile.errors[:photo]).to include("must be smaller than 5 MB")
+    end
+
+    # 3) Alternative Path
+    it "Removes the photo when saved with Remove Photo ticked, and keeps it otherwise" do
+      profile.photo.attach(file_fixture("test_image.png"))
+      profile.update!(remove_photo: "0")
+      expect(profile.reload.photo).to be_attached
+
+      profile.update!(remove_photo: "1")
+      expect(profile.reload.photo).not_to be_attached
+    end
+
+    # 4) Edge Cases
+    it "Crops its thumbnail to a 200px square" do
+      profile.photo.attach(file_fixture("test_image.png"))
+
+      expect(profile.photo.variant(:thumbnail).variation.transformations).to include(resize_to_fill: [ 200, 200 ])
+    end
+
+    it "Keeps a newly chosen photo even with Remove Photo ticked" do
+      profile.photo.attach(file_fixture("test_image.png"))
+      profile.update!(photo: fixture_file_upload("test_image.jpg", "image/jpeg"), remove_photo: "1")
+
+      expect(profile.reload.photo.filename.to_s).to eq("test_image.jpg")
+    end
+  end
+
   # ── Database Columns ──────────────────────────────────────────────────────
   describe "Database Columns" do
     it { is_expected.to have_db_column(:user_id).of_type(:integer).with_options(null: false) }
