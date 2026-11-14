@@ -102,8 +102,12 @@ Rails.application.routes.draw do
     end
     get "timeline/:from/:to", to: "periods#show", as: :period,
                               constraints: { from: /\d{4}-\d{2}-\d{2}/, to: /\d{4}-\d{2}-\d{2}/ }
-    get "my-skills", to: "my_skills#index", as: :my_skills
-    get "soft-skills", to: "soft_skills#index", as: :soft_skills
+    get "my-technical-skills", to: "my_skills#index", as: :my_skills
+    get "my-soft-skills", to: "soft_skills#index", as: :soft_skills
+    # The old addresses, for bookmarks, keeping any query string.
+    { "my-skills" => "my-technical-skills", "soft-skills" => "my-soft-skills" }.each do |old_path, new_path|
+      get old_path, to: redirect { |_, request| "/dossier/#{new_path}#{"?#{request.query_string}" if request.query_string.present?}" }
+    end
     get "experience", to: "experience#index", as: :experience
     resources :credentials do
       resources :files, only: :show, controller: "credential_files"
