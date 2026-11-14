@@ -725,6 +725,21 @@ Private to the author and Admins (the same check as certificate files); **never*
   Azure DevOps, Provar, Test Strategy" although Test Strategy is under Testing › Test
   Documentation. The Assignment page already groups by category (`Dossier::AssignmentTechStack`):
   consider the same grouping for the Word/PDF and master CV.
+* **User guide: explain where a Tech Stack Skill shows, by its Skill Category** (requested
+  2026-11-15). A Skill keeps its own category whichever field it's typed in, which confused
+  QPT's Tech Stack: CIMS and Genesys, filed in the top-level "System Under Test" category, went
+  to Other Skills when typed under Business Applications, and the Assignment page then showed a
+  "System Under Test" *block* (that category's Skills) as well as the Assignment's own System
+  Under Test in the Summary. Explain in `docs/user-guide/dossier/01_your_profile_and_timeline.md`:
+  the System Under Test field vs the System Under Test Skill Category; a bespoke system (CIMS)
+  only needs listing as the System Under Test; a commercial product (Genesys, Salesforce) belongs
+  in its real category (Business Applications) and can be listed in both. Saving now warns when a
+  Skill moves field (feature/dossier-sticky-tech-stack-warning).
+* **Achievement template: Assignment 129, QPT "Safe and Sound CRS & Portal Project"** (agreed
+  2026-11-15). Thoroughly documented in STAR form (Situation, Task, Achievement, Impact, Tech and
+  Soft Skills, every Tech Stack Skill named): the reference when reviewing the other Assignments.
+  Elysium's dates are all confirmed exact; Niklas aims to finish the Elysium Assignments in the
+  week of 2026-11-16.
 * **Future Enhancement: show each Soft Skill's description under its tick box** (requested
   2026-11-13), so it's clear what goes where. Each Soft Skill already has a description
   (`Dossier::SoftSkills::SKILLS`, editable on the Skill's Edit page), e.g. People Management:
