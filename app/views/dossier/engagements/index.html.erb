@@ -9,7 +9,7 @@
 
 <% if @all_entries.any? %>
   <%# Professional/Personal ticks, auto-submitted; the blank marks a submission with both unticked %>
-  <%= form_with url: dossier_engagements_path, method: :get, class: "classification-nav",
+  <%= form_with url: dossier_engagements_path, method: :get, class: "classification-nav classification-nav--start",
         data: { controller: "auto-submit", action: "change->auto-submit#submit", testid: "timeline-filter" } do %>
     <%= hidden_field_tag "kinds[]", "", id: nil %>
     <div class="classification-checks">

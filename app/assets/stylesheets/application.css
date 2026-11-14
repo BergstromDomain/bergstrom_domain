@@ -1563,6 +1563,12 @@ textarea.form-control {
   margin-block-end: 0;
 }
 
+/* Left-aligned filter, lined up with the left-aligned page header (Timeline). */
+.classification-nav--start,
+.classification-nav--start .classification-checks {
+  justify-content: flex-start;
+}
+
 /* ============================================================
    Mute filter navigation
    ============================================================ */

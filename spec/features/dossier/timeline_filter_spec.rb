@@ -43,6 +43,20 @@ RSpec.describe "Dossier Timeline filter", type: :feature do
       expect(cards).to eq([ newer.to_toast_label, older.to_toast_label ])
       expect(page).to have_selector("[data-testid='timeline-gap-label']", exact_text: "Gap · 5 months")
     end
+
+    it "Lines the ticks up on the left, under the header", js: true do
+      sign_in_and_settle(charlie)
+      visit dossier_engagements_path
+
+      offset = page.evaluate_script(<<~JS)
+        (() => {
+          const form = document.querySelector("[data-testid='timeline-filter']");
+          const first = form.querySelector('.form-check');
+          return first.getBoundingClientRect().left - form.getBoundingClientRect().left;
+        })()
+      JS
+      expect(offset).to be < 2
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
