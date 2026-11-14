@@ -6,6 +6,7 @@ module ToastHelper
     "success" => "success",
     "info" => "info",
     "warning" => "warning",
+    "skills_misfiled" => "warning",
     "error" => "error"
   }.freeze
 

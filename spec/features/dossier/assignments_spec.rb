@@ -130,6 +130,26 @@ RSpec.describe "Dossier Assignments", type: :feature do
       expect(find("[data-testid='tech-stack-block']")).to have_link("Snowflake")
       expect(Dossier::Skill.find_by(name: "Snowflake").skill_category).to eq(databases)
     end
+
+    it "Warns, on saving, which Skills went to another field than the one they were typed in" do
+      business = create(:dossier_skill_category, name: "Business Applications", position: 1)
+      sut = create(:dossier_skill_category, name: "System Under Test")
+      create(:dossier_skill_category, name: "Uncategorised")
+      create(:dossier_skill, name: "Salesforce", skill_category: business)
+      %w[CIMS Genesys].each { |name| create(:dossier_skill, name: name, skill_category: sut) }
+      assignment = create(:dossier_assignment, engagement: engagement, client: northwind)
+      sign_in_as(charlie)
+      visit edit_dossier_assignment_path(assignment)
+      fill_in "Business Applications", with: "Salesforce, CIMS, Genesys"
+      click_button "Update Assignment"
+
+      expect(page).to have_css("[data-testid='flash-success']")
+      expect(page).to have_css("[data-testid='flash-skills_misfiled']",
+                               text: "CIMS and Genesys are filed under System Under Test, not Business Applications, so they're listed under Other Skills.")
+      expect(page).to have_no_css("[data-testid='flash-skills_misfiled'][data-toast-dismiss-after-value]")
+      visit edit_dossier_assignment_path(assignment)
+      expect(page).to have_field("Other Skills", with: "CIMS, Genesys")
+    end
   end
 
   # 2) Negative Path ──────────────────────────────────────────────────────────

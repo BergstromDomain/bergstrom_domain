@@ -34,6 +34,7 @@ class Dossier::AssignmentsController < ApplicationController
     @assignment.engagement = engagement_choices.find_by(id: params.dig(:dossier_assignment, :engagement_id))
     if @assignment.save
       toast_created(@assignment)
+      warn_about_misfiled_skills
       redirect_to @assignment
     else
       render :new, status: :unprocessable_entity
@@ -51,6 +52,7 @@ class Dossier::AssignmentsController < ApplicationController
     previous_label = @assignment.to_toast_label
     if @assignment.update(assignment_params)
       toast_updated(@assignment, previous_label: previous_label)
+      warn_about_misfiled_skills
       redirect_to @assignment
     else
       render :edit, status: :unprocessable_entity
@@ -124,6 +126,21 @@ class Dossier::AssignmentsController < ApplicationController
   def warn_about_uncovered_skills
     uncovered = Dossier::TechStackCoverage.new(@assignment).uncovered
     flash.now[:warning] = "Not in any Achievement: #{uncovered.map(&:display_name).join(', ')}" if uncovered.any?
+  end
+
+  # Existing Skills typed into a field their Skill Category doesn't belong
+  # to: saved by their own category, so they show in another field. One
+  # sentence per Skill Category, typed-in field and field they went to.
+  def warn_about_misfiled_skills
+    groups = @assignment.misfiled_skills.group_by { |skill, typed, went| [ Dossier::TechStack.top_category(skill).name, typed, went ] }
+    return if groups.empty?
+
+    flash[:skills_misfiled] = groups.map do |(top, typed, went), entries|
+      skills = entries.map(&:first)
+      verb = skills.one? ? "is" : "are"
+      pronoun = skills.one? ? "it's" : "they're"
+      "#{skills.map(&:display_name).to_sentence} #{verb} filed under #{top}, not #{typed}, so #{pronoun} listed under #{went}."
+    end.join(" ")
   end
 
   def assignment_params

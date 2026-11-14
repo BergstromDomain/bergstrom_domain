@@ -108,6 +108,16 @@ RSpec.describe "Dossier Assignment Tech Stack by Skill Category", type: :model d
       expect(record.category_skills_text(testing.id)).to eq("Jira")
     end
 
+    it "Reports each existing Skill typed into a field it doesn't belong to, with where it went" do
+      jira = create(:dossier_skill, name: "Jira", skill_category: management)
+      gizmo = create(:dossier_skill, name: "Gizmo", skill_category: uncategorised)
+      record = assignment
+      record.update!(category_skills_text: fields(databases: "Jira, Oracle", other: "Gizmo", testing: ""))
+
+      expect(record.misfiled_skills).to eq([ [ jira, "Databases", "Testing" ] ])
+      expect(gizmo.reload.skill_category).to eq(uncategorised)
+    end
+
     it "Puts Methods, Operating Systems and Protocols in their own lists" do
       record = assignment
       record.update!(category_skills_text: fields(methods: "Scrum", systems: "Linux", protocols: "HL7"))
@@ -126,6 +136,25 @@ RSpec.describe "Dossier Assignment Tech Stack by Skill Category", type: :model d
 
       expect(record.reload.skills_in(:system_under_test).map(&:name)).to eq([ "Ticketing" ])
       expect(record.skills_in(:other_tool).map(&:name)).to eq([ "Ticketing" ])
+    end
+
+    it "Reports nothing for new names, Skills in their own field, or a save without the category fields" do
+      create(:dossier_skill, name: "Oracle", skill_category: databases)
+      record = assignment
+      record.update!(category_skills_text: fields(databases: "Oracle, Snowflake", other: "Gizmo"))
+      expect(record.misfiled_skills).to eq([])
+
+      record.update!(project: "Upgrade")
+      expect(record.misfiled_skills).to eq([])
+    end
+
+    it "Reports a Skill in a category without a field as going to Other Skills" do
+      sut = create(:dossier_skill_category, name: "System Under Test")
+      cims = create(:dossier_skill, name: "CIMS", skill_category: sut)
+      record = assignment
+      record.update!(category_skills_text: fields(databases: "CIMS"))
+
+      expect(record.misfiled_skills).to eq([ [ cims, "Databases", "Other Skills" ] ])
     end
 
     it "Changes nothing when the category fields aren't sent (the six lists still work alone)" do
