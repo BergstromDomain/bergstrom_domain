@@ -70,6 +70,35 @@ RSpec.describe "Dossier Achievements in STAR form", type: :feature do
       expect(page).to have_css("[data-testid='flash-warning']", text: "Not in any Achievement: Azure DevOps")
     end
 
+    it "Keeps warning Charlie on the Assignment page until an Achievement names the Skill" do
+      assignment.update!(test_tools_text: "Provar, Azure DevOps")
+      achievement(skills_text: "Provar")
+      sign_in_as(charlie)
+      visit dossier_assignment_path(assignment)
+      expect(page).to have_css("[data-testid='flash-warning']", text: "Not in any Achievement: Azure DevOps")
+      expect(page).to have_no_css("[data-testid='flash-warning'][data-toast-dismiss-after-value]")
+
+      visit dossier_assignment_path(assignment)
+      expect(page).to have_css("[data-testid='flash-warning']", text: "Azure DevOps")
+
+      visit new_dossier_achievement_path(assignment_id: assignment.id)
+      fill_in "Achievement", with: "Ran the test cases in Azure DevOps"
+      fill_in "Technical Skills", with: "Azure DevOps"
+      click_button "Create Achievement"
+      visit dossier_assignment_path(assignment)
+      expect(page).to have_css("[data-testid='achievement-row']", count: 2)
+      expect(page).not_to have_css("[data-testid='flash-warning']")
+    end
+
+    it "Hides the warning when Charlie clicks its close button", js: true do
+      assignment.update!(test_tools_text: "Provar, Azure DevOps")
+      sign_in_and_settle(charlie)
+      visit dossier_assignment_path(assignment)
+      within("[data-testid='flash-warning']") { find("button[aria-label='Dismiss']").click }
+
+      expect(page).not_to have_css("[data-testid='flash-warning']")
+    end
+
     it "Saves a Task, and shows Situation, Task, Achievement and Impact in that order" do
       sign_in_as(charlie)
       visit new_dossier_achievement_path(assignment_id: assignment.id)
@@ -156,6 +185,16 @@ RSpec.describe "Dossier Achievements in STAR form", type: :feature do
       click_button "Update Assignment"
 
       expect(page).to have_css("[data-testid='flash-success']")
+      expect(page).not_to have_css("[data-testid='flash-warning']")
+    end
+
+    it "Shows Chris no warning on Charlie's Unrestricted Assignment" do
+      assignment.update!(test_tools_text: "Provar, Azure DevOps")
+      make_public(achievement(skills_text: "Provar"))
+      sign_in_as(chris)
+      visit dossier_assignment_path(assignment)
+
+      expect(page).to have_css("[data-testid='achievement-row']")
       expect(page).not_to have_css("[data-testid='flash-warning']")
     end
 

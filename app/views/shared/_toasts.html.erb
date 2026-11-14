@@ -8,7 +8,7 @@
             variant: toast_variant_for(flash_key),
             message: flash[flash_key],
             flash_key: flash_key,
-            dismiss_after: dismiss_after %>
+            dismiss_after: (dismiss_after unless toast_variant_for(flash_key) == "warning") %>
     <% end %>
   </div>
 <% end %>

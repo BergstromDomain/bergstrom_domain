@@ -20,7 +20,9 @@ class Dossier::AssignmentsController < ApplicationController
   end
 
   def show
-    redirect_to dossier_engagements_path, alert: "Not authorised." unless Policy.new(current_user, @assignment).can_read?
+    redirect_to dossier_engagements_path, alert: "Not authorised." and return unless Policy.new(current_user, @assignment).can_read?
+
+    warn_about_uncovered_skills if can_change?
   end
 
   def new
@@ -49,7 +51,6 @@ class Dossier::AssignmentsController < ApplicationController
     previous_label = @assignment.to_toast_label
     if @assignment.update(assignment_params)
       toast_updated(@assignment, previous_label: previous_label)
-      warn_about_uncovered_skills
       redirect_to @assignment
     else
       render :edit, status: :unprocessable_entity
@@ -117,10 +118,12 @@ class Dossier::AssignmentsController < ApplicationController
   end
 
   # Tech Stack Skills no Achievement names, System Under Test and the exempt
-  # categories aside (Dossier::TechStackCoverage).
+  # categories aside (Dossier::TechStackCoverage). Shown to the owner on every
+  # visit, and kept up (Warnings don't auto-dismiss), until an Achievement or
+  # the Tech Stack covers them, or the owner closes it.
   def warn_about_uncovered_skills
-    uncovered = Dossier::TechStackCoverage.new(@assignment.reload).uncovered
-    flash[:warning] = "Not in any Achievement: #{uncovered.map(&:display_name).join(', ')}" if uncovered.any?
+    uncovered = Dossier::TechStackCoverage.new(@assignment).uncovered
+    flash.now[:warning] = "Not in any Achievement: #{uncovered.map(&:display_name).join(', ')}" if uncovered.any?
   end
 
   def assignment_params
