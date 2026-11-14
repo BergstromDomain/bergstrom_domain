@@ -12,10 +12,15 @@ class Dossier::EngagementsController < ApplicationController
   # saved to the user's Dossier settings, or else from those settings. Gaps
   # are worked out from every Professional Engagement and hidden along with them.
   def index
-    timeline = Dossier::Timeline.new(current_user.dossier_engagements.kept.includes(employer: { logo_attachment: :blob }))
+    timeline = Dossier::Timeline.new(current_user.dossier_engagements.kept)
     @kinds = timeline_kinds
     @all_entries = timeline.entries
     @entries = @all_entries.select { |entry| @kinds.include?(entry_kind(entry)) }
+    # Logos and names only for the Engagements shown.
+    shown = @entries.filter_map(&:engagement)
+    ActiveRecord::Associations::Preloader.new(
+      records: shown, associations: { employer: { logo_attachment: :blob }, assignments: { client: { logo_attachment: :blob } } }
+    ).call
   end
 
   def deleted

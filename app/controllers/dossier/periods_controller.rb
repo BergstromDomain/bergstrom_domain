@@ -8,9 +8,11 @@ class Dossier::PeriodsController < ApplicationController
   before_action :require_dossier_access
 
   def show
-    timeline = Dossier::Timeline.new(current_user.dossier_engagements.kept.includes(:employer))
+    timeline = Dossier::Timeline.new(current_user.dossier_engagements.kept)
     @entry = timeline.period(Date.iso8601(params[:from]), Date.iso8601(params[:to]))
     return not_on_timeline unless @entry
+    # A Bench names its Engagement; only that one's employer is shown.
+    ActiveRecord::Associations::Preloader.new(records: [ @entry.engagement ].compact, associations: :employer).call
 
     @credentials = current_user.dossier_credentials.kept.includes(:provider)
                                .completed_during(@entry.period.from, @entry.period.to)
