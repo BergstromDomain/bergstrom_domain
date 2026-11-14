@@ -99,6 +99,18 @@ RSpec.describe "Dossier Achievements in STAR form", type: :feature do
       expect(page).not_to have_css("[data-testid='flash-warning']")
     end
 
+    it "Gives Situation, Task, Achievement and Impact the same size of box, so a long Impact fits" do
+      record = achievement(impact: "Got the test automation built and the complex finance-calculation tests covered, " \
+                                   "leaving the Test Manager free for defect management, Genesys and UAT.")
+      sign_in_as(charlie)
+      visit edit_dossier_achievement_path(record)
+
+      boxes = %w[situation task text impact].map { |field| find("[data-testid='#{field.dasherize}-field']") }
+      expect(boxes.map(&:tag_name)).to all(eq("textarea"))
+      expect(boxes.map { |box| box[:rows] }.uniq).to eq([ "4" ])
+      expect(page).to have_field("Impact", with: record.impact)
+    end
+
     it "Saves a Task, and shows Situation, Task, Achievement and Impact in that order" do
       sign_in_as(charlie)
       visit new_dossier_achievement_path(assignment_id: assignment.id)

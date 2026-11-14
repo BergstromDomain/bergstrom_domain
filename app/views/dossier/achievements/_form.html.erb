@@ -24,7 +24,7 @@
           hint: "The A in STAR, and the CV bullet: terse, without I. What you did starts with a hands-on verb " \
                 "(Wrote, Ran, Built, Tested): \"Ran daily defect triage to prioritise UAT defects.\" What you managed starts " \
                 "with Led, Managed or Coordinated, and names who did the work: \"Led a team of 3 testers who…\"" %>
-    <%= render "dossier/shared/field", f: f, record: achievement, attribute: :impact, label: "Impact",
+    <%= render "dossier/shared/field", f: f, record: achievement, attribute: :impact, label: "Impact", text_area: true,
           hint: "Optional, the R in STAR: a measurable result, e.g. \"40% fewer production defects\"." %>
   </div>
 
