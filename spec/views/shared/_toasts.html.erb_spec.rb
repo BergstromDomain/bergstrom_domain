@@ -37,6 +37,18 @@ RSpec.describe "shared/_toasts", type: :view do
       expect(rendered).to have_css("[data-testid='flash-info'].toast--info")
       expect(rendered).to have_css("[data-testid='flash-warning'].toast--warning")
     end
+
+    it "keeps a Warning up until it is dismissed, while the others still auto-dismiss" do
+      flash[:notice] = "Saved"
+      flash[:warning] = "Not in any Achievement: MuleSoft"
+
+      render partial: "shared/toasts"
+
+      expect(rendered).to have_css("[data-testid='flash-notice'][data-toast-dismiss-after-value='3000']")
+      expect(rendered).to have_css("[data-testid='flash-warning'][data-controller='toast']")
+      expect(rendered).to have_no_css("[data-testid='flash-warning'][data-toast-dismiss-after-value]")
+      expect(rendered).to have_css("[data-testid='flash-warning'] button[aria-label='Dismiss']")
+    end
   end
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────

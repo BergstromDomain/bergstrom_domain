@@ -24,7 +24,7 @@ The first four fields follow a STAR answer: Situation, Task, Action and Result.
 - **Soft Skills** (optional): tick the soft skills it shows, such as **Leadership** or **Stakeholder Management**. Each one you tick makes this Achievement an example of it: see Soft Skills under Skills and Experience.
 - **Technical Skills** (optional): the tools, languages and methods it shows, separated by commas. A name Dossier doesn't know becomes a new Skill in the **Uncategorised** category. **Browse Skill Categories** under the field opens the categories in a new tab, to check a Skill's name. Tagging an Achievement with a Skill counts that Assignment towards your years with it.
 
-When you save, any Technical Skill that isn't in the Assignment's Tech Stack yet is added to it, in the list for its category, and a message says which. It works the other way too: when you save an Assignment, a warning lists the Tech Stack Skills that none of its Achievements mention, so you can write about them or take them out. Skills in **System Under Test**, **Office & Collaboration** and **Operating Systems** are left out of that warning.
+When you save, any Technical Skill that isn't in the Assignment's Tech Stack yet is added to it, in the list for its category, and a message says which. It works the other way too: while any Tech Stack Skill isn't mentioned by one of its Achievements, the Assignment page shows you a warning listing them, so you can write about them or take them out. The warning stays up until they're covered, or until you close it with its **x**; it comes back on your next visit while any are still missing. Skills in **System Under Test**, **Office & Collaboration** and **Operating Systems** are left out of that warning.
 
 ## Your Achievements
 

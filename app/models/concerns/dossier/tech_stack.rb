@@ -114,6 +114,13 @@ module Dossier
       assignment_skills.reject(&:marked_for_destruction?).select { |as| as.stack_slot == slot.to_s }.map(&:skill)
     end
 
+    # [Skill, the field it was typed in, the field it went to] for each
+    # existing Skill the last save filed by its own category, away from the
+    # field it was typed in: the Assignment form warns about these.
+    def misfiled_skills
+      @misfiled_skills || []
+    end
+
     def tech_stack_blank?
       SLOTS.values.all? { |plural| public_send(:"#{plural}_na") }
     end
@@ -144,7 +151,9 @@ module Dossier
 
       names = Dossier::SkillNames.new
       categories = Dossier::SkillCategory.where(id: @category_skills_text.keys - [ OTHER ]).index_by { |c| c.id.to_s }
-      wanted = @category_skills_text.flat_map { |key, text| names.skills(text, category: categories[key]) }.uniq
+      typed = @category_skills_text.to_h { |key, text| [ key, names.skills(text, category: categories[key]) ] }
+      wanted = typed.values.flatten.uniq
+      @misfiled_skills = misfiled(typed, categories)
       current = links_outside_system_under_test
       current.each { |link| link.mark_for_destruction unless wanted.include?(link.skill) }
       wanted.each do |skill|
@@ -155,6 +164,20 @@ module Dossier
       SLOTS.except(:system_under_test).each { |slot, plural| self[:"#{plural}_na"] = skills_in(slot).empty? }
       @category_skills_text = nil
       @tech_stack_form_skills = nil
+    end
+
+    # Existing Skills whose own field isn't the one they were typed in (new
+    # names are created in the field's category, so they always fit).
+    def misfiled(typed, categories)
+      existing = typed.values.flatten.select(&:persisted?).uniq
+      ActiveRecord::Associations::Preloader.new(records: existing, associations: :parent).call
+      roots = existing.map(&:family_root).uniq
+      ActiveRecord::Associations::Preloader.new(records: roots, associations: { skill_category: :parent }).call
+      field = ->(key) { key == OTHER ? "Other Skills" : (categories[key] || Dossier::SkillCategory.find(key)).name }
+      typed.flat_map do |key, skills|
+        skills.select { |skill| skill.persisted? && Dossier::TechStack.form_key(skill) != key }
+              .map { |skill| [ skill, field.(key), field.(Dossier::TechStack.form_key(skill)) ] }
+      end
     end
 
     def apply_tech_stack_text
