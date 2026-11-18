@@ -120,7 +120,7 @@ class Dossier::CvDocument
   end
 
   def assignment_entry(assignment, folded:)
-    Assignment.new(heading: (assignment.heading unless folded),
+    Assignment.new(heading: (assignment.heading(role: false) unless folded),
                    role: (assignment.role_name unless folded),
                    dates: (assignment.date_range unless folded),
                    location: location(assignment),

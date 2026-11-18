@@ -183,13 +183,14 @@ RSpec.describe "Dossier Assignment page", type: :feature do
       expect(summary).not_to have_selector("[data-testid='assignment-vendors']")
     end
 
-    it "Titles the page by the client alone, leaving out an empty description and summary" do
+    it "Titles the page 'Client - Role' without a Project, leaving out an empty description and summary" do
       client = create(:dossier_organisation, name: "Northwind")
-      bare = create(:dossier_assignment, engagement: engagement, client: client, project: nil, summary: nil)
+      bare = create(:dossier_assignment, engagement: engagement, client: client, project: nil, summary: nil,
+                                         role: create(:dossier_role, name: "Test Manager"))
       sign_in_as(charlie)
       visit dossier_assignment_path(bare)
 
-      expect(page).to have_selector("h1.page-title", exact_text: "Northwind")
+      expect(page).to have_selector("h1.page-title", exact_text: "Northwind - Test Manager")
       expect(summary).not_to have_selector("[data-testid='assignment-client-description']")
       expect(summary).not_to have_selector("[data-testid='assignment-summary']")
       expect(summary.find("[data-testid='assignment-systems-under-test']")).to have_text("N/A")

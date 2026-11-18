@@ -18,7 +18,7 @@ class Dossier::CredentialsController < ApplicationController
     listed = Dossier::Credential.where(status: "completed")
                                 .or(Dossier::Credential.where(credential_type_id: Dossier::CredentialType.where(training: false).select(:id)))
     credentials = mine.merge(listed).newest_first
-                      .includes(:provider, { engagement: :employer }, assignment: :client, credential_skills: :skill)
+                      .includes(:provider, { engagement: :employer }, assignment: %i[client role], credential_skills: :skill)
                       .group_by(&:credential_type_id)
     @sort = Dossier::CredentialSort.new(params[:sort], params[:direction],
                                         taken_during: ->(credential) { helpers.credential_taken_during_label(credential) })

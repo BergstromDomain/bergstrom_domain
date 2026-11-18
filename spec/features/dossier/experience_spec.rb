@@ -30,15 +30,16 @@ RSpec.describe "Dossier Experience", type: :feature do
       within("[data-testid='left-nav']") { click_link "Experience" }
 
       expect(page).to have_selector("h1.page-title", text: "Experience")
-      expect(page).to have_selector("[data-testid='experience-career']", text: "8+ years")
+      # A Consultant's career is its Assignments: 2015–2017, not the Engagement's 2015–2022.
+      expect(page).to have_selector("[data-testid='experience-career']", text: "3+ years")
       expect(page).to have_selector("[data-testid='experience-on-assignments']", text: "3+ years")
       expect(page).to have_selector("[data-testid='experience-personal']", text: "—")
 
       within(section("employers")) do
         row = find("[data-testid='experience-row']")
         expect(row).to have_link("Acme Consulting", href: dossier_organisation_path(acme))
-        expect(row).to have_text("8+ years")
-        expect(row).to have_text("Jan 2015 – Dec 2022")
+        expect(row).to have_text("3+ years")
+        expect(row).to have_text("Jan 2015 – Dec 2017")
       end
       expect(section("clients")).to have_link("Northwind Transport Authority")
       expect(section("clients")).to have_text("3+ years")
@@ -53,8 +54,8 @@ RSpec.describe "Dossier Experience", type: :feature do
 
       visit dossier_organisation_path(acme)
       within("[data-testid='your-experience']") do
-        expect(page).to have_selector("[data-testid='your-experience-employer']", text: "8+ years")
-        expect(page).to have_selector("[data-testid='your-experience-employer']", text: "Jan 2015 – Dec 2022")
+        expect(page).to have_selector("[data-testid='your-experience-employer']", text: "3+ years")
+        expect(page).to have_selector("[data-testid='your-experience-employer']", text: "Jan 2015 – Dec 2017")
         expect(page).not_to have_selector("[data-testid='your-experience-client']")
       end
 
@@ -67,7 +68,7 @@ RSpec.describe "Dossier Experience", type: :feature do
       visit dossier_role_path(test_lead)
       expect(page).to have_selector("[data-testid='your-experience-role']", text: "1 Assignment")
       visit dossier_employment_type_path(consultant)
-      expect(page).to have_selector("[data-testid='your-experience-employment_type']", text: "8+ years")
+      expect(page).to have_selector("[data-testid='your-experience-employment_type']", text: "3+ years")
     end
   end
 

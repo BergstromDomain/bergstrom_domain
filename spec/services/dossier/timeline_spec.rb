@@ -12,6 +12,15 @@ RSpec.describe Dossier::Timeline do
     create(:dossier_assignment, engagement: engagement, start_month: start_month, end_month: end_month)
   end
 
+  # A permanent job without the Assignment it gets on create, so the test
+  # chooses which stretches its Assignments cover.
+  def permanent(start_month, end_month)
+    engagement(start_month, end_month, employment_type: create(:dossier_employment_type, :permanent)).tap do |job|
+      job.assignments.each(&:destroy!)
+      job.assignments.reset
+    end
+  end
+
   def timeline = described_class.new(user.dossier_engagements.kept, today: Date.new(2026, 10, 30))
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
@@ -27,8 +36,8 @@ RSpec.describe Dossier::Timeline do
       expect([ gap.date_range, gap.duration ]).to eq([ "Jan 2018 – May 2018", "5 months" ])
     end
 
-    it "Shows bench time inside an Engagement between its Assignments" do
-      consultancy = engagement("2019-01", "2020-12")
+    it "Shows bench time inside a permanent job between its Assignments" do
+      consultancy = permanent("2019-01", "2020-12")
       assignment(consultancy, "2019-01", "2019-06")
       assignment(consultancy, "2019-10", "2020-12")
 
@@ -46,9 +55,18 @@ RSpec.describe Dossier::Timeline do
       expect(timeline.entries.map(&:kind)).to eq(%i[engagement engagement])
     end
 
-    it "Shows no bench time for a permanent job" do
+    it "Shows no bench time for a permanent job its Assignment covers" do
       engagement("2019-01", "2020-12", employment_type: create(:dossier_employment_type, :permanent))
       expect(timeline.entries.first.bench).to be_empty
+    end
+
+    it "Shows no bench time for a Contractor between its Assignments" do
+      contract = engagement("2018-11", "2023-01")
+      assignment(contract, "2018-11", "2019-08")
+      assignment(contract, "2020-09", "2023-01")
+
+      expect(timeline.entries.first.bench).to be_empty
+      expect(described_class.bench_for(contract)).to be_empty
     end
   end
 
@@ -65,14 +83,14 @@ RSpec.describe Dossier::Timeline do
       expect(entries.find { |entry| entry.kind == :gap }.date_range).to eq("Jan 2018 – May 2018")
     end
 
-    it "Treats a whole Engagement without Assignments as bench time" do
-      engagement("2004-01", "2005-01")
+    it "Treats a whole permanent job without Assignments as bench time" do
+      permanent("2004-01", "2005-01")
       bench = timeline.entries.first.bench
       expect([ bench.first.date_range, bench.first.duration ]).to eq([ "Jan 2004 – Jan 2005", "1+ year" ])
     end
 
     it "Runs a current Engagement's bench time up to today" do
-      current = engagement("2025-01", "")
+      current = permanent("2025-01", "")
       assignment(current, "2025-01", "2025-12")
       expect(timeline.entries.first.bench.map(&:date_range)).to eq([ "Jan 2026 – Oct 2026" ])
     end
@@ -101,7 +119,7 @@ RSpec.describe Dossier::Timeline do
     end
 
     it "Finds a bench or gap period by its dates, with the Engagement a bench belongs to" do
-      older = engagement("2015-01", "2017-12")
+      older = permanent("2015-01", "2017-12")
       assignment(older, "2015-01", "2017-06")
       engagement("2018-06", "2022-06")
 

@@ -4,15 +4,24 @@ require "rails_helper"
 RSpec.describe "Dossier Timeline", type: :feature do
   let(:charlie) { create(:user, :content_creator) }
 
+  # Titled on the Timeline by its employer, named after it here.
   def engagement(title, start_month, end_month, **attributes)
-    create(:dossier_engagement, user: charlie, position_title: title, start_month: start_month, end_month: end_month, **attributes)
+    create(:dossier_engagement, user: charlie, position_title: title, employer: create(:dossier_organisation, name: title),
+                                start_month: start_month, end_month: end_month, **attributes)
+  end
+
+  # Bench time is a permanent job's only; without its own Assignment, so
+  # the test chooses what the Assignments cover.
+  def permanent(title, start_month, end_month)
+    engagement(title, start_month, end_month, employment_type: create(:dossier_employment_type, :permanent))
+      .tap { |job| job.assignments.each(&:destroy!) }
   end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     it "Shows the gap between two Engagements and bench time inside one" do
       engagement("Older", "2015-01", "2017-12")
-      newer = engagement("Newer", "2018-06", "2022-06")
+      newer = permanent("Newer", "2018-06", "2022-06")
       create(:dossier_assignment, engagement: newer, start_month: "2018-06", end_month: "2020-01",
                                   client: create(:dossier_organisation, name: "APA Group"), project: "Market Services")
       sign_in_as(charlie)
@@ -35,7 +44,7 @@ RSpec.describe "Dossier Timeline", type: :feature do
     end
 
     it "Opens a bench period, showing the Engagement it falls in" do
-      newer = engagement("Newer", "2018-06", "2022-06")
+      newer = permanent("Newer", "2018-06", "2022-06")
       create(:dossier_assignment, engagement: newer, start_month: "2018-06", end_month: "2020-01")
       sign_in_as(charlie)
       visit dossier_engagements_path

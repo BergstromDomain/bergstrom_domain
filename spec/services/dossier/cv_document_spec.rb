@@ -287,6 +287,18 @@ RSpec.describe Dossier::CvDocument do
                                                                         achievements: [ "Automated the smoke tests" ])
     end
 
+    it "Heads a permanent job's second role by the organisation alone, the Role on its own line" do
+      profile
+      tilgin = create(:dossier_organisation, name: "Tilgin")
+      job = engagement(:permanent, employer: tilgin, position_title: "Test Manager", start_month: "2005-03", end_month: "2009-08")
+      job.assignments.sole.update!(start_month: "2006-08", role: create(:dossier_role, name: "Test Manager"))
+      create(:dossier_assignment, engagement: job, client: tilgin, start_month: "2005-03", end_month: "2006-07",
+                                  role: create(:dossier_role, name: "Test Analyst"))
+
+      assignments = cv.experience.first.assignments
+      expect(assignments.map { |a| [ a.heading, a.role ] }).to eq([ [ "Tilgin", "Test Manager" ], [ "Tilgin", "Test Analyst" ] ])
+    end
+
     it "Keeps a Contribution a CV Variant ticks, dated to the year when that's all it has" do
       profile
       variant = create(:dossier_cv_variant, user: user)

@@ -39,9 +39,9 @@ class Dossier::ExperienceCalculator
     end
   end
 
-  # Career = union of Engagements (bench counts, gaps don't); assignment =
-  # union of Assignments (no bench); personal = personal Engagements. nil
-  # when there's nothing to count.
+  # Career = union of permanent jobs (bench counts, gaps don't) and contracts'
+  # Assignments (a contract has no bench); assignment = union of Assignments;
+  # personal = personal Engagements. nil when there's nothing to count.
   Totals = Data.define(:career_months, :assignment_months, :personal_months) do
     def career         = format(career_months)
     def on_assignments = format(assignment_months)
@@ -79,7 +79,7 @@ class Dossier::ExperienceCalculator
   end
 
   def totals
-    @totals ||= Totals.new(career_months: months(professional_engagements),
+    @totals ||= Totals.new(career_months: months(career_dated(professional_engagements)),
                            assignment_months: months(professional_engagements.flat_map(&:assignments)),
                            personal_months: months(engagements - professional_engagements))
   end
@@ -107,21 +107,29 @@ class Dossier::ExperienceCalculator
 
   def professional_engagements = @professional_engagements ||= engagements.reject(&:personal?)
 
+  # What a career counts: a permanent job whole, a contract by its
+  # Assignments (whole when it has none).
+  def career_dated(engagements)
+    engagements.flat_map { |e| e.permanent? || e.assignments.empty? ? [ e ] : e.assignments }
+  end
+
   def build_slice(name)
     if (finder = ENGAGEMENT_SLICES[name])
       groups = professional_engagements.group_by(&finder)
       count = ->(list) { list.sum { |engagement| engagement.assignments.size } }
+      dated = method(:career_dated)
     elsif (finder = ASSIGNMENT_SLICES[name])
       assignments = professional_engagements.flat_map(&:assignments)
       # Each slice loads only what it reads (the Organisation page needs no Roles).
       ActiveRecord::Associations::Preloader.new(records: assignments, associations: SLICE_PRELOADS.fetch(name)).call
       groups = assignments.group_by(&finder)
       count = :size.to_proc
+      dated = :itself.to_proc
     else
       raise ArgumentError, "Unknown slice #{name.inspect}"
     end
 
-    groups.map { |key, list| slice_row(name, key, list, count.(list)) }
+    groups.map { |key, list| slice_row(name, key, dated.(list), count.(list)) }
           .sort_by { |row| [ -row.months, row.label.downcase ] }
   end
 

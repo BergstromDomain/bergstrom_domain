@@ -68,6 +68,13 @@ RSpec.describe Dossier::Assignment, type: :model do
       expect(assignment.title).to eq("APA Group - Energy Components Upgrade")
     end
 
+    it "Is named 'Client - Role' when it has no Project, as a permanent job is" do
+      assignment = build(:dossier_assignment, engagement: engagement, project: nil,
+                                              role: build(:dossier_role, name: "Test Manager"),
+                                              client: build(:dossier_organisation, name: "Plotlogic"))
+      expect([ assignment.heading, assignment.title ]).to eq([ "Plotlogic - Test Manager", "Plotlogic - Test Manager" ])
+    end
+
     it "Is headed 'Client - Project' on the Timeline" do
       assignment = build(:dossier_assignment, engagement: engagement, project: "  Market Services ",
                                               client: build(:dossier_organisation, name: "Northwind"))
@@ -126,18 +133,18 @@ RSpec.describe Dossier::Assignment, type: :model do
 
   # 3) Alternative Path ───────────────────────────────────────────────────────
   describe "Alternative Path" do
-    it "Is headed by the client alone when it has no Project" do
-      assignment = build(:dossier_assignment, engagement: engagement, project: " ",
-                                              role: build(:dossier_role, name: "Test Manager"),
-                                              client: build(:dossier_organisation, name: "Northwind"))
+    it "Falls back to the Engagement's position title without a Project or a Role" do
+      assignment = build(:dossier_assignment, engagement: engagement, project: " ", role: nil,
+                                              client: build(:dossier_organisation, name: "APA Group", abbreviation: "APA"))
       expect(assignment.project).to be_nil
-      expect(assignment.heading).to eq("Northwind")
+      expect([ assignment.heading, assignment.title ]).to eq([ "APA - Test Consultant", "APA Group - Test Consultant" ])
     end
 
-    it "Is titled by the client's full name alone when it has no Project" do
+    it "Leaves the Role out of the CV heading, which shows it on its own line" do
       assignment = build(:dossier_assignment, engagement: engagement, project: nil,
-                                              client: build(:dossier_organisation, name: "APA Group", abbreviation: "APA"))
-      expect(assignment.title).to eq("APA Group")
+                                              role: build(:dossier_role, name: "Test Manager"),
+                                              client: build(:dossier_organisation, name: "Northwind"))
+      expect(assignment.heading(role: false)).to eq("Northwind")
     end
 
     it "Heads the row with the client's abbreviation when it has one" do

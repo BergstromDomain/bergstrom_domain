@@ -130,7 +130,7 @@ class Dossier::ReferenceDataController < ApplicationController
     return unless current_user
 
     mine = Dossier::Assignment.kept.where(engagement_id: current_user.dossier_engagements.kept.select(:id))
-    assignments_for(@record, mine)&.includes(:client)&.newest_first&.to_a.presence
+    assignments_for(@record, mine)&.includes(:client, :role)&.newest_first&.to_a.presence
   end
 
   # [label, slice, row] for each slice the signed-in user has experience in;

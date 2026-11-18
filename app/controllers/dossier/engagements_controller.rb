@@ -19,7 +19,7 @@ class Dossier::EngagementsController < ApplicationController
     # Logos and names only for the Engagements shown.
     shown = @entries.filter_map(&:engagement)
     ActiveRecord::Associations::Preloader.new(
-      records: shown, associations: { employer: { logo_attachment: :blob }, assignments: { client: { logo_attachment: :blob } } }
+      records: shown, associations: { employer: { logo_attachment: :blob }, assignments: [ :role, { client: { logo_attachment: :blob } } ] }
     ).call
   end
 
@@ -31,7 +31,7 @@ class Dossier::EngagementsController < ApplicationController
     unless Policy.new(current_user, @engagement).can_read?
       redirect_to dossier_engagements_path, alert: "Not authorised." and return
     end
-    ActiveRecord::Associations::Preloader.new(records: [ @engagement ], associations: { assignments: { client: { logo_attachment: :blob } } }).call
+    ActiveRecord::Associations::Preloader.new(records: [ @engagement ], associations: { assignments: [ :role, { client: { logo_attachment: :blob } } ] }).call
     @contributions = @engagement.contributions.kept.newest_first.includes(:event, contribution_skills: :skill)
                                 .select { |contribution| Policy.new(current_user, contribution).can_read? }
   end

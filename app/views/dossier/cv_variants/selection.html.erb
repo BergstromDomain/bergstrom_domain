@@ -28,7 +28,7 @@
             <% engagement.assignments.sort_by { |a| a.start_on }.reverse_each do |assignment| %>
               <li data-testid="selection-assignment">
                 <%= render "selection_box", selection: @selection, kind: "assignment", record: assignment,
-                      label: "#{assignment.heading} · #{assignment.role_name} (#{assignment.date_range})" %>
+                      label: "#{assignment.heading(role: false)} · #{assignment.role_name} (#{assignment.date_range})" %>
                 <ul class="dossier-selection__list">
                   <% assignment.achievements.each do |achievement| %>
                     <li data-testid="selection-achievement">

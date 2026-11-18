@@ -509,9 +509,10 @@ RSpec.describe "Eager loading", type: :request do
 
     it "Loads a Gap and a Bench period without N+1 or unused eager loading" do
       older = create(:dossier_engagement, user: adam, start_month: "2015-01", end_month: "2016-12")
-      newer = create(:dossier_engagement, user: adam, start_month: "2018-01", end_month: "2020-12")
+      newer = create(:dossier_engagement, :permanent, user: adam, start_month: "2018-01", end_month: "2020-12")
       create(:dossier_engagement, :personal, user: adam, start_month: "2016-01", end_month: "2016-06")
-      [ older, newer ].each { |engagement| create(:dossier_assignment, engagement: engagement, start_on: engagement.start_on, end_month: engagement.start_on.strftime("%Y-%m")) }
+      create(:dossier_assignment, engagement: older, start_on: older.start_on, end_month: "2015-01")
+      newer.assignments.sole.update!(end_month: "2018-01") # bench is a permanent job's only
 
       without_n_plus_one_queries { get dossier_period_path(from: "2017-01-01", to: "2017-12-31") }
       expect(response).to have_http_status(:ok)

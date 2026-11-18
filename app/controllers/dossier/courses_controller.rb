@@ -10,7 +10,7 @@ class Dossier::CoursesController < ApplicationController
 
   before_action :require_dossier_access
 
-  TABLE_INCLUDES = [ :provider, { engagement: :employer }, { assignment: :client }, { credential_skills: :skill } ].freeze
+  TABLE_INCLUDES = [ :provider, { engagement: :employer }, { assignment: %i[client role] }, { credential_skills: :skill } ].freeze
 
   def browse
     level = BrowseTree::Level.new(key: :provider_id, association: :provider, records: providers)

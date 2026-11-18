@@ -71,7 +71,14 @@ RSpec.describe "Dossier Assignment order", type: :feature do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
-    it "Lists bench time after the Assignments, newest first, and disables Up on the top row and Down on the bottom" do
+    # Bench time is a permanent job's only; without its own Assignment, so the
+    # test chooses what the Assignments cover.
+    let(:engagement) do
+      create(:dossier_engagement, :permanent, user: charlie, start_month: "2024-09", end_month: "2026-12")
+        .tap { |job| job.assignments.each(&:destroy!) }
+    end
+
+    it "Lists a permanent job's bench time after the Assignments, newest first, and disables Up on the top row and Down on the bottom" do
       assignment("Digital Licencing", "2024-09", "2025-01")
       assignment("FSIP", "2025-06", "2025-12")
       sign_in_as(charlie)

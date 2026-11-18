@@ -60,6 +60,10 @@ class Dossier::Engagement < ApplicationRecord
     deleted_at + DELETION_RETENTION_PERIOD if deleted_at
   end
 
+  # The Timeline card's and the page's title: the organisation, the Position
+  # Title being in the details.
+  def heading = employer&.name.to_s
+
   def to_toast_label
     "#{position_title} at #{employer&.name}"
   end

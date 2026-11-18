@@ -127,6 +127,13 @@ RSpec.describe "Dossier CV Variant Edit Selection", type: :feature do
       expect(box(old_assignment)).not_to be_checked
     end
 
+    it "Labels an Assignment without a Project by its client, its Role named once" do
+      sign_in_as(charlie)
+      visit selection_dossier_cv_variant_path(variant)
+
+      expect(page).to have_field("Westpac · #{assignment.role_name} (#{assignment.date_range})")
+    end
+
     it "Groups Skills under 'Parent › Sub' headings, each sub-category after its parent" do
       protocols = create(:dossier_skill_category, name: "Protocols & Standards")
       create(:dossier_skill, name: "SIP", skill_category: create(:dossier_skill_category, name: "VoIP", parent: protocols))

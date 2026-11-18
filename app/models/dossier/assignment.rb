@@ -47,16 +47,17 @@ class Dossier::Assignment < ApplicationRecord
     role&.name || engagement&.position_title
   end
 
-  # "Client - Project" (just the client without one), to tell one client's
-  # Assignments apart.
-  def heading
-    [ client&.short_name, project ].compact.join(" - ")
+  # "Client - Project", to tell one client's Assignments apart; without a
+  # Project (a permanent job's own work) "Client - Role", as "Plotlogic - Test
+  # Manager". role: false leaves the Role out, where it shows on its own line.
+  def heading(role: true)
+    [ client&.short_name, name_part(role) ].compact.join(" - ")
   end
 
   # "APA Group - Energy Components Upgrade": the page title, with the client's
   # full name.
   def title
-    [ client&.name, project ].compact.join(" - ")
+    [ client&.name, name_part(true) ].compact.join(" - ")
   end
 
   # Colleagues, Vendors and Customers: the owner and Admins only, whatever
@@ -90,6 +91,8 @@ class Dossier::Assignment < ApplicationRecord
   end
 
   private
+
+  def name_part(role) = project || (role_name if role)
 
   def fits_within_engagement
     return if engagement.nil? || start_on.nil? || engagement.start_on.nil?

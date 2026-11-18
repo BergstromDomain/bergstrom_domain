@@ -7,7 +7,7 @@ class Dossier::EmploymentTypesController < Dossier::ReferenceDataController
     return unless current_user
 
     @engagements = current_user.dossier_engagements.kept.where(employment_type: @record)
-                               .includes(employer: { logo_attachment: :blob }, assignments: { client: { logo_attachment: :blob } })
+                               .includes(employer: { logo_attachment: :blob }, assignments: [ :role, { client: { logo_attachment: :blob } } ])
                                .order(start_on: :desc).to_a.presence
   end
 
