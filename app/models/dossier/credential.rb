@@ -78,6 +78,17 @@ class Dossier::Credential < ApplicationRecord
     engagement&.deleted_at.present? || assignment&.deleted_at.present? || false
   end
 
+  # Preloads what "Taken during" shows: the Assignment's heading, or the
+  # Engagement's label for one taken outside any Assignment. Takes and returns
+  # the Credentials.
+  def self.preload_taken_during(credentials)
+    credentials = credentials.to_a
+    ActiveRecord::Associations::Preloader.new(records: credentials, associations: { assignment: :client }).call
+    Dossier::Assignment.preload_heading(credentials.map(&:assignment))
+    ActiveRecord::Associations::Preloader.new(records: credentials.reject(&:assignment), associations: { engagement: :employer }).call
+    credentials
+  end
+
   def to_toast_label = title
 
   def files_visible_to?(user) = user.present? && (user_id == user.id || user.can_administer?)

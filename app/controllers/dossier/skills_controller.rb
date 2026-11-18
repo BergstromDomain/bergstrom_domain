@@ -17,7 +17,8 @@ class Dossier::SkillsController < Dossier::ReferenceDataController
     @experience = Dossier::ExperienceCalculator.new(current_user).for_skill(@record)
     return unless @experience
 
-    ActiveRecord::Associations::Preloader.new(records: @experience.assignments, associations: %i[client role]).call
+    ActiveRecord::Associations::Preloader.new(records: @experience.assignments, associations: :client).call
+    Dossier::Assignment.preload_heading(@experience.assignments)
     ActiveRecord::Associations::Preloader.new(records: @experience.training, associations: :provider).call
     return unless @record.soft?
 

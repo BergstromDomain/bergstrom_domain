@@ -102,7 +102,7 @@ class Dossier::ExperienceCalculator
   end
 
   def engagements
-    @engagements ||= @user.dossier_engagements.kept.includes(:employer, :employment_type, :assignments).to_a
+    @engagements ||= @user.dossier_engagements.kept.includes(:employment_type, :assignments).to_a
   end
 
   def professional_engagements = @professional_engagements ||= engagements.reject(&:personal?)
@@ -115,6 +115,8 @@ class Dossier::ExperienceCalculator
 
   def build_slice(name)
     if (finder = ENGAGEMENT_SLICES[name])
+      # Only the Employer slice reads the employers (a Role page needs none).
+      ActiveRecord::Associations::Preloader.new(records: professional_engagements, associations: :employer).call if name == :employer
       groups = professional_engagements.group_by(&finder)
       count = ->(list) { list.sum { |engagement| engagement.assignments.size } }
       dated = method(:career_dated)

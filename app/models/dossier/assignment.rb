@@ -43,6 +43,15 @@ class Dossier::Assignment < ApplicationRecord
   scope :kept,      -> { where(deleted_at: nil) }
   scope :discarded, -> { where.not(deleted_at: nil) }
 
+  # Preloads the Role for those a heading names by it (no Project), so a page
+  # neither loads Roles one by one nor loads ones it never shows. Takes and
+  # returns any Assignments, nils (no Assignment) left out.
+  def self.preload_heading(assignments)
+    assignments = assignments.compact
+    ActiveRecord::Associations::Preloader.new(records: assignments.reject(&:project), associations: :role).call
+    assignments
+  end
+
   def role_name
     role&.name || engagement&.position_title
   end

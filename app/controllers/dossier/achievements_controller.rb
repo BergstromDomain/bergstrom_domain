@@ -23,7 +23,8 @@ class Dossier::AchievementsController < ApplicationController
     @achievements = Dossier::Achievement.discarded.where(user: current_user)
                                         .joins(assignment: :engagement).merge(Dossier::Engagement.kept)
                                         .merge(Dossier::Assignment.kept)
-                                        .includes(assignment: %i[client role]).order(deleted_at: :desc)
+                                        .includes(assignment: :client).order(deleted_at: :desc).to_a
+    Dossier::Assignment.preload_heading(@achievements.map(&:assignment))
   end
 
   def show

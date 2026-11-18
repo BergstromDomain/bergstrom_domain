@@ -690,6 +690,35 @@ RSpec.describe "Eager loading", type: :request do
       expect(Bullet.enable?).to be(false)
     end
 
+    it "Loads every page that heads Assignments without unused eager loading when each has a Project" do
+      sign_in_as(adam)
+      type = create(:dossier_employment_type, name: "Consultant")
+      industry = create(:dossier_industry, name: "Government")
+      role = create(:dossier_role, name: "Test Manager")
+      pwc = create(:dossier_organisation, name: "PwC")
+      jira = nil
+      2.times do |i|
+        engagement = create(:dossier_engagement, user: adam, employment_type: type)
+        2.times do |j|
+          assignment = create(:dossier_assignment, engagement: engagement, project: "Project #{i}#{j}", role: role,
+                                                   client: create(:dossier_organisation, industry: industry),
+                                                   test_tools_na: false, test_tools_text: "Jira")
+          create(:dossier_achievement, assignment: assignment).soft_delete!
+          create(:dossier_credential, user: adam, provider: create(:dossier_organisation), assignment: assignment, skills_text: "Jira")
+          create(:dossier_assignment_partner, organisation: pwc, assignment: assignment)
+        end
+        jira = Dossier::Skill.find_by!(name: "Jira")
+        [ dossier_engagement_path(engagement) ].each { |path| without_n_plus_one_queries { get path } }
+      end
+
+      [ dossier_engagements_path, dossier_employment_type_path(type), deleted_dossier_achievements_path,
+        dossier_credentials_path, dossier_filter_courses_path, dossier_skill_path(jira),
+        dossier_organisation_path(pwc), dossier_role_path(role), dossier_industry_path(industry) ].each do |path|
+        without_n_plus_one_queries { get path }
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
     it "Loads Filter Recipes without unused eager loading when nothing matches" do
       sign_in_as(adam)
       create_list(:recipe, 2, :published)
