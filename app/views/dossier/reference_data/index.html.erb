@@ -7,8 +7,9 @@
   <% end %>
 </div>
 
-<%# Organisations lead each row with their logo (or a building icon). %>
+<%# Organisations lead each row with their logo (or a building icon) and end it with their website. %>
 <% logos = model_class.reflect_on_attachment(:logo).present? %>
+<% websites = model_class.column_names.include?("website_url") %>
 <% if @records.any? %>
   <div class="data-table-wrapper">
     <table class="data-table" data-testid="reference-data-table">
@@ -16,19 +17,21 @@
         <% if logos %><col class="col-thumbnail"><% end %>
         <col style="width: 18rem;">
         <col>
+        <% if websites %><col style="width: 16rem;"><% end %>
       </colgroup>
       <thead>
         <tr>
           <% if logos %><th><span class="sr-only">Logo</span></th><% end %>
           <th>Name</th>
           <th>Description</th>
+          <% if websites %><th>Website</th><% end %>
         </tr>
       </thead>
       <% index_groups.each do |heading, records| %>
         <tbody>
           <% if heading %>
             <tr class="data-table__group" data-testid="reference-data-group">
-              <th colspan="<%= logos ? 3 : 2 %>"><%= heading %> <span class="data-table__group-count">(<%= records.size %>)</span></th>
+              <th colspan="<%= 2 + (logos ? 1 : 0) + (websites ? 1 : 0) %>"><%= heading %> <span class="data-table__group-count">(<%= records.size %>)</span></th>
             </tr>
           <% end %>
           <% records.each do |record| %>
@@ -43,6 +46,15 @@
               <td class="data-table__description" data-testid="reference-data-description">
                 <%= record.description %>
               </td>
+              <% if websites %>
+                <%# Shown without its scheme or a trailing slash %>
+                <td data-testid="reference-data-website">
+                  <% if record.website_url %>
+                    <%= link_to record.website_url.sub(%r{\Ahttps?://}i, "").delete_suffix("/"), record.website_url,
+                          rel: "noopener", target: "_blank" %>
+                  <% end %>
+                </td>
+              <% end %>
             </tr>
           <% end %>
         </tbody>

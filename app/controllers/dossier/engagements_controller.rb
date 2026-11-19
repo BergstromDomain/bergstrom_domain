@@ -8,14 +8,19 @@ class Dossier::EngagementsController < ApplicationController
   before_action :require_dossier_access, only: %i[index deleted new create]
   before_action :set_engagement, only: %i[show edit update destroy restore]
 
-  # The Professional/Personal ticks come from the submitted filter, which is
-  # saved to the user's Dossier settings, or else from those settings. Gaps
-  # are worked out from every Professional Engagement and hidden along with them.
+  # The Professional/Personal and Hide Gaps ticks come from the submitted
+  # filter, which is saved to the user's Dossier settings, or else from those
+  # settings. Gaps are worked out from every Professional Engagement and hidden
+  # along with them; Hide Gaps hides them and the bench rows (the view's).
   def index
     timeline = Dossier::Timeline.new(current_user.dossier_engagements.kept)
-    @kinds = timeline_kinds
+    setting = timeline_setting
+    @kinds = setting.timeline_kinds
+    @hide_gaps = setting.timeline_hide_gaps
     @all_entries = timeline.entries
-    @entries = @all_entries.select { |entry| @kinds.include?(entry_kind(entry)) }
+    @entries = @all_entries.select do |entry|
+      @kinds.include?(entry_kind(entry)) && !(@hide_gaps && entry.kind == :gap)
+    end
     # Logos and names only for the Engagements shown.
     shown = @entries.filter_map(&:engagement)
     ActiveRecord::Associations::Preloader.new(
@@ -92,13 +97,16 @@ class Dossier::EngagementsController < ApplicationController
 
   private
 
-  def timeline_kinds
+  # A submitted filter always carries kinds[] (a blank at least); an unticked
+  # Hide Gaps sends nothing.
+  def timeline_setting
     setting = current_user.app_settings_for("dossier")
     if params.key?(:kinds)
       setting.timeline_kinds = params[:kinds]
+      setting.timeline_hide_gaps = params[:hide_gaps] == "1"
       setting.save! if setting.changed?
     end
-    setting.timeline_kinds
+    setting
   end
 
   def entry_kind(entry)

@@ -1,9 +1,10 @@
 # spec/features/dossier/timeline_filter_spec.rb
 require "rails_helper"
 
-# The Timeline's Professional and Personal ticks, both on by default, kept per
-# user in their Dossier settings. Gaps are worked out from Professional
-# Engagements whatever is ticked, and hidden with Professional.
+# The Timeline's Professional and Personal ticks, both on by default, and its
+# Hide Gaps tick, off by default, kept per user in their Dossier settings. Gaps
+# are worked out from Professional Engagements whatever is ticked, and hidden
+# with Professional. Hide Gaps hides the gaps and every bench row.
 RSpec.describe "Dossier Timeline filter", type: :feature do
   let(:charlie) { create(:user, :content_creator) }
   let(:chris)   { create(:user, :content_creator) }
@@ -17,6 +18,13 @@ RSpec.describe "Dossier Timeline filter", type: :feature do
                                                     start_month: start_month, end_month: end_month)
   end
 
+  # A permanent job with one Assignment in its middle: bench either side.
+  def benched
+    job = engagement("Test Lead", "2023-01", "2023-12", trait: :permanent).tap { |e| e.assignments.each(&:destroy!) }
+    create(:dossier_assignment, engagement: job, start_month: "2023-04", end_month: "2023-08")
+    job
+  end
+
   def cards = all("[data-testid='engagement-card'] [data-testid='engagement-title']").map(&:text)
   def box(kind) = find("[data-testid='timeline-filter-#{kind}']")
 
@@ -27,7 +35,9 @@ RSpec.describe "Dossier Timeline filter", type: :feature do
 
   # What the auto-submitting form sends: the blank keeps an all-unticked
   # submission apart from no submission at all.
-  def filter(*kinds) = visit(dossier_engagements_path(kinds: [ "", *kinds.map(&:to_s) ]))
+  def filter(*kinds, hide_gaps: false)
+    visit(dossier_engagements_path(kinds: [ "", *kinds.map(&:to_s) ], hide_gaps: (hide_gaps ? "1" : nil)))
+  end
 
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
@@ -56,6 +66,22 @@ RSpec.describe "Dossier Timeline filter", type: :feature do
         })()
       JS
       expect(offset).to be < 2
+    end
+
+    it "Hides the gaps and bench rows when Charlie ticks Hide Gaps, keeping the Engagements and Assignments", js: true do
+      benched
+      sign_in_and_settle(charlie)
+      visit dossier_engagements_path
+      expect(box(:hide_gaps)).not_to be_checked
+      expect(page).to have_selector("[data-testid='timeline-gap']")
+      expect(page).to have_selector("[data-testid='timeline-bench']", count: 2)
+
+      box(:hide_gaps).check
+
+      expect(page).to have_no_selector("[data-testid='timeline-bench']")
+      expect(page).to have_no_selector("[data-testid='timeline-gap']")
+      expect(cards.size).to eq(4)
+      expect(page).to have_selector("[data-testid='assignment-row']", count: 1)
     end
   end
 
@@ -108,6 +134,22 @@ RSpec.describe "Dossier Timeline filter", type: :feature do
       expect(box(:personal)).not_to be_checked
       expect(cards).not_to include(hobby.heading)
     end
+
+    it "Remembers Hide Gaps on the next visit, and shows them again once unticked" do
+      benched
+      sign_in_as(charlie)
+      filter(:professional, :personal, hide_gaps: true)
+      visit dossier_engagements_path
+
+      expect(box(:hide_gaps)).to be_checked
+      expect(page).not_to have_selector("[data-testid='timeline-bench']")
+      expect(page).not_to have_selector("[data-testid='timeline-gap']")
+
+      filter(:professional, :personal)
+      expect(box(:hide_gaps)).not_to be_checked
+      expect(page).to have_selector("[data-testid='timeline-bench']", count: 2)
+      expect(page).to have_selector("[data-testid='timeline-gap']")
+    end
   end
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
@@ -119,6 +161,15 @@ RSpec.describe "Dossier Timeline filter", type: :feature do
 
       expect(box(:personal)).to be_checked
       expect(cards).to eq([ chris_hobby.heading ])
+    end
+
+    it "Keeps the bench on the Engagement's own page with Hide Gaps ticked" do
+      job = benched
+      charlie.app_settings_for("dossier").update!(timeline_hide_gaps: true)
+      sign_in_as(charlie)
+      visit dossier_engagement_path(job)
+
+      expect(page).to have_selector("[data-testid='timeline-bench']", count: 2)
     end
   end
 end

@@ -8,7 +8,7 @@
 </div>
 
 <% if @all_entries.any? %>
-  <%# Professional/Personal ticks, auto-submitted; the blank marks a submission with both unticked %>
+  <%# Professional/Personal and Hide Gaps ticks, auto-submitted; the blank marks a submission with both kinds unticked %>
   <%= form_with url: dossier_engagements_path, method: :get, class: "classification-nav classification-nav--start",
         data: { controller: "auto-submit", action: "change->auto-submit#submit", testid: "timeline-filter" } do %>
     <%= hidden_field_tag "kinds[]", "", id: nil %>
@@ -20,6 +20,10 @@
           <%= label_tag "timeline_kind_#{kind}", kind.humanize %>
         </div>
       <% end %>
+      <div class="form-check">
+        <%= check_box_tag "hide_gaps", "1", @hide_gaps, id: "timeline_hide_gaps", data: { testid: "timeline-filter-hide_gaps" } %>
+        <%= label_tag "timeline_hide_gaps", "Hide Gaps" %>
+      </div>
     </div>
   <% end %>
 <% end %>
@@ -54,7 +58,7 @@
             <%# A split Engagement's card shows its own run's dates %>
             <span class="dossier-assignment-row__dates" data-testid="engagement-dates"><%= entry.assignments ? entry.date_range : engagement.date_range %></span>
           </p>
-          <%= render "dossier/engagements/assignment_list", engagement: engagement, bench: entry.bench, assignments: entry.assignments %>
+          <%= render "dossier/engagements/assignment_list", engagement: engagement, bench: (@hide_gaps ? [] : entry.bench), assignments: entry.assignments %>
         </div>
       </div>
     <% end %>

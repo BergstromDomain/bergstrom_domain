@@ -13,6 +13,7 @@ RSpec.describe UserAppSetting, type: :model do
     it { is_expected.to have_db_column(:default_language_id).of_type(:integer) }
     it { is_expected.to have_db_column(:timeline_professional).of_type(:boolean).with_options(null: false, default: true) }
     it { is_expected.to have_db_column(:timeline_personal).of_type(:boolean).with_options(null: false, default: true) }
+    it { is_expected.to have_db_column(:timeline_hide_gaps).of_type(:boolean).with_options(null: false, default: false) }
   end
 
   # ── Associations ──────────────────────────────────────────────────────────

@@ -35,6 +35,19 @@ RSpec.describe "Dossier Organisations", type: :feature do
       expect(page).to have_link("https://northwind.example", href: "https://northwind.example")
     end
 
+    it "Lists each Organisation's website, opening in a new tab, and leaves the cell blank without one" do
+      create(:dossier_organisation, name: "Northwind", website_url: "https://northwind.example")
+      create(:dossier_organisation, name: "Southwind", website_url: nil)
+      visit index_path
+
+      expect(page).to have_selector("th", text: "Website")
+      north = find("[data-testid='reference-data-row']", text: "Northwind")
+      link = north.find("[data-testid='reference-data-website'] a")
+      expect([ link.text, link[:href], link[:target], link[:rel] ]).to eq([ "northwind.example", "https://northwind.example", "_blank", "noopener" ])
+      south = find("[data-testid='reference-data-row']", text: "Southwind")
+      expect(south.find("[data-testid='reference-data-website']").text).to eq("")
+    end
+
     it "Lists your own Credentials the Organisation issued, of any type, not anyone else's" do
       charlie = create(:user, :content_creator)
       ni = create(:dossier_organisation, name: "National Instruments")
