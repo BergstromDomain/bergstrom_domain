@@ -18,6 +18,7 @@ class Dossier::SkillsController < Dossier::ReferenceDataController
     return unless @experience
 
     ActiveRecord::Associations::Preloader.new(records: @experience.assignments, associations: :client).call
+    Dossier::Assignment.preload_heading(@experience.assignments)
     ActiveRecord::Associations::Preloader.new(records: @experience.training, associations: :provider).call
     return unless @record.soft?
 

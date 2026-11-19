@@ -20,7 +20,9 @@ class Dossier::OrganisationsController < Dossier::ReferenceDataController
     own = Dossier::Assignment.kept.where(engagement_id: current_user.dossier_engagements.kept.select(:id))
     @partner_links = Dossier::AssignmentPartner.where(organisation: @record, assignment_id: own.select(:id))
                                                .includes(assignment: :client).to_a
-                                               .sort_by { |link| link.assignment.start_on }.reverse.group_by(&:kind)
+                                               .sort_by { |link| link.assignment.start_on }.reverse
+    Dossier::Assignment.preload_heading(@partner_links.map(&:assignment))
+    @partner_links = @partner_links.group_by(&:kind)
   end
 
   private

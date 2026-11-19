@@ -243,7 +243,7 @@ RSpec.describe "Dossier Assignments", type: :feature do
       fill_assignment
       click_button "Create Assignment"
 
-      expect(page).to have_selector("h1.page-title", exact_text: "Northwind Transport Authority")
+      expect(page).to have_selector("h1.page-title", exact_text: "Northwind Transport Authority - Test Lead")
       expect(page).to have_selector("[data-testid='assignment-role']", text: "Test Lead")
     end
 

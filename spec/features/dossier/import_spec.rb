@@ -36,7 +36,7 @@ RSpec.describe "Dossier Import", type: :feature do
 
       expect(page).to have_current_path(dossier_engagements_path)
       expect(page).to have_css("[data-testid='flash-success']", text: "Master CV imported: 1 Profile, 2 Organisations")
-      expect(page).to have_selector("[data-testid='engagement-card']", text: "Test Consultant")
+      expect(page).to have_selector("[data-testid='engagement-card']", text: "Acme Consulting")
       assignment = charlie.dossier_engagements.sole.assignments.sole
       expect(assignment.summary).to eq("Led testing of the licensing system.")
       expect(assignment.achievements.map(&:text)).to eq([ "Cut regression testing from five days to one.",

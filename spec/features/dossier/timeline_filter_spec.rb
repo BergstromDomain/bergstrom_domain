@@ -35,12 +35,12 @@ RSpec.describe "Dossier Timeline filter", type: :feature do
       sign_in_and_settle(charlie)
       visit dossier_engagements_path
       expect([ box(:professional), box(:personal) ]).to all(be_checked)
-      expect(page).to have_selector("[data-testid='engagement-title']", text: hobby.to_toast_label)
+      expect(page).to have_selector("[data-testid='engagement-title']", text: hobby.heading)
 
       box(:personal).uncheck
 
-      expect(page).to have_no_selector("[data-testid='engagement-title']", text: hobby.to_toast_label)
-      expect(cards).to eq([ newer.to_toast_label, older.to_toast_label ])
+      expect(page).to have_no_selector("[data-testid='engagement-title']", text: hobby.heading)
+      expect(cards).to eq([ newer.heading, older.heading ])
       expect(page).to have_selector("[data-testid='timeline-gap-label']", exact_text: "Gap · 5 months")
     end
 
@@ -74,7 +74,7 @@ RSpec.describe "Dossier Timeline filter", type: :feature do
       sign_in_as(charlie)
       filter(:professional, :bogus)
 
-      expect(cards).to eq([ newer.to_toast_label, older.to_toast_label ])
+      expect(cards).to eq([ newer.heading, older.heading ])
       expect(box(:personal)).not_to be_checked
     end
   end
@@ -85,7 +85,7 @@ RSpec.describe "Dossier Timeline filter", type: :feature do
       sign_in_as(charlie)
       filter(:personal)
 
-      expect(cards).to eq([ hobby.to_toast_label ])
+      expect(cards).to eq([ hobby.heading ])
       expect(page).not_to have_selector("[data-testid='timeline-gap']")
     end
 
@@ -96,7 +96,7 @@ RSpec.describe "Dossier Timeline filter", type: :feature do
       visit dossier_engagements_path
 
       expect(box(:personal)).not_to be_checked
-      expect(cards).not_to include(hobby.to_toast_label)
+      expect(cards).not_to include(hobby.heading)
     end
   end
 
@@ -108,7 +108,7 @@ RSpec.describe "Dossier Timeline filter", type: :feature do
       visit_timeline_as(chris)
 
       expect(box(:personal)).to be_checked
-      expect(cards).to eq([ chris_hobby.to_toast_label ])
+      expect(cards).to eq([ chris_hobby.heading ])
     end
   end
 end

@@ -28,16 +28,19 @@ RSpec.describe Dossier::ExperienceCalculator do
       expect(jira.last_used).to eq("Jun 2018")
     end
 
-    it "Totals the career from Engagements, bench included, and On Assignments without it" do
-      assignment("2015-01", "2016-12")
+    it "Totals the career from permanent jobs whole, contracts by their Assignments, and On Assignments without bench" do
+      permanent = create(:dossier_employment_type, :permanent)
+      job = create(:dossier_engagement, user: user, employment_type: permanent, start_month: "2023-01", end_month: "2023-12")
+      job.assignments.sole.update!(start_month: "2023-01", end_month: "2023-06")
+      assignment("2015-01", "2016-12") # the contract: 2015–2022, but on an Assignment only for two years
       later = create(:dossier_engagement, user: user, start_month: "2024-01", end_month: "")
       assignment("2024-01", "", engagement: later)
 
       totals = calculator.totals
-      expect(totals.career_months).to eq(96 + 34)          # 2015–2022, then Jan 2024 – today (3 Nov 2026)
-      expect(totals.assignment_months).to eq(24 + 34)
+      expect(totals.career_months).to eq(24 + 12 + 34)      # Assignment, the whole permanent year, Jan 2024 – today (3 Nov 2026)
+      expect(totals.assignment_months).to eq(24 + 6 + 34)
       expect(totals.personal_months).to be_nil
-      expect([ totals.career, totals.on_assignments ]).to eq([ "10+ years", "4+ years" ])
+      expect([ totals.career, totals.on_assignments ]).to eq([ "5+ years", "5+ years" ])
     end
 
     it "Slices by Client, Industry and Role from Assignment dates, most years first" do
@@ -55,17 +58,17 @@ RSpec.describe Dossier::ExperienceCalculator do
       expect(calculator.slice(:industry).find { |row| row.key == mining }.duration).to eq("2+ years")
     end
 
-    it "Slices by Employer and Employment Type from Engagement dates" do
-      assignment("2015-01", "2016-12")
-      contractor = create(:dossier_employment_type, name: "Contractor")
-      create(:dossier_engagement, user: user, employer: engagement.employer, employment_type: contractor,
+    it "Slices by Employer and Employment Type as the career counts them" do
+      permanent = create(:dossier_employment_type, :permanent, name: "Permanent Employment")
+      create(:dossier_engagement, user: user, employer: engagement.employer, employment_type: permanent,
                                   start_month: "2023-01", end_month: "2023-12")
+      assignment("2015-01", "2016-12")
 
       employer = calculator.slice(:employer).sole
-      expect(employer).to have_attributes(key: engagement.employer, months: 108, assignment_count: 1,
+      expect(employer).to have_attributes(key: engagement.employer, months: 36, assignment_count: 2,
                                           date_range: "Jan 2015 – Dec 2023")
       expect(calculator.slice(:employment_type).map { |row| [ row.label, row.months ] })
-        .to eq([ [ engagement.employment_type.name, 96 ], [ "Contractor", 12 ] ])
+        .to eq([ [ engagement.employment_type.name, 24 ], [ "Permanent Employment", 12 ] ])
     end
 
     it "Lists every Skill used, most years first" do
@@ -184,7 +187,7 @@ RSpec.describe Dossier::ExperienceCalculator do
       hobby = create(:dossier_engagement, :personal, user: user, start_month: "2020-01", end_month: "2020-12")
       assignment("2020-01", "2020-12", engagement: hobby)
 
-      expect(calculator.totals).to have_attributes(career_months: 96, assignment_months: 24, personal_months: 12,
+      expect(calculator.totals).to have_attributes(career_months: 24, assignment_months: 24, personal_months: 12,
                                                    personal: "1+ year")
       expect(calculator.slice(:employer).map(&:key)).to eq([ engagement.employer ])
       expect(calculator.slice(:client).size).to eq(1)
@@ -197,9 +200,16 @@ RSpec.describe Dossier::ExperienceCalculator do
       expect(calculator.slice(:industry).sole).to have_attributes(key: nil, label: "No Industry")
     end
 
+    it "Counts a contract without Assignments whole" do
+      engagement # 2015–2022, no Assignments
+
+      expect(calculator.totals.career_months).to eq(96)
+      expect(calculator.slice(:employer).sole).to have_attributes(months: 96, assignment_count: 0)
+    end
+
     it "Finds one row by its record" do
       assignment("2015-01", "2016-12")
-      expect(calculator.experience_for(:employer, engagement.employer).months).to eq(96)
+      expect(calculator.experience_for(:employer, engagement.employer).months).to eq(24)
       expect(calculator.experience_for(:client, engagement.employer)).to be_nil
     end
 

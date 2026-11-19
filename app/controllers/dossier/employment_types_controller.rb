@@ -9,6 +9,7 @@ class Dossier::EmploymentTypesController < Dossier::ReferenceDataController
     @engagements = current_user.dossier_engagements.kept.where(employment_type: @record)
                                .includes(employer: { logo_attachment: :blob }, assignments: { client: { logo_attachment: :blob } })
                                .order(start_on: :desc).to_a.presence
+    Dossier::Assignment.preload_heading(@engagements.flat_map(&:assignments)) if @engagements
   end
 
   private

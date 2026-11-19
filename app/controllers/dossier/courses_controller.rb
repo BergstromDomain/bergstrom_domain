@@ -10,14 +10,15 @@ class Dossier::CoursesController < ApplicationController
 
   before_action :require_dossier_access
 
-  TABLE_INCLUDES = [ :provider, { engagement: :employer }, { assignment: :client }, { credential_skills: :skill } ].freeze
+  TABLE_INCLUDES = [ :provider, { credential_skills: :skill } ].freeze
 
   def browse
     level = BrowseTree::Level.new(key: :provider_id, association: :provider, records: providers)
     return unless load_browse_tree(scope: courses, levels: [ level ], root_label: "Courses",
                                    path_helper: :dossier_browse_courses_path)
 
-    @courses = @browse_tree.items&.reorder(nil)&.newest_first&.includes(*TABLE_INCLUDES)
+    courses = @browse_tree.items&.reorder(nil)&.newest_first&.includes(*TABLE_INCLUDES)
+    @courses = courses && Dossier::Credential.preload_taken_during(courses)
   end
 
   def filter
@@ -30,7 +31,7 @@ class Dossier::CoursesController < ApplicationController
     scope = scope.where("dossier_credentials.title ILIKE ?", "%#{Dossier::Credential.sanitize_sql_like(@filter[:q])}%") if @filter[:q].present?
     @sort = Dossier::CredentialSort.new(params[:sort], params[:direction],
                                         taken_during: ->(credential) { helpers.credential_taken_during_label(credential) })
-    @courses = @sort.apply(scope)
+    @courses = @sort.apply(Dossier::Credential.preload_taken_during(scope))
     @providers = providers
     @skills = Dossier::Skill.where(id: Dossier::CredentialSkill.where(credential_id: courses.select(:id)).select(:skill_id))
                             .order(Arel.sql("LOWER(dossier_skills.name)")).to_a

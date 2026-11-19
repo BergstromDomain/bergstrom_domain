@@ -509,9 +509,10 @@ RSpec.describe "Eager loading", type: :request do
 
     it "Loads a Gap and a Bench period without N+1 or unused eager loading" do
       older = create(:dossier_engagement, user: adam, start_month: "2015-01", end_month: "2016-12")
-      newer = create(:dossier_engagement, user: adam, start_month: "2018-01", end_month: "2020-12")
+      newer = create(:dossier_engagement, :permanent, user: adam, start_month: "2018-01", end_month: "2020-12")
       create(:dossier_engagement, :personal, user: adam, start_month: "2016-01", end_month: "2016-06")
-      [ older, newer ].each { |engagement| create(:dossier_assignment, engagement: engagement, start_on: engagement.start_on, end_month: engagement.start_on.strftime("%Y-%m")) }
+      create(:dossier_assignment, engagement: older, start_on: older.start_on, end_month: "2015-01")
+      newer.assignments.sole.update!(end_month: "2018-01") # bench is a permanent job's only
 
       without_n_plus_one_queries { get dossier_period_path(from: "2017-01-01", to: "2017-12-31") }
       expect(response).to have_http_status(:ok)
@@ -687,6 +688,35 @@ RSpec.describe "Eager loading", type: :request do
       without_n_plus_one_queries { nil }
 
       expect(Bullet.enable?).to be(false)
+    end
+
+    it "Loads every page that heads Assignments without unused eager loading when each has a Project" do
+      sign_in_as(adam)
+      type = create(:dossier_employment_type, name: "Consultant")
+      industry = create(:dossier_industry, name: "Government")
+      role = create(:dossier_role, name: "Test Manager")
+      pwc = create(:dossier_organisation, name: "PwC")
+      jira = nil
+      2.times do |i|
+        engagement = create(:dossier_engagement, user: adam, employment_type: type)
+        2.times do |j|
+          assignment = create(:dossier_assignment, engagement: engagement, project: "Project #{i}#{j}", role: role,
+                                                   client: create(:dossier_organisation, industry: industry),
+                                                   test_tools_na: false, test_tools_text: "Jira")
+          create(:dossier_achievement, assignment: assignment).soft_delete!
+          create(:dossier_credential, user: adam, provider: create(:dossier_organisation), assignment: assignment, skills_text: "Jira")
+          create(:dossier_assignment_partner, organisation: pwc, assignment: assignment)
+        end
+        jira = Dossier::Skill.find_by!(name: "Jira")
+        [ dossier_engagement_path(engagement) ].each { |path| without_n_plus_one_queries { get path } }
+      end
+
+      [ dossier_engagements_path, dossier_employment_type_path(type), deleted_dossier_achievements_path,
+        dossier_credentials_path, dossier_filter_courses_path, dossier_skill_path(jira),
+        dossier_organisation_path(pwc), dossier_role_path(role), dossier_industry_path(industry) ].each do |path|
+        without_n_plus_one_queries { get path }
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     it "Loads Filter Recipes without unused eager loading when nothing matches" do

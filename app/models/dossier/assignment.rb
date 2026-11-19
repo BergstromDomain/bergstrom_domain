@@ -43,20 +43,30 @@ class Dossier::Assignment < ApplicationRecord
   scope :kept,      -> { where(deleted_at: nil) }
   scope :discarded, -> { where.not(deleted_at: nil) }
 
+  # Preloads the Role for those a heading names by it (no Project), so a page
+  # neither loads Roles one by one nor loads ones it never shows. Takes and
+  # returns any Assignments, nils (no Assignment) left out.
+  def self.preload_heading(assignments)
+    assignments = assignments.compact
+    ActiveRecord::Associations::Preloader.new(records: assignments.reject(&:project), associations: :role).call
+    assignments
+  end
+
   def role_name
     role&.name || engagement&.position_title
   end
 
-  # "Client - Project" (just the client without one), to tell one client's
-  # Assignments apart.
-  def heading
-    [ client&.short_name, project ].compact.join(" - ")
+  # "Client - Project", to tell one client's Assignments apart; without a
+  # Project (a permanent job's own work) "Client - Role", as "Plotlogic - Test
+  # Manager". role: false leaves the Role out, where it shows on its own line.
+  def heading(role: true)
+    [ client&.short_name, name_part(role) ].compact.join(" - ")
   end
 
   # "APA Group - Energy Components Upgrade": the page title, with the client's
   # full name.
   def title
-    [ client&.name, project ].compact.join(" - ")
+    [ client&.name, name_part(true) ].compact.join(" - ")
   end
 
   # Colleagues, Vendors and Customers: the owner and Admins only, whatever
@@ -90,6 +100,8 @@ class Dossier::Assignment < ApplicationRecord
   end
 
   private
+
+  def name_part(role) = project || (role_name if role)
 
   def fits_within_engagement
     return if engagement.nil? || start_on.nil? || engagement.start_on.nil?

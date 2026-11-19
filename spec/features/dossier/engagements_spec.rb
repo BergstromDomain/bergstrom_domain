@@ -27,7 +27,7 @@ RSpec.describe "Dossier Engagements", type: :feature do
       fill_engagement
       click_button "Create Engagement"
 
-      expect(page).to have_selector("h1.page-title", text: "Test Manager at Consultancy A")
+      expect(page).to have_selector("h1.page-title", exact_text: "Consultancy A")
       expect(page).to have_css("[data-testid='flash-success']", text: "Test Manager at Consultancy A has been successfully created")
       expect(page).to have_selector("[data-testid='engagement-dates']", text: "Mar 2019 – Jun 2022")
     end
@@ -40,19 +40,31 @@ RSpec.describe "Dossier Engagements", type: :feature do
 
       within("[data-testid='engagement-assignments']") do
         expect(page).to have_selector("[data-testid='assignment-row']", count: 1)
-        expect(page).to have_link(exact_text: "Consultancy A")
+        expect(page).to have_link(exact_text: "Consultancy A - Test Manager")
       end
     end
 
-    it "Lists the user's Engagements newest first on the Timeline" do
-      create(:dossier_engagement, user: charlie, position_title: "Older", start_month: "2010-01", end_month: "2012-01")
-      create(:dossier_engagement, user: charlie, position_title: "Newer", start_month: "2015-01", end_month: "2018-01")
+    it "Lists the user's Engagements newest first on the Timeline, each titled by its organisation" do
+      create(:dossier_engagement, user: charlie, employer: create(:dossier_organisation, name: "Older Org"),
+                                  position_title: "Test Analyst", start_month: "2010-01", end_month: "2012-01")
+      create(:dossier_engagement, user: charlie, employer: create(:dossier_organisation, name: "Elysium Digital"),
+                                  position_title: "Test Manager", start_month: "2015-01", end_month: "2018-01")
       sign_in_as(charlie)
       visit dossier_engagements_path
 
-      titles = all("[data-testid='engagement-title']").map(&:text)
-      expect(titles.first).to include("Newer")
-      expect(titles.last).to include("Older")
+      titles = all("[data-testid='engagement-title'] a.data-table__name-link").map(&:text)
+      expect(titles).to eq([ "Elysium Digital", "Older Org" ])
+      expect(page).to have_no_text("Test Manager at Elysium Digital")
+    end
+
+    it "Titles the Engagement page by its organisation, the Position Title in its details" do
+      engagement = create(:dossier_engagement, user: charlie, employer: create(:dossier_organisation, name: "Elysium Digital"),
+                                               position_title: "Test Manager")
+      sign_in_as(charlie)
+      visit dossier_engagement_path(engagement)
+
+      expect(page).to have_selector("h1.page-title", exact_text: "Elysium Digital")
+      expect(page).to have_text("Test Manager")
     end
 
     it "Updates an Engagement, with a toast" do
@@ -205,9 +217,10 @@ RSpec.describe "Dossier Engagements", type: :feature do
       end
     end
 
-    it "Shows bench time after the Assignments, as on the Timeline" do
-      engagement = create(:dossier_engagement, user: charlie, employer: consultancy, start_month: "2019-01", end_month: "2019-12")
-      create(:dossier_assignment, engagement: engagement, client: consultancy, start_month: "2019-01", end_month: "2019-06")
+    it "Shows a permanent job's bench time after the Assignments, as on the Timeline" do
+      engagement = create(:dossier_engagement, user: charlie, employer: consultancy, employment_type: permanent,
+                                               start_month: "2019-01", end_month: "2019-12")
+      engagement.assignments.sole.update!(start_month: "2019-01", end_month: "2019-06")
       create(:dossier_assignment, engagement: engagement, client: consultancy, start_month: "2019-08", end_month: "2019-12")
       sign_in_as(charlie)
       visit dossier_engagement_path(engagement)
@@ -218,6 +231,17 @@ RSpec.describe "Dossier Engagements", type: :feature do
         expect(page).to have_link("Bench · 1 month")
         expect(page).to have_selector("[data-testid='timeline-bench']", text: "Jul 2019")
       end
+    end
+
+    it "Shows no bench time on a Contractor's Engagement between its Assignments" do
+      engagement = create(:dossier_engagement, user: charlie, employer: consultancy, start_month: "2019-01", end_month: "2019-12")
+      create(:dossier_assignment, engagement: engagement, client: consultancy, start_month: "2019-01", end_month: "2019-06")
+      create(:dossier_assignment, engagement: engagement, client: consultancy, start_month: "2019-08", end_month: "2019-12")
+      sign_in_as(charlie)
+      visit dossier_engagement_path(engagement)
+
+      expect(page).to have_selector("[data-testid='assignment-row']", count: 2)
+      expect(page).to have_no_selector("[data-testid='timeline-bench']")
     end
 
     it "Takes an exact start day and no end for a current job" do
@@ -258,7 +282,8 @@ RSpec.describe "Dossier Engagements", type: :feature do
       engagement = create(:dossier_engagement, user: chris, position_title: "Test Lead", employer: consultancy)
       sign_in_as(admin)
       visit dossier_engagement_path(engagement)
-      expect(page).to have_selector("h1.page-title", text: "Test Lead at Consultancy A")
+      expect(page).to have_selector("h1.page-title", exact_text: "Consultancy A")
+      expect(page).to have_text("Test Lead")
     end
 
     it "Is reachable from the left nav" do

@@ -3,8 +3,10 @@
 # Builds the Timeline: a user's Engagements newest first, each with its bench
 # time (stretches no Assignment covers), and gaps between Engagements.
 # Overlapping Engagements merge before looking for gaps, so a side job never
-# shows as a gap. Personal Engagements (hobby projects) have no bench time and
-# never fill a gap. Ranges are inclusive dates; a month-precision end counts as
+# shows as a gap. Only a permanent job has bench time: a contract runs from
+# Assignment to Assignment, so one agency's contracts share an Engagement
+# however far apart they are. Personal Engagements (hobby projects) never fill
+# a gap. Ranges are inclusive dates; a month-precision end counts as
 # the whole month, and a current one runs to today.
 class Dossier::Timeline
   Period = Data.define(:from, :to) do
@@ -53,9 +55,8 @@ class Dossier::Timeline
     # its Assignments' clients and logos) is the caller's to preload, as a
     # filtered Timeline hides some Engagements.
     @engagements = engagements.includes(:employment_type).to_a
-    # Bench time comes from a Professional Engagement's Assignments; a
-    # Personal one has none.
-    ActiveRecord::Associations::Preloader.new(records: @engagements.reject(&:personal?), associations: :assignments).call
+    # Bench time comes from a permanent job's Assignments; nothing else has any.
+    ActiveRecord::Associations::Preloader.new(records: @engagements.select(&:permanent?), associations: :assignments).call
     @today = today
   end
 
@@ -80,7 +81,7 @@ class Dossier::Timeline
   end
 
   def bench_for(engagement)
-    return [] if engagement.personal?
+    return [] unless engagement.permanent?
 
     outer = period_for(engagement)
     covered = self.class.merge(engagement.assignments.map { |a| period_for(a) })

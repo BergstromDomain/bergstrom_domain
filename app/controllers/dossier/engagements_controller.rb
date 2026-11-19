@@ -21,6 +21,7 @@ class Dossier::EngagementsController < ApplicationController
     ActiveRecord::Associations::Preloader.new(
       records: shown, associations: { employer: { logo_attachment: :blob }, assignments: { client: { logo_attachment: :blob } } }
     ).call
+    Dossier::Assignment.preload_heading(shown.flat_map(&:assignments))
   end
 
   def deleted
@@ -32,6 +33,7 @@ class Dossier::EngagementsController < ApplicationController
       redirect_to dossier_engagements_path, alert: "Not authorised." and return
     end
     ActiveRecord::Associations::Preloader.new(records: [ @engagement ], associations: { assignments: { client: { logo_attachment: :blob } } }).call
+    Dossier::Assignment.preload_heading(@engagement.assignments)
     @contributions = @engagement.contributions.kept.newest_first.includes(:event, contribution_skills: :skill)
                                 .select { |contribution| Policy.new(current_user, contribution).can_read? }
   end
