@@ -2,8 +2,13 @@
 class Dossier::OrganisationsController < Dossier::ReferenceDataController
   self.content_creators_can_create = true
 
+  # One letter's Organisations, or all of them for none or one not on the bar.
   def index
-    @records = model_class.alphabetical.includes(logo_attachment: :blob)
+    letter = params[:letter].to_s.upcase
+    @selected_letter = letter if Person::BUCKET_LETTERS.include?(letter)
+    @available_letters = model_class.available_letters
+    scope = @selected_letter ? model_class.by_letter(@selected_letter) : model_class.all
+    @records = scope.alphabetical.includes(logo_attachment: :blob)
   end
 
   # The Skills it makes (public), and the signed-in user's own Credentials

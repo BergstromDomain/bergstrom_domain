@@ -3394,6 +3394,44 @@ textarea.form-control {
   font-weight: var(--font-weight-bold);
 }
 
+/* Organisations list: one card each, logo | name | website, then the description. */
+.dossier-organisation-card {
+  padding: var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+
+.dossier-organisation-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.dossier-organisation-card__name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.dossier-organisation-card__website {
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.dossier-organisation-card__description {
+  margin-top: var(--space-sm);
+  color: var(--color-text-secondary);
+}
+
+.dossier-organisation-card__description p {
+  margin: 0;
+}
+
+.dossier-organisation-card__description p + p {
+  margin-top: var(--space-xs);
+}
+
 /* Employment Type page: Your Engagements, one block per Engagement. */
 .dossier-type-engagement + .dossier-type-engagement {
   margin-top: var(--space-lg);

@@ -23,6 +23,96 @@ RSpec.describe "Dossier Organisations", type: :feature do
 
   it_behaves_like "Dossier reference data pages", content_creators_can_create: true
 
+  # The list: an A–Ö bar over one card per Organisation (logo, name and
+  # website, then the whole description).
+  describe "List (A–Ö and cards)" do
+    def names = all("[data-testid='reference-data-name']").map(&:text)
+    def card(name) = find("[data-testid='reference-data-row']", text: name)
+    def letter_link(letter) = find("[data-testid='az-nav'] a", exact_text: letter)
+    def disabled_letters = all("[data-testid='az-nav-link-disabled']").map(&:text)
+
+    describe "Happy Path" do
+      it "Shows Gary a card per Organisation: logo, name and website on top, the whole description below" do
+        create(:dossier_organisation, name: "Northwind", website_url: "https://northwind.example/",
+                                      description: "Runs the buses.\nAnd the ferries.")
+        visit index_path
+
+        north = card("Northwind")
+        head = north.find("[data-testid='organisation-card-head']")
+        expect(head).to have_css("[data-testid='organisation-logo-placeholder']")
+        expect(head).to have_link("Northwind", href: dossier_organisation_path(Dossier::Organisation.find_by(name: "Northwind")))
+        link = head.find("[data-testid='reference-data-website'] a")
+        expect([ link.text, link[:href], link[:target], link[:rel] ])
+          .to eq([ "northwind.example", "https://northwind.example/", "_blank", "noopener" ])
+        description = north.find("[data-testid='reference-data-description']")
+        expect(description).to have_text("Runs the buses.")
+        expect(description).to have_css("br")
+      end
+
+      it "Shows only one letter's Organisations once Gary picks it, and all of them again from All" do
+        %w[Apple Atlassian Bosch].each { |name| create(:dossier_organisation, name: name) }
+        visit index_path
+        expect(page).to have_css("[data-testid='az-nav-all'].az-nav__link--active")
+
+        letter_link("A").click
+        expect(names).to eq(%w[Apple Atlassian])
+        expect(page).to have_css("[data-testid='az-nav'] .az-nav__link--active", exact_text: "A")
+
+        click_link "All"
+        expect(names).to eq(%w[Apple Atlassian Bosch])
+      end
+    end
+
+    describe "Negative Path" do
+      it "Disables the letters no Organisation starts with" do
+        create(:dossier_organisation, name: "Apple")
+        visit index_path
+
+        expect(disabled_letters).to include("B", "Z", "Ö")
+        expect(disabled_letters).not_to include("A")
+      end
+
+      it "Shows every Organisation for a letter that isn't on the bar" do
+        %w[Apple Bosch].each { |name| create(:dossier_organisation, name: name) }
+        visit dossier_organisations_path(letter: "bogus")
+
+        expect(names).to eq(%w[Apple Bosch])
+        expect(page).to have_css("[data-testid='az-nav-all'].az-nav__link--active")
+      end
+    end
+
+    describe "Alternative Path" do
+      it "Takes a lower-case letter, and leaves the website and description out when there are none" do
+        create(:dossier_organisation, name: "bosch", website_url: nil, description: nil)
+        visit dossier_organisations_path(letter: "b")
+
+        expect(names).to eq(%w[bosch])
+        expect(card("bosch").find("[data-testid='reference-data-website']").text).to eq("")
+        expect(card("bosch")).not_to have_css("[data-testid='reference-data-description']")
+      end
+    end
+
+    describe "Edge Cases" do
+      it "Files a Swedish name under its own letter, after Z" do
+        %w[Zenith Åkerman Örebro].each { |name| create(:dossier_organisation, name: name) }
+        visit index_path
+        expect(page.all("[data-testid='az-nav'] a").map(&:text).last(3)).to eq(%w[Z Å Ö])
+
+        letter_link("Å").click
+        expect(names).to eq(%w[Åkerman])
+      end
+
+      it "Says so when a letter has no Organisations, keeping the bar" do
+        create(:dossier_organisation, name: "Apple")
+        visit dossier_organisations_path(letter: "Q")
+
+        expect(page).to have_selector("[data-testid='organisations-letter-empty']", text: "No Organisations start with Q.")
+        expect(page).to have_selector("[data-testid='az-nav']")
+        expect(page).not_to have_selector("[data-testid='empty-state']")
+      end
+    end
+  end
+
   describe "Happy Path (Organisation)" do
     it "Shows the abbreviation, industry and website" do
       sign_in_as(create(:user, :admin))
@@ -33,19 +123,6 @@ RSpec.describe "Dossier Organisations", type: :feature do
       expect(page).to have_selector("[data-testid='detail-abbreviation']", text: "NTA")
       expect(page).to have_selector("[data-testid='detail-industry']", text: "Transport")
       expect(page).to have_link("https://northwind.example", href: "https://northwind.example")
-    end
-
-    it "Lists each Organisation's website, opening in a new tab, and leaves the cell blank without one" do
-      create(:dossier_organisation, name: "Northwind", website_url: "https://northwind.example")
-      create(:dossier_organisation, name: "Southwind", website_url: nil)
-      visit index_path
-
-      expect(page).to have_selector("th", text: "Website")
-      north = find("[data-testid='reference-data-row']", text: "Northwind")
-      link = north.find("[data-testid='reference-data-website'] a")
-      expect([ link.text, link[:href], link[:target], link[:rel] ]).to eq([ "northwind.example", "https://northwind.example", "_blank", "noopener" ])
-      south = find("[data-testid='reference-data-row']", text: "Southwind")
-      expect(south.find("[data-testid='reference-data-website']").text).to eq("")
     end
 
     it "Lists your own Credentials the Organisation issued, of any type, not anyone else's" do

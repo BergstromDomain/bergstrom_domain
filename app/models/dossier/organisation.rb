@@ -27,6 +27,14 @@ class Dossier::Organisation < ApplicationRecord
 
   LOGO_TYPES = %w[image/jpeg image/png image/webp].freeze
 
+  # The list's A–Ö bar files each under its name's first letter, as People are.
+  LETTER_SQL = "UPPER(LEFT(dossier_organisations.name, 1))".freeze
+
+  scope :by_letter, ->(letter) { where("#{LETTER_SQL} = ?", letter.to_s.upcase) }
+
+  # The first letters in use, for the bar's links (the rest are disabled).
+  def self.available_letters = distinct.pluck(Arel.sql(LETTER_SQL))
+
   has_one_attached :logo do |attachable|
     attachable.variant :thumbnail, resize_to_limit: [ 160, 160 ]
   end
