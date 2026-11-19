@@ -7,9 +7,9 @@
     <%= render "dossier/shared/field", f: f, record: engagement, attribute: :employer_id, label: "Employer",
           error_attribute: :employer,
           field: f.collection_select(:employer_id, Dossier::Organisation.alphabetical, :id, :name,
-                                     { include_blank: "Choose the employer or agency" }, class: "form-control",
+                                     { include_blank: "Choose the employer or agency (none for a career break)" }, class: "form-control",
                                      data: { testid: "employer-field" }),
-          hint: safe_join([ "The employer, or the agency you were engaged through. Not listed? ",
+          hint: safe_join([ "The employer, or the agency you were engaged through; leave it blank for a career break. Not listed? ",
                             link_to("Add An Organisation", new_dossier_organisation_path, target: "_blank", rel: "noopener"),
                             " in a new tab, then reload this page." ]) %>
     <%= render "dossier/shared/field", f: f, record: engagement, attribute: :employment_type_id, label: "Employment Type",

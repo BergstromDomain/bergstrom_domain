@@ -5,3 +5,6 @@
 <%= render "dossier/shared/field", f: f, record: record, attribute: :personal, label: "Personal",
       field: f.check_box(:personal, data: { testid: "personal-field" }),
       hint: "Tick for your own projects, e.g. a hobby app: their years count as personal experience, not professional, and the Timeline doesn't treat them as filling a gap." %>
+<%= render "dossier/shared/field", f: f, record: record, attribute: :career_break, label: "Career Break",
+      field: f.check_box(:career_break, data: { testid: "career-break-field" }),
+      hint: "Tick for time between jobs, e.g. time off or looking for work: its Engagements need no employer, have no Assignments, count towards no experience and stay off the CV. The Timeline shows them beside the gap." %>

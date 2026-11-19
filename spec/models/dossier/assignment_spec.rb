@@ -84,6 +84,13 @@ RSpec.describe Dossier::Assignment, type: :model do
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
+    it "Is invalid under a career break" do
+      time_off = create(:dossier_engagement, :career_break)
+      assignment = build(:dossier_assignment, engagement: time_off, start_on: time_off.start_on, end_on: time_off.end_on)
+      expect(assignment).not_to be_valid
+      expect(assignment.errors[:engagement]).to include("is a career break, which has no Assignments")
+    end
+
     it "Is hidden when it's deleted, or when its Engagement is" do
       assignment = create(:dossier_assignment, engagement: engagement)
       expect(assignment).not_to be_hidden

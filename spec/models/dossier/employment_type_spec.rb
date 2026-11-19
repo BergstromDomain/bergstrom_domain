@@ -8,6 +8,7 @@ RSpec.describe Dossier::EmploymentType, type: :model do
     it { is_expected.to have_db_column(:description).of_type(:text) }
     it { is_expected.to have_db_column(:permanent).of_type(:boolean).with_options(null: false, default: false) }
     it { is_expected.to have_db_column(:personal).of_type(:boolean).with_options(null: false, default: false) }
+    it { is_expected.to have_db_column(:career_break).of_type(:boolean).with_options(null: false, default: false) }
     it { is_expected.to have_db_column(:slug).of_type(:string) }
   end
 
@@ -42,6 +43,18 @@ RSpec.describe Dossier::EmploymentType, type: :model do
       expect(record).not_to be_valid
       expect(record.errors[:personal]).to be_present
     end
+
+    it "Is invalid as both a career break and permanent" do
+      record = build(:dossier_employment_type, :career_break, :permanent)
+      expect(record).not_to be_valid
+      expect(record.errors[:career_break]).to include("can't be both a career break and permanent")
+    end
+
+    it "Is invalid as both a career break and personal" do
+      record = build(:dossier_employment_type, :career_break, :personal)
+      expect(record).not_to be_valid
+      expect(record.errors[:career_break]).to include("can't be both a career break and personal")
+    end
   end
 
   # 3) Alternative Path ───────────────────────────────────────────────────────
@@ -53,6 +66,11 @@ RSpec.describe Dossier::EmploymentType, type: :model do
     it "Makes its Engagements personal" do
       expect(build(:dossier_engagement, :personal)).to be_personal
       expect(build(:dossier_engagement)).not_to be_personal
+    end
+
+    it "Makes its Engagements career breaks" do
+      expect(build(:dossier_engagement, :career_break)).to be_career_break
+      expect(build(:dossier_engagement)).not_to be_career_break
     end
   end
 

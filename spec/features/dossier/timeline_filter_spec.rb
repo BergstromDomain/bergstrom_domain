@@ -89,6 +89,16 @@ RSpec.describe "Dossier Timeline filter", type: :feature do
       expect(page).not_to have_selector("[data-testid='timeline-gap']")
     end
 
+    it "Shows a career break with Professional, not Personal" do
+      create(:dossier_engagement, :career_break, user: charlie, position_title: "Time off", start_month: "2018-01", end_month: "2018-05")
+      sign_in_as(charlie)
+
+      filter(:professional)
+      expect(cards).to include("Time off")
+      filter(:personal)
+      expect(cards).not_to include("Time off")
+    end
+
     it "Remembers Charlie's ticks on the next visit" do
       sign_in_as(charlie)
       filter(:professional)

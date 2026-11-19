@@ -182,6 +182,17 @@ RSpec.describe Dossier::ExperienceCalculator do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
+    it "Leaves career breaks out of every total and slice" do
+      assignment("2015-01", "2016-12")
+      time_off = create(:dossier_engagement, :career_break, user: user, start_month: "2023-01", end_month: "2023-07")
+      hobby = create(:dossier_engagement, :personal, user: user, start_month: "2020-01", end_month: "2020-06")
+      assignment("2020-01", "2020-06", engagement: hobby)
+
+      expect(calculator.totals).to have_attributes(career_months: 24, personal_months: 6)
+      expect(calculator.slice(:employer).map(&:key)).to eq([ engagement.employer ])
+      expect(calculator.slice(:employment_type).map(&:key)).not_to include(time_off.employment_type)
+    end
+
     it "Keeps personal projects out of the professional totals and slices" do
       assignment("2015-01", "2016-12")
       hobby = create(:dossier_engagement, :personal, user: user, start_month: "2020-01", end_month: "2020-12")

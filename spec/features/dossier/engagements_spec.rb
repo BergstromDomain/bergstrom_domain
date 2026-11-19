@@ -19,8 +19,53 @@ RSpec.describe "Dossier Engagements", type: :feature do
     fill_in_dossier_month "End", with: end_month
   end
 
+  let(:career_break) { create(:dossier_employment_type, :career_break, name: "Career Break") }
+
+  def time_off(**attributes)
+    create(:dossier_engagement, :career_break, user: charlie, employment_type: career_break,
+                                               start_month: "2012-10", end_month: "2013-04", **attributes)
+  end
+
+  def list_rows = all(".dossier-assignment-list > li").map { |row| row.find("a", match: :first).text }
+
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
+    it "Creates a career break with no Employer, headed by its Position Title" do
+      career_break
+      sign_in_as(charlie)
+      visit new_dossier_engagement_path
+      select "Career Break", from: "Employment Type"
+      fill_in "Position Title", with: "Time off"
+      fill_in_dossier_month "Start", with: "2012-10"
+      fill_in_dossier_month "End", with: "2013-04"
+      fill_in "Summary", with: "A year off: moved to Australia on a tourist visa."
+      click_button "Create Engagement"
+
+      expect(page).to have_css("[data-testid='flash-success']", text: "Time off has been successfully created")
+      expect(page).to have_selector("h1.page-title", exact_text: "Time off")
+      expect(page).to have_selector("[data-testid='engagement-employer']", exact_text: "None")
+      expect(page).to have_selector("[data-testid='engagement-summary']", text: "moved to Australia")
+    end
+
+    it "Shows Gap - Other Engagements between a split Engagement's Assignments, linking them" do
+      contract = create(:dossier_engagement, user: charlie, employer: consultancy, start_month: "2018-11", end_month: "2023-01")
+      create(:dossier_assignment, engagement: contract, project: "EIP", start_month: "2018-11", end_month: "2019-08")
+      create(:dossier_assignment, engagement: contract, project: "TMR", start_month: "2020-09", end_month: "2023-01")
+      hudson = create(:dossier_engagement, user: charlie, employer: create(:dossier_organisation, name: "Hudson"),
+                                           start_month: "2019-12", end_month: "2020-09")
+      sign_in_as(charlie)
+      visit dossier_engagement_path(contract)
+
+      within("[data-testid='engagement-assignments']") do
+        expect(list_rows).to eq([ "#{contract.assignments.first.heading}", "Hudson", "#{contract.assignments.last.heading}" ])
+        within("[data-testid='engagement-other-engagements']") do
+          expect(page).to have_text("Gap - Other Engagements · 1+ year: Hudson")
+          expect(page).to have_selector(".dossier-assignment-row__dates", exact_text: "Sep 2019 – Aug 2020")
+          expect(page).to have_link("Hudson", href: dossier_engagement_path(hudson))
+        end
+      end
+    end
+
     it "Lets a Content Creator create an Engagement, with a toast" do
       sign_in_as(charlie)
       visit new_dossier_engagement_path
@@ -113,6 +158,29 @@ RSpec.describe "Dossier Engagements", type: :feature do
 
   # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
+    it "Requires an Employer for every type but a career break" do
+      sign_in_as(charlie)
+      visit new_dossier_engagement_path
+      select "Contractor", from: "Employment Type"
+      fill_in "Position Title", with: "Test Manager"
+      fill_in_dossier_month "Start", with: "2019-03"
+      click_button "Create Engagement"
+
+      expect(page).to have_text("Employer must exist")
+    end
+
+    it "Offers a career break no Assignments: no Add Assignment button, not in the Assignment form" do
+      time_off
+      sign_in_as(charlie)
+      visit dossier_engagement_path(Dossier::Engagement.last)
+
+      expect(page).to have_no_selector("[data-testid='engagement-assignments']")
+      expect(page).to have_no_selector("[data-testid='add-assignment']")
+      expect(page).to have_link("Edit Engagement")
+      visit new_dossier_assignment_path
+      expect(page).to have_no_select("Engagement", with_options: [ "Time off" ])
+    end
+
     it "Shows errors for a missing position and an end before the start" do
       sign_in_as(charlie)
       visit new_dossier_engagement_path
@@ -217,7 +285,7 @@ RSpec.describe "Dossier Engagements", type: :feature do
       end
     end
 
-    it "Shows a permanent job's bench time after the Assignments, as on the Timeline" do
+    it "Shows a permanent job's bench time between the Assignments either side of it, as on the Timeline" do
       engagement = create(:dossier_engagement, user: charlie, employer: consultancy, employment_type: permanent,
                                                start_month: "2019-01", end_month: "2019-12")
       engagement.assignments.sole.update!(start_month: "2019-01", end_month: "2019-06")
@@ -227,7 +295,7 @@ RSpec.describe "Dossier Engagements", type: :feature do
 
       within("[data-testid='engagement-assignments']") do
         rows = all("[data-testid='assignment-row'], [data-testid='timeline-bench']")
-        expect(rows.map { |row| row["data-testid"] }).to eq(%w[assignment-row assignment-row timeline-bench])
+        expect(rows.map { |row| row["data-testid"] }).to eq(%w[assignment-row timeline-bench assignment-row])
         expect(page).to have_link("Bench · 1 month")
         expect(page).to have_selector("[data-testid='timeline-bench']", text: "Jul 2019")
       end
@@ -298,6 +366,62 @@ RSpec.describe "Dossier Engagements", type: :feature do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
+    it "Places a bench at the bottom when no Assignment ended before it" do
+      engagement = create(:dossier_engagement, user: charlie, employer: consultancy, employment_type: permanent,
+                                               start_month: "2019-01", end_month: "2019-12")
+      engagement.assignments.sole.update!(start_month: "2019-04", end_month: "2019-12")
+      sign_in_as(charlie)
+      visit dossier_engagement_path(engagement)
+
+      within("[data-testid='engagement-assignments']") { expect(list_rows.last).to eq("Bench · 3 months") }
+    end
+
+    it "Places two benches each between its own neighbours" do
+      engagement = create(:dossier_engagement, user: charlie, employer: consultancy, employment_type: permanent,
+                                               start_month: "2019-01", end_month: "2019-12")
+      engagement.assignments.sole.update!(start_month: "2019-01", end_month: "2019-03", project: "One")
+      create(:dossier_assignment, engagement: engagement, client: consultancy, project: "Two", start_month: "2019-05", end_month: "2019-07")
+      create(:dossier_assignment, engagement: engagement, client: consultancy, project: "Three", start_month: "2019-10", end_month: "2019-12")
+      sign_in_as(charlie)
+      visit dossier_engagement_path(engagement)
+
+      within("[data-testid='engagement-assignments']") do
+        expect(list_rows).to eq([ "Consultancy A - Three", "Bench · 2 months", "Consultancy A - Two", "Bench · 1 month", "Consultancy A - One" ])
+      end
+    end
+
+    it "Orders a bench by date when the Assignments are ordered oldest first by hand" do
+      engagement = create(:dossier_engagement, user: charlie, employer: consultancy, employment_type: permanent,
+                                               start_month: "2019-01", end_month: "2019-12")
+      first = engagement.assignments.sole
+      first.update!(start_month: "2019-01", end_month: "2019-03", project: "One")
+      create(:dossier_assignment, engagement: engagement, client: consultancy, project: "Two", start_month: "2019-06", end_month: "2019-12")
+      first.update!(position: -5)
+      sign_in_as(charlie)
+      visit dossier_engagement_path(engagement)
+
+      within("[data-testid='engagement-assignments']") do
+        expect(list_rows).to eq([ "Bench · 2 months", "Consultancy A - One", "Consultancy A - Two" ])
+      end
+    end
+
+    it "Deletes and restores a career break without an Employer" do
+      engagement = time_off
+      sign_in_as(charlie)
+      visit dossier_employment_type_path(career_break)
+      expect(page).to have_selector("[data-testid='your-engagement-title']", exact_text: "Time off")
+
+      visit dossier_engagement_path(engagement)
+      click_button "Delete Engagement"
+      expect(page).to have_css("[data-testid='flash-success']", text: "Time off has been successfully deleted")
+      visit deleted_dossier_engagements_path
+      expect(page).to have_text("Time off")
+      click_button "Restore"
+
+      visit dossier_engagements_path
+      expect(page).to have_selector("[data-testid='engagement-career-break']")
+    end
+
     it "Says so when no Contributions were made during the Engagement" do
       engagement = create(:dossier_engagement, user: charlie, employer: consultancy)
       sign_in_as(charlie)

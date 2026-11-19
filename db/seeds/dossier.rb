@@ -7,15 +7,17 @@
 # checklist copy of these lists lives in docs/reference-data/dossier/.
 
 [
-  [ "Permanent Employment", true,  false ],
-  [ "Temp",                 false, false ],
-  [ "Consultant",           false, false ],
-  [ "Contractor",           false, false ],
-  [ "Personal Project",     false, true ]
-].each do |name, permanent, personal|
+  [ "Permanent Employment", true,  false, false ],
+  [ "Temp",                 false, false, false ],
+  [ "Consultant",           false, false, false ],
+  [ "Contractor",           false, false, false ],
+  [ "Personal Project",     false, true,  false ],
+  [ "Career Break",         false, false, true ]
+].each do |name, permanent, personal, career_break|
   Dossier::EmploymentType.find_or_create_by!(name: name) do |t|
     t.permanent = permanent
     t.personal = personal
+    t.career_break = career_break
   end
 end
 

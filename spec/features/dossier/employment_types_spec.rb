@@ -41,5 +41,43 @@ RSpec.describe "Dossier Employment Types", type: :feature do
       expect(Dossier::EmploymentType.find_by!(name: "Personal Project").personal).to be(true)
       expect(page).to have_selector("[data-testid='detail-personal']", text: "Yes")
     end
+
+    it "Saves and shows the Career Break flag" do
+      sign_in_as(create(:user, :admin))
+      visit new_path
+      fill_name("Career Break")
+      check "Career Break"
+      click_button "Create Employment Type"
+
+      expect(page).to have_css("[data-testid='flash-success']", text: "has been successfully created")
+      expect(Dossier::EmploymentType.find_by!(name: "Career Break").career_break).to be(true)
+      expect(page).to have_selector("[data-testid='detail-career-break']", text: "Yes")
+    end
+  end
+
+  describe "Alternative Path (Employment Type)" do
+    it "Lets Sam tick Career Break on an existing type from Edit" do
+      type = create(:dossier_employment_type, name: "Time Off")
+      sign_in_as(create(:user, :system_admin))
+      visit edit_dossier_employment_type_path(type)
+      check "Career Break"
+      click_button "Update Employment Type"
+
+      expect(page).to have_selector("[data-testid='detail-career-break']", text: "Yes")
+      expect(type.reload.career_break).to be(true)
+    end
+  end
+
+  describe "Negative Path (Employment Type)" do
+    it "Shows the error for a type ticked both Career Break and Permanent" do
+      sign_in_as(create(:user, :admin))
+      visit new_path
+      fill_name("Odd Type")
+      check "Permanent"
+      check "Career Break"
+      click_button "Create Employment Type"
+
+      expect(page).to have_text("can't be both a career break and permanent")
+    end
   end
 end

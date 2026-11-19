@@ -98,7 +98,8 @@ class Dossier::AssignmentsController < ApplicationController
   def can_change? = Policy.new(current_user, @assignment).can_update? && !@assignment.hidden?
 
   def engagement_choices
-    current_user.dossier_engagements.kept.newest_first.includes(:employer)
+    # A career break has no Assignments.
+    current_user.dossier_engagements.kept.without_career_breaks.newest_first.includes(:employer)
   end
 
   def require_dossier_access

@@ -102,6 +102,15 @@ RSpec.describe "Dossier CV Variant Edit Selection", type: :feature do
       expect(variant.items.map(&:item)).to eq([ engagement ])
     end
 
+    it "Leaves career breaks out of the selection" do
+      create(:dossier_engagement, :career_break, user: charlie, position_title: "Time off")
+      sign_in_as(charlie)
+      visit selection_dossier_cv_variant_path(variant)
+
+      expect(page).to have_selector("[data-testid='selection-engagement']", text: "Bridge")
+      expect(page).to have_no_selector("[data-testid='selection-engagement']", text: "Time off")
+    end
+
     it "Ignores another user's Contribution" do
       theirs = create(:dossier_contribution, title: "Someone Else's Talk")
       sign_in_as(charlie)

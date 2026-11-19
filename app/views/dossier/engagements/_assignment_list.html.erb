@@ -1,20 +1,33 @@
 <%#
   An Engagement's Assignments in their hand-made order, each with its client's
-  logo, then its bench time, newest first. Locals: engagement, bench
-  (Dossier::Timeline::Period list); sortable (optional, true for Up/Down).
+  logo, with its bench time among them by date (Dossier::Timeline.interleave).
+  Locals: engagement, bench (Dossier::Timeline::Period list); assignments
+  (optional, a split Timeline card's run; all of them otherwise); others
+  (optional, Dossier::Timeline::Others: where a split Engagement's cards part);
+  sortable (optional, true for Up/Down).
 %>
-<% assignments = engagement.assignments.to_a %>
+<% assignments = (local_assigns[:assignments] || engagement.assignments).to_a %>
+<% others = local_assigns[:others] || [] %>
 <% if assignments.any? || bench.any? %>
   <ul class="dossier-assignment-list">
-    <% assignments.each_with_index do |assignment, index| %>
-      <%= render "dossier/assignments/row", assignment: assignment, logo: true,
-                 moves: (local_assigns[:sortable] ? { first: index.zero?, last: index == assignments.size - 1 } : nil) %>
-    <% end %>
-    <% bench.sort_by(&:to).reverse_each do |period| %>
-      <li class="dossier-assignment-row dossier-assignment-row--bench" data-testid="timeline-bench">
-        <%= link_to "Bench · #{period.duration}", period_path_for(period), data: { testid: "timeline-bench-label" } %>
-        <span class="dossier-assignment-row__dates"><%= period.date_range %></span>
-      </li>
+    <% Dossier::Timeline.interleave(assignments, bench + others).each do |row| %>
+      <% case row %>
+      <% when Dossier::Timeline::Period %>
+        <li class="dossier-assignment-row dossier-assignment-row--bench" data-testid="timeline-bench">
+          <%= link_to "Bench · #{row.duration}", period_path_for(row), data: { testid: "timeline-bench-label" } %>
+          <span class="dossier-assignment-row__dates"><%= row.date_range %></span>
+        </li>
+      <% when Dossier::Timeline::Others %>
+        <li class="dossier-assignment-row dossier-assignment-row--bench" data-testid="engagement-other-engagements">
+          <span>Gap - Other Engagements · <%= row.duration %>:
+            <%= safe_join(row.engagements.map { |other| link_to other.heading, dossier_engagement_path(other) }, ", ") %></span>
+          <span class="dossier-assignment-row__dates"><%= row.date_range %></span>
+        </li>
+      <% else %>
+        <% index = assignments.index(row) %>
+        <%= render "dossier/assignments/row", assignment: row, logo: true,
+                   moves: (local_assigns[:sortable] ? { first: index.zero?, last: index == assignments.size - 1 } : nil) %>
+      <% end %>
     <% end %>
   </ul>
 <% end %>

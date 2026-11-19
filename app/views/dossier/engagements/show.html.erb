@@ -21,7 +21,7 @@
   <div class="show-meta-row">
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Employer</h3>
-      <p class="show-meta-cell__value" data-testid="engagement-employer"><%= @engagement.employer.label %></p>
+      <p class="show-meta-cell__value" data-testid="engagement-employer"><%= @engagement.employer&.label || "None" %></p>
     </div>
     <div class="show-meta-cell">
       <h3 class="show-meta-cell__label">Employment Type</h3>
@@ -38,18 +38,20 @@
   </div>
 </div>
 
-<%# Assignments div %>
-<div class="show-panel" data-testid="engagement-assignments">
-  <div class="show-panel__section">
-    <h2 class="show-panel__heading">Assignments</h2>
-    <% if @engagement.assignments.any? %>
-      <%= render "dossier/engagements/assignment_list", engagement: @engagement,
-                 bench: Dossier::Timeline.bench_for(@engagement), sortable: policy.can_update? %>
-    <% else %>
-      <p>No Assignments yet.</p>
-    <% end %>
+<%# Assignments div — none for a career break %>
+<% unless @engagement.career_break? %>
+  <div class="show-panel" data-testid="engagement-assignments">
+    <div class="show-panel__section">
+      <h2 class="show-panel__heading">Assignments</h2>
+      <% if @engagement.assignments.any? %>
+        <%= render "dossier/engagements/assignment_list", engagement: @engagement,
+                   bench: Dossier::Timeline.bench_for(@engagement), others: @other_engagements, sortable: policy.can_update? %>
+      <% else %>
+        <p>No Assignments yet.</p>
+      <% end %>
+    </div>
   </div>
-</div>
+<% end %>
 
 <%# Training div — courses taken during this Engagement, on any of its Assignments %>
 <%= render "dossier/credentials/panel", credentials: @engagement.credentials.training.newest_first.includes(:provider, credential_skills: :skill) %>
@@ -78,9 +80,11 @@
   <% end %>
 
   <% if policy.can_update? %>
-    <span class="btn-divider">|</span>
-    <%= link_to new_dossier_assignment_path(engagement_id: @engagement.id), class: "btn btn-primary-action" do %>
-      <%= lucide_icon("plus", size: 16) %> Add Assignment
+    <% unless @engagement.career_break? %>
+      <span class="btn-divider">|</span>
+      <%= link_to new_dossier_assignment_path(engagement_id: @engagement.id), class: "btn btn-primary-action", data: { testid: "add-assignment" } do %>
+        <%= lucide_icon("plus", size: 16) %> Add Assignment
+      <% end %>
     <% end %>
     <span class="btn-divider">|</span>
     <%= link_to new_dossier_credential_path(engagement_id: @engagement.id), class: "btn btn-primary-action" do %>

@@ -36,6 +36,7 @@ class Dossier::Assignment < ApplicationRecord
   before_validation { self.user_id = engagement&.user_id }
 
   validate :fits_within_engagement
+  validate :not_under_career_break
 
   # A new Assignment goes to the top of its Engagement.
   before_create { self.position ||= (siblings.minimum(:position) || 1) - 1 }
@@ -102,6 +103,10 @@ class Dossier::Assignment < ApplicationRecord
   private
 
   def name_part(role) = project || (role_name if role)
+
+  def not_under_career_break
+    errors.add(:engagement, "is a career break, which has no Assignments") if engagement&.career_break?
+  end
 
   def fits_within_engagement
     return if engagement.nil? || start_on.nil? || engagement.start_on.nil?

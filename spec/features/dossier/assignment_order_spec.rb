@@ -78,14 +78,14 @@ RSpec.describe "Dossier Assignment order", type: :feature do
         .tap { |job| job.assignments.each(&:destroy!) }
     end
 
-    it "Lists a permanent job's bench time after the Assignments, newest first, and disables Up on the top row and Down on the bottom" do
+    it "Lists a permanent job's bench time among the Assignments by date, and disables Up on the top Assignment and Down on the bottom one" do
       assignment("Digital Licencing", "2024-09", "2025-01")
       assignment("FSIP", "2025-06", "2025-12")
       sign_in_as(charlie)
       visit dossier_engagement_path(engagement)
 
       kinds = all(".dossier-assignment-list > li").map { |row| row["data-testid"] }
-      expect(kinds).to eq(%w[assignment-row assignment-row timeline-bench timeline-bench])
+      expect(kinds).to eq(%w[timeline-bench assignment-row timeline-bench assignment-row])
       expect(all("[data-testid='timeline-bench'] .dossier-assignment-row__dates").map(&:text))
         .to eq([ "Jan 2026 – Dec 2026", "Feb 2025 – May 2025" ])
       expect(all("[data-testid='assignment-move-up']").first).to be_disabled

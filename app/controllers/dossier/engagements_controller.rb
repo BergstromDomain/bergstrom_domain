@@ -34,6 +34,8 @@ class Dossier::EngagementsController < ApplicationController
     end
     ActiveRecord::Associations::Preloader.new(records: [ @engagement ], associations: { assignments: { client: { logo_attachment: :blob } } }).call
     Dossier::Assignment.preload_heading(@engagement.assignments)
+    @other_engagements = Dossier::Timeline.other_engagements_for(@engagement)
+    ActiveRecord::Associations::Preloader.new(records: @other_engagements.flat_map(&:engagements), associations: :employer).call
     @contributions = @engagement.contributions.kept.newest_first.includes(:event, contribution_skills: :skill)
                                 .select { |contribution| Policy.new(current_user, contribution).can_read? }
   end

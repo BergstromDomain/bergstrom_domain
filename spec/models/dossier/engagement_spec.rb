@@ -5,7 +5,7 @@ RSpec.describe Dossier::Engagement, type: :model do
   # ── Database Columns ──────────────────────────────────────────────────────
   describe "Database Columns" do
     it { is_expected.to have_db_column(:user_id).of_type(:integer).with_options(null: false) }
-    it { is_expected.to have_db_column(:employer_id).of_type(:integer).with_options(null: false) }
+    it { is_expected.to have_db_column(:employer_id).of_type(:integer) }
     it { is_expected.to have_db_column(:employment_type_id).of_type(:integer).with_options(null: false) }
     it { is_expected.to have_db_column(:position_title).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:start_on).of_type(:date).with_options(null: false) }
@@ -87,6 +87,13 @@ RSpec.describe Dossier::Engagement, type: :model do
   end
 
   describe "Negative Path" do
+    it "Is invalid without an employer, unless it's a career break" do
+      engagement = build(:dossier_engagement, employer: nil)
+      expect(engagement).not_to be_valid
+      expect(engagement.errors[:employer]).to include("must exist")
+      expect(build(:dossier_engagement, :career_break)).to be_valid
+    end
+
     it "Is invalid without a position title" do
       engagement = build(:dossier_engagement, position_title: " ")
       expect(engagement).not_to be_valid
@@ -150,6 +157,17 @@ RSpec.describe Dossier::Engagement, type: :model do
 
     it "Gives a non-permanent job no Assignment of its own" do
       expect(create(:dossier_engagement).assignments).to be_empty
+    end
+
+    it "Heads a career break without an employer by its Position Title" do
+      time_off = build(:dossier_engagement, :career_break, position_title: "Time off")
+      expect([ time_off.heading, time_off.to_toast_label ]).to eq([ "Time off", "Time off" ])
+    end
+
+    it "Lets a career break have an employer, heading it by the employer's name" do
+      employer = create(:dossier_organisation, name: "Antenn Consulting")
+      time_off = create(:dossier_engagement, :career_break, employer: employer, position_title: "Career change")
+      expect([ time_off.heading, time_off.to_toast_label ]).to eq([ "Antenn Consulting", "Career change at Antenn Consulting" ])
     end
   end
 

@@ -93,7 +93,7 @@ class Dossier::CvDocument
 
   # [[personal?, Job], …], newest first.
   def jobs
-    @jobs ||= @user.dossier_engagements.kept.newest_first
+    @jobs ||= @user.dossier_engagements.kept.without_career_breaks.newest_first
                    .includes(:employer, :employment_type,
                              assignments: [ :client, :role, :location, :achievements, { assignment_skills: { skill: :parent } } ])
                    .select { |engagement| shown?(engagement) }

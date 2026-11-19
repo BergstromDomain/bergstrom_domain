@@ -13,7 +13,8 @@ class Dossier::Engagement < ApplicationRecord
 
   DELETION_RETENTION_PERIOD = 30.days
 
-  belongs_to :employer, class_name: "Dossier::Organisation"
+  # A career break needs none; every other Engagement does.
+  belongs_to :employer, class_name: "Dossier::Organisation", optional: true
   belongs_to :employment_type
   # Deleted Assignments go too, so all_assignments does the destroying.
   has_many   :all_assignments, class_name: "Dossier::Assignment", dependent: :destroy
@@ -28,6 +29,7 @@ class Dossier::Engagement < ApplicationRecord
   normalizes :position_title, with: ->(value) { value.strip }
   normalizes :summary, with: ->(value) { value.strip.presence }
 
+  validates :employer, presence: { message: :required }, unless: :career_break?
   validates :position_title, presence: true
   validate  :assignments_fit_within_dates, on: :update
 
@@ -36,6 +38,8 @@ class Dossier::Engagement < ApplicationRecord
 
   scope :kept,      -> { where(deleted_at: nil) }
   scope :discarded, -> { where.not(deleted_at: nil) }
+  # What experience and the CV count: everything but career breaks.
+  scope :without_career_breaks, -> { where(employment_type_id: Dossier::EmploymentType.where(career_break: false).select(:id)) }
 
   def permanent?
     employment_type&.permanent?
@@ -43,6 +47,10 @@ class Dossier::Engagement < ApplicationRecord
 
   def personal?
     employment_type&.personal? || false
+  end
+
+  def career_break?
+    employment_type&.career_break? || false
   end
 
   # Its Colleagues are the owner's and Admins' alone, whatever its classification.
@@ -61,11 +69,11 @@ class Dossier::Engagement < ApplicationRecord
   end
 
   # The Timeline card's and the page's title: the organisation, the Position
-  # Title being in the details.
-  def heading = employer&.name.to_s
+  # Title being in the details. A career break without one goes by its Position Title.
+  def heading = employer ? employer.name : position_title.to_s
 
   def to_toast_label
-    "#{position_title} at #{employer&.name}"
+    employer ? "#{position_title} at #{employer.name}" : position_title.to_s
   end
 
   private

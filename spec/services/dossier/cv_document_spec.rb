@@ -277,6 +277,15 @@ RSpec.describe Dossier::CvDocument do
       expect(cv.personal_projects.map(&:title)).to eq([ "Home Lab" ])
     end
 
+    it "Leaves career breaks out of both Experience and Personal Projects" do
+      profile
+      engagement(position_title: "Test Consultant")
+      engagement(:career_break, position_title: "Time off")
+
+      expect(cv.experience.map(&:title)).to eq([ "Test Consultant" ])
+      expect(cv.personal_projects).to be_empty
+    end
+
     it "Folds a permanent job's single synced Assignment into its Engagement" do
       profile
       job = engagement(:permanent, position_title: "QA Engineer")

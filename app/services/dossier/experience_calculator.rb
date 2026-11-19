@@ -102,7 +102,7 @@ class Dossier::ExperienceCalculator
   end
 
   def engagements
-    @engagements ||= @user.dossier_engagements.kept.includes(:employment_type, :assignments).to_a
+    @engagements ||= @user.dossier_engagements.kept.without_career_breaks.includes(:employment_type, :assignments).to_a
   end
 
   def professional_engagements = @professional_engagements ||= engagements.reject(&:personal?)

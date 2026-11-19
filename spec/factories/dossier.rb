@@ -23,6 +23,10 @@ FactoryBot.define do
     trait :personal do
       personal { true }
     end
+
+    trait :career_break do
+      career_break { true }
+    end
   end
 
   factory :dossier_location, class: "Dossier::Location" do
@@ -64,6 +68,13 @@ FactoryBot.define do
 
     trait :personal do
       association :employment_type, factory: [ :dossier_employment_type, :personal ]
+    end
+
+    # A career break: no Employer, its Position Title naming it.
+    trait :career_break do
+      association :employment_type, factory: [ :dossier_employment_type, :career_break ]
+      employer { nil }
+      position_title { "Time off" }
     end
   end
 

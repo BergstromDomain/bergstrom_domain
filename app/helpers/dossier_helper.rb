@@ -108,7 +108,12 @@ module DossierHelper
 
   def organisation_logo(organisation, size: :medium)
     classes = "organisation-logo organisation-logo--#{size}"
-    if organisation.logo.attached?
+    if organisation.nil?
+      # A career break without an employer.
+      tag.span lucide_icon("calendar-off", size: ORGANISATION_LOGO_ICON_SIZES.fetch(size)),
+               class: "#{classes} organisation-logo--placeholder", title: "Career break",
+               data: { testid: "career-break-icon" }
+    elsif organisation.logo.attached?
       image_tag organisation.logo.variant(:thumbnail), alt: "#{organisation.name} logo", class: classes,
                                                        data: { testid: "organisation-logo" }
     else

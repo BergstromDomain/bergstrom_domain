@@ -914,7 +914,8 @@ CREATE TABLE public.dossier_employment_types (
     slug character varying,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    personal boolean DEFAULT false NOT NULL
+    personal boolean DEFAULT false NOT NULL,
+    career_break boolean DEFAULT false NOT NULL
 );
 
 
@@ -978,7 +979,7 @@ ALTER SEQUENCE public.dossier_engagement_colleagues_id_seq OWNED BY public.dossi
 CREATE TABLE public.dossier_engagements (
     id bigint NOT NULL,
     user_id bigint NOT NULL,
-    employer_id bigint NOT NULL,
+    employer_id bigint,
     employment_type_id bigint NOT NULL,
     position_title character varying NOT NULL,
     start_on date NOT NULL,
@@ -4658,6 +4659,7 @@ ALTER TABLE ONLY public.dossier_achievement_skills
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261119100000'),
 ('20261114100000'),
 ('20261114090000'),
 ('20261113090000'),

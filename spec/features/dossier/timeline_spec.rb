@@ -17,6 +17,27 @@ RSpec.describe "Dossier Timeline", type: :feature do
       .tap { |job| job.assignments.each(&:destroy!) }
   end
 
+  def assignment(job, project, start_month, end_month)
+    create(:dossier_assignment, engagement: job, project: project, start_month: start_month, end_month: end_month,
+                                client: create(:dossier_organisation, name: "Client #{project}"))
+  end
+
+  # The rows of a list, top to bottom: Assignments by project, bench by label.
+  def rows(within_selector)
+    find(within_selector).all(".dossier-assignment-list > li").map do |row|
+      row.find("a", match: :first).text
+    end
+  end
+
+  # PinnacleQM's shape: a contract with EIP, then TMR, and Hudson between them.
+  def split_contract
+    contract = engagement("PinnacleQM", "2018-11", "2023-01")
+    assignment(contract, "EIP", "2018-11", "2019-08")
+    assignment(contract, "TMR", "2020-09", "2023-01")
+    engagement("Hudson", "2019-12", "2020-09")
+    contract
+  end
+
   # 1) Happy Path ─────────────────────────────────────────────────────────────
   describe "Happy Path" do
     it "Shows the gap between two Engagements and bench time inside one" do
@@ -90,6 +111,53 @@ RSpec.describe "Dossier Timeline", type: :feature do
     end
   end
 
+  describe "Happy Path: career breaks, bench placement and split Engagements" do
+    it "Shows a career break with its badge, the gap still beside it" do
+      engagement("Tilgin", "2005-03", "2012-09")
+      engagement("SMS", "2013-05", "2018-11")
+      create(:dossier_engagement, :career_break, user: charlie, position_title: "Time off", start_month: "2012-10", end_month: "2013-04")
+      sign_in_as(charlie)
+      visit dossier_engagements_path
+
+      within("[data-testid='engagement-card']", text: "Time off") do
+        expect(page).to have_selector("[data-testid='engagement-title']", exact_text: "Time off")
+        expect(page).to have_selector("[data-testid='engagement-career-break']", exact_text: "Career Break")
+        expect(page).to have_selector("[data-testid='career-break-icon']")
+      end
+      expect(page).to have_selector("[data-testid='timeline-gap']", text: "Oct 2012 – Apr 2013")
+    end
+
+    it "Places a bench between the Assignments either side of it, on the Timeline and the Engagement page" do
+      elysium = permanent("Elysium", "2024-09", "")
+      assignment(elysium, "QPT", "2024-09", "2025-05")
+      assignment(elysium, "DL", "2025-08", "") # a new Assignment goes on top
+      sign_in_as(charlie)
+
+      visit dossier_engagements_path
+      expect(rows("[data-testid='engagement-card']")).to eq([ "Client DL - DL", "Bench · 2 months", "Client QPT - QPT" ])
+      visit dossier_engagement_path(elysium)
+      expect(rows("[data-testid='engagement-assignments']")).to eq([ "Client DL - DL", "Bench · 2 months", "Client QPT - QPT" ])
+    end
+
+    it "Splits a contract into two cards around another Engagement, the space before it a gap" do
+      contract = split_contract
+      sign_in_as(charlie)
+      visit dossier_engagements_path
+
+      cards = all("[data-testid='engagement-card']")
+      expect(cards.map { |card| card.find("[data-testid='engagement-title']").text }).to eq(%w[PinnacleQM Hudson PinnacleQM])
+      expect(cards.map { |card| card.find("[data-testid='engagement-dates']").text })
+        .to eq([ "Sep 2020 – Jan 2023", "Dec 2019 – Sep 2020", "Nov 2018 – Aug 2019" ])
+      expect(cards.first).to have_selector("[data-testid='assignment-row']", count: 1, text: "TMR")
+      expect(cards.last).to have_selector("[data-testid='assignment-row']", count: 1, text: "EIP")
+      expect(cards.first).to have_link("PinnacleQM", href: dossier_engagement_path(contract))
+      expect(cards.last).to have_link("PinnacleQM", href: dossier_engagement_path(contract))
+
+      click_link "Gap · 3 months"
+      expect(page).to have_current_path(dossier_period_path(from: "2019-09-01", to: "2019-11-30"))
+    end
+  end
+
   # 2) Negative Path ──────────────────────────────────────────────────────────
   describe "Negative Path" do
     it "Leaves deleted Engagements out, so they don't hide a gap" do
@@ -142,6 +210,26 @@ RSpec.describe "Dossier Timeline", type: :feature do
 
   # 4) Edge Cases ─────────────────────────────────────────────────────────────
   describe "Edge Cases" do
+    it "Keeps a contract as one card when nothing else falls between its Assignments" do
+      contract = engagement("PinnacleQM", "2018-11", "2023-01")
+      assignment(contract, "EIP", "2018-11", "2019-08")
+      assignment(contract, "TMR", "2020-09", "2023-01")
+      sign_in_as(charlie)
+      visit dossier_engagements_path
+
+      expect(page).to have_selector("[data-testid='engagement-card']", count: 1)
+      expect(page).to have_selector("[data-testid='assignment-row']", count: 2)
+      expect(page).not_to have_selector("[data-testid='timeline-gap']")
+    end
+
+    it "Shows a permanent job without Assignments as one bench row" do
+      permanent("Antenn", "2004-01", "2005-01")
+      sign_in_as(charlie)
+      visit dossier_engagements_path
+
+      expect(rows("[data-testid='engagement-card']")).to eq([ "Bench · 1+ year" ])
+    end
+
     it "Shows no gap or bench rows for back-to-back, fully covered Engagements" do
       first = engagement("First", "2015-01", "2017-12")
       second = engagement("Second", "2018-01", "2022-06")

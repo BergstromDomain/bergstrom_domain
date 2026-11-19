@@ -690,6 +690,27 @@ RSpec.describe "Eager loading", type: :request do
       expect(Bullet.enable?).to be(false)
     end
 
+    it "Loads the Timeline and Engagement pages with split cards, career breaks and bench without N+1 or unused eager loading" do
+      sign_in_as(adam)
+      2.times do |i|
+        contract = create(:dossier_engagement, user: adam, start_month: "201#{i * 4}-01", end_month: "201#{i * 4 + 3}-12")
+        create(:dossier_assignment, engagement: contract, project: "First", start_month: "201#{i * 4}-01", end_month: "201#{i * 4}-06")
+        create(:dossier_assignment, engagement: contract, project: "Second", start_month: "201#{i * 4 + 2}-01", end_month: "201#{i * 4 + 3}-12")
+        create(:dossier_engagement, user: adam, start_month: "201#{i * 4 + 1}-01", end_month: "201#{i * 4 + 1}-06")
+        create(:dossier_engagement, :career_break, user: adam, start_month: "201#{i * 4 + 1}-07", end_month: "201#{i * 4 + 1}-12")
+      end
+      consultancy = create(:dossier_engagement, :permanent, user: adam, start_month: "2020-01", end_month: "2021-12")
+      consultancy.assignments.sole.update!(end_month: "2020-06", project: "Synced")
+      create(:dossier_assignment, engagement: consultancy, project: "Later", start_month: "2021-01", end_month: "2021-12")
+
+      without_n_plus_one_queries { get dossier_engagements_path }
+      expect(response.body).to include("Career Break")
+      Dossier::Engagement.where(user: adam).find_each do |engagement|
+        without_n_plus_one_queries { get dossier_engagement_path(engagement) }
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
     it "Loads every page that heads Assignments without unused eager loading when each has a Project" do
       sign_in_as(adam)
       type = create(:dossier_employment_type, name: "Consultant")

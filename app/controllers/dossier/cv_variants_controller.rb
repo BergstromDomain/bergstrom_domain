@@ -102,7 +102,7 @@ class Dossier::CvVariantsController < ApplicationController
   def load_selectable
     owner = @variant.user
     @selection = Dossier::CvSelection.new(@variant)
-    @engagements = owner.dossier_engagements.kept.newest_first
+    @engagements = owner.dossier_engagements.kept.without_career_breaks.newest_first
                         .includes(:employer, :employment_type, assignments: [ :client, :role, :achievements ]).to_a
     skills = Dossier::ExperienceCalculator.new(owner).technical_skills.map(&:skill)
     ActiveRecord::Associations::Preloader.new(records: skills, associations: { skill_category: :parent }).call
