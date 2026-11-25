@@ -1,0 +1,13 @@
+schema_version: "1.1"
+name: restructures-docket-notes
+expected_outcome: |
+  Docket_App.md is restructured into the App template's sections (TASK, APP DESCRIPTION, DESIGN
+  GUIDELINES, PERMISSIONS MATRIX, DATA MODEL, DEVELOPMENT BLOCKS, Left Navbar, DEFINITION OF DONE,
+  DEFERRED, OPEN QUESTIONS) while keeping every requirement the user wrote: shared ownership of
+  todo lists, multi-level categories created by admins, status and due dates, filtering by
+  author/category/date, 30-day restorable delete, and the request to suggest a better name for
+  "Sub-Sub Category". It notices the leftover blog-post wording in the old notes and raises it as
+  a question rather than copying it silently. Questions are numbered with A: lines, Block 0
+  blockers starred, and no code is written.
+context:
+  scaffold_script: place-files.sh

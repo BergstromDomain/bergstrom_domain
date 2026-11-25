@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: builds-block-0-docket
+expected_outcome: |
+  Block 0 for Docket is built test-first on a feature branch (not main): commit tooling gets the
+  Docket prefix in its own Main: build commit, then the scaffold adds the docket enum values,
+  Policy mapping, route and public pages#docket landing page with the Docket hero image, an
+  alphabetical Apps menu entry, a Navigable branch, a left nav with Views (Docket, list-checks
+  icon) and Documentation only, the four-section landing page spec and spec updates, and CLAUDE.md
+  updates. No models or migrations are created, LIVE_APPS is left alone, the touched specs pass,
+  and the scaffold checker reports every check passing.
+context:
+  scaffold_script: place-files.sh
