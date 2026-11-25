@@ -16,7 +16,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          # ubuntu-latest images only ship the latest patch of each series; .ruby-version pins 4.0.0 locally
+          # ubuntu-latest images only ship the latest patch of each series; .ruby-version pins 4.0.10 locally
           ruby-version: "4.0"
           bundler-cache: true
 
@@ -38,7 +38,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          # ubuntu-latest images only ship the latest patch of each series; .ruby-version pins 4.0.0 locally
+          # ubuntu-latest images only ship the latest patch of each series; .ruby-version pins 4.0.10 locally
           ruby-version: "4.0"
           bundler-cache: true
 
@@ -57,7 +57,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          # ubuntu-latest images only ship the latest patch of each series; .ruby-version pins 4.0.0 locally
+          # ubuntu-latest images only ship the latest patch of each series; .ruby-version pins 4.0.10 locally
           ruby-version: "4.0"
           bundler-cache: true
 
@@ -107,7 +107,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          # ubuntu-latest images only ship the latest patch of each series; .ruby-version pins 4.0.0 locally
+          # ubuntu-latest images only ship the latest patch of each series; .ruby-version pins 4.0.10 locally
           ruby-version: "4.0"
           bundler-cache: true
 
@@ -173,7 +173,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          # ubuntu-latest images only ship the latest patch of each series; .ruby-version pins 4.0.0 locally
+          # ubuntu-latest images only ship the latest patch of each series; .ruby-version pins 4.0.10 locally
           ruby-version: "4.0"
           bundler-cache: true
 
