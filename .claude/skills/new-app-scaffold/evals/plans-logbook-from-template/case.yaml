@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: plans-logbook-from-template
+expected_outcome: |
+  Logbook_App.md is rewritten from the raw template into a concrete plan for a sport and
+  activity tracker: no [ITEM]/[APP NAME] placeholders left, a filled permissions matrix, a data
+  model (workouts, activity types, totals, personal bests), numbered development blocks starting
+  with Block 0 (app scaffold), Chronicle-only examples adapted or removed, verified Lucide icon
+  candidates, and numbered offline-answerable questions with empty A: lines, the Block 0 blockers
+  starred. No application code, specs or config is changed and nothing is committed; the reply
+  summarises in plain text and stops for the user.
+context:
+  scaffold_script: place-files.sh
