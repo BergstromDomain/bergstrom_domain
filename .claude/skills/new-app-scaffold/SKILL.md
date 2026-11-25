@@ -127,7 +127,27 @@ ruby .claude/skills/new-app-scaffold/scripts/check_scaffold.rb --prefix Docket -
 bundle exec rspec spec/features/pages spec/features/layouts spec/models/policy_spec.rb spec/models/app_permission_spec.rb spec/models/user_app_setting_spec.rb spec/models/guide_page_spec.rb spec/requests/left_nav_spec.rb
 ```
 
-The script checks every touch point and the Apps menu order, and exits non-zero listing what's missing. Then run the full pre-push chain (bundler-audit, brakeman, rubocop, full rspec).
+The script checks every touch point and the Apps menu order, and exits non-zero listing what's missing.
+
+### 5b. Run CI's checks locally before pushing
+
+`.githooks/pre-push` only validates commit messages. It does **not** run the scanners or the specs, so a push can pass locally and still fail on GitHub. Run what CI runs, with the same commands, before every push:
+
+```bash
+bin/brakeman --no-pager -i config/brakeman.ignore
+bundle exec bundler-audit check --update
+bin/importmap-audit
+bin/rubocop
+bundle exec rspec
+```
+
+**Brakeman exit code 5** ("Brakeman X is not the latest version Y") is not a security finding. `bin/brakeman` adds `--ensure-latest`, so CI fails as soon as a newer Brakeman is released, even on a branch that never touched the Gemfile. Fix it before pushing:
+
+- `bundle update brakeman --conservative`, then rerun `bin/brakeman`;
+- commit `Gemfile.lock` on its own as `Main: build: bump brakeman to <version>`;
+- if the branch is already pushed and CI failed this way, add that commit to the same branch and push again.
+
+`--ensure-latest` and `bundler-audit --update` need network access. If the sandbox blocks them, say so and give the user the commands to run, rather than reporting the checks as passed.
 
 Finish with the manual check. Visit `/<route>` in `bin/dev` as a guest and as a content creator, open the Apps menu, and confirm the left nav. If localhost isn't reachable from this sandbox, ask the user to do it and say that you couldn't.
 
@@ -135,7 +155,7 @@ Finish with the manual check. Visit `/<route>` in `bin/dev` as a guest and as a 
 
 - **CLAUDE.md:** add the app to "What this is" (`<Prefix>` → "<Brand>" (…): in progress, per the doc, Block 0 done). Add the enum key to the `app_name` list in the Roles section, and the prefix to the Apps list under Commit conventions.
 - **Planning doc:** under Block 0, add a dated "**Done YYYY-MM-DD.** Decisions confirmed at the Block 0 gate:" list.
-- **Commit:** `<Prefix>: feat: add the <Brand> app scaffold and landing page`, using the repo's single-space style. Push the branch, then give the user a PR title and body to paste. `gh` can't create PRs with their token.
+- **Commit:** `<Prefix>: feat: add the <Brand> app scaffold and landing page`, using the repo's single-space style. Push the branch only after step 5b is clean, then give the user a PR title and body to paste. `gh` can't create PRs with their token.
 - Stop at the confirmation gate for Block 1.
 
 ## What not to do
