@@ -146,6 +146,8 @@ bundle exec rspec
 - `bundle update brakeman --conservative`, then rerun `bin/brakeman`;
 - commit `Gemfile.lock` on its own as `Main: build: bump brakeman to <version>`;
 - if the branch is already pushed and CI failed this way, add that commit to the same branch and push again.
+- Watch the `Gemfile.lock` diff. On this repo `bundle update` also removes the plain-`ruby` platform builds (nokogiri, commonmarker). Keep only the brakeman lines.
+- A newer Brakeman often brings new checks, so rerun it after the bump. **Exit code 3 means real warnings.** Fix them rather than adding them to `config/brakeman.ignore`, which is only for reviewed false positives. Brakeman 8.1.1, for example, flagged Ruby 4.0.0 (CVE-2026-132825); the fix was a Ruby upgrade in its own `Main: build:` PR. That kind of fix doesn't belong on an app branch. Tell the user, and expect this branch's Brakeman check to stay red until the fix is merged to `main` and this branch is rebased.
 
 `--ensure-latest` and `bundler-audit --update` need network access. If the sandbox blocks them, say so and give the user the commands to run, rather than reporting the checks as passed.
 
